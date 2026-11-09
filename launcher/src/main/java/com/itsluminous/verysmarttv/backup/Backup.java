@@ -53,8 +53,12 @@ import com.itsluminous.verysmarttv.theme.ThemeKeys;
  * {"version": 1, "package": "com.itsluminous.verysmarttv", "exported_at": "2026-11-02T14:44:00Z",
  *  "prefs": {"launcher_settings": {"columns": {"type": "int", "value": 6}}},
  *  "files": {"order.txt": {"text": "verysmarttv-order 1\n..."}},
- *  "theme": {"config.json": {"text": "{...}"}, "wallpaper.jpg": {"base64": "..."}}}
+ *  "theme": {"config.json": {"text": "{...}"}, "wallpaper.jpg": {"base64": "..."}},
+ *  "companions": {"livescore": {"json": "{...}"}}}
  * </pre>
+ *
+ * The {@code companions} section ({@link Companions}) carries what the live-score companion keeps, read and restored
+ * through its provider; it is absent when that app is not installed, and a restore skips it then.
  *
  * {@link #restore} checks only {@code version} and {@code prefs}, never {@code package}: a backup the fork's launcher
  * wrote restores here (its order.txt header is read by Order, its Widgets tick list migrated by Config). It
@@ -93,6 +97,9 @@ public final class Backup {
         root.put("prefs", exportPrefs(ctx));
         root.put("files", exportFiles(ctx.getFilesDir(), stateFiles(ctx.getFilesDir())));
         root.put("theme", exportFiles(Config.dir(ctx), themeFiles(Config.dir(ctx))));
+        // What the companions keep (the live-score follow list), through their providers; absent when none is installed.
+        JSONObject companions = Companions.export(ctx);
+        if (companions != null) root.put(Companions.KEY, companions);
         return root;
     }
 
@@ -296,6 +303,8 @@ public final class Backup {
         // The theme files were just written, so their stamp is new: adopt it, or Config would read the write as a
         // theme push and clear the layout choices that came back with the preferences.
         Config.adoptThemeFiles(ctx);
+        // The companions' section, handed back through their providers; skipped when a companion is not installed.
+        Companions.restore(ctx, doc.optJSONObject(Companions.KEY));
         // Home rebuilds in onResume when the revision moved; past both what it saw and what the backup held.
         long restored = settings.getLong(SettingsChoices.SETTINGS_REVISION_KEY, 0);
         settings.edit().putLong(SettingsChoices.SETTINGS_REVISION_KEY, Math.max(revisionBefore, restored) + 1).commit();
