@@ -43,7 +43,7 @@ public class ThemeProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull Uri uri, @NonNull String selection, @NonNull String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         try {
             return file(uri).delete() ? 1 : 0;
         } catch (FileNotFoundException e) {
@@ -53,7 +53,7 @@ public class ThemeProvider extends ContentProvider {
 
     @Override public boolean onCreate() { return true; }
     @Override public @Nullable String getType(@NonNull Uri uri) { return null; }
-    @Override public @Nullable Cursor query(@NonNull Uri uri, @NonNull String[] p, @NonNull String s, @NonNull String[] a, @NonNull String o) { return null; }
-    @Override public @Nullable Uri insert(@NonNull Uri uri, @NonNull ContentValues values) { return null; }
-    @Override public int update(@NonNull Uri uri, @NonNull ContentValues v, @NonNull String s, @NonNull String[] a) { return 0; }
+    @Override public @Nullable Cursor query(@NonNull Uri uri, @Nullable String[] p, @Nullable String s, @Nullable String[] a, @Nullable String o) { return null; }
+    @Override public @Nullable Uri insert(@NonNull Uri uri, @Nullable ContentValues values) { return null; }
+    @Override public int update(@NonNull Uri uri, @Nullable ContentValues v, @Nullable String s, @Nullable String[] a) { return 0; }
 }

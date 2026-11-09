@@ -3,6 +3,7 @@ package com.itsluminous.verysmarttv.keys;
 import android.app.Activity;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * An invisible activity that closes right away. HomeKeyService opens it once at boot (stock_home_redirect):
@@ -11,7 +12,7 @@ import androidx.annotation.NonNull;
  */
 public class ProbeActivity extends Activity {
     @Override
-    protected void onCreate(@NonNull Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().getDecorView().post(this::close);
     }

@@ -22,6 +22,7 @@ import com.itsluminous.verysmarttv.theme.Config;
 import com.itsluminous.verysmarttv.home.LauncherLocale;
 import com.itsluminous.verysmarttv.R;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /** Remote-friendly settings owned by the launcher; system settings stay one row away. */
 public final class LauncherSettingsActivity extends Activity {
@@ -56,7 +57,7 @@ public final class LauncherSettingsActivity extends Activity {
     }
 
     @Override
-    protected void onCreate(@NonNull Bundle state) {
+    protected void onCreate(@Nullable Bundle state) {
         super.onCreate(state);
         choices = getSharedPreferences(SettingsChoices.SETTINGS_NAME, MODE_PRIVATE);
         Config config = Config.load(this);

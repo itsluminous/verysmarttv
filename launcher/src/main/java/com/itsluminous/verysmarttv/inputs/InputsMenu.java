@@ -110,7 +110,7 @@ public final class InputsMenu {
     public boolean openInputsIfAsked(@Nullable Intent intent) {
         if (intent == null || !HomeActivity.ACTION_VIEW_INPUTS.equals(intent.getAction())) return false;
         host.activity().setIntent(new Intent(Intent.ACTION_MAIN));
-        View anchor = host.findViewById(host.state().topMenu ? R.id.btnSettings : R.id.btnInputs);
+        View anchor = host.topBar().inputsAnchor();
         if (anchor.getVisibility() != View.VISIBLE) return true;
         if (anchor.isLaidOut()) {
             // Android 9 delivers a new intent to a paused activity with a brief resume and pause around it, and
@@ -268,7 +268,7 @@ public final class InputsMenu {
         // Read the switch, not the pill: show_inputs_pill=false hides the pill too, and there the list
         // keeps its usual place.
         boolean underGear = host.state().topMenu;
-        View anchor = host.findViewById(underGear ? R.id.btnSettings : R.id.btnInputs);
+        View anchor = host.topBar().inputsAnchor();
         View panel = host.activity().getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
 

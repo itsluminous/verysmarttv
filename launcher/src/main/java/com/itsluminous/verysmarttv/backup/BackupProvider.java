@@ -38,7 +38,7 @@ public class BackupProvider extends ContentProvider {
     static final String BACKUPS = "backups";
 
     @Override
-    public @NonNull ParcelFileDescriptor openFile(@NonNull Uri uri, @Nullable String mode) throws FileNotFoundException {
+    public @NonNull ParcelFileDescriptor openFile(@NonNull Uri uri, @NonNull String mode) throws FileNotFoundException {
         if (mode == null || mode.contains("w") || mode.contains("t")) throw new FileNotFoundException("read-only");
         List<String> path = uri.getPathSegments();
         if (path.size() != 1) throw new FileNotFoundException(String.valueOf(uri));
@@ -83,13 +83,13 @@ public class BackupProvider extends ContentProvider {
 
     /** One row naming the package, for a caller that only wants to know the provider is there. */
     @Override
-    public @NonNull Cursor query(@NonNull Uri uri, @NonNull String[] projection, @NonNull String selection, @NonNull String[] args, @NonNull String order) {
+    public @NonNull Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] args, @Nullable String order) {
         MatrixCursor c = new MatrixCursor(new String[]{"package", "version"});
         c.addRow(new Object[]{getContext().getPackageName(), Backup.VERSION});
         return c;
     }
 
-    @Override public @Nullable Uri insert(@NonNull Uri uri, @NonNull ContentValues values) { return null; }
-    @Override public int delete(@NonNull Uri uri, @NonNull String selection, @NonNull String[] args) { return 0; }
-    @Override public int update(@NonNull Uri uri, @NonNull ContentValues values, @NonNull String selection, @NonNull String[] args) { return 0; }
+    @Override public @Nullable Uri insert(@NonNull Uri uri, @Nullable ContentValues values) { return null; }
+    @Override public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] args) { return 0; }
+    @Override public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] args) { return 0; }
 }

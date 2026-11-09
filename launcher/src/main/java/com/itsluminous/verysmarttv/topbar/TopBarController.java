@@ -137,7 +137,7 @@ public final class TopBarController {
         public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities caps) {
             boolean validated = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
             // open_on_start_network_wait: the boot's app opens on the first validated network.
-            host.startup().onNetworkValidated();
+            if (validated) host.startup().onNetworkValidated();
             if (validated == lastValidated) return;
             lastValidated = validated;
             if (wifiNoInternetTint != null) host.handler().post(TopBarController.this::updateWifiLabel);
@@ -327,6 +327,18 @@ public final class TopBarController {
     public void focusPill(int id) {
         View pill = host.findViewById(id);
         if (pill != null) pill.requestFocus();
+    }
+
+    /** The Settings pill: the anchor of the gear's dropdowns and the Module cards list (§8 rule 1: the bar owns it). */
+    @NonNull
+    public View settingsPill() {
+        return host.findViewById(R.id.btnSettings);
+    }
+
+    /** The Inputs pill, or the Settings pill under top_menu: where the Inputs menu hangs. */
+    @NonNull
+    public View inputsAnchor() {
+        return host.state().topMenu ? settingsPill() : btnInputs;
     }
 
     /** top_bar_apps buttons, in bar order. */

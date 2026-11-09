@@ -9,6 +9,7 @@ import com.itsluminous.verysmarttv.theme.Config;
 import com.itsluminous.verysmarttv.home.LauncherLocale;
 import com.itsluminous.verysmarttv.R;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * The clock screensaver shown by Home itself after home_idle_clock_minutes without input. Some TVs' own
@@ -26,7 +27,7 @@ public class ClockActivity extends Activity {
 
     @Override
     @SuppressWarnings("deprecation")
-    protected void onCreate(@NonNull Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dream_clock);
         ClockFormat.apply(getWindow().getDecorView(), Config.load(this).clockFormat);

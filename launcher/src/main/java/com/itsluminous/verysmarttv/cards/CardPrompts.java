@@ -171,7 +171,7 @@ public final class CardPrompts {
     }
 
     private void showModuleCardsNow() {
-        View anchor = host.findViewById(R.id.btnSettings);
+        View anchor = host.topBar().settingsPill();
         View panel = host.activity().getLayoutInflater().inflate(R.layout.popup_cards, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
         final PopupWindow popup = host.popups().glassPopup(panel, (int) (400 * host.density()));

@@ -6,7 +6,7 @@ import android.content.Intent;
 
 /**
  * Opt in to leaving the home helper while the screen is off.
- * {@code adb shell am broadcast -a com.itsluminous.verysmarttv.action.GUARD -n com.itsluminous.verysmarttv/.GuardConfig --ez guard_off_in_standby true}
+ * {@code adb shell am broadcast -a com.itsluminous.verysmarttv.action.GUARD -n com.itsluminous.verysmarttv/.keys.GuardConfig --ez guard_off_in_standby true}
  */
 public class GuardConfig extends BroadcastReceiver {
     @Override

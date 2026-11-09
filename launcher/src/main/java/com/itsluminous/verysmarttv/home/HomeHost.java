@@ -9,15 +9,12 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.itsluminous.verysmarttv.cards.CardPrompts;
-import com.itsluminous.verysmarttv.clock.IdleClock;
 import com.itsluminous.verysmarttv.grid.AppAdapter;
 import com.itsluminous.verysmarttv.grid.DockEditSession;
 import com.itsluminous.verysmarttv.grid.GridController;
 import com.itsluminous.verysmarttv.grid.ReorderSession;
 import com.itsluminous.verysmarttv.inputs.InputsMenu;
-import com.itsluminous.verysmarttv.keys.KeyDispatcher;
 import com.itsluminous.verysmarttv.menus.GlassPopups;
-import com.itsluminous.verysmarttv.shelf.AmbientGlow;
 import com.itsluminous.verysmarttv.shelf.CarouselController;
 import com.itsluminous.verysmarttv.shelf.ShelfController;
 import com.itsluminous.verysmarttv.topbar.TopBarController;
@@ -82,8 +79,6 @@ public interface HomeHost {
     @NonNull
     CarouselController carousel();
 
-    @NonNull
-    AmbientGlow glow();
 
     @NonNull
     ReorderSession reorder();
@@ -91,9 +86,5 @@ public interface HomeHost {
     @NonNull
     DockEditSession dockEdit();
 
-    @NonNull
-    KeyDispatcher keys();
 
-    @NonNull
-    IdleClock idleClock();
 }

@@ -395,12 +395,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
 
     @Override
     @NonNull
-    public AmbientGlow glow() {
-        return glow;
-    }
-
-    @Override
-    @NonNull
     public ReorderSession reorder() {
         return reorder;
     }
@@ -409,18 +403,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     @NonNull
     public DockEditSession dockEdit() {
         return dockEdit;
-    }
-
-    @Override
-    @NonNull
-    public KeyDispatcher keys() {
-        return keys;
-    }
-
-    @Override
-    @NonNull
-    public IdleClock idleClock() {
-        return idleClock;
     }
 
     // ---- AppAdapter.TileListener: the grid controller answers ------------------------------------

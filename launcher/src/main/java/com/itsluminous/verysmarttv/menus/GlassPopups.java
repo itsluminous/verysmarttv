@@ -83,7 +83,7 @@ public final class GlassPopups {
 
     /** top_menu: the gear's dropdown, standing in for the Inputs, Wi-Fi and Settings pills. */
     public void showTopMenu() {
-        View anchor = host.findViewById(R.id.btnSettings);
+        View anchor = host.topBar().settingsPill();
         View panel = host.activity().getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (220 * host.density()));
@@ -112,7 +112,7 @@ public final class GlassPopups {
 
     /** The header opens launcher settings directly; hold OK keeps the extra home actions available. */
     public void showSettingsMenu() {
-        View anchor = host.findViewById(R.id.btnSettings);
+        View anchor = host.topBar().settingsPill();
         View panel = host.activity().getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (200 * host.density()));

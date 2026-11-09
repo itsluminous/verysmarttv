@@ -16,6 +16,7 @@ import com.itsluminous.verysmarttv.home.HomeActivity;
 import com.itsluminous.verysmarttv.R;
 import com.itsluminous.verysmarttv.home.HomeActivity;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * The panel the remote's Settings button opens when {@code settings_key_panel} is on (HomeKeyService):
@@ -31,7 +32,7 @@ public final class QuickSettingsActivity extends Activity {
 
 
     @Override
-    protected void onCreate(@NonNull Bundle state) {
+    protected void onCreate(@Nullable Bundle state) {
         super.onCreate(state);
         setContentView(R.layout.activity_quick_settings);
         findViewById(R.id.scrim).setOnClickListener(v -> finish());

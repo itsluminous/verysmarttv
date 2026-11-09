@@ -736,6 +736,4 @@ public final class Config {
         ctx.getSharedPreferences(SettingsChoices.SETTINGS_NAME, Context.MODE_PRIVATE).edit()
                 .putString(SettingsChoices.THEME_SIGNATURE_KEY, SettingsChoices.themeSignature(config, revision)).commit();
     }
-
-    /** Reads and parses the overlay; any problem means "no overlay", never a crash on the home screen. */
 }

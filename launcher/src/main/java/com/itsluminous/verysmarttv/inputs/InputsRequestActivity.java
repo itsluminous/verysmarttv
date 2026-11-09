@@ -7,6 +7,7 @@ import com.itsluminous.verysmarttv.keys.InputKeyService;
 import com.itsluminous.verysmarttv.home.LauncherLocale;
 import com.itsluminous.verysmarttv.home.HomeActivity;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Answers com.android.tv.action.VIEW_INPUTS, the system input switcher that the remote's Input button turns into
@@ -21,7 +22,7 @@ public class InputsRequestActivity extends Activity {
     }
 
     @Override
-    protected void onCreate(@NonNull Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         startActivity(new Intent(this, HomeActivity.class)
                 .setAction(HomeActivity.ACTION_VIEW_INPUTS)

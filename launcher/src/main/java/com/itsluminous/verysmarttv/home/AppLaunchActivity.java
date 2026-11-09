@@ -6,12 +6,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /** Handles market://launch?id=<package> (Android TV Remote "launch app" by package name), which the
  *  stock launcher normally serves: opens the app's TV launch intent, then the phone launch intent. */
 public class AppLaunchActivity extends Activity {
     @Override
-    protected void onCreate(@NonNull Bundle state) {
+    protected void onCreate(@Nullable Bundle state) {
         super.onCreate(state);
         try {
             Uri data = getIntent().getData();
