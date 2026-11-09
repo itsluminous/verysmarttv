@@ -60,7 +60,32 @@ releases with a verify-or-fail signature check), the Gradle version pins and the
 (`AppVersion`, `ReleaseSigning`) follow this repository's. Same author, same licence as VerySmartTV;
 the MIT notice above applies.
 
+## Data services
+
+### ESPN site feeds
+
+The live-score companion (`:livescore`) reads scores from ESPN's public, undocumented site feeds
+(`site.api.espn.com`, `site.web.api.espn.com`), the same endpoints the ESPN website and apps read, with no
+account and no key. **VerySmartTV is not affiliated with, endorsed by or sponsored by ESPN**; ESPN, the feed
+contents and the team and competition names are the property of their owners, shown here for the personal,
+non-commercial display of scores on the owner's own TV. ESPN publishes no terms for these feeds and may
+change or stop them without notice; the companion is built to fail soft when that happens (the last
+scores stay, marked stale, and the status line shows when they were last updated) and the adapter boundary
+`source/ScoreSource` is where a replacement goes (DESIGN.md §13.1, ADR-012). Nothing is fetched while no
+screen shows a score.
+
 ## Libraries
+
+### Kotlin standard library
+
+`org.jetbrains.kotlin:kotlin-stdlib`, Apache License 2.0, Copyright 2010-2026 JetBrains s.r.o. and Kotlin
+Programming Language contributors. The one runtime library of `:livescore`, added by AGP's built-in Kotlin
+support with the compiler's own version. https://www.apache.org/licenses/LICENSE-2.0
+
+### Outfit typeface
+
+Outfit, by Rodrigo Fuenzalida, SIL Open Font License 1.1 (`launcher/FONT-LICENSE-OFL.txt`). The launcher
+and both companions ship it in `res/font/outfit.ttf`. https://fonts.google.com/specimen/Outfit
 
 ### AndroidX Annotation
 

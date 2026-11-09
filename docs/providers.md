@@ -114,3 +114,46 @@ Backup (`backup.Companions`, ADR-032): the launcher's Backup document carries th
 `call("restore", null, Bundle{"json": …})` on the same authority, which answers `Bundle{"ok": true}` or
 `{"ok": false, "error": …}`. When the companion is not installed the section is left out of the export and skipped on
 restore, with one log line; the launcher's own sections are unaffected.
+
+### The companion's side (`:livescore`, Phase 4)
+
+What answers the provider is `ScoreProvider`, backed by `ScoreRepo`: the follow list (`files/follows.json`), the
+parsed events (`files/events.json`), the one source (`source/espn/EspnSource`, ESPN's public site feeds, ADR-012) and
+the refresh decisions (`RefreshPolicy`, DESIGN.md §13.5, ADR-014).
+
+- **Where the rows come from.** `/pill` is `PillChooser` over the followed events in the window (yesterday 00:00 to
+  tomorrow 23:59 local): live, then break, then upcoming within 12 h, then final within 6 h; ties by follow reason
+  (`event` > `team` > `competition`), then earliest start; two live matches followed for the same reason take 20 s
+  turns, the companion notifying between them for as long as something read the pill in the last 90 s. The `line`
+  and `kicker` are `LineFormatter`'s: cricket `T20I · AFG 19/4 (6) v ZIM` / `Test · BAN 386 & 49/2 v WI` /
+  `T20I · AFG won by 23 runs`; football `Premier League · ARS 2–1 CHE 67'`, upcoming `ISL · Bengaluru v Mumbai City`;
+  F1 `F1 · São Paulo GP · Lap 32 · VER leads`, `F1 · São Paulo GP · Race · Norris wins`; tennis
+  `Stockholm Open · Gojo 7-5 4-6 7-6 Brunold`. Kickers: `LIVE` (`#E53935`), the feed's break word in capitals
+  (`STUMPS`, `RAIN`, `HT`, `RED FLAG`, `#FFB300`), the local start time (`19:30`, `TOMORROW 19:30`, `SAT 19:30`),
+  `FT` / `RESULT` / `FINAL` (`#9E9E9E`). `stale` is 1 when the row is older than twice its refresh interval
+  (60 s live or break, 15 min for an upcoming event within a day, 6 h otherwise).
+- **`/events` columns** come straight from the source-neutral `Event`: `home_score`/`away_score` are the feed's own
+  strings (`386 & 184/4 (59 ov, target 369)`), `format` the cricket format, `status_detail` the feed's words
+  (`Stumps`, `FT`, `Lap 32`, `Round 2 · Set 3`), `summary` its sentence. `end_ms` of a final is when the companion first
+  saw it final, not the feed's scheduled last day (ESPN's cricket `endDate` is the fixture's end), so "shown for 6 h
+  after the end" counts from the real end.
+- **What a read triggers.** The query is answered from the cache at once. Then, if Live refresh is on, the companion
+  fetches every competition with a live or break followed event whose last fetch is older than 55 s, and every
+  competition with a followed event starting within 15 min (or started up to 3 h ago while the cache still says
+  upcoming) whose fetch is older than 15 min; one fetch per competition, cricket's scorepanel once for all. Nothing is
+  fetched offline, while a fetch runs, or inside a failure's backoff (1, 2, 4, 8 min). With no screen reading, a
+  one-off JobScheduler job runs 2 min before the next followed start and 3 min after it, and a periodic job every 6 h
+  refreshes the fixture list; both need a network.
+- **Fetches.** Cricket: `site.web.api.espn.com/apis/site/v2/sports/cricket/scorepanel?dates=yyyyMMdd` (today).
+  Football: `site.api.espn.com/apis/site/v2/sports/soccer/<league>/scoreboard?dates=yyyyMMdd`, today on a live refresh,
+  today and tomorrow on a full one (the bare URL answers ESPN's own current day, a range is refused). F1
+  `…/racing/f1/scoreboard?dates=<yesterday>-<tomorrow>`, tennis `…/tennis/<atp|wta>/scoreboard?dates=…`, tennis
+  only while a tennis follow exists. The open scoreboard also reads the cricket `summary` endpoint for the active
+  batters and bowlers. Every body is parsed as a stream (`android.util.JsonReader`); the raw text is never held.
+- **Follows** (`FollowStore`, §13.2): `{kind: sport|competition|team|event, sport, competition, team, event, label,
+  expires}` rows under `{"version": 1, "follows": [...]}`, at most 100; the first run writes the defaults (India, IPL,
+  ISL, Premier League, Champions League, F1; ADR-033). `/backup` returns that file verbatim; `restore` replaces it,
+  refuses anything that is not a version-1 follow list, and drops rows with an unknown kind or sport.
+- **Opening.** Besides the two components above, the companion answers the action
+  `com.itsluminous.livescore.action.OPEN` (`ScoreContract.ACTION_OPEN`): with `event_id` it shows that scoreboard,
+  without one its Home.
