@@ -123,8 +123,18 @@ jobs:
     timeout-minutes: 5
     outputs:
       code: ${{ steps.filter.outputs.code }}
+      androidtest: ${{ steps.androidtest.outputs.present }}
     steps:
       - uses: actions/checkout@v7
+
+      # Whether any module has instrumentation sources yet (none in Phases 0 and 1).
+      - id: androidtest
+        run: |
+          if find . -path '*/src/androidTest/*' -type f -print -quit | grep -q .; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - id: filter
         uses: dorny/paths-filter@v3
@@ -153,7 +163,7 @@ jobs:
     # Skipped entirely while no module has androidTest sources (Phases 0 and 1): booting an emulator
     # for an empty suite tells nobody anything.
     if: |
-      hashFiles('*/src/androidTest/**') != ''
+      needs.changes.outputs.androidtest == 'true'
       && (github.event_name == 'workflow_dispatch'
         || (github.event_name == 'push' && github.ref == 'refs/heads/main')
         || (github.event_name == 'pull_request' && needs.changes.outputs.code == 'true'))
