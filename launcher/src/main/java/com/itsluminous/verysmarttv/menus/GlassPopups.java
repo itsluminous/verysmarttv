@@ -88,16 +88,16 @@ public final class GlassPopups {
         LinearLayout rows = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (220 * host.density()));
         // Inputs opens its own list once this one has closed.
-        if (host.showInputsMenuRow()) host.inputs().addInputRow(rows, popup, R.drawable.ic_input, host.getString(R.string.inputs), -1, () -> root.post(host.inputs()::showInputs));
-        host.inputs().addInputRow(rows, popup, R.drawable.ic_wifi, host.getString(R.string.quick_network), -1, host::openNetworkPill);
-        CharSequence network = host.networkPillLabel();
+        if (host.topBar().showInputsMenuRow()) host.inputs().addInputRow(rows, popup, R.drawable.ic_input, host.getString(R.string.inputs), -1, () -> root.post(host.inputs()::showInputs));
+        host.inputs().addInputRow(rows, popup, R.drawable.ic_wifi, host.getString(R.string.quick_network), -1, host.topBar()::openNetworkPill);
+        CharSequence network = host.topBar().networkPillLabel();
         if (!TextUtils.isEmpty(network)) {
             TextView status = rows.getChildAt(rows.getChildCount() - 1).findViewById(R.id.status);
             status.setText(network);
             status.setVisibility(View.VISIBLE);
         }
         host.inputs().addInputRow(rows, popup, R.drawable.ic_swap_vert, host.getString(R.string.reorder), -1, host::toggleReorder);
-        if (host.launcherSettingsButton()) {
+        if (host.topBar().launcherSettingsButton()) {
             host.inputs().addInputRow(rows, popup, R.drawable.ic_home_settings_pill, host.getString(R.string.launcher_settings), -1,
                     () -> host.startup().openLauncherSettings());
         } else {
@@ -116,7 +116,7 @@ public final class GlassPopups {
         View panel = host.getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (200 * host.density()));
-        if (!host.launcherSettingsButton()) addSettingsMenuRow(rows, popup, R.string.launcher_settings, () -> host.startup().openLauncherSettings());
+        if (!host.topBar().launcherSettingsButton()) addSettingsMenuRow(rows, popup, R.string.launcher_settings, () -> host.startup().openLauncherSettings());
         // Firmware that ships its own settings app next to the AOSP one (Xiaomi China is one): the
         // vendor app holds pages the AOSP settings has no row for, such as Account & Security with
         // the ADB switch. Offered here only while one of them is installed.
