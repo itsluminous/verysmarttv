@@ -47,13 +47,14 @@ jobs:
         run: ./gradlew ci --stacktrace
 
       # The old identifiers may live only in the licence, the notices, the README's credits, the design
-      # and the preset headers (ADR-010; the command is docs/BUILDING.md, "Identifier gate"). This file
+      # and the preset headers (ADR-010). `tvhome` is matched only as our old applicationId, since Xiaomi's
+      # stock launcher is com.mitv.tvhome and the Home guard must name it (ADR-010; the command is docs/BUILDING.md, "Identifier gate"). This file
       # is left out because it holds the pattern. Phase 5 moves the check into tests/; until then the
       # carry phases need it here.
       - name: Identifier gate
         run: |
           set -uo pipefail
-          hits=$(git grep -niE 'leantv|gathin|tvhome|cleanyourtv' -- ':!LICENSE' ':!THIRD_PARTY_NOTICES.md' ':!README.md' ':!docs/' ':!presets/' ':!.github/workflows/ci.yml' || true)
+          hits=$(git grep -niE 'leantv|gathin|itsluminous\.tvhome|cleanyourtv' -- ':!LICENSE' ':!THIRD_PARTY_NOTICES.md' ':!README.md' ':!docs/' ':!presets/' ':!.github/workflows/ci.yml' || true)
           if [ -n "$hits" ]; then
             printf '%s\n' "$hits"
             echo "::error::old identifiers outside the allowed files (docs/BUILDING.md, Identifier gate)"

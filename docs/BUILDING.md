@@ -145,7 +145,7 @@ Every identifier was renamed from the upstream project and from the design's wor
 credits, the preset headers (verbatim community text) and `docs/`. The check, which must print nothing:
 
 ```bash
-git grep -niE 'leantv|gathin|tvhome|cleanyourtv' -- ':!LICENSE' ':!THIRD_PARTY_NOTICES.md' ':!README.md' ':!docs/' ':!presets/' ':!.github/workflows/ci.yml'
+git grep -niE 'leantv|gathin|itsluminous\.tvhome|cleanyourtv' -- ':!LICENSE' ':!THIRD_PARTY_NOTICES.md' ':!README.md' ':!docs/' ':!presets/' ':!.github/workflows/ci.yml'
 ```
 
 `ci.yml` runs the same command in its `verify` job (the workflow file is left out because it holds the
