@@ -162,6 +162,36 @@ public class ScoreFeedTest {
         assertEquals(ScoreContract.STATE_LIVE, rows.get(1).state);
     }
 
+    /** A companion signed with another key: every query throws SecurityException. */
+    public static class DenyingProvider extends FakeScoreProvider {
+        @Override
+        public android.database.Cursor query(@androidx.annotation.NonNull android.net.Uri uri, String[] p, String s, String[] a, String o) {
+            throw new SecurityException("Permission Denial: opening provider");
+        }
+    }
+
+    @Test
+    public void aRefusalArrivesAsNullOnceAndEndsTheReads() {
+        ShadowContentResolver.reset();
+        Robolectric.setupContentProvider(DenyingProvider.class, ScoreContract.AUTHORITY);
+        feed.start();
+        settle();
+        assertEquals(1, calls);
+        assertNull(rows.get(0));
+        assertFalse(feed.liveReadArmed());
+        assertTrue("the refusal is remembered", feed.denied);
+        // A change notification and the live timer read nothing more this session: no retry loop.
+        ctx.getContentResolver().notifyChange(ScoreContract.PILL, null);
+        Shadows.shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(ScoreFeed.LIVE_PERIOD_MS + ScoreFeed.COALESCE_MS));
+        settle();
+        assertEquals("no second delivery", 1, calls);
+        // The next start (onResume) tries once more.
+        feed.stop();
+        feed.start();
+        settle();
+        assertEquals(2, calls);
+    }
+
     @Test
     public void anAbsentProviderArrivesAsNull() {
         // No provider answers the authority: the companion is not installed.
