@@ -110,6 +110,7 @@ import com.itsluminous.verysmarttv.grid.DockSlots;
 import com.itsluminous.verysmarttv.grid.EdgeAlignDecoration;
 import com.itsluminous.verysmarttv.grid.GlassView;
 import com.itsluminous.verysmarttv.grid.GridNavigation;
+import com.itsluminous.verysmarttv.shelf.AmbientGlow;
 import com.itsluminous.verysmarttv.shelf.HeroArt;
 import com.itsluminous.verysmarttv.shelf.HeroFeed;
 import com.itsluminous.verysmarttv.keys.HomeKeyService;
@@ -209,19 +210,13 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     private FrameLayout root;
     private Wallpaper wallpaper;
     private GlassView glass;
-    private View ambient;
     private TextView heroName;
     /** The top shelf: heroName, plus the state.cinematic shelf's "Last opened" line and dock position dots. */
     private View hero;
     private TextView heroMeta;
     private LinearLayout heroDots;
-    /** config.xml ambient_glow, overridable by a theme. Off: the glow view is gone and no fade or colour animator
-     *  is state.started for it, so a focus move costs nothing extra on a launcher that runs all day. */
-    private boolean ambientGlow;
     /** config.xml app_glow: the highlight takes the focused app's colour on every tile. */
     private boolean appGlow;
-    /** config.xml glow_style: the shape setAmbient paints the glow mask in. */
-    private String glowStyle;
     /** config.xml cinematic_white_focus: the state.cinematic shelf keeps the white highlight. */
     private boolean cinematicWhiteFocus;
     private ImageView heroArt;
@@ -264,10 +259,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     };
     /** The focus glow's colour while the state.cinematic shelf tints it, 0 for plain white glass. */
     private int glassAccent;
-    private int ambientColor = -1;
-    private ValueAnimator ambientAnimator;
-    /** config.xml glow_snap: the glow takes a new colour in one frame instead of the dip-and-fade. */
-    private boolean glowSnap;
     private boolean heroShown;
     private TextView greeting;
     private View clockBlock;
@@ -473,6 +464,8 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     };
     /** Keeps the Home clocks moving on Android before 12 when the firmware stops ACTION_TIME_TICK (see ClockRefresh). */
     private ClockRefresh clockRefresh;
+    /** The glow behind the grid (AmbientGlow): the shelf asks it for colours and fades. */
+    private AmbientGlow glow;
     /** home_idle_clock_minutes and back_opens_clock (IdleClock). */
     private IdleClock idleClock;
     private final Runnable minuteTick = new Runnable() {
@@ -546,14 +539,8 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         wallpaper = new Wallpaper(this, root, cfg);
         glass = findViewById(R.id.glass);
         glass.setStyle(cfg.glassStyle);
-        ambient = findViewById(R.id.ambient);
-        // The glow is one bitmap, so its alpha can be applied while drawing it. Otherwise every frame of
-        // a fade renders it into a full-screen offscreen buffer first.
-        ambient.forceHasOverlappingRendering(false);
-        ambientGlow = cfg.ambientGlow;
-        glowSnap = cfg.glowSnap;
+        glow = new AmbientGlow(this, findViewById(R.id.ambient), cfg);
         appGlow = cfg.appGlow;
-        if (!ambientGlow) ambient.setVisibility(View.GONE);
         heroName = findViewById(R.id.heroName);
         hero = findViewById(R.id.hero);
         // The hero is now a group (name, and the state.cinematic lines): without this every fade of the default
@@ -563,7 +550,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         heroDots = findViewById(R.id.heroDots);
         heroArt = findViewById(R.id.heroArt);
         state.cinematic = cfg.cinematicHome;
-        glowStyle = cfg.glowStyle;
         heroDotsShown = cfg.cinematicDots;
         cinematicWhiteFocus = cfg.cinematicWhiteFocus;
         heroArtAlpha = cfg.cinematicArt / 100f;
@@ -1238,7 +1224,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             glass.setAlpha(0f);
             heroShown = false;
             hero.setAlpha(0f);
-            ambient.setAlpha(0f);
+            glow.setAlpha(0f);
             heroArt.animate().cancel();
             heroArt.setAlpha(0f);
         }
@@ -1342,9 +1328,9 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         cancelHoldOk();
         idleClock.cancel();
         endReorder();   // Home or another app while reordering keeps the order so far
-        stopAmbientAnimation();
+        glow.stopAmbientAnimation();
         hero.animate().cancel();
-        ambient.animate().cancel();
+        glow.cancelFade();
         heroArt.animate().cancel();
         handler.removeCallbacks(minuteTick);
         handler.removeCallbacks(openWhenOnline);
@@ -1957,30 +1943,30 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             // Snap the shelf instead of sliding and fading it: each of those frames repaints the
             // full-screen panel, and this switch exists for the GPUs that cannot afford it.
             hero.animate().cancel();
-            ambient.animate().cancel();
+            glow.cancelFade();
             fillHero(position, label);
             hero.setY(y);
             hero.setTranslationX(0f);
             hero.setAlpha(1f);
-            if (ambientGlow) {
-                setAmbient(color);
-                ambient.setAlpha(1f);
+            if (glow.on()) {
+                glow.setAmbient(color);
+                glow.setAlpha(1f);
             }
             heroShown = true;
             return;
         }
 
         if (!heroShown) {
-            stopAmbientAnimation();
+            glow.stopAmbientAnimation();
             hero.animate().cancel();
-            ambient.animate().cancel();
+            glow.cancelFade();
             fillHero(position, label);
             hero.setY(y);
             hero.setTranslationX(0f);
             hero.animate().alpha(1f).setDuration(260).start();
-            if (ambientGlow) {
-                setAmbient(color);
-                ambient.animate().alpha(1f).setDuration(600).start();
+            if (glow.on()) {
+                glow.setAmbient(color);
+                glow.fadeTo(1f, 600);
             }
             heroShown = true;
         } else if (changed) {
@@ -1991,25 +1977,22 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
                 hero.setTranslationX(12 * density);
                 hero.animate().alpha(1f).translationX(0f).setDuration(200).start();
             }).start();
-            if (ambientGlow && state.advancedEffects) {
-                transitionAmbient(color);
-            } else if (ambientGlow && color != ambientColor && glowSnap) {
-                ambient.animate().cancel();
-                setAmbient(color);
-                ambient.setAlpha(1f);
-            } else if (ambientGlow && color != ambientColor) {
-                ambient.animate().alpha(0.35f).setDuration(200).withEndAction(() -> {
-                    setAmbient(color);
-                    ambient.animate().alpha(1f).setDuration(500).start();
-                }).start();
+            if (glow.on() && state.advancedEffects) {
+                glow.transitionAmbient(color);
+            } else if (glow.on() && color != glow.color() && glow.snaps()) {
+                glow.cancelFade();
+                glow.setAmbient(color);
+                glow.setAlpha(1f);
+            } else if (glow.on() && color != glow.color()) {
+                glow.dipAndSwap(color, 200);
             }
         } else {
             hero.setY(y);
             // onPause cancels the fade-ins, and a second Home during one lands on the same tile, which starts none:
             // finish them, or the shelf and the glow stay dim until focus moves to another app.
             if (hero.getAlpha() < 1f) hero.animate().alpha(1f).setDuration(260).start();
-            if (ambientGlow && color == ambientColor && ambient.getAlpha() < 1f) {
-                ambient.animate().alpha(1f).setDuration(600).start();
+            if (glow.on() && color == glow.color() && glow.getAlpha() < 1f) {
+                glow.fadeTo(1f, 600);
             }
         }
     }
@@ -2119,31 +2102,28 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             else heroArt.setAlpha(0f);
             heroArtKey = null;   // so the app's artwork comes back when the shelf returns to its name
         }
-        if (!ambientGlow) return;
+        if (!glow.on()) return;
         if (!state.animations || state.reducedMotion) {
-            ambient.animate().cancel();
-            setAmbient(color);
-            ambient.setAlpha(1f);
+            glow.cancelFade();
+            glow.setAmbient(color);
+            glow.setAlpha(1f);
         } else if (first) {
-            stopAmbientAnimation();
-            ambient.animate().cancel();
-            setAmbient(color);
-            ambient.animate().alpha(1f).setDuration(600).start();
-        } else if (color != ambientColor) {
+            glow.stopAmbientAnimation();
+            glow.cancelFade();
+            glow.setAmbient(color);
+            glow.fadeTo(1f, 600);
+        } else if (color != glow.color()) {
             if (state.advancedEffects) {
-                transitionAmbient(color);
-            } else if (glowSnap) {
-                ambient.animate().cancel();
-                setAmbient(color);
-                ambient.setAlpha(1f);
+                glow.transitionAmbient(color);
+            } else if (glow.snaps()) {
+                glow.cancelFade();
+                glow.setAmbient(color);
+                glow.setAlpha(1f);
             } else {
-                ambient.animate().alpha(0.35f).setDuration(200).withEndAction(() -> {
-                    setAmbient(color);
-                    ambient.animate().alpha(1f).setDuration(500).start();
-                }).start();
+                glow.dipAndSwap(color, 200);
             }
-        } else if (ambient.getAlpha() < 1f) {
-            ambient.animate().alpha(1f).setDuration(600).start();
+        } else if (glow.getAlpha() < 1f) {
+            glow.fadeTo(1f, 600);
         }
     }
 
@@ -2642,131 +2622,51 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     }
 
     /**
-     * The glow used to be a full-screen radial GradientDrawable. On Android 10 that drawable is
-     * drawn on the CPU, so fading it for half a second redrew 1920×1080 every frame and the
-     * highlight looked like it was running at a few frames per second. A small bitmap stretched
-     * over the screen is one texture. It is painted once in white and tinted with the app's colour,
-     * so changing apps neither repaints it on the CPU (about 11 ms) nor uploads it again.
-     */
-    private void setAmbient(int color) {
-        if (color == ambientColor && ambient.getBackground() != null) return;
-        ambientColor = color;
-        BitmapDrawable glow = (BitmapDrawable) ambient.getBackground();
-        if (glow == null) {
-            int w = 480;
-            int h = 270;
-            Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bmp);
-            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            if (state.cinematic) {
-                // Higher and stronger, from the corner away from the shelf's text: the app's colour floods
-                // the top of the screen over its artwork, and the scrim keeps the text side dark.
-                boolean rtl = isRtl();
-                paint.setShader(new RadialGradient(
-                        w * (rtl ? 0.20f : 0.80f), h * 0.06f, w * 0.78f,
-                        new int[]{0xA6FFFFFF, 0x47FFFFFF, 0x00FFFFFF},
-                        new float[]{0f, 0.5f, 1f},
-                        Shader.TileMode.CLAMP));
-            } else if (Config.GLOW_HORIZON.equals(glowStyle)) {
-                // The colour washes down from the top edge and fades out three quarters of the way down,
-                // with a brighter band along the top like light over a horizon.
-                paint.setShader(new LinearGradient(0, 0, 0, h * 0.75f,
-                        new int[]{0x66FFFFFF, 0x24FFFFFF, 0x00FFFFFF},
-                        new float[]{0f, 0.4f, 1f},
-                        Shader.TileMode.CLAMP));
-                canvas.drawRect(0, 0, w, h, paint);
-                paint.setShader(new RadialGradient(
-                        w * 0.5f, -h * 0.25f, w * 0.55f,
-                        new int[]{0x40FFFFFF, 0x00FFFFFF},
-                        null,
-                        Shader.TileMode.CLAMP));
-            } else {
-                paint.setShader(new RadialGradient(
-                        w * 0.32f, h * 0.42f, w * 0.62f,
-                        new int[]{0x5CFFFFFF, 0x26FFFFFF, 0x00FFFFFF},
-                        new float[]{0f, 0.45f, 1f},
-                        Shader.TileMode.CLAMP));
-            }
-            canvas.drawRect(0, 0, w, h, paint);
-            glow = new BitmapDrawable(getResources(), bmp);
-            glow.setGravity(Gravity.FILL);
-            ambient.setBackground(glow);
-        }
-        // The default tint mode, SRC_IN, keeps the mask's alpha and takes the colour from the tint.
-        glow.setTint(0xFF000000 | color);
-    }
-
-    private void transitionAmbient(int color) {
-        // A rapid focus change continues from the colour actually displayed on screen.
-        stopAmbientAnimation();
-        ambient.animate().cancel();
-        if (color == ambientColor) {
-            ambient.animate().alpha(1f).setDuration(180).start();
-            return;
-        }
-        ambient.animate().alpha(1f).setDuration(180).start();
-        ambientAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), ambientColor, color);
-        ambientAnimator.setDuration(360);
-        ambientAnimator.addUpdateListener(animation -> setAmbient((int) animation.getAnimatedValue()));
-        ambientAnimator.start();
-    }
-
-    private void stopAmbientAnimation() {
-        if (ambientAnimator != null) {
-            ambientAnimator.cancel();
-            ambientAnimator = null;
-        }
-    }
-
-    /**
      * Grid tiles (every tile with dock_row false): the glow behind the grid takes the focused tile's colour; the big
      * name above the dock does not show (every grid tile has its name underneath).
      */
     private void showGlowOnly(int position) {
         int color = adapter.ambientColorAt(position);
-        stopAmbientAnimation();
+        glow.stopAmbientAnimation();
         hero.animate().cancel();
-        ambient.animate().cancel();
+        glow.cancelFade();
         hero.setAlpha(0f);
         heroArt.animate().cancel();
         heroArt.setAlpha(0f);
         heroShown = false;
-        if (!ambientGlow) return;
+        if (!glow.on()) return;
         if (!state.animations || state.reducedMotion) {
-            setAmbient(color);
-            ambient.setAlpha(1f);
+            glow.setAmbient(color);
+            glow.setAlpha(1f);
             return;
         }
-        if (color == ambientColor && ambient.getBackground() != null) {
-            ambient.animate().alpha(1f).setDuration(300).start();
+        if (color == glow.color() && glow.hasMask()) {
+            glow.fadeTo(1f, 300);
             return;
         }
-        if (glowSnap) {
-            setAmbient(color);
-            ambient.setAlpha(1f);
+        if (glow.snaps()) {
+            glow.setAmbient(color);
+            glow.setAlpha(1f);
             return;
         }
         // The same dip-and-swap as the dock's top shelf.
-        ambient.animate().alpha(0.35f).setDuration(ambient.getAlpha() > 0.35f ? 200 : 0).withEndAction(() -> {
-            setAmbient(color);
-            ambient.animate().alpha(1f).setDuration(500).start();
-        }).start();
+        glow.dipAndSwap(color, glow.getAlpha() > 0.35f ? 200 : 0);
     }
 
     private void hideHero() {
         if (!heroShown) return;
-        stopAmbientAnimation();
+        glow.stopAmbientAnimation();
         hero.animate().cancel();
-        ambient.animate().cancel();
+        glow.cancelFade();
         heroArt.animate().cancel();
         heroShown = false;
         if (state.animations && !state.reducedMotion) {
             hero.animate().alpha(0f).setDuration(160).start();
-            if (ambientGlow) ambient.animate().alpha(0f).setDuration(300).start();
+            if (glow.on()) glow.fadeTo(0f, 300);
             heroArt.animate().alpha(0f).setDuration(300).start();
         } else {
             hero.setAlpha(0f);
-            ambient.setAlpha(0f);
+            glow.setAlpha(0f);
             heroArt.setAlpha(0f);
         }
     }
