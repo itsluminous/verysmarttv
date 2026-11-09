@@ -121,6 +121,7 @@ import com.itsluminous.verysmarttv.grid.LastOpened;
 import com.itsluminous.verysmarttv.grid.LaunchActions;
 import com.itsluminous.verysmarttv.settings.LauncherSettingsActivity;
 import com.itsluminous.verysmarttv.library.LibraryApps;
+import com.itsluminous.verysmarttv.menus.GlassPopups;
 import com.itsluminous.verysmarttv.theme.Motion;
 import com.itsluminous.verysmarttv.settings.OpenOnStart;
 import com.itsluminous.verysmarttv.grid.Order;
@@ -319,10 +320,46 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     private final TileRefresh tileRefresh = new TileRefresh();
     /** PackageManager's change counter at the last rebuild, to catch a package broadcast that never arrived. */
     private int packageSequence;
-    /** The Inputs or Module cards dropdown while one is open, so onPause can close it. */
-    private PopupWindow openPopup;
     /** Reorder mode is on (top-bar button). */
     private boolean reordering;
+
+    /** The tile adapter (GridController in Phase 2). */
+    @NonNull
+    public AppAdapter adapter() {
+        return adapter;
+    }
+
+    /** show_inputs_pill as configured, for the top_menu's Inputs row (TopBarController in Phase 2). */
+    public boolean showInputsMenuRow() {
+        return showInputsMenuRow;
+    }
+
+    /** launcher_settings_button (TopBarController in Phase 2). */
+    public boolean launcherSettingsButton() {
+        return launcherSettingsButton;
+    }
+
+    /** The network pill's text, or its description when the pill is icon-only (TopBarController in Phase 2). */
+    @NonNull
+    public CharSequence networkPillLabel() {
+        CharSequence network = wifiIconOnly ? btnWifi.getContentDescription() : btnWifi.getText();
+        return network == null ? "" : network;
+    }
+
+    @NonNull
+    public StartupRouter startup() {
+        return startup;
+    }
+
+    @NonNull
+    public CardPrompts cards() {
+        return cardPrompts;
+    }
+
+    @NonNull
+    public GlassPopups popups() {
+        return popups;
+    }
 
     /** Reorder mode is on; the card prompt and the tile menu stay away then (ReorderSession in Phase 2). */
     public boolean reordering() {
@@ -433,6 +470,8 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     private ClockRefresh clockRefresh;
     /** The module-card prompt and the Module cards list (CardPrompts). */
     private CardPrompts cardPrompts;
+    /** The glass dropdowns: popup window, top_menu, the Settings menu, the tile menu (GlassPopups). */
+    private GlassPopups popups;
     /** Boot and wake opens, the intents Home answers, the Launcher settings result (StartupRouter). */
     StartupRouter startup;
     /** The glow behind the grid (AmbientGlow): the shelf asks it for colours and fades. */
@@ -498,6 +537,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
 
         root = findViewById(R.id.root);
         cardPrompts = new CardPrompts(this, root);
+        popups = new GlassPopups(this, root);
         idleClock = new IdleClock(this, root, cfg);
         root.setBackgroundColor(cfg.backgroundColor);
         // root fills the window with an opaque colour (Config keeps background_color opaque), so the window's own
@@ -840,7 +880,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             ((TextView) btnSettings).setText(R.string.settings);
             ((TextView) btnSettings).setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_settings, 0, 0, 0);
             if (!iconOnlyButtons) makeIconOnly((TextView) btnSettings);
-            btnSettings.setOnClickListener(v -> showTopMenu());
+            btnSettings.setOnClickListener(v -> popups.showTopMenu());
             // The lone gear sits at the header's middle, not on its bottom line like the row of pills.
             LinearLayout topButtons = findViewById(R.id.topButtons);
             RelativeLayout.LayoutParams tlp = (RelativeLayout.LayoutParams) topButtons.getLayoutParams();
@@ -862,7 +902,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             makeIconOnly(btnVpn);
         }
         btnSettings.setOnLongClickListener(v -> {
-            showSettingsMenu();
+            popups.showSettingsMenu();
             return true;
         });
 
@@ -1108,7 +1148,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     }
 
     /** Rebuilds the tiles (and the module cards), then puts focus back where it was. */
-    private void reloadApps(boolean animate) {
+    public void reloadApps(boolean animate) {
         reloadApps(animate, true);
     }
 
@@ -1247,7 +1287,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         // Nothing of ours stays on screen over another app; an undecided prompt simply returns next time.
         cardPrompts.onPause();
         if (appLibrary != null) appLibrary.close();
-        if (openPopup != null) openPopup.dismiss();
+        popups.dismiss();
     }
 
     @Override
@@ -1354,7 +1394,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         if (handleSettingsKey(event)) return true;
         if (heroFeedOn && handleCarouselKey(event)) return true;
         if (holdOk(event)) return true;
-        if (state.tileMenuEnabled && !reordering && openPopup == null && !cardPrompts.promptShowing()
+        if (state.tileMenuEnabled && !reordering && !popups.isOpen() && !cardPrompts.promptShowing()
                 && event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
             int position = focusedTilePosition();
             if (position >= 0 && position < adapter.appCount()
@@ -1419,7 +1459,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     }
 
     /** The reorder button: turns the mode on (focus goes back to the last tile), or off again. */
-    void toggleReorder() {
+    public void toggleReorder() {
         if (reordering) {
             endReorder();
             return;
@@ -1430,7 +1470,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     }
 
     /** The start shared by reorder and edit-dock mode. False when there is nothing to move. */
-    private boolean beginReorder() {
+    public boolean beginReorder() {
         if (adapter.movableCount() < 2) return false;
         // Before the reload below: once it has dropped the empty slots, the dock row also shows grid apps.
         dockInSession = new HashSet<>();
@@ -1446,7 +1486,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     }
 
     /** Edit dock (Settings menu): focus goes to the first dock place, which OK then chooses. */
-    private void startDockEdit() {
+    public void startDockEdit() {
         if (reordering) endReorder();
         if (!beginReorder()) return;
         dockEditing = true;
@@ -1511,7 +1551,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
      * Edit-dock mode state.started from the tile menu. A dock app: its place is already chosen, so focus goes to the grid
      * for the app to put there. A grid app: it is already chosen, so focus goes to the dock for the place.
      */
-    private void startDockEditFor(String key, boolean inDock) {
+    public void startDockEditFor(@NonNull String key, boolean inDock) {
         if (reordering) endReorder();
         if (!beginReorder()) return;
         dockEditing = true;
@@ -1547,7 +1587,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         refocusAfterLayout(slot);
     }
 
-    private void pickUp(int pos) {
+    public void pickUp(int pos) {
         if (pos >= adapter.movableCount()) return;   // the "Default home" tile stays put
         movingKey = adapter.keyAt(pos);
         dimOthers();
@@ -1690,13 +1730,13 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     @Override
     public void onLibraryRequested() {
         if (appLibrary != null) appLibrary.close();
-        if (openPopup != null) openPopup.dismiss();
+        popups.dismiss();
         libraryFocusPending = false;
         libraryFromTopBar = false;
         libraryFromVpnPill = false;
         appLibrary = new AppLibraryDialog(this, state.animations, state.reducedMotion, appLibrarySelection, libraryOkOpens, libraryColumns, adapter::containsPackage, () -> reloadApps(false), () -> {
             appLibrary = null;
-            openPopup = null;
+            popups.track(null);
             if (libraryFromTopBar) {
                 libraryFromTopBar = false;
                 btnLibraryTop.requestFocus();
@@ -1714,7 +1754,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
                 if (libraryFocusPending && appLibrary == null && hasWindowFocus() && !isFinishing()) focusLibrary();
             });
         }, libraryExcludedApps);
-        openPopup = appLibrary.popup;
+        popups.track(appLibrary.popup);
         appLibrary.show();
     }
 
@@ -2340,7 +2380,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
      * dock tile, Up focuses the carousel.
      */
     private boolean handleCarouselKey(KeyEvent event) {
-        if (!carouselShowing || reordering || openPopup != null || cardPrompts.promptShowing()) return false;
+        if (!carouselShowing || reordering || popups.isOpen() || cardPrompts.promptShowing()) return false;
         int code = event.getKeyCode();
         boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
         if (hero.hasFocus()) {
@@ -2848,7 +2888,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         }
     }
 
-    private void focusTile(int position) {
+    public void focusTile(int position) {
         libraryFocusPending = false;
         cancelPendingFocusScroll();
         if (adapter.appCount() == 0) {
@@ -3121,7 +3161,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
      * The network pill opens the VPN app when one is configured and installed, otherwise Wi-Fi settings. With
      * vpn_pill the VPN app has its own pill, so this one always opens Wi-Fi settings.
      */
-    private void openNetworkPill() {
+    public void openNetworkPill() {
         Intent i = vpnPill ? null : vpnAppIntent();
         open(i != null ? i : systemIntent(Settings.ACTION_WIFI_SETTINGS));
     }
@@ -3339,7 +3379,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     }
 
     /** Dropdown menu under the Inputs pill: HDMI ports (with connection state), AV and Live TV. */
-    private void showInputs() {
+    public void showInputs() {
         // A configured source panel and no Live TV row to offer next to it: the panel is the whole menu.
         // The BYINTEK U4 needs this, as its TvInputManager lists three HDMI ports and an AV input it doesn't have.
         List<CoocaaSources.Source> coocaa = coocaaSources ? CoocaaSources.list(this) : Collections.emptyList();
@@ -3357,7 +3397,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
 
         // Compact: as wide as the Inputs pill (a touch wider so "HDMI 1" fits), hanging right below it.
         int width = Math.max(anchor.getWidth(), (int) (150 * density));
-        final PopupWindow popup = glassPopup(panel, width);
+        final PopupWindow popup = popups.glassPopup(panel, width);
 
         TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
         // inputs_connected_only: ports without a connected device and the AV jacks fold behind a "More inputs" row.
@@ -3540,7 +3580,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         popup.setWidth(Math.max(width, Math.min(panel.getMeasuredWidth(), (int) (360 * density))));
 
-        dropIn(popup, panel, anchor, underGear ? Gravity.START : Gravity.END);
+        popups.dropIn(popup, panel, anchor, underGear ? Gravity.START : Gravity.END);
         for (int i = 0; i < rows.getChildCount(); i++) {
             View child = rows.getChildAt(i);
             if (child.getVisibility() == View.VISIBLE && child.isFocusable()) { child.requestFocus(); break; }
@@ -3550,31 +3590,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     private static void fold(View view, List<View> folded) {
         view.setVisibility(View.GONE);
         folded.add(view);
-    }
-
-    @NonNull
-    public PopupWindow glassPopup(@NonNull View panel, int width) {
-        final PopupWindow popup = new PopupWindow(panel, width, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));   // needed for Back to dismiss
-        popup.setOutsideTouchable(true);
-        popup.setAnimationStyle(0);
-        popup.setElevation(0f);
-        popup.setOnDismissListener(() -> {
-            if (openPopup == popup) openPopup = null;
-        });
-        openPopup = popup;
-        return popup;
-    }
-
-    /** Drop in: fade and unfold from the top edge, hanging under the anchor pill. */
-    public void dropIn(@NonNull PopupWindow popup, @NonNull View panel, @NonNull View anchor, int gravity) {
-        panel.setAlpha(0f);
-        panel.setPivotY(0f);
-        panel.setScaleY(0.92f);
-        panel.setTranslationY(-8 * density);
-        popup.showAsDropDown(anchor, 0, (int) (10 * density), gravity);
-        panel.animate().alpha(1f).scaleY(1f).translationY(0f).setDuration(state.reducedMotion ? Motion.REDUCED_MS : 220)
-                .setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f)).start();
     }
 
     private View addSeparator(LinearLayout rows) {
@@ -3587,7 +3602,8 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         return line;
     }
 
-    private View addInputRow(LinearLayout rows, PopupWindow popup, int iconRes, String title, int state, Runnable action) {
+    @NonNull
+    public View addInputRow(@NonNull LinearLayout rows, @NonNull PopupWindow popup, int iconRes, @NonNull String title, int state, @NonNull Runnable action) {
         View row = getLayoutInflater().inflate(R.layout.item_input, rows, false);
         ((ImageView) row.findViewById(R.id.icon)).setImageResource(iconRes);
         ((TextView) row.findViewById(R.id.title)).setText(title);
@@ -3615,60 +3631,9 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
 
     // ---- launcher settings and module cards -------------------------------------------------------
 
-    /** top_menu: the gear's dropdown, standing in for the Inputs, Wi-Fi and Settings pills. */
-    private void showTopMenu() {
-        View anchor = findViewById(R.id.btnSettings);
-        View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
-        LinearLayout rows = panel.findViewById(R.id.rows);
-        PopupWindow popup = glassPopup(panel, (int) (220 * density));
-        // Inputs opens its own list once this one has closed.
-        if (showInputsMenuRow) addInputRow(rows, popup, R.drawable.ic_input, getString(R.string.inputs), -1, () -> root.post(this::showInputs));
-        addInputRow(rows, popup, R.drawable.ic_wifi, getString(R.string.quick_network), -1, this::openNetworkPill);
-        CharSequence network = wifiIconOnly ? btnWifi.getContentDescription() : btnWifi.getText();
-        if (!TextUtils.isEmpty(network)) {
-            TextView status = rows.getChildAt(rows.getChildCount() - 1).findViewById(R.id.status);
-            status.setText(network);
-            status.setVisibility(View.VISIBLE);
-        }
-        addInputRow(rows, popup, R.drawable.ic_swap_vert, getString(R.string.reorder), -1, this::toggleReorder);
-        if (launcherSettingsButton) {
-            addInputRow(rows, popup, R.drawable.ic_home_settings_pill, getString(R.string.launcher_settings), -1,
-                    () -> startup.openLauncherSettings());
-        } else {
-            addInputRow(rows, popup, R.drawable.ic_settings, getString(R.string.settings), -1,
-                    () -> open(systemIntent(Settings.ACTION_SETTINGS)));
-        }
-        panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        popup.setWidth(Math.max((int) (220 * density), Math.min(panel.getMeasuredWidth(), (int) (360 * density))));
-        dropIn(popup, panel, anchor, Gravity.END);
-        rows.getChildAt(0).requestFocus();
-    }
-
-    /** The header opens launcher settings directly; hold OK keeps the extra home actions available. */
-    private void showSettingsMenu() {
-        View anchor = findViewById(R.id.btnSettings);
-        View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
-        LinearLayout rows = panel.findViewById(R.id.rows);
-        PopupWindow popup = glassPopup(panel, (int) (200 * density));
-        if (!launcherSettingsButton) addSettingsMenuRow(rows, popup, R.string.launcher_settings, () -> startup.openLauncherSettings());
-        // Firmware that ships its own settings app next to the AOSP one (Xiaomi China is one): the
-        // vendor app holds pages the AOSP settings has no row for, such as Account & Security with
-        // the ADB switch. Offered here only while one of them is installed.
-        if (SystemSettings.vendorIntent(this) != null) {
-            addSettingsMenuRow(rows, popup, R.string.native_settings, () -> {
-                Intent vendor = SystemSettings.vendorIntent(this);
-                if (vendor != null) open(vendor);
-            });
-        }
-        if (state.moduleCards) addSettingsMenuRow(rows, popup, R.string.module_cards, cardPrompts::showModuleCards);
-        if (state.dockRow && !state.shelfEveryRow) addSettingsMenuRow(rows, popup, R.string.dock_edit, this::startDockEdit);
-        addSettingsMenuRow(rows, popup, R.string.reorder, this::toggleReorder);
-        // A launcher may not restart the TV itself; the Home key helper can open the system power menu instead.
-        if (HomeKeyService.canOpenPowerMenu()) addSettingsMenuRow(rows, popup, R.string.power_menu, HomeKeyService::openPowerMenu);
-        panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        popup.setWidth(Math.max((int) (200 * density), panel.getMeasuredWidth()));
-        dropIn(popup, panel, anchor, Gravity.END);
-        rows.getChildAt(0).requestFocus();
+    @Override
+    public void onTileLongPress(int position, View card) {
+        popups.showTileMenu(position, card);
     }
 
     /** A tile configured with launch_actions "input:<id>" (config.xml): switch to that TV input directly,
@@ -3708,7 +3673,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             if (event.getRepeatCount() == 0) {
                 holdOkFired = false;
                 handler.removeCallbacks(holdOkTimer);
-                holdOkPosition = reordering || openPopup != null || cardPrompts.promptShowing() ? -1 : focusedTilePosition();
+                holdOkPosition = reordering || popups.isOpen() || cardPrompts.promptShowing() ? -1 : focusedTilePosition();
                 holdOkKey = holdOkPosition < 0 || holdOkPosition >= adapter.appCount() ? null : adapter.keyAt(holdOkPosition);
                 if (holdOkKey == null) {
                     holdOkDown = -1;
@@ -3755,7 +3720,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         handler.removeCallbacks(holdOkTimer);
         if (holdOkDown < 0 || holdOkFired) return;
         holdOkFired = true;
-        if (openPopup != null || reordering) return;   // View's own long click got there first
+        if (popups.isOpen() || reordering) return;   // View's own long click got there first
         int position = holdOkPosition;
         if (position < 0 || position >= adapter.appCount() || position != focusedTilePosition()) return;
         // Same slot is not enough: tiles may have been rebuilt during the hold, so the app must match too.
@@ -3763,85 +3728,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         View card = getCurrentFocus();
         if (card != null) card.setPressed(false);
         onTileLongPress(position, card);
-    }
-
-    @Override
-    public void onTileLongPress(int position, View card) {
-        if (reordering || openPopup != null) return;
-        String key = adapter.keyAt(position);
-        String pkg = adapter.packageAt(position);
-        // Empty dock slots and the Default-home tile carry the launcher's own package: no menu for them.
-        if (key == null || pkg == null || pkg.equals(getPackageName())) return;
-        View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
-        LinearLayout rows = panel.findViewById(R.id.rows);
-        PopupWindow popup = glassPopup(panel, (int) (200 * density));
-        if (state.dockRow && !state.shelfEveryRow && position < adapter.movableCount()) {
-            boolean inDock = position < state.columns;
-            addSettingsMenuRow(rows, popup, inDock ? R.string.tile_replace_in_dock : R.string.tile_add_to_dock,
-                    () -> startDockEditFor(key, inDock));
-        }
-        if (position < adapter.movableCount()) addSettingsMenuRow(rows, popup, R.string.tile_move, () -> {
-            if (!beginReorder()) return;
-            int at = adapter.positionOf(key);   // beginReorder can rebuild the tiles
-            if (at < 0) return;
-            focusTile(at);
-            pickUp(at);
-            Toast.makeText(this, R.string.reorder_hint, Toast.LENGTH_LONG).show();
-        });
-        if (state.appLibraryEnabled) addSettingsMenuRow(rows, popup, R.string.library_remove_shortcut, () -> {
-            if (LibraryApps.save(this, pkg, false)) reloadApps(false);
-            else Toast.makeText(this, R.string.library_save_failed, Toast.LENGTH_LONG).show();
-        });
-        // Some firmware has no App info page at all; a row that only toasts "can't open" helps nobody.
-        Intent info = SystemSettings.appInfo(this, pkg);
-        if (info != null) addSettingsMenuRow(rows, popup, R.string.library_app_info, () -> open(info));
-        panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        popup.setWidth(Math.max((int) (200 * density), panel.getMeasuredWidth()));
-        // Dock tiles sit near the bottom of the screen: open the menu above the tile when it would not fit below.
-        int[] at = new int[2];
-        card.getLocationInWindow(at);
-        int gap = (int) (10 * density), height = panel.getMeasuredHeight();
-        if (at[1] + card.getHeight() + gap + height <= root.getHeight()) {
-            dropIn(popup, panel, card, Gravity.START);
-        } else {
-            panel.setAlpha(0f);
-            panel.setPivotY(height);
-            panel.setScaleY(0.92f);
-            panel.setTranslationY(8 * density);
-            popup.showAtLocation(root, Gravity.NO_GRAVITY, at[0], Math.max(0, at[1] - gap - height));
-            panel.animate().alpha(1f).scaleY(1f).translationY(0f).setDuration(220)
-                    .setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f)).start();
-        }
-        rows.getChildAt(0).requestFocus();
-    }
-
-    private void addSettingsMenuRow(LinearLayout rows, PopupWindow popup, int title, Runnable action) {
-        View row = getLayoutInflater().inflate(R.layout.item_input, rows, false);
-        row.findViewById(R.id.icon).setVisibility(View.GONE);
-        row.findViewById(R.id.dot).setVisibility(View.GONE);
-        row.findViewById(R.id.status).setVisibility(View.GONE);
-        ((TextView) row.findViewById(R.id.title)).setText(title);
-        row.setOnClickListener(v -> {
-            popup.dismiss();
-            action.run();
-        });
-        // The OK-up after opening the menu must not activate its first row.
-        final boolean[] pressed = {false};
-        row.setOnKeyListener((v, code, event) -> {
-            if (code != KeyEvent.KEYCODE_DPAD_CENTER && code != KeyEvent.KEYCODE_ENTER) return false;
-            if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                if (event.getRepeatCount() == 0) pressed[0] = true;
-                return true;
-            }
-            boolean activate = pressed[0];
-            pressed[0] = false;
-            if (activate) {
-                popup.dismiss();
-                action.run();
-            }
-            return true;
-        });
-        rows.addView(row);
     }
 
 }

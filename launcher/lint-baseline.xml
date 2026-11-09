@@ -1372,72 +1372,6 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="365"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `handler` of class `HomeActivity` requires synthetic accessor"
-        errorLine1="            handler.post(HomeActivity.this::updateWifiLabel);"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="370"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `handler` of class `HomeActivity` requires synthetic accessor"
-        errorLine1="            if (wifiNoInternetTint != null) handler.post(HomeActivity.this::updateWifiLabel);"
-        errorLine2="                                            ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="383"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `wifiNoInternetTint` of class `HomeActivity` requires synthetic accessor"
-        errorLine1="            if (wifiNoInternetTint != null) handler.post(HomeActivity.this::updateWifiLabel);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="383"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `updateInputsButton` of class `HomeActivity` requires synthetic accessor"
-        errorLine1="            updateInputsButton();"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="390"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `updateInputsButton` of class `HomeActivity` requires synthetic accessor"
-        errorLine1="            updateInputsButton();"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="395"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `handler` of class `HomeActivity` requires synthetic accessor"
-        errorLine1="            handler.post(HomeActivity.this::updateWifiLabel);"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
             line="402"
             column="13"/>
     </issue>
@@ -1455,24 +1389,79 @@
 
     <issue
         id="SyntheticAccessor"
+        message="Access to `private` field `handler` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            if (wifiNoInternetTint != null) handler.post(HomeActivity.this::updateWifiLabel);"
+        errorLine2="                                            ~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="420"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `wifiNoInternetTint` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            if (wifiNoInternetTint != null) handler.post(HomeActivity.this::updateWifiLabel);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="420"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `updateInputsButton` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            updateInputsButton();"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="427"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `updateInputsButton` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            updateInputsButton();"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="432"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `handler` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            handler.post(HomeActivity.this::updateWifiLabel);"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="439"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `handler` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            handler.post(HomeActivity.this::updateWifiLabel);"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="444"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
         message="Access to `private` field `tileRefresh` of class `HomeActivity` requires synthetic accessor"
         errorLine1="            if (!tileRefresh.onPackagesChanged()) return;"
         errorLine2="                 ~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="418"
+            line="455"
             column="18"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `reloadApps` of class `HomeActivity` requires synthetic accessor"
-        errorLine1="            reloadApps(false);"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="419"
-            column="13"/>
     </issue>
 
     <issue
@@ -1482,7 +1471,7 @@
         errorLine2="                ~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="420"
+            line="457"
             column="17"/>
     </issue>
 
@@ -1493,7 +1482,7 @@
         errorLine2="                                    ~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="420"
+            line="457"
             column="37"/>
     </issue>
 
@@ -1504,7 +1493,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="428"
+            line="465"
             column="13"/>
     </issue>
 
@@ -1515,7 +1504,7 @@
         errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="429"
+            line="466"
             column="13"/>
     </issue>
 
@@ -1526,7 +1515,7 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="445"
+            line="484"
             column="13"/>
     </issue>
 
@@ -1537,7 +1526,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="446"
+            line="485"
             column="13"/>
     </issue>
 
@@ -1548,7 +1537,7 @@
         errorLine2="                                                                                        ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="623"
+            line="663"
             column="89"/>
     </issue>
 
@@ -1559,7 +1548,7 @@
         errorLine2="                                                                                                           ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="623"
+            line="663"
             column="108"/>
     </issue>
 
@@ -1570,7 +1559,7 @@
         errorLine2="                                     ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="632"
+            line="672"
             column="38"/>
     </issue>
 
@@ -1581,7 +1570,7 @@
         errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="632"
+            line="672"
             column="28"/>
     </issue>
 
@@ -1592,7 +1581,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="724"
+            line="764"
             column="29"/>
     </issue>
 
@@ -1603,7 +1592,7 @@
         errorLine2="                                                                        ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="725"
+            line="765"
             column="73"/>
     </issue>
 
@@ -1614,7 +1603,7 @@
         errorLine2="                                                           ~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="725"
+            line="765"
             column="60"/>
     </issue>
 
@@ -1625,7 +1614,7 @@
         errorLine2="                                                         ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="726"
+            line="766"
             column="58"/>
     </issue>
 
@@ -1636,7 +1625,7 @@
         errorLine2="                     ~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="743"
+            line="783"
             column="22"/>
     </issue>
 
@@ -1647,7 +1636,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="744"
+            line="784"
             column="17"/>
     </issue>
 
@@ -1658,7 +1647,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="745"
+            line="785"
             column="17"/>
     </issue>
 
@@ -1669,7 +1658,7 @@
         errorLine2="                ~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="746"
+            line="786"
             column="17"/>
     </issue>
 
@@ -1680,7 +1669,7 @@
         errorLine2="                                      ~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="746"
+            line="786"
             column="39"/>
     </issue>
 
@@ -1691,7 +1680,7 @@
         errorLine2="                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="749"
+            line="789"
             column="21"/>
     </issue>
 
@@ -1702,7 +1691,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="750"
+            line="790"
             column="21"/>
     </issue>
 
@@ -1713,7 +1702,7 @@
         errorLine2="                    ~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="751"
+            line="791"
             column="21"/>
     </issue>
 
@@ -1724,7 +1713,7 @@
         errorLine2="                                          ~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="751"
+            line="791"
             column="43"/>
     </issue>
 
@@ -1735,7 +1724,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="760"
+            line="800"
             column="46"/>
     </issue>
 
@@ -1746,7 +1735,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="765"
+            line="805"
             column="43"/>
     </issue>
 
@@ -1757,7 +1746,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="771"
+            line="811"
             column="46"/>
     </issue>
 
@@ -1768,19 +1757,8 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="776"
+            line="816"
             column="43"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `showInputs` of class `HomeActivity` requires synthetic accessor"
-        errorLine1="                    showInputs();"
-        errorLine2="                    ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="995"
-            column="21"/>
     </issue>
 
     <issue
@@ -1790,7 +1768,7 @@
         errorLine2="                     ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="1672"
+            line="1712"
             column="22"/>
     </issue>
 
@@ -1801,7 +1779,7 @@
         errorLine2="                                                        ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="1672"
+            line="1712"
             column="57"/>
     </issue>
 
@@ -1812,19 +1790,8 @@
         errorLine2="                    ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="1673"
+            line="1713"
             column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `focusTile` of class `HomeActivity` requires synthetic accessor"
-        errorLine1="                focusTile(pos);"
-        errorLine2="                ~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="1676"
-            column="17"/>
     </issue>
 
     <issue
@@ -1834,7 +1801,7 @@
         errorLine2="                ~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="1677"
+            line="1717"
             column="17"/>
     </issue>
 
@@ -1845,7 +1812,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="2832"
+            line="2872"
             column="21"/>
     </issue>
 
@@ -1856,7 +1823,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="2833"
+            line="2873"
             column="17"/>
     </issue>
 
@@ -1867,7 +1834,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="2836"
+            line="2876"
             column="21"/>
     </issue>
 
@@ -1878,7 +1845,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="2882"
+            line="2922"
             column="21"/>
     </issue>
 
@@ -1889,7 +1856,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="2883"
+            line="2923"
             column="17"/>
     </issue>
 
@@ -1900,7 +1867,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="2954"
+            line="2994"
             column="17"/>
     </issue>
 
@@ -1911,7 +1878,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="2957"
+            line="2997"
             column="17"/>
     </issue>
 
@@ -1922,7 +1889,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="2959"
+            line="2999"
             column="21"/>
     </issue>
 
@@ -1933,7 +1900,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="2960"
+            line="3000"
             column="21"/>
     </issue>
 
@@ -3923,7 +3890,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="456"
+            line="495"
             column="29"/>
     </issue>
 
@@ -3934,19 +3901,8 @@
         errorLine2="                                            ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="1722"
+            line="1762"
             column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onOpenInput(String inputId) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="3677"
-            column="29"/>
     </issue>
 
     <issue
@@ -3956,8 +3912,19 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="3769"
+            line="3635"
             column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onOpenInput(String inputId) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="3642"
+            column="29"/>
     </issue>
 
 </issues>

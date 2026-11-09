@@ -174,7 +174,7 @@ public final class CardPrompts {
         View anchor = host.findViewById(R.id.btnSettings);
         View panel = host.activity().getLayoutInflater().inflate(R.layout.popup_cards, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
-        final PopupWindow popup = host.glassPopup(panel, (int) (400 * host.density()));
+        final PopupWindow popup = host.popups().glassPopup(panel, (int) (400 * host.density()));
         List<Cards.Card> listed = new ArrayList<>(cards);
         Collections.sort(listed, Cards::byLabel);
         for (Cards.Card card : listed) {
@@ -205,7 +205,7 @@ public final class CardPrompts {
         anchor.getLocationInWindow(at);
         int room = root.getHeight() - (at[1] + anchor.getHeight()) - (int) (34 * host.density());
         popup.setHeight(Math.min(panel.getMeasuredHeight(), Math.max(room, (int) (120 * host.density()))));
-        host.dropIn(popup, panel, anchor, Gravity.END);
+        host.popups().dropIn(popup, panel, anchor, Gravity.END);
         rows.getChildAt(0).requestFocus();
     }
 
