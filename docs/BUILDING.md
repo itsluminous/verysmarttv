@@ -37,8 +37,8 @@ Reports land in `<module>/build/reports/` (tests, `lint-results-debug.html`).
 |---|---|---|---|
 | `:core` | `verysmarttv.android.lib` | Java | The provider contracts (`HeroContract`, `ScoreContract`) and small shared helpers. |
 | `:testkit` | `verysmarttv.android.lib` | Java | `FakeHeroProvider`, `FakeScoreProvider`: test-only stand-ins for the companions. |
-| `:launcher` (Phase 1) | `verysmarttv.android.app` | Java | `com.itsluminous.verysmarttv`, the home screen. |
-| `:traktshelf` (Phase 1) | `verysmarttv.android.app` | Java | `com.itsluminous.traktshelf`. |
+| `:launcher` | `verysmarttv.android.app` | Java | `com.itsluminous.verysmarttv`, the home screen (carried from the fork in Phase 1; decomposed in Phase 2). |
+| `:traktshelf` | `verysmarttv.android.app` | Java | `com.itsluminous.traktshelf`, the Trakt companion ([traktshelf/README.md](../traktshelf/README.md)). |
 | `:livescore` (Phase 4) | `verysmarttv.android.app` | Kotlin | `com.itsluminous.livescore`. |
 
 The two convention plugins live in `build-logic/` and hold everything the modules share: SDK

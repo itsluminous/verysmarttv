@@ -9,10 +9,11 @@
 A small launcher for Android TV plus two companions: a Trakt shelf and live scores. No ads, no network
 in the launcher, built for 1 GB TVs. Three apps from one Gradle project, one release key, one version.
 
-**Status: under construction.** Phase 0 of the [build plan](docs/design/DESIGN.md#20-phased-build-plan)
-is in: the Gradle skeleton, the provider contracts, CI and the release workflow. There is nothing to
-install yet. The sections below are filled in as the phases land; the design they follow is
-[docs/design/DESIGN.md](docs/design/DESIGN.md).
+**Status: under construction.** Phases 0 and 1 of the [build plan](docs/design/DESIGN.md#20-phased-build-plan)
+are in: the Gradle skeleton, the provider contracts, CI and the release workflow, and the launcher and the Trakt
+companion carried from the fork under their new names (`./gradlew assembleDebug` builds both; the ring gauges are
+gone and the RAM/Storage bars arrive in Phase 3). The sections below are filled in as the phases land; the design
+they follow is [docs/design/DESIGN.md](docs/design/DESIGN.md).
 
 ## Screenshots
 
