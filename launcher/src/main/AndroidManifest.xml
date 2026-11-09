@@ -24,6 +24,11 @@
     <!-- hero_feed: the Trakt companion's provider is readable only by an app signed with the same key
          (HeroContract.PERMISSION_READ, protectionLevel signature; DESIGN.md §12.3). -->
     <uses-permission android:name="com.itsluminous.traktshelf.permission.READ_HERO" />
+    <!-- score_pill: the live-score companion's provider, readable only by an app signed with the same key
+         (ScoreContract.PERMISSION_READ); WRITE_SCORES is for the Backup's restore call (ScoreContract.METHOD_RESTORE,
+         ADR-032). Both protectionLevel signature; DESIGN.md §12.3. -->
+    <uses-permission android:name="com.itsluminous.livescore.permission.READ_SCORES" />
+    <uses-permission android:name="com.itsluminous.livescore.permission.WRITE_SCORES" />
 
     <!-- Android 11+ package visibility: lets the launcher list the TV apps it shows as tiles, and the
          apps that declare a module card (docs/modules.md). -->
@@ -74,6 +79,10 @@
         <!-- hero_feed: the Trakt shelf companion's provider (HeroFeed.ITEMS), and the Launcher settings row that says
              when that app is not installed. -->
         <provider android:authorities="com.itsluminous.traktshelf.hero" />
+        <!-- score_pill: the live-score companion's provider (ScoreFeed.PILL, the Backup's companions section), the
+             Launcher settings row that says when that app is not installed, and the pill's OK, which opens it. -->
+        <provider android:authorities="com.itsluminous.livescore.scores" />
+        <package android:name="com.itsluminous.livescore" />
     </queries>
 
     <application

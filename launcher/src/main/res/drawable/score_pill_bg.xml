@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The score pill (DESIGN.md §9.2): plain text at rest, as the reference image has it; while focused the round
+     pills' frost with a white ring, the glass focus ring, the text staying white over it. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+            <gradient android:angle="270" android:startColor="#3DFFFFFF" android:endColor="#1FFFFFFF" />
+            <stroke android:width="1.5dp" android:color="#E6FFFFFF" />
+            <corners android:radius="14dp" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#00000000" />
+            <corners android:radius="14dp" />
+        </shape>
+    </item>
+</selector>

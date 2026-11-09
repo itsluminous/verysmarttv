@@ -22,6 +22,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.dynamicanimation)
     testImplementation(libs.bundles.jvm.test)
+    testImplementation(project(":testkit"))          // FakeScoreProvider: the pill's reader against a scripted /pill row
     androidTestImplementation(libs.bundles.android.test)
     androidTestImplementation(project(":testkit"))   // HeroFixture: the titles the companion stand-in publishes
 }

@@ -32,6 +32,7 @@ import com.itsluminous.verysmarttv.shelf.CarouselController;
 import com.itsluminous.verysmarttv.shelf.ShelfController;
 import com.itsluminous.verysmarttv.shelf.ShelfScale;
 import com.itsluminous.verysmarttv.theme.Config;
+import com.itsluminous.verysmarttv.topbar.TopBarFocus;
 import com.itsluminous.verysmarttv.theme.Motion;
 
 import java.util.Collections;
@@ -477,6 +478,16 @@ public final class GridController {
                 host.state().singleRow));
         switch (verdict.kind) {
             case PASS:
+                // Up from the first row leaves the grid: TopBarFocus names the stop (the score pill, else Inputs; DESIGN.md
+                // §9.3 rule 1, ADR-017), never the framework's focus search, which would restore the pill focused last.
+                // The carousel's own Up is taken by CarouselController before the key reaches the tile.
+                if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                    TopBarFocus.Verdict up = TopBarFocus.fromGridUp(host.topBar().bar(), host.carousel().showing(), host.shelf().dockTileFocused());
+                    if (up.stop == TopBarFocus.Stop.CAROUSEL) return false;
+                    host.topBar().focusAbove(up);
+                    grid.playSoundEffect(SoundEffectConstants.NAVIGATION_UP);
+                    return true;
+                }
                 return false;
             case LIBRARY:
                 focusLibrary();

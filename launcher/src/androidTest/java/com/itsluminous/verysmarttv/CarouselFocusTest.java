@@ -32,13 +32,13 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 /**
- * The carousel's keys with the companion stand-in installed (DESIGN.md §14.3 CarouselFocusTest, pre-pill rules:
- * the score pill is Phase 3). {@code :testkit:hero} installs as the companion's package and answers
+ * The carousel's keys with the companion stand-in installed (DESIGN.md §14.3 CarouselFocusTest, without the score pill). {@code :testkit:hero} installs as the companion's package and answers
  * {@link HeroContract#ITEMS} with {@link HeroFixture}'s three titles and backdrops through the signature permission,
  * exactly as the real one would. Pinned, as today's {@code handleCarouselKey} and {@code showCarouselItem} have it:
  * a dock tile puts the first title on the shelf with its backdrop; Up from a dock tile focuses the carousel, Up from a
  * lower row does not; Left/Right change the title and wrap; OK sends the companion's details intent with the title's
- * Trakt id and kind; Down and Back return to the tile Up left; Up goes on to the first pill after Inputs.
+ * Trakt id and kind; Down and Back return to the tile Up left; Up goes on to Inputs (DESIGN.md §9.3 rule 5; the score
+ * pill, when shown, comes first: HomeFocusTest).
  */
 @RunWith(AndroidJUnit4.class)
 public class CarouselFocusTest {
@@ -149,21 +149,25 @@ public class CarouselFocusTest {
     }
 
     @Test
-    public void upFromTheCarouselGoesToTheFirstPillAfterInputs_downReturnsToTheDockColumn() {
+    public void upFromTheCarouselGoesToInputs_downReturnsToTheDockColumn() {
         home.press(RIGHT);
         home.expectFocus(TILE + 1, "RIGHT from tile 0");
         home.press(UP);
         home.expectFocus(CAROUSEL, "UP from tile 1");
-        String firstAfterInputs = home.onHome(a -> {
+        // Rule 5 (DESIGN.md §9.3): without the score pill, Up from the carousel lands on Inputs; on an emulator without
+        // inputs the Inputs pill is hidden and the first shown pill stands in.
+        String inputsOrFirst = home.onHome(a -> {
             ViewGroup bar = a.findViewById(R.id.topButtons);
+            View inputs = a.findViewById(R.id.btnInputs);
+            if (inputs.getVisibility() == View.VISIBLE) return "btnInputs";
             for (int i = 0; i < bar.getChildCount(); i++) {
                 View pill = bar.getChildAt(i);
-                if (pill.getId() != R.id.btnInputs && pill.getVisibility() == View.VISIBLE) return a.getResources().getResourceEntryName(pill.getId());
+                if (pill.getVisibility() == View.VISIBLE) return a.getResources().getResourceEntryName(pill.getId());
             }
             return "btnSettings";
         });
         home.press(UP);
-        home.expectFocus(PILL + " " + firstAfterInputs, "UP from the carousel");
+        home.expectFocus(PILL + " " + inputsOrFirst, "UP from the carousel");
         home.press(DOWN);
         home.expectFocus(TILE + 1, "DOWN from the bar");
     }

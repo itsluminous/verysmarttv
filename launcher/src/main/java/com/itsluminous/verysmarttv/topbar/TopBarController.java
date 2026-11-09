@@ -124,6 +124,10 @@ public final class TopBarController {
     @Nullable
     private ResourceSampler sampler;
 
+    /** score_pill: the live-score pill under the bar, with its reader; null while the key is off. */
+    @Nullable
+    private ScorePillController scorePill;
+
     /** Refreshes the network pill when the connection changes: at boot Wi-Fi often connects after Home is shown. */
     private final ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
         @Override
@@ -327,13 +331,26 @@ public final class TopBarController {
             View button = topButtons.getChildAt(k);
             pills.add(new TopBarFocus.Pill(button.getId(), button.getVisibility() == View.VISIBLE));
         }
-        return new TopBarFocus.Bar(pills, R.id.btnInputs, R.id.btnSettings);
+        return new TopBarFocus.Bar(pills, R.id.btnInputs, R.id.btnSettings, scorePill != null && scorePill.shown());
     }
 
     /** Focus the pill with this id (a TopBarFocus verdict). */
     public void focusPill(int id) {
         View pill = host.findViewById(id);
         if (pill != null) pill.requestFocus();
+    }
+
+    /** Execute an Up verdict from the grid or the carousel (TopBarFocus.fromGridUp, fromCarouselUp): the score pill or a round pill. */
+    public void focusAbove(@NonNull TopBarFocus.Verdict verdict) {
+        if (verdict.stop == TopBarFocus.Stop.SCORE_PILL && scorePill != null) scorePill.focus();
+        else if (verdict.stop == TopBarFocus.Stop.PILL) focusPill(verdict.pillId);
+        else if (verdict.stop != TopBarFocus.Stop.CAROUSEL) focusPill(TopBarFocus.firstButton(bar()));
+    }
+
+    /** The score pill's controller, or null while score_pill is off. */
+    @Nullable
+    public ScorePillController scorePill() {
+        return scorePill;
     }
 
     /** The Settings pill: the anchor of the gear's dropdowns and the Module cards list (§8 rule 1: the bar owns it). */
@@ -877,6 +894,9 @@ public final class TopBarController {
             }
             labelOnFocus((TextView) btnLibraryTop);
         }
+        // score_pill (Config.scorePill, after the Live scores row): the pill under the bar and its reader (DESIGN.md
+        // §9.2). Off, there is no reader: the companion's provider is never queried.
+        if (cfg.scorePill) scorePill = new ScorePillController(host, root);
     }
 
     /** onCreate, last: the network, VPN and TV-input callbacks, for the activity's whole life. */
@@ -937,11 +957,13 @@ public final class TopBarController {
         }
         host.handler().postDelayed(minuteTick, MINUTE_MS);
         if (sampler != null) sampler.start();
+        if (scorePill != null) scorePill.onResume();
     }
 
     public void onPause() {
         host.handler().removeCallbacks(minuteTick);
         if (sampler != null) sampler.stop();
+        if (scorePill != null) scorePill.onPause();
     }
 
     /** show_inputs_pill as configured: top_menu clears the pill, so the gear menu's Inputs row reads this. */

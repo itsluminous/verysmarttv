@@ -339,7 +339,8 @@ public final class CarouselController {
                     if (down) host.grid().focusTile(host.grid().lastFocused());
                     return true;
                 case KeyEvent.KEYCODE_DPAD_UP:
-                    if (down) host.topBar().focusPill(TopBarFocus.fromCarouselUp(host.topBar().bar()).pillId);
+                    // Rule 5: the score pill when shown, else Inputs.
+                    if (down) host.topBar().focusAbove(TopBarFocus.fromCarouselUp(host.topBar().bar()));
                     return true;
                 case KeyEvent.KEYCODE_DPAD_CENTER:
                 case KeyEvent.KEYCODE_ENTER:
@@ -351,12 +352,18 @@ public final class CarouselController {
             }
         }
         if (code == KeyEvent.KEYCODE_DPAD_UP && down
-                && TopBarFocus.fromGridUp(carouselShowing, shelf.dockTileFocused()).stop == TopBarFocus.Stop.CAROUSEL) {
-            host.grid().hideGlass();
-            shelf.hero.requestFocus();
+                && TopBarFocus.fromGridUp(host.topBar().bar(), carouselShowing, shelf.dockTileFocused()).stop == TopBarFocus.Stop.CAROUSEL) {
+            focusCarousel();
             return true;
         }
         return false;
+    }
+
+    /** Focus the carousel on the shelf (Up from a dock tile, Down from the score pill: TopBarFocus's CAROUSEL verdict). */
+    public void focusCarousel() {
+        if (!carouselShowing) return;
+        host.grid().hideGlass();
+        shelf.hero.requestFocus();
     }
 
     /** OK on a carousel item: the companion's details page for it. */
