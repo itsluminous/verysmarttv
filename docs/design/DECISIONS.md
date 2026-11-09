@@ -1,8 +1,10 @@
-# LeanTV — decisions (ADR log)
+# VerySmartTV — decisions (ADR log)
 
 One entry per decision in [DESIGN.md](DESIGN.md). Format: context → decision → alternatives rejected →
-consequences. Status is **proposed** until the owner signs the design; **[CONFIRM]** marks the ones that
-go beyond the fixed requirements.
+consequences. Every entry is **accepted** by the owner (2026-11-09) unless its heading says
+**rejected** (the decision was not taken; the entry records why) or **changed** (the decision as it now
+stands). The project was named VerySmartTV at the same time; the launcher's applicationId and namespace
+are `com.itsluminous.verysmarttv`, the Gradle module stays `:launcher`.
 
 ## ADR-001 One Gradle project with five modules
 - Context: three apps that share provider contracts, glass drawables and D-pad helpers, and must be signed with one key.
@@ -45,7 +47,7 @@ go beyond the fixed requirements.
 - Rejected: leaving it (no unit tests possible for the Up→score→Inputs rule); a rewrite (loses years of device-specific fixes encoded in that file).
 - Consequences: Phase 2 is the riskiest phase; the Espresso focus suite is written before the split and gates every commit of it.
 
-## ADR-008 Drop decorative and superseded launcher features **[CONFIRM]**
+## ADR-008 Drop decorative and superseded launcher features (accepted)
 - Context: requirement 7 vs requirement 2.
 - Decision: drop festival/seasonal skins, F1 weekend and game-day panels, wallpaper rotation/scenes/moods/captions, time-of-day sky, lunar/Shamsi dates, `show_stats`/`CpuLoad`, the ring gauges, the Hebrew duplicate layout; keep all device-compatibility code and the 31 string translations.
 - Rejected: carrying everything (≈3,300 lines reachable only through themes we do not ship); dropping device-compat code (the presets target 435 TV models, so the launcher will meet those TVs).
@@ -62,11 +64,11 @@ go beyond the fixed requirements.
 - Rejected: keeping the Java package `com.gathin.tvhome` under a new applicationId (what the fork does to ease upstream merges; no longer a goal).
 - Consequences: third-party module cards written for the old category do not appear; the fork's backup JSON and order file are still readable (compat shims with tests).
 
-## ADR-011 Keep the old `.backup` authority in `<queries>` for one migration **[CONFIRM]**
-- Context: the owner's TV runs `com.itsluminous.tvhome`; "Import from another launcher" reads the other package's provider.
-- Decision: `Backup.KNOWN_PACKAGES = {"com.itsluminous.tvhome"}` for import; drop `com.gathin.tvhome`.
-- Rejected: dropping import entirely (the owner re-enters settings by hand); keeping both old names (one is dead).
-- Consequences: remove after the owner migrates, or keep documented as "import from the cleanyourtv fork".
+## ADR-011 Keep the old `.backup` authority in `<queries>` for one migration (**rejected**)
+- Context: the owner's TV runs `com.itsluminous.tvhome`; the fork's "Import from another launcher" row reads the other package's provider.
+- Proposed: `Backup.KNOWN_PACKAGES = {"com.itsluminous.tvhome"}` for import; drop `com.gathin.tvhome`.
+- Owner's decision: **no `tvhome` authority anywhere** in the tree, and the import row is removed from the design. Backup / Restore from file is the only path.
+- Consequences: `Backup.KNOWN_PACKAGES` and the `<queries>` entries go in Phase 1; the migration is done by the setup tool over ADB (read the old `.backup/settings`, push the file, Restore from file), covered by `BackupCompatTest` and `OrderMagicTest`; the identifier grep allows `tvhome` only in `LICENSE`, `THIRD_PARTY_NOTICES.md`, README credits, preset headers and `docs/design/`.
 
 ## ADR-012 ESPN site feeds as the single v1 score source
 - Context: §13.1 table; verified live on 2026-11-09; tv-town-launcher's production use since 2026 with 60 s polling while on screen.
@@ -118,7 +120,7 @@ go beyond the fixed requirements.
 
 ## ADR-021 One release keystore, four signing secrets, verify-or-fail
 - Context: owner's decision; HikViewer's `release.yml` pattern.
-- Decision: §15.3; `apksigner` digest must equal the keystore's; all three digests equal; digest published in README and release body.
+- Decision: §15.3; keystore alias `verysmarttv`; `apksigner` digest must equal the keystore's; all three digests equal; digest published in README and release body.
 - Rejected: a key per app (three secret sets, three card approvals, no signature permissions across apps); signing locally and uploading by hand (talkies' `release-apk.sh`: not reproducible by CI).
 
 ## ADR-022 Emulator tests on every push to main and code PRs, not nightly
@@ -138,7 +140,7 @@ go beyond the fixed requirements.
 
 ## ADR-025 One Python setup package with thin bash/PowerShell bootstraps
 - Context: requirement 6; cleanyourtv has `.sh` scripts each with a `.ps1` twin (two implementations of the Home guard to keep in step, `tests/test_core_packages.py`).
-- Decision: `setup/leantv_setup` (Python ≥ 3.9) carrying `tv.py`, `b64push.py`, `recovery.py`, `check.py`, the `disable.sh` guard logic; `setup.sh`/`setup.ps1` only find Python and make a venv.
+- Decision: `setup/verysmarttv_setup` (Python ≥ 3.9) carrying `tv.py`, `b64push.py`, `recovery.py`, `check.py`, the `disable.sh` guard logic; `setup.sh`/`setup.ps1` only find Python and make a venv.
 - Rejected: shell + PowerShell twins (double logic); a compiled binary (nothing to reproduce from source); requiring the stock `adb` (blocked on some machines, and the requirement forbids it).
 
 ## ADR-026 TV discovery: mDNS, then /24 port-5555 scan, then manual
@@ -153,13 +155,14 @@ go beyond the fixed requirements.
 
 ## ADR-028 Recovery records keyed by serial+model hash, not IP
 - Context: `recovery.py` keys records by address and warns when the TV moves (`recovery.py:19-23`).
-- Decision: `sha256(ro.serialno + ro.product.model)[:12]` under `~/.leantv/`.
+- Decision: `sha256(ro.serialno + ro.product.model)[:12]` under `~/.verysmarttv/`.
 - Rejected: IP keying (DHCP breaks it); `ANDROID_ID` (changes on factory reset, which is when you most want the record found — but a reset also clears the disables, so either works; serial is simpler to read).
 
-## ADR-029 Attribution: MIT notice + generated per-preset author names **[CONFIRM]**
+## ADR-029 Attribution: MIT notice in LICENSE + THIRD_PARTY_NOTICES.md naming the repositories (**changed**)
 - Context: requirement 6 "keep attribution"; 732 distinct git authors over `examples/`.
-- Decision: `presets/README.md` with the CleanYourTV MIT notice; `presets/ATTRIBUTION.md` generated with slug, source path, last commit, author names (no e-mail addresses).
-- Rejected: a single collective line only (thinner than MIT's spirit); copying `git log` with e-mails (personal data).
+- Proposed: `presets/ATTRIBUTION.md` generated with slug, source path, last commit and author names.
+- Owner's decision: the MIT derived-work notice in `LICENSE`, plus `THIRD_PARTY_NOTICES.md` naming the repositories that helped, each with its licence text: Gathin23/cleanyourtv and its community lists, NareshJagriya/tv-town-launcher, rajupp/talkies, itsluminous/HikViewer. **No per-contributor list, no `ATTRIBUTION.md` generator.** `presets/README.md` keeps the CleanYourTV MIT notice; each list's header still names its tester.
+- Rejected: per-author names (a 732-name file to regenerate on every list update, and names are personal data the lists' headers already carry where the tester chose to); a single collective line only (thinner than MIT's notice requirement).
 
 ## ADR-030 Licence: MIT with the CleanYourTV derived-work notice in `LICENSE`
 - Context: requirement 8.
@@ -171,10 +174,11 @@ go beyond the fixed requirements.
 - Decision: CI fails above 900 KB.
 - Rejected: no gate (1 GB TVs still matter); 700 KB (would fight the decomposition).
 
-## ADR-032 Follows are not part of the launcher backup in v1 **[CONFIRM]**
+## ADR-032 Follows are not part of the launcher backup in v1 (**rejected**)
 - Context: the launcher's Backup covers its own settings; follows live in the companion.
-- Decision: `follows.json` stays in the companion; re-entered in a minute.
-- Rejected: a backup path on the score provider (a second write-free provider path and a cross-app restore flow for a 2 KB file).
+- Proposed: `follows.json` stays in the companion; re-entered in a minute.
+- Owner's decision: follows **are** part of the launcher backup from v1. The launcher's Backup JSON gets a `companions` section, read and written through each companion's provider: `ScoreContract` gains a `/backup` read URI (one row, `json`) under `READ_SCORES` and a `call("restore", …)` under a `signature` `writePermission` `WRITE_SCORES`. `HeroContract` gets neither: traktshelf's state is OAuth tokens, which are never backed up.
+- Consequences: `ScoreContract` carries the two names from Phase 0; `FakeScoreProvider` answers both; `BackupRestoreTest` (Espresso) covers the round trip once `:livescore` exists; a restore on a TV without the companion skips the section with one log line.
 
 ## ADR-033 Default follows on first run
 - Context: the pill should show something before the picker is used; the owner is in India.
@@ -185,3 +189,9 @@ go beyond the fixed requirements.
 - Context: catalogues under 40 items per level.
 - Decision: sport → competition → team columns, OK toggles.
 - Rejected: a search box (keyboard on a TV for lists this short).
+
+## ADR-035 All user-facing text lives in string resources
+- Context: owner's rule, added with the ADR-008 answer; the carried code has a few literals (`"LIVE"`-style kickers, settings subtitles) and the decomposition will touch every one of them.
+- Decision: no literal that a user can read is written in Java or Kotlin, in any module. Everything goes through `R.string` (with `%1$s` placeholders where the text is composed). Lint's `HardcodedText` and `SetTextI18n` are errors; a module may not baseline them.
+- Exempt: text that is data rather than UI (a companion's `line`/`meta` row the launcher renders verbatim, log messages, exception messages, JSON keys).
+- Rejected: enforcing it only in the launcher (the companions have the same 30-locale fallback problem) or by review alone (lint catches it for free).

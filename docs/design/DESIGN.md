@@ -1,9 +1,9 @@
-# LeanTV — design
+# VerySmartTV — design
 
-Status: **draft for owner sign-off**. No application code exists yet. Every decision below names its
-reason and the alternative it rejected; the one-line record of each is in [DECISIONS.md](DECISIONS.md)
-(ADR-001 …). Items marked **[CONFIRM]** are choices I made on your behalf that go beyond the fixed
-requirements; say yes or change them before Phase 1 starts.
+Status: **accepted** (owner decisions folded in on 2026-11-09; project renamed VerySmartTV). Every
+decision below names its reason and the alternative it rejected; the one-line record of each is in
+[DECISIONS.md](DECISIONS.md) (ADR-001 …). The items the first draft marked **[CONFIRM]** are resolved:
+ADR-008 accepted, ADR-011 and ADR-032 rejected, ADR-029 changed, ADR-035 added.
 
 Source studied: `/Users/kupraki/repo/cleanyourtv` at `e31f5eb0` (branch `main`): `launcher/` (83 Java
 files, 18,285 lines, `MainActivity.java` 4,973 of them), `addons/traktshelf/` (18 files, 3,097 lines),
@@ -17,8 +17,8 @@ folders, 434 with a `tv.json`), `tests/` (≈300 Python test files). References:
 
 ## 1. Goals
 
-1. One independent repository, `itsluminous/leantv`, that builds three Android TV apps from one Gradle
-   project: the launcher **`com.itsluminous.leantv`**, the Trakt companion **`com.itsluminous.traktshelf`**
+1. One independent repository, `itsluminous/verysmarttv`, that builds three Android TV apps from one Gradle
+   project: the launcher **`com.itsluminous.verysmarttv`**, the Trakt companion **`com.itsluminous.traktshelf`**
    and a new live-score companion **`com.itsluminous.livescore`**.
 2. The launcher and traktshelf behave as they do in the fork today (every switch in
    `themes/mooq1-frosted/config.json` keeps working), with two visible changes: the ring gauges are
@@ -37,7 +37,7 @@ folders, 434 with a `tv.json`), `tests/` (≈300 Python test files). References:
 - A themes gallery, add-on gallery, press list or showcase. Two themes ship: `default` and `frosted`.
 - Compatibility with cleanyourtv's module-card ecosystem under the old contract strings. Third-party
   cards written for `com.gathin.tvhome.category.DOCK_CARD` will not appear; the new contract is
-  `com.itsluminous.leantv.category.CARD` (section 7). Nobody outside this repo depends on it today.
+  `com.itsluminous.verysmarttv.category.CARD` (section 7). Nobody outside this repo depends on it today.
 - Upstreaming to Gathin23/cleanyourtv. The APK size gate (576 KB) and its PR rules no longer apply.
 - A Play Store listing. Distribution is GitHub Releases (and Obtainium, which reads them).
 - Phones. All three apps declare `android.software.leanback`; the livescore UI is D-pad only.
@@ -52,12 +52,12 @@ Requirement 7 ("no dead code, everything carried must be reachable") conflicts w
 ("keep current behaviour and features") wherever a feature is reachable only through a theme key no
 shipped theme sets. I resolved it by keeping everything the two shipped themes, the Mi TV 4A, and
 **other people's TVs** need (device-compatibility code stays: the setup script targets 435 TV models),
-and dropping decorative or superseded features. **[CONFIRM]** each "drop" row.
+and dropping decorative or superseded features. Every "drop" row is accepted (ADR-008).
 
 | Area | Files (cleanyourtv `launcher/app/src/main/java/com/gathin/tvhome/`) | Decision | Why |
 |---|---|---|---|
 | Home, grid, dock, uniform rows, shelf, carousel, glass, ambient glow | `MainActivity`, `AppAdapter`, `Config`, `GlassView`, `DockDecoration`, `EdgeAlignDecoration`, `DockSlots`, `UniformRows`, `ShelfScale`, `HeroFeed`, `HeroArt`, `TopFade`, `Order`, `GridNavigation`, `Motion`, `TileRefresh`, `LastOpened`, `UiFont` | **Keep** (decomposed, section 8) | The product. |
-| Settings page + side panel, backup/restore, theme provider | `LauncherSettingsActivity`, `SettingsPanel`, `HomeSettingsActivity`, `QuickSettingsActivity`, `Backup`, `BackupProvider`, `ThemeProvider`, `ThemeFiles` | **Keep** | Owner uses all of it. `Backup.KNOWN_PACKAGES` ("Import from another launcher") gains `com.itsluminous.tvhome` → `com.itsluminous.leantv` so the owner's TV migrates once; the `com.gathin.tvhome` entry goes. |
+| Settings page + side panel, backup/restore, theme provider | `LauncherSettingsActivity`, `SettingsPanel`, `HomeSettingsActivity`, `QuickSettingsActivity`, `Backup`, `BackupProvider`, `ThemeProvider`, `ThemeFiles` | **Keep**, minus the import row | Owner uses all of it. The **Import from another launcher** row and `Backup.KNOWN_PACKAGES` go (ADR-011): the launcher never queries another launcher's provider. Back up / Restore from file is the only path; the fork's backup JSON restores (§7.4), and the setup tool moves the file over ADB (§19). |
 | App library | `AppLibraryDialog`, `LibraryApps`, `LibraryLoads` | **Keep** | In the frosted theme. |
 | Module cards | `Cards`, `CardFeature` | **Keep**, renamed contract | traktshelf and livescore declare cards. |
 | Remote keys, Home key, input key, guard, service repair | `RemoteKeys`, `HomeKeyService`, `InputKeyService`, `GuardKeep`, `GuardRevival`, `GuardConfig`, `ServiceRepair`, `VolumeKeys`, `GamepadPassthrough`, `InputsRequestActivity`, `AppLaunchActivity`, `ProbeActivity`, `OpenOnStart`, `LaunchActions`, `SystemSettings`, `InputNames`, `InputSources`, `InputFold`, `CoocaaSources` | **Keep** | Device compatibility for the TVs the presets cover (Xiaomi ALL_APPS key, TCL force-stop revival, Coocaa inputs). Small, reached by config keys. |
@@ -87,7 +87,7 @@ Lines of launcher Java carried: ≈15,000 of 18,285 before decomposition.
 ```mermaid
 flowchart LR
   subgraph TV["Android TV (1 GB class)"]
-    subgraph L["com.itsluminous.leantv (launcher, no INTERNET)"]
+    subgraph L["com.itsluminous.verysmarttv (launcher, no INTERNET)"]
       HA[HomeActivity<br/>thin host]
       TB[TopBarController<br/>clock · date · pills · ResourceBars · ScorePill]
       SH[ShelfController<br/>app name / carousel]
@@ -126,7 +126,7 @@ flowchart LR
   TS --> TR
   AD --> ES
   subgraph PC["Computer (macOS / Windows)"]
-    SU2[setup.sh / setup.ps1 → leantv_setup (Python)]
+    SU2[setup.sh / setup.ps1 → verysmarttv_setup (Python)]
     ADB[pure-Python ADB<br/>tv.py carried]
     PR[presets/ index + 434 lists]
     GH[GitHub Releases<br/>signed APKs + SHA256SUMS]
@@ -146,27 +146,27 @@ machine's debug key, so the emulator suite also passes).
 ## 5. Repository and module layout
 
 ```
-leantv/
+verysmarttv/
 ├── settings.gradle.kts              # includes :core, :launcher, :traktshelf, :livescore, :testkit; includeBuild("build-logic")
 ├── build.gradle.kts
 ├── gradle/libs.versions.toml        # one version catalog for every module
 ├── gradle/wrapper/                  # Gradle 9.x wrapper (jar committed, as every Android repo does)
 ├── build-logic/                     # convention plugins (Kotlin DSL)
 │   └── src/main/kotlin/
-│       ├── leantv.android.app.gradle.kts    # compileSdk/minSdk/targetSdk, Java 17, R8, packaging excludes,
+│       ├── verysmarttv.android.app.gradle.kts    # compileSdk/minSdk/targetSdk, Java 17, R8, packaging excludes,
 │       │                                    # shared release signing, version from -PversionName, lint config
-│       └── leantv.android.lib.gradle.kts
+│       └── verysmarttv.android.lib.gradle.kts
 ├── core/                            # :core — com.android.library, Java. Provider CONTRACTS + tiny shared helpers.
-│   └── src/main/java/com/itsluminous/leantv/core/
+│   └── src/main/java/com/itsluminous/verysmarttv/core/
 │       ├── contract/HeroContract.java       # authority, URIs, columns, permission name (traktshelf → launcher)
 │       ├── contract/ScoreContract.java      # authority, URIs, columns, permission name (livescore → launcher)
 │       ├── contract/CardContract.java       # module-card category, meta-data name, spec validation constants
 │       ├── ui/Glass.java                    # the frosted-glass drawable factory (pills, chips) shared by all three UIs
 │       ├── ui/DpadKeys.java                 # isOk/isBack/direction helpers
 │       └── text/Gb.java                     # "N GB free" formatting (one place, one test)
-├── launcher/                        # :launcher — com.itsluminous.leantv, Java (carried + decomposed)
+├── launcher/                        # :launcher — com.itsluminous.verysmarttv, Java (carried + decomposed)
 │   ├── build.gradle.kts
-│   └── src/{main,test,androidTest}/java/com/itsluminous/leantv/...
+│   └── src/{main,test,androidTest}/java/com/itsluminous/verysmarttv/...
 ├── traktshelf/                      # :traktshelf — com.itsluminous.traktshelf, Java (carried)
 │   └── src/{main,test,androidTest}/java/com/itsluminous/traktshelf/...
 ├── livescore/                       # :livescore — com.itsluminous.livescore, Kotlin (new)
@@ -178,15 +178,14 @@ leantv/
 │   ├── default/config.json
 │   └── frosted/{config.json,wallpaper.jpg,screenshot.jpg}     # mooq1-frosted, renamed; widgets key changed
 ├── presets/                         # debloat presets (section 17)
-│   ├── README.md                    # attribution + format
+│   ├── README.md                    # the CleanYourTV MIT notice + list format
 │   ├── index.json                   # generated by setup/tools/build_index.py; committed
-│   ├── ATTRIBUTION.md               # generated: one line per preset with its cleanyourtv path and commit
 │   └── lists/<slug>/{debloat.txt,tv.json}   # 434 folders, verbatim text (header paths rewritten)
 ├── setup/                           # the computer-side tool (section 16)
-│   ├── setup.sh                     # bootstrap: find python3, venv, pip, run `python -m leantv_setup`
+│   ├── setup.sh                     # bootstrap: find python3, venv, pip, run `python -m verysmarttv_setup`
 │   ├── setup.ps1
 │   ├── requirements.txt             # adb-shell, rsa, cryptography (what tv.py needs), zeroconf
-│   ├── leantv_setup/                # Python package
+│   ├── verysmarttv_setup/                # Python package
 │   │   ├── __main__.py              # the guided flow
 │   │   ├── adb.py                   # tv.py's client (connect, shell, push/pull, screenshot, batch)
 │   │   ├── discover.py              # mDNS + /24 port-5555 scan + manual entry
@@ -196,7 +195,7 @@ leantv/
 │   │   ├── theme.py                 # push themes/<name> through the .theme provider
 │   │   ├── presets.py               # match, show, apply, record, restore, check (recovery.py + disable.sh guard + check.py)
 │   │   └── core_packages.py         # CORE_RE / CORE_OK: the never-disable list
-│   └── tools/build_index.py         # regenerates presets/index.json + ATTRIBUTION.md from presets/lists
+│   └── tools/build_index.py         # regenerates presets/index.json from presets/lists
 ├── tests/                           # Python unittest: setup package against a fake TV, preset format, index freshness
 ├── docs/
 │   ├── design/{DESIGN.md,DECISIONS.md}
@@ -239,7 +238,7 @@ with the same semantics and key names except these:
 |---|---|---|
 | `widgets` (array of `memory`, `cpu`, `storage`) | three ring gauges | **`widgets` is a boolean**: the RAM + Storage two-bar block on or off (section 9.1). An array in an old theme is read as `true` if non-empty (migration). Settings row **Widgets** becomes one toggle "System bars (RAM, Storage)". |
 | `show_stats` | a CPU/mem/storage text line under the clock | removed |
-| `festival`, `seasonal_skin`, `game_day`, `race_weekend*`, `sky_intensity`, `latitude`, `longitude`, `wallpaper_rotation_minutes`, `wallpaper_moods`, `wallpaper_captions`, `shamsi_date`, `lunar_date` | features | keys ignored with one `Log.i("LeanTV.Config", "ignored key …")` each |
+| `festival`, `seasonal_skin`, `game_day`, `race_weekend*`, `sky_intensity`, `latitude`, `longitude`, `wallpaper_rotation_minutes`, `wallpaper_moods`, `wallpaper_captions`, `shamsi_date`, `lunar_date` | features | keys ignored with one `Log.i("VerySmartTV.Config", "ignored key …")` each |
 | (new) `score_pill` | – | boolean, default **false**; the live-score pill (section 9.2). Settings row **Live scores** (On / Off; the row says when the livescore app is not installed, as the Trakt row does today). |
 
 ---
@@ -253,68 +252,69 @@ The rename is done by a scripted pass in Phase 1 whose test is exactly that grep
 
 | Old | New |
 |---|---|
-| Java package `com.gathin.tvhome` (launcher) | `com.itsluminous.leantv` (sub-packages after decomposition: `.home`, `.shelf`, `.grid`, `.topbar`, `.settings`, `.theme`, `.cards`, `.keys`, `.clock`, `.backup`, `.feed`) |
-| applicationId `com.itsluminous.tvhome` / `com.gathin.tvhome` (via `LAUNCHER_PACKAGE`) | `com.itsluminous.leantv`, fixed; the `launcherApplicationId` Gradle property and `LAUNCHER_PACKAGE` env var go |
-| Gradle `namespace 'com.gathin.tvhome'` | `com.itsluminous.leantv` |
-| `rootProject.name = "tvhome"` / `"traktshelf"` | `leantv` |
+| Java package `com.gathin.tvhome` (launcher) | `com.itsluminous.verysmarttv` (sub-packages after decomposition: `.home`, `.shelf`, `.grid`, `.topbar`, `.settings`, `.theme`, `.cards`, `.keys`, `.clock`, `.backup`, `.feed`) |
+| applicationId `com.itsluminous.tvhome` / `com.gathin.tvhome` (via `LAUNCHER_PACKAGE`) | `com.itsluminous.verysmarttv`, fixed; the `launcherApplicationId` Gradle property and `LAUNCHER_PACKAGE` env var go |
+| Gradle `namespace 'com.gathin.tvhome'` | `com.itsluminous.verysmarttv` |
+| `rootProject.name = "tvhome"` / `"traktshelf"` | `verysmarttv` |
 | Java package `com.itsluminous.traktshelf` | unchanged (already in the namespace) |
-| Theme style `Theme.TvHome`, `Theme.TvHome.Settings` | `Theme.LeanTV`, `Theme.LeanTV.Settings` |
-| Log tags `TvHome*` (`TvHomeHeroFeed`, `TvHomeCards`, `TraktShelf.Provider` …) | `LeanTV.*` (`LeanTV.HeroFeed`, `LeanTV.Cards`), `TraktShelf.*` unchanged, `LiveScore.*` |
+| Theme style `Theme.TvHome`, `Theme.TvHome.Settings` | `Theme.VerySmartTV`, `Theme.VerySmartTV.Settings` |
+| Log tags `TvHome*` (`TvHomeHeroFeed`, `TvHomeCards`, `TraktShelf.Provider` …) | `VerySmartTV.*` (`VerySmartTV.HeroFeed`, `VerySmartTV.Cards`), `TraktShelf.*` unchanged, `LiveScore.*` |
 
 ### 7.2 Provider authorities
 
 | Old | New | Permission |
 |---|---|---|
-| `${applicationId}.theme` (= `com.itsluminous.tvhome.theme`) | `com.itsluminous.leantv.theme` | `android.permission.WRITE_SECURE_SETTINGS` (adb shell only), unchanged |
-| `${applicationId}.backup` | `com.itsluminous.leantv.backup` | none (read-only; `adb shell content read` must keep working), unchanged |
+| `${applicationId}.theme` (= `com.itsluminous.tvhome.theme`) | `com.itsluminous.verysmarttv.theme` | `android.permission.WRITE_SECURE_SETTINGS` (adb shell only), unchanged |
+| `${applicationId}.backup` | `com.itsluminous.verysmarttv.backup` | none (read-only; `adb shell content read` must keep working), unchanged |
 | `com.itsluminous.traktshelf.hero` | unchanged | **new:** `readPermission="com.itsluminous.traktshelf.permission.READ_HERO"`, `protectionLevel="signature"` |
 | – | `com.itsluminous.livescore.scores` | `readPermission="com.itsluminous.livescore.permission.READ_SCORES"`, `signature` |
-| `com.gathin.tvhome.backup`, `com.itsluminous.tvhome.backup` in `<queries>` and `Backup.KNOWN_PACKAGES` | `com.itsluminous.tvhome.backup` only (the one-time migration source for the owner's TV; **[CONFIRM]** remove after migration, or keep as a documented "import from the cleanyourtv fork" path) | |
+| `com.gathin.tvhome.backup`, `com.itsluminous.tvhome.backup` in `<queries>` and `Backup.KNOWN_PACKAGES` | removed with the import row (ADR-011); no `tvhome` authority anywhere in the tree | |
+| – | `com.itsluminous.livescore.scores/backup` (read) and `call("restore")` on the same provider | `READ_SCORES` / `WRITE_SCORES`, both `signature` (§12.2, ADR-032) |
 
 ### 7.3 Intent actions, categories, extras, meta-data
 
 | Old | New |
 |---|---|
-| `com.gathin.tvhome.category.DOCK_CARD` (module-card category) | `com.itsluminous.leantv.category.CARD` |
-| `com.gathin.tvhome.card` (module-card meta-data) | `com.itsluminous.leantv.card` |
+| `com.gathin.tvhome.category.DOCK_CARD` (module-card category) | `com.itsluminous.verysmarttv.category.CARD` |
+| `com.gathin.tvhome.card` (module-card meta-data) | `com.itsluminous.verysmarttv.card` |
 | `com.gathin.tvhome.games` (game_day meta-data) | removed |
-| `com.gathin.tvhome.action.LAUNCHER_SETTINGS` | `com.itsluminous.leantv.action.LAUNCHER_SETTINGS` |
-| `com.gathin.tvhome.action.APP_LIBRARY` | `com.itsluminous.leantv.action.APP_LIBRARY` |
-| `com.gathin.tvhome.extra.REORDER_FROM_SETTINGS` | `com.itsluminous.leantv.extra.REORDER_FROM_SETTINGS` |
-| `com.gathin.tvhome.GUARD` (GuardConfig broadcast) | `com.itsluminous.leantv.action.GUARD` |
-| `Cards` label blocklist entry `"tvvibehack", "cleanyourtv"` (`Cards.java:82`) | `"leantv"` |
+| `com.gathin.tvhome.action.LAUNCHER_SETTINGS` | `com.itsluminous.verysmarttv.action.LAUNCHER_SETTINGS` |
+| `com.gathin.tvhome.action.APP_LIBRARY` | `com.itsluminous.verysmarttv.action.APP_LIBRARY` |
+| `com.gathin.tvhome.extra.REORDER_FROM_SETTINGS` | `com.itsluminous.verysmarttv.extra.REORDER_FROM_SETTINGS` |
+| `com.gathin.tvhome.GUARD` (GuardConfig broadcast) | `com.itsluminous.verysmarttv.action.GUARD` |
+| `Cards` label blocklist entry `"tvvibehack", "cleanyourtv"` (`Cards.java:82`) | `"verysmarttv"` |
 
 ### 7.4 Files, prefs, formats
 
 | Old | New |
 |---|---|
-| `Order.MAGIC = "tvhome-order 1"` (`Order.java:35`) | `"leantv-order 1"`; the reader also accepts `tvhome-order 1` so a Backup JSON from the fork restores (`Backup.java:48` embeds it) |
-| Backup file `tvhome-<stamp>.json` (`Backup.java:242`) | `leantv-<stamp>.json`; Restore lists both patterns |
-| Backup JSON `"package": "com.gathin.tvhome"` | `"package": "com.itsluminous.leantv"`; restore accepts any of the three known packages |
+| `Order.MAGIC = "tvhome-order 1"` (`Order.java:35`) | `"verysmarttv-order 1"`; the reader also accepts `tvhome-order 1` so a Backup JSON from the fork restores (`Backup.java:48` embeds it) |
+| Backup file `tvhome-<stamp>.json` (`Backup.java:242`) | `verysmarttv-<stamp>.json`; Restore lists both patterns |
+| Backup JSON `"package": "com.gathin.tvhome"` | `"package": "com.itsluminous.verysmarttv"`; restore accepts any of the three known packages |
 | SharedPreferences names (`Config.SETTINGS_NAME`, `"boot"`, `"wallpaper_rotation"`, `GuardKeep.PREFS`, `LastOpened.PREFS`, `ServiceRepair.PREFS`) | unchanged names (they are app-private; renaming gains nothing and breaks Import) except `"wallpaper_rotation"`, which goes with the feature |
-| Screensaver component `…/com.gathin.tvhome.ClockDream` | `com.itsluminous.leantv/.clock.ClockDream` |
-| Accessibility services `…/com.gathin.tvhome.HomeKeyService`, `.InputKeyService` | `com.itsluminous.leantv/.keys.HomeKeyService`, `.keys.InputKeyService` |
+| Screensaver component `…/com.gathin.tvhome.ClockDream` | `com.itsluminous.verysmarttv/.clock.ClockDream` |
+| Accessibility services `…/com.gathin.tvhome.HomeKeyService`, `.InputKeyService` | `com.itsluminous.verysmarttv/.keys.HomeKeyService`, `.keys.InputKeyService` |
 | Config dir `Android/data/<pkg>/files/` (`Config.dir`) | same path under the new package |
 | Theme folder `themes/mooq1-frosted` | `themes/frosted` |
 | `HeroFeed.PACKAGE = "com.itsluminous.traktshelf"`, `DETAILS_ACTIVITY` | moved to `core/contract/HeroContract` |
-| `~/.cleanyourtv/recovery-*.json` (recovery records) | `~/.leantv/recovery-<tv-id>.json`, keyed by **`ro.serialno` hash + model**, not by IP (section 17.4) |
-| `tools/venv`, `TV_HOST` | `setup/.venv`; `TV_HOST` still honoured as an override, otherwise the discovered/entered address is saved in `~/.leantv/last-tv.json` |
+| `~/.cleanyourtv/recovery-*.json` (recovery records) | `~/.verysmarttv/recovery-<tv-id>.json`, keyed by **`ro.serialno` hash + model**, not by IP (section 17.4) |
+| `tools/venv`, `TV_HOST` | `setup/.venv`; `TV_HOST` still honoured as an override, otherwise the discovered/entered address is saved in `~/.verysmarttv/last-tv.json` |
 
 ### 7.5 Resources
 
 | Old | New |
 |---|---|
-| `<com.gathin.tvhome.SkyView>`, `<com.gathin.tvhome.GlassView>` in `activity_main.xml` | `SkyView` removed; `<com.itsluminous.leantv.home.GlassView>` |
-| `@string/app_name` "Clean Your TV" (fork: launcher label) | "LeanTV" |
-| `@string/home_key_name`, `@string/dream_name` | texts say LeanTV |
-| `R.id.*`, drawable names | unchanged where not branded; `ic_tvhome_*` → `ic_leantv_*` |
+| `<com.gathin.tvhome.SkyView>`, `<com.gathin.tvhome.GlassView>` in `activity_main.xml` | `SkyView` removed; `<com.itsluminous.verysmarttv.home.GlassView>` |
+| `@string/app_name` "Clean Your TV" (fork: launcher label) | "VerySmartTV" |
+| `@string/home_key_name`, `@string/dream_name` | texts say VerySmartTV |
+| `R.id.*`, drawable names | unchanged where not branded; `ic_tvhome_*` → `ic_verysmarttv_*` |
 | `res/xml/locales_config.xml` | unchanged (31 locales) |
 
 ### 7.6 Docs and scripts
 
 | Old | New |
 |---|---|
-| `launcher/build-and-install.sh` (+`.ps1`), `tools/theme.sh` (+`.ps1`), `tools/disable.sh`, `tools/restore.sh` | `setup/leantv_setup/{install,theme,presets}.py`; shell left is only the two bootstraps |
+| `launcher/build-and-install.sh` (+`.ps1`), `tools/theme.sh` (+`.ps1`), `tools/disable.sh`, `tools/restore.sh` | `setup/verysmarttv_setup/{install,theme,presets}.py`; shell left is only the two bootstraps |
 | `PROMPT.md`, `AGENTS.md` (cleanyourtv's) | `AGENTS.md` rewritten for this repo: build, test, rename invariants, the 1 GB rule, "never print secrets" |
 
 ---
@@ -326,7 +326,7 @@ upstream optimises for a 576 KB APK and one-file readability; we optimise for te
 below groups the methods by the state they share, so each piece owns its fields and the activity only
 wires them. Line numbers refer to the cleanyourtv file.
 
-| New class (package `com.itsluminous.leantv.…`) | Carries from `MainActivity` | Pure JVM-testable? |
+| New class (package `com.itsluminous.verysmarttv.…`) | Carries from `MainActivity` | Pure JVM-testable? |
 |---|---|---|
 | `home.HomeActivity` (~400 lines) | `attachBaseContext` 102, `onCreate` 504 (wiring only), `onNewIntent` 1161, `onStart/onResume/onPause/onStop/onDestroy`, `onTrimMemory` 1476, `onWindowFocusChanged` 1494, `onActivityResult` 1276, `onBackPressed` 1891, `onUserInteraction` 1415 | No (Robolectric smoke) |
 | `home.HomeHost` (interface) | what controllers need from the activity: `findViewById`, `getConfig()`, `open(Intent)`, `post(Runnable)`, `density()`, `isRtl()` | – |
@@ -360,6 +360,9 @@ Rules for the split (so Phase 2 does not drift into a rewrite):
 3. `HomeActivity` keeps under 500 lines; CI fails a PR that pushes any file in `:launcher` over 1,200
    lines (a small Gradle task; `AppAdapter` 1,135 and `Config` 1,128 are at the limit and get split
    into `Config` + `ThemeKeys` + `SettingsChoices`, and `AppAdapter` + `TileBinder`).
+4. All user-facing text lives in string resources (ADR-035): no literal shown to the user in Java or
+   Kotlin, in every module. Lint's `HardcodedText` and `SetTextI18n` stay errors; a string the launcher
+   builds from a companion row (the pill line, the carousel meta) is data, not UI text, and is exempt.
 
 ---
 
@@ -472,7 +475,7 @@ Restore clears the choices (fork README, "Settings" row). Rows and their stored 
 | **Live scores** (new) | `score_pill` | On/Off; row subtitle "LiveScore app not installed" when `ScoreContract` resolves to nothing | `score_pill` |
 | Animations | `animations` | On/Off | `animations` (+ `advanced_effects`) |
 | Module cards | per-card decision prefs | Shown/Hidden | |
-| Backup & restore: Back up, Restore from file, Import from another launcher | files | | |
+| Backup & restore: Back up, Restore from file | files (`companions` section through each companion's `/backup`, §12.2) | | |
 | App library rows (Add/Remove) | library prefs | | `library_apps` |
 
 Persistence tests: a JVM test per row round-trips the choice through `Config` with a Robolectric
@@ -484,7 +487,7 @@ Home, and asserts the views' visibility.
 ## 11. Theme model
 
 Unchanged mechanism: a folder with `config.json` (+ optional `wallpaper.jpg`) pushed to
-`Android/data/com.itsluminous.leantv/files/` through `content://com.itsluminous.leantv.theme/<file>`
+`Android/data/com.itsluminous.verysmarttv/files/` through `content://com.itsluminous.verysmarttv.theme/<file>`
 (adb shell holds `WRITE_SECURE_SETTINGS`; `ThemeProvider` carried). `theme_revision` bumps so Home
 reloads (`ThemeFiles.java:20`).
 
@@ -530,6 +533,13 @@ Authority `com.itsluminous.livescore.scores`; `readPermission` `com.itsluminous.
 | `content://…scores/pill` | exactly one | `state` (`live`,`break`,`upcoming`,`final`,`none`), `kicker` (text, may be empty), `line` (text, ≤ 48 chars, already shortened for one line), `event_id` (text, nullable), `sport` (`cricket`,`football`,`f1`,`tennis`,`basketball`), `competition` (text), `updated_ms` (int64, when the data was fetched), `stale` (int, 1 when `updated_ms` is older than the refresh interval for that state), `color` (`#RRGGBB` for the kicker) |
 | `content://…scores/events` | followed events from yesterday 00:00 to tomorrow 23:59 local, live first then by start | `_id`, `event_id`, `sport`, `competition`, `format` (T20I/ODI/Test/…; empty for other sports), `state`, `status_detail` (feed's words: "Stumps", "Day 5", "Lunch", "HT", "Q3"), `start_ms`, `end_ms` (nullable), `home_name`, `home_abbr`, `home_score`, `away_name`, `away_abbr`, `away_score`, `summary` (feed's sentence: "Bangladesh require 320 runs"), `followed_reason` (`team`,`competition`,`event`), `updated_ms` |
 | `content://…scores/events/<event_id>` | one | same columns |
+| `content://…scores/backup` | exactly one | `json` (text): the companion's follow list as the JSON it stores on disk (§13.2), so the launcher's Backup file carries it under `companions.livescore` without parsing it |
+
+Restore goes the other way through `ContentProvider.call()`: `call("restore", null, Bundle{"json": …})`
+replaces the follow list and notifies `/pill`; it returns `Bundle{"ok": true}` or `{"ok": false,
+"error": …}`. `call` is guarded by the provider's `writePermission`
+`com.itsluminous.livescore.permission.WRITE_SCORES` (`signature`), so only the launcher restores.
+HeroContract has no backup path: traktshelf's state is OAuth tokens, which are never backed up (ADR-032).
 
 Semantics the launcher relies on:
 
@@ -559,9 +569,9 @@ tv-town's `OVERS_PART` does). Football `"<comp> · <home_abbr> <h>–<a> <away_a
 
 | Provider | Protection | Why |
 |---|---|---|
-| `…traktshelf.hero`, `…livescore.scores` | `signature` custom permission declared by the companion (`<permission android:protectionLevel="signature">`), held by the launcher via `<uses-permission>` | Requirement 5. Only an app signed with our key reads a user's Trakt rows or followed teams. Works for debug builds on one machine (same `debug.keystore`) and in CI (all three debug APKs built in one Gradle invocation). Documented consequence: a launcher built by someone else from source cannot read a companion from our Releases; they build all three. |
-| `…leantv.theme` | `WRITE_SECURE_SETTINGS` (adb shell) | carried |
-| `…leantv.backup` | none, read-only | carried: `adb shell content read` must work for the setup tool's backup step; the data is the app order and hidden apps |
+| `…traktshelf.hero`, `…livescore.scores` | `signature` custom permission declared by the companion (`<permission android:protectionLevel="signature">`), held by the launcher via `<uses-permission>`; `…livescore.scores` adds a `signature` `writePermission` for `call("restore")` | Requirement 5. Only an app signed with our key reads a user's Trakt rows or followed teams. Works for debug builds on one machine (same `debug.keystore`) and in CI (all three debug APKs built in one Gradle invocation). Documented consequence: a launcher built by someone else from source cannot read a companion from our Releases; they build all three. |
+| `…verysmarttv.theme` | `WRITE_SECURE_SETTINGS` (adb shell) | carried |
+| `…verysmarttv.backup` | none, read-only | carried: `adb shell content read` must work for the setup tool's backup step; the data is the app order and hidden apps |
 
 `<queries>`: the launcher lists both companion authorities (package visibility on Android 11+), carried
 pattern from the manifest lines 72–76.
@@ -609,8 +619,10 @@ Follow { kind: SPORT | COMPETITION | TEAM | EVENT, sport, competitionId?, teamId
   scorepanel; football: the adapter's league list). Following a *competition* means all its events.
   Following a *team* means its events in any competition. An *event* follow expires at `end_ms + 6 h`.
 - Stored as JSON in the app's files dir (`follows.json`, ≤ 100 entries), mirrored to
-  `SharedPreferences` nothing; backed up nowhere (it is small and re-entered in a minute). **[CONFIRM]**
-  whether the launcher's Backup should include it (would need a second provider path; I say no for v1).
+  `SharedPreferences` nothing. Part of the launcher's Backup from v1 (ADR-032): the launcher reads
+  `content://…scores/backup` into the `companions.livescore` section of its Backup JSON and restores it
+  with `call("restore")` (§12.2); a backup taken while the companion is absent has no section, and a
+  restore on a TV without the companion skips it with one log line.
 - Defaults on first run (so the pill shows something before the user picks): cricket → India
   internationals + IPL; football → ISL + Premier League + Champions League; F1; tennis off.
 
@@ -713,7 +725,7 @@ decomposition lands), `:traktshelf` 40 %. No Mockito: inject interfaces and use 
 
 `:core` (JVM)
 - `GbTest`: 1.1 GB free / 21.6 GB free / 512 MB free / 0 B; rounding at 9.95 GB; locale decimal separator.
-- `HeroContractTest`, `ScoreContractTest`: URI builders, column arrays have no duplicates, permission names match the manifests (reads the merged manifests from the build dir).
+- `HeroContractTest`, `ScoreContractTest`: URI builders (incl. `/backup` and the `restore` method name), column arrays have no duplicates, permission names match the manifests (reads the merged manifests from the build dir).
 - `CardContractTest`: label/caption/accent validation (carried `CardsTest` rules).
 - `DpadKeysTest`.
 
@@ -726,7 +738,7 @@ decomposition lands), `:traktshelf` 40 %. No Mockito: inject interfaces and use 
 - new `ScoreLineTest`: pill text from a provider row for each `state`; 48-char truncation with ellipsis; `stale` dimming flag.
 - new `ConfigMigrationTest`: `widgets: ["memory","cpu","storage"]` → `true`; `[]` → `false`; dropped keys logged and ignored; `advanced_effects` choice dropped on load (carried rule).
 - new `ThemeKeysTest`: `themes/README.md` Keys table ⇔ `Config` reads (both directions).
-- new `OrderMagicTest`: reads both `leantv-order 1` and `tvhome-order 1`.
+- new `OrderMagicTest`: reads both `verysmarttv-order 1` and `tvhome-order 1`.
 - new `BackupCompatTest`: a fork backup JSON (`package: com.itsluminous.tvhome`) restores.
 - new `FileLengthTest` (Gradle check task): no source file > 1,200 lines.
 
@@ -758,7 +770,7 @@ Python `tests/` (carried pattern: a fake `tv.py` answering from a JSON state fil
 - `test_presets_format.py`: every `presets/lists/*/debloat.txt` parses; `tv.json` has `tv, os, brand, notes`; no core package listed (carried `CORE_RE`/`CORE_OK` from `disable.sh:68-69` via `test_core_packages.py`); commented-out-but-active rule (`test_examples.py:141-156`).
 - `test_presets_match.py`: `getprop` samples (Mi TV 4A MOOQ1, a TCL G08, a Sony BRAVIA_ATV3, an unknown) → expected ranking and confidence tiers.
 - `test_presets_apply.py`: record-before-change, batches, restore replays recorded states, retry does not overwrite the record (carried from `test_recovery_record.py`, `test_check_fix_record.py`).
-- `test_index_fresh.py`: `presets/index.json` and `ATTRIBUTION.md` equal what `build_index.py` generates.
+- `test_index_fresh.py`: `presets/index.json` equals what `build_index.py` generates.
 - `test_no_old_identifiers.py`: `grep` for `gathin|tvhome|cleanyourtv|TvHome` over the tree returns only `LICENSE`, `THIRD_PARTY_NOTICES.md`, `README.md` credits, `presets/**` (verbatim community headers), and this design folder.
 - `test_bootstrap.py`: `setup.sh`/`setup.ps1` parse (bash -n; PowerShell parsed with `pwsh -NoProfile -Command` when present, else skipped).
 
@@ -823,12 +835,12 @@ nightly (ADR-022). Concurrency group per ref with cancel-in-progress keeps queue
    `KEY_PASSWORD`, `TRAKT_CLIENT_ID`, `TMDB_API_KEY`, `OMDB_API_KEY` in the environment (the
    convention plugin reads env first, then `secrets.env`, then `local.properties`; a missing key builds
    with an empty string, as traktshelf does today, `addons/traktshelf/app/build.gradle:8-17`).
-6. Collect `dist/leantv-launcher-$version.apk`, `dist/leantv-traktshelf-$version.apk`,
-   `dist/leantv-livescore-$version.apk`; `sha256sum > dist/SHA256SUMS`.
+6. Collect `dist/verysmarttv-launcher-$version.apk`, `dist/verysmarttv-traktshelf-$version.apk`,
+   `dist/verysmarttv-livescore-$version.apk`; `sha256sum > dist/SHA256SUMS`.
 7. **Verify** each APK with `apksigner verify --print-certs`: the SHA-256 digest must equal the
    keystore's certificate digest (`keytool -list -v`); mismatch fails the job (HikViewer's rule: a
    mis-wired secret must never ship a debug-signed release). Also assert all three digests are equal.
-8. `softprops/action-gh-release@v2`: name `LeanTV $version`, body = tag message if annotated else
+8. `softprops/action-gh-release@v2`: name `VerySmartTV $version`, body = tag message if annotated else
    `generate_release_notes: true` with `.github/release.yml` categories (`feat`, `fix`, `launcher`,
    `traktshelf`, `livescore`, `setup`, `docs` from PR labels); `prerelease` when the tag has a `-`;
    files = the three APKs + `SHA256SUMS`.
@@ -837,7 +849,7 @@ nightly (ADR-022). Concurrency group per ref with cancel-in-progress keeps queue
 
 ### 15.3 Signing
 
-- **One release keystore** for the three apps (owner's decision): alias `leantv`, RSA 4096, validity
+- **One release keystore** for the three apps (owner's decision): alias `verysmarttv`, RSA 4096, validity
   30 years, created once by the owner with `keytool` and kept **off the repo** (`*.jks` and
   `release.properties` git-ignored; `.gitignore` is in the Phase 0 commit before any build file).
 - GitHub secrets: `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`,
@@ -865,48 +877,48 @@ fixes. `CHANGELOG.md` is kept by hand (Keep a Changelog); the tag message quotes
 
 ### 16.1 Architecture
 
-One Python package, `setup/leantv_setup`, run through two thin bootstraps:
+One Python package, `setup/verysmarttv_setup`, run through two thin bootstraps:
 
 - `setup.sh` (macOS/Linux): finds `python3` ≥ 3.9 (Homebrew, Xcode CLT, or `python3` on PATH), creates
   `setup/.venv`, `pip install -r requirements.txt` (`adb-shell`, `rsa`, `cryptography` — what `tv.py` imports,
-  `tools/requirements.txt` — plus `zeroconf` for mDNS), then `exec python -I -m leantv_setup "$@"`.
+  `tools/requirements.txt` — plus `zeroconf` for mDNS), then `exec python -I -m verysmarttv_setup "$@"`.
 - `setup.ps1` (Windows PowerShell 5.1+): finds `py -3`/`python`, same venv, same module. If no Python,
   prints the python.org link and stops (no winget automation).
 
 No stock `adb` binary: `adb.py` is `tools/tv.py` carried (the pure-Python client on `adb-shell`, the
-RSA key in `~/.leantv/adbkey` with `0600`, `restrict()` carried from `tv.py:191`), plus `b64push.py`'s
+RSA key in `~/.verysmarttv/adbkey` with `0600`, `restrict()` carried from `tv.py:191`), plus `b64push.py`'s
 chunked base64 upload for APKs (`tools/b64push.py`). The optional paired-Wireless-debugging backend
 (`NativeAdbDevice`, `tv.py:253`) is carried too, for Chromecast-class devices with no port 5555.
 
-Subcommands (`python -m leantv_setup <cmd>`), the guided flow runs them in order:
+Subcommands (`python -m verysmarttv_setup <cmd>`), the guided flow runs them in order:
 
 | Command | Does | Carried from |
 |---|---|---|
-| `find` | mDNS browse for `_adb._tcp` and `_adb-tls-connect._tcp` (2 s), then a threaded connect scan of port 5555 across the computer's /24 (1 s per host, 64 threads, ~4 s), then manual entry; remembers the last TV in `~/.leantv/last-tv.json` | new; `address_problem` from `tv.py:144` |
+| `find` | mDNS browse for `_adb._tcp` and `_adb-tls-connect._tcp` (2 s), then a threaded connect scan of port 5555 across the computer's /24 (1 s per host, 64 threads, ~4 s), then manual entry; remembers the last TV in `~/.verysmarttv/last-tv.json` | new; `address_problem` from `tv.py:144` |
 | `guide` | prints the USB-debugging steps for the detected brand (Xiaomi, TCL, Sony, Google TV, Fire TV…) and waits for the "Allow USB debugging?" accept; `probe` shows model/Android/firmware | `--probe` from `tv.py` |
 | `probe` | `getprop` of `ro.product.model/brand/manufacturer/device/board/name`, `ro.build.version.release/sdk/incremental/fingerprint`, Home owner, enabled launchers | `tv.py --probe`, `build-and-install.sh:80-96` |
-| `fetch` | GitHub Releases API (`/repos/itsluminous/leantv/releases/latest`, or `--tag`), downloads the three APKs + `SHA256SUMS` into `~/.leantv/releases/<version>/`, verifies SHA-256, prints the signer digest if `apksigner` happens to exist (optional) | new |
-| `install` | pushes each APK (`b64push`), `pm install -r`, grants (`ACCESS_FINE_LOCATION`, `WRITE_SECURE_SETTINGS` when a key helper is on, `cmd package compile -m speed`), `set-home-activity`, verifies `mFocusedApp` after HOME; **Home guard**: the stock launcher is disabled only after LeanTV answers HOME, only one of the four `KNOWN_STOCK_LAUNCHERS`, with the setupwraith/Wi-Fi check on Google TV | `build-and-install.sh:78-192`, `disable.sh` guard |
-| `theme <name|--reset>` | pushes `themes/<name>` through `content://com.itsluminous.leantv.theme/…`, bumps `theme_revision`, restarts Home | `theme.sh`, `theme_restart.py` |
-| `debloat` | preset matching (17.3), shows the suggested preset with its header and the package count, lets the user pick another or "manual" (a list of every third-party/vendor package with the checklist questions from `PROMPT.md`: streaming apps, Assistant, Chromecast, updater), **records first** (`~/.leantv/recovery-<id>.json`), applies in batches with a Home check between, screenshots to `~/.leantv/shots/` | `recovery.py`, `disable.sh`, `PROMPT.md` checklist |
+| `fetch` | GitHub Releases API (`/repos/itsluminous/verysmarttv/releases/latest`, or `--tag`), downloads the three APKs + `SHA256SUMS` into `~/.verysmarttv/releases/<version>/`, verifies SHA-256, prints the signer digest if `apksigner` happens to exist (optional) | new |
+| `install` | pushes each APK (`b64push`), `pm install -r`, grants (`ACCESS_FINE_LOCATION`, `WRITE_SECURE_SETTINGS` when a key helper is on, `cmd package compile -m speed`), `set-home-activity`, verifies `mFocusedApp` after HOME; **Home guard**: the stock launcher is disabled only after VerySmartTV answers HOME, only one of the four `KNOWN_STOCK_LAUNCHERS`, with the setupwraith/Wi-Fi check on Google TV | `build-and-install.sh:78-192`, `disable.sh` guard |
+| `theme <name|--reset>` | pushes `themes/<name>` through `content://com.itsluminous.verysmarttv.theme/…`, bumps `theme_revision`, restarts Home | `theme.sh`, `theme_restart.py` |
+| `debloat` | preset matching (17.3), shows the suggested preset with its header and the package count, lets the user pick another or "manual" (a list of every third-party/vendor package with the checklist questions from `PROMPT.md`: streaming apps, Assistant, Chromecast, updater), **records first** (`~/.verysmarttv/recovery-<id>.json`), applies in batches with a Home check between, screenshots to `~/.verysmarttv/shots/` | `recovery.py`, `disable.sh`, `PROMPT.md` checklist |
 | `restore` | replays the recovery record (a package the owner had disabled stays disabled; Home goes back to the recorded owner) | `restore.sh`, `recovery.py --commands` |
 | `check [--fix]` | drift after a firmware update | `check.py` |
-| `backup` | `content read --uri content://com.itsluminous.leantv.backup/settings` → `~/.leantv/backups/` | fork README |
+| `backup` | `content read --uri content://com.itsluminous.verysmarttv.backup/settings` → `~/.verysmarttv/backups/` | fork README |
 | `close-adb` | tells the user which toggles to flip, reboots, confirms port 5555 refuses (`adb-closed.py` logic) | `adb-closed.py` |
 
 ### 16.2 UX flow (`setup` with no arguments)
 
 ```
-LeanTV setup 1.0.0
+VerySmartTV setup 1.0.0
 1  Find your TV            → mDNS … 1 found: "MiTV-MOOQ1" at <ip> (Android TV 10)   [Enter] / other IP
 2  Enable USB debugging    → steps for Xiaomi; waiting for the TV to accept this computer … ✓
 3  Get the apps            → v1.0.0: launcher 0.6 MB, traktshelf 1.1 MB, livescore 0.9 MB; SHA-256 ✓
-4  Install                 → installed 3 apps; Home = LeanTV ✓ (stock launcher left enabled; disable? [y/N])
+4  Install                 → installed 3 apps; Home = VerySmartTV ✓ (stock launcher left enabled; disable? [y/N])
 5  Theme                   → default / frosted (owner's) / skip
 6  Clean up (optional)     → Suggested preset: xiaomi-mi-tv-4a-mooq1 (exact model match, 27 packages)
                              by the CleanYourTV community (MIT). Show list / Pick another / Manual / Skip
-                             Recording current state → ~/.leantv/recovery-….json ✓
-                             Batch 1/5 … Home still LeanTV ✓ … done. Undo any time: setup restore
+                             Recording current state → ~/.verysmarttv/recovery-….json ✓
+                             Batch 1/5 … Home still VerySmartTV ✓ … done. Undo any time: setup restore
 7  Companions              → Open Trakt on the TV and sign in at trakt.tv/activate.
                              Open Scores and pick what to follow (defaults: India, IPL, ISL, F1).
 8  Close ADB?              → [y/N]  (explains port 5555)
@@ -973,7 +985,7 @@ From `getprop`: `model = ro.product.model`, `device = ro.product.device`, `board
 
 Ties in a tier are broken by SDK distance, then by newest `source` commit. The suggested preset's header
 is shown in full before anything is sent; the user can open the list, deselect lines (writes a local copy
-to `~/.leantv/lists/<slug>-edited.txt`, which `check` uses afterwards), or go Manual.
+to `~/.verysmarttv/lists/<slug>-edited.txt`, which `check` uses afterwards), or go Manual.
 
 Safety carried unchanged into `presets.py`: `CORE_RE`/`CORE_OK` refusal (`disable.sh:68-69`), one
 `pm disable-user --user 0` per shell call, the Home-owner skip until another launcher answers HOME
@@ -988,15 +1000,14 @@ the owner's TV, `work/README-mooq1.md` says so).
 - `presets/README.md`: "These lists were written by the CleanYourTV community
   (https://github.com/Gathin23/cleanyourtv, MIT, © 2026 Gathin and contributors) and are carried
   verbatim; each file's header names its tester." Plus the MIT text.
-- `presets/ATTRIBUTION.md` (generated): one line per preset: slug, source path, the cleanyourtv commit
-  that last touched it, and the git author **names** of that path (732 distinct authors over
-  `examples/`; names only, no e-mail addresses — the fork clone has them in `git log`). **[CONFIRM]**
-  names vs. "the CleanYourTV contributors" only; names are what MIT's notice spirit asks for and what
-  GitHub shows publicly anyway.
-- `THIRD_PARTY_NOTICES.md` at the root repeats the MIT notice for the launcher/traktshelf code
-  (talkies' pattern, `THIRD_PARTY_NOTICES.md:99-102`), the Outfit font (OFL, `FONT-LICENSE-OFL.txt`
-  carried), Fluent Emoji icons (`ICONS-LICENSE-FLUENT-EMOJI.txt` carried), ESPN ("from ESPN's public site
-  feeds; no affiliation"), Trakt, TMDB ("not endorsed or certified by TMDB"), OMDb, `adb-shell`,
+- No per-contributor list and no generated `ATTRIBUTION.md` (ADR-029, changed by the owner): each
+  list's header already names its tester, and `index.json` keeps the source path and commit per preset.
+- `THIRD_PARTY_NOTICES.md` at the root names the **repositories** this project drew on, each with its
+  licence text: Gathin23/cleanyourtv and its community lists (launcher, traktshelf, tools, presets),
+  NareshJagriya/tv-town-launcher (the ESPN feed approach), rajupp/talkies (notices layout),
+  itsluminous/HikViewer (CI and release shape); then the Outfit font (OFL, `FONT-LICENSE-OFL.txt`
+  carried), Fluent Emoji icons (`ICONS-LICENSE-FLUENT-EMOJI.txt` carried), ESPN ("from ESPN's public
+  site feeds; no affiliation"), Trakt, TMDB ("not endorsed or certified by TMDB"), OMDb, `adb-shell`,
   `cryptography`, `rsa`, `zeroconf`.
 
 ---
@@ -1004,11 +1015,11 @@ the owner's TV, `work/README-mooq1.md` says so).
 ## 18. README outline (HikViewer's structure)
 
 ```
-# LeanTV
+# VerySmartTV
 [CI badge] [Latest release] [License: MIT] [Platform: Android TV 8.0+]
 One paragraph: a small launcher for Android TV plus two companions (Trakt, live scores); no ads, no
 network in the launcher, 1 GB TVs.
-[Get it on GitHub] [Get it on Obtainium]  (docs/badges/, Obtainium deep link for com.itsluminous.leantv)
+[Get it on GitHub] [Get it on Obtainium]  (docs/badges/, Obtainium deep link for com.itsluminous.verysmarttv)
 ## Screenshots           (Home with the frosted theme and the score pill; settings panel; Scores app; Trakt details) — 4 images from the TV
 ## Features              (launcher bullets; companions bullets; what the bars and the pill show)
 ## How it works          (three apps, providers, signature permissions, refresh policy, the setup tool; link docs/providers.md)
@@ -1046,7 +1057,7 @@ Emoji files carried beside the launcher module.
 | **CI emulator flakiness** | Red main for environmental reasons | HikViewer's settle script; `fail-fast: false`; one retry of the job via `nick-fields/retry`; the suite is also runnable locally on the arm64 AVDs |
 | **Preset mismatch** disables something a TV needs | A broken TV feature | Exact-tier only is auto-suggested; the full header shown; record-first; batches with Home checks; `CORE_RE` refusal; restore in one command |
 | **Translations rot** | Untranslated new strings show English in 30 locales | Accepted and documented; a lint check only for malformed format arguments |
-| **Owner's existing TV migration** | Settings lost moving from `com.itsluminous.tvhome` | "Import from another launcher" carried with the old authority in `<queries>`; tested in `BackupCompatTest`; the setup tool offers it when it sees the old package installed |
+| **Owner's existing TV migration** | Settings lost moving from `com.itsluminous.tvhome` | No import row (ADR-011). The setup tool's `backup` reads the old launcher's `.backup/settings` over ADB (`content read`, no permission needed) and pushes the file into the new launcher's backup folder; **Restore from file** reads it (`BackupCompatTest`, `OrderMagicTest`). The launcher itself never names the old package |
 | **Keystore loss** | No more updates installable over existing ones | The owner keeps the `.jks` + passwords in a password manager; README says a lost key means uninstall/reinstall |
 
 ---
@@ -1059,13 +1070,13 @@ says so, runs the emulator suite, takes screenshots). The owner approves each ph
 
 | Phase | Scope | Coder delivers | Reviewer checks | QA | Acceptance | Owner provides |
 |---|---|---|---|---|---|---|
-| **0 Skeleton** (½ day) | Repo, Gradle, CI shell | `settings.gradle.kts`, `build-logic` convention plugins, version catalog, empty `:core`/`:testkit`, `.gitignore`, `LICENSE`, `THIRD_PARTY_NOTICES.md`, `AGENTS.md`, `CONTRIBUTING.md`, `ci.yml`, `release.yml`, `.github/release.yml`, `docs/BUILDING.md` | Toolchain versions match §5.1; secrets never in tree; `.gitignore` first | `./gradlew ci` green on an empty project; `release.yml` dry run on a `v0.0.1-rc1` tag produces debug-signed APKs and fails the signature check as designed | CI green; a tag builds; nothing to install yet | GitHub repo `itsluminous/leantv` created, Actions enabled |
-| **1 Carry + rename** (2 days) | `:launcher`, `:traktshelf` moved and renamed; `:core` contracts | Scripted move of 101 Java files + resources into the new packages; naming map §7 applied; dropped features removed (§3); `widgets` boolean + migration; `Config`/`AppAdapter` split; lint baselines; `HeroContract` extracted; signature permission on `.hero` | Grep test passes; no behaviour change beyond §3/§6; dropped-key logging | Carried 22 JVM tests pass; `HomeActivityTest` smoke; `BackupCompatTest`, `OrderMagicTest`, `ConfigMigrationTest` written and green; manual run on `HikViewer_TV_1080p` with the frosted theme: Home renders, carousel works with traktshelf debug build | Frosted theme on the emulator looks like the fork's screenshot minus gauges; APK < 900 KB | Confirms the **[CONFIRM]** rows of §3 and §7.2 |
+| **0 Skeleton** (½ day) | Repo, Gradle, CI shell | `settings.gradle.kts`, `build-logic` convention plugins, version catalog, empty `:core`/`:testkit`, `.gitignore`, `LICENSE`, `THIRD_PARTY_NOTICES.md`, `AGENTS.md`, `CONTRIBUTING.md`, `ci.yml`, `release.yml`, `.github/release.yml`, `docs/BUILDING.md` | Toolchain versions match §5.1; secrets never in tree; `.gitignore` first | `./gradlew ci` green on an empty project; `release.yml` dry run on a `v0.0.1-rc1` tag produces debug-signed APKs and fails the signature check as designed | CI green; a tag builds; nothing to install yet | GitHub repo `itsluminous/verysmarttv` created, Actions enabled |
+| **1 Carry + rename** (2 days) | `:launcher`, `:traktshelf` moved and renamed; `:core` contracts | Scripted move of 101 Java files + resources into the new packages; naming map §7 applied; dropped features removed (§3); `widgets` boolean + migration; `Config`/`AppAdapter` split; lint baselines; `HeroContract` extracted; signature permission on `.hero` | Grep test passes; no behaviour change beyond §3/§6; dropped-key logging | Carried 22 JVM tests pass; `HomeActivityTest` smoke; `BackupCompatTest`, `OrderMagicTest`, `ConfigMigrationTest` written and green; manual run on `HikViewer_TV_1080p` with the frosted theme: Home renders, carousel works with traktshelf debug build | Frosted theme on the emulator looks like the fork's screenshot minus gauges; APK < 900 KB | – (the §3 and §7.2 rows are decided) |
 | **2 Decompose** (3 days) | §8 | Step 1 (QA first): `HomeFocusNoPillTest`, `CarouselFocusTest` (pre-pill rules), `ThemePushTest`, `BackupRestoreTest`, `HomeSmokeTest` green on the undecomposed code. Then move methods into the 17 classes verbatim (one commit per controller), then extract `FocusRules`, `TopBarFocus` (without the pill), `PillOrder`, `InputRows`, `ShelfScale` as pure classes | Each commit compiles and keeps Espresso green; no logic changes while moving; `HomeActivity` < 500 lines; file-length task on | `FocusRulesTest` (full table), `PillOrderTest`, `ShelfScaleTest`; coverage floor 50 % on `:launcher` | All Phase-2 suites green on the emulator; `dumpsys gfxinfo` janky-frame share within 2 pp of Phase 1 on the same AVD | – |
 | **3 Bars + pill in the launcher** (2 days) | §9, §10 rows | `ResourceBars`, `ResourceSampler`, `ScorePill`, `ScoreFeed`, `TopBarFocus` rules 1–7, settings rows System bars / Live scores, `score_pill` theme key, `themes/frosted` updated, Keys table | Pill is `GONE` without the provider; no network; 60 s read only while live; focus rules exactly §9.3 | `TopBarFocusTest`, `ResourceSamplerTest`, `ScoreLineTest`, Robolectric `ResourceBarsTest`/`ScorePillTest`/`SettingsPanelTest`; Espresso `HomeFocusTest`, `ResourceBarsVisibleTest`, `SettingsPersistTest` with a `FakeScoreProvider` from `:testkit` | The reference-image layout reproduced on `HikViewer_TV_1080p` screenshot (bars block, pill line under the pills); every focus rule green | Reviews the screenshot |
 | **4 livescore app** (4 days) | §13, §12.2 | `:livescore`: `ScoreSource`, `EspnSource` + parsers, `StateNormaliser`, `LineFormatter`, `PillChooser`, `FollowStore`, `RefreshPolicy` + `ScoreProvider` + jobs, `MainActivity`/`FollowActivity`/`ScoreboardActivity`, module card, fixtures + `record_fixtures.sh` | Streaming parse, no raw payload held; refresh only on read/when live; permission `signature`; no coroutines; PSS budget | All §14.2 `:livescore` JVM tests; Robolectric `ScoreProviderTest`; Espresso `FollowFlowTest`, `ScoreboardTest`, `ProviderPermissionTest`; launcher `ProviderHandshakeTest` with the real debug companion | Follow IPL on the emulator → pill shows a scripted live line; real feed shows today's live match; PSS < 12 MB idle / < 25 MB open on `HikViewer_TV_1GB` | Confirms default follows (§13.2); no key needed |
-| **5 Setup tool + presets** (3 days) | §16, §17 | `setup/` package, both bootstraps, `presets/lists` import + `build_index.py` + `ATTRIBUTION.md`, Python tests with the fake TV | Home guard and `CORE_RE` byte-identical in intent to cleanyourtv's; record-before-change; no IPs in repo | `tests/` suite (§14.2 Python) green on macOS and in CI (ubuntu + windows runners for the bootstraps) | `setup.sh` from a clean machine: finds the emulator (`--host 127.0.0.1:5555` path), installs a `v0.x` release's three APKs, sets Home, pushes `frosted`, matches the Mi TV 4A props sample to `xiaomi-mi-tv-4a-mooq1` at tier exact, dry-run shows the batches; `restore` replays | Confirms attribution form (§17.4) |
-| **6 Real TV, README, v1.0.0** (2 days + owner time) | Docs, screenshots, release | README per §18; `docs/providers.md` generated; CHANGELOG; screenshots from the Mi TV 4A; `v1.0.0-rc1` then `v1.0.0` | README links resolve; badges point at real workflows; Disclaimer text | Real-TV checklist: Home after reboot, ALL_APPS key, Button Mapper still bound, carousel, pill with a live match, bars values plausible vs `dumpsys meminfo`, settings panel rows, backup import from `com.itsluminous.tvhome`, `setup debloat` matches the TV, `setup restore` works; PSS of the three processes | Owner installs `v1.0.0` on the Mi TV 4A via `setup.sh`; everything in the checklist passes | Keystore + the 7 secrets in GitHub; Trakt/TMDB/OMDb keys (exist in the fork's `work/secrets.env`, copied by the owner into the secrets, never by an agent); runs the real-TV checklist |
+| **5 Setup tool + presets** (3 days) | §16, §17 | `setup/` package, both bootstraps, `presets/lists` import + `build_index.py`, Python tests with the fake TV | Home guard and `CORE_RE` byte-identical in intent to cleanyourtv's; record-before-change; no IPs in repo | `tests/` suite (§14.2 Python) green on macOS and in CI (ubuntu + windows runners for the bootstraps) | `setup.sh` from a clean machine: finds the emulator (`--host 127.0.0.1:5555` path), installs a `v0.x` release's three APKs, sets Home, pushes `frosted`, matches the Mi TV 4A props sample to `xiaomi-mi-tv-4a-mooq1` at tier exact, dry-run shows the batches; `restore` replays | – (attribution form decided, §17.4) |
+| **6 Real TV, README, v1.0.0** (2 days + owner time) | Docs, screenshots, release | README per §18; `docs/providers.md` generated; CHANGELOG; screenshots from the Mi TV 4A; `v1.0.0-rc1` then `v1.0.0` | README links resolve; badges point at real workflows; Disclaimer text | Real-TV checklist: Home after reboot, ALL_APPS key, Button Mapper still bound, carousel, pill with a live match, bars values plausible vs `dumpsys meminfo`, settings panel rows, settings moved from `com.itsluminous.tvhome` with `setup backup` + Restore from file, `setup debloat` matches the TV, `setup restore` works; PSS of the three processes | Owner installs `v1.0.0` on the Mi TV 4A via `setup.sh`; everything in the checklist passes | Keystore + the 7 secrets in GitHub; Trakt/TMDB/OMDb keys (exist in the fork's `work/secrets.env`, copied by the owner into the secrets, never by an agent); runs the real-TV checklist |
 
 Total: about 16 agent-days of work plus owner gates. Phases 3 and 4 can run in parallel after Phase 2
 (the pill is tested with `FakeScoreProvider` until the real companion lands).
@@ -1074,9 +1085,9 @@ Total: about 16 agent-days of work plus owner gates. Phases 3 and 4 can run in p
 
 | Item | Phase | Note |
 |---|---|---|
-| GitHub repo `itsluminous/leantv`, Actions on | 0 | public |
-| Answers to every **[CONFIRM]** | before 1 | §3 drop rows, §7.2 old backup authority, §13.2 backup of follows, §17.4 names |
-| Release keystore (`keytool -genkeypair -alias leantv -keyalg RSA -keysize 4096 -validity 10950`) and its two passwords, as the four GitHub secrets | before the first `v*` tag (Phase 6; a `-rc` tag in Phase 0 runs unsigned on purpose) | keep the `.jks` in a password manager |
+| GitHub repo `itsluminous/verysmarttv`, Actions on | 0 | public |
+| Answers to every **[CONFIRM]** | done (2026-11-09) | §3 drops accepted; §7.2 old backup authority rejected; §13.2 follows are backed up; §17.4 repositories named, no per-contributor list |
+| Release keystore (`keytool -genkeypair -alias verysmarttv -keyalg RSA -keysize 4096 -validity 10950`) and its two passwords, as the four GitHub secrets | before the first `v*` tag (Phase 6; a `-rc` tag in Phase 0 runs unsigned on purpose) | keep the `.jks` in a password manager |
 | `TRAKT_CLIENT_ID`, `TMDB_API_KEY`, `OMDB_API_KEY` as GitHub secrets and in local `secrets.env` | 1 (traktshelf builds with empty keys otherwise) | copied by the owner from the fork's `work/secrets.env`; agents never read or print that file |
 | livescore key | none | ESPN needs none |
 | The Mi TV 4A, ADB on, for the Phase 6 checklist | 6 | and the four README screenshots |
