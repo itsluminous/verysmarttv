@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Trakt, TMDB and OMDb over HTTPS, and the images. Nothing else leaves the TV. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Who may read the hero provider: only an app signed with this app's key, which is the launcher
+         (DESIGN.md §12.3, ADR-016). The name is HeroContract.PERMISSION_READ. -->
+    <permission
+        android:name="com.itsluminous.traktshelf.permission.READ_HERO"
+        android:protectionLevel="signature" />
+
+    <uses-feature android:name="android.software.leanback" android:required="true" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+    <application
+        android:allowBackup="false"
+        android:supportsRtl="false"
+        android:label="@string/app_name"
+        android:icon="@drawable/icon"
+        android:banner="@drawable/icon"
+        android:theme="@style/Theme.TraktShelf">
+
+        <!-- Home. Also the module card the launcher shows as a tile (docs/modules.md). -->
+        <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.itsluminous.verysmarttv.category.CARD" />
+            </intent-filter>
+            <meta-data android:name="com.itsluminous.verysmarttv.card" android:resource="@xml/module_card" />
+        </activity>
+
+        <!-- Opened by the launcher's carousel with extras trakt_id (long) and kind (movie|show). -->
+        <activity android:name=".DetailsActivity" android:exported="true" />
+        <activity android:name=".SignInActivity" android:exported="false" />
+        <activity android:name=".SettingsActivity" android:exported="false" />
+
+        <!-- What the launcher's hero carousel reads: items and their pictures. Read-only, and only for the holder
+             of the signature permission above; see HeroProvider and HeroContract. -->
+        <provider
+            android:name=".HeroProvider"
+            android:authorities="com.itsluminous.traktshelf.hero"
+            android:exported="true"
+            android:readPermission="com.itsluminous.traktshelf.permission.READ_HERO"
+            android:grantUriPermissions="false" />
+
+        <service android:name=".SyncJob" android:permission="android.permission.BIND_JOB_SERVICE" android:exported="false" />
+    </application>
+</manifest>

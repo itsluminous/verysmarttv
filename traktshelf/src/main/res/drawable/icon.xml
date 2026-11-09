@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The tile: a Trakt-red disc with a thin play mark on slate, 320x180 as Android TV banners are. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp" android:height="180dp" android:viewportWidth="320" android:viewportHeight="180">
+    <path android:fillColor="#FF101828" android:pathData="M0,0h320v180h-320z" />
+    <path android:fillColor="#FF182238" android:pathData="M0,180 L320,0 L320,180 Z" />
+    <path android:fillColor="#FFED1C24" android:pathData="M160,90 m-46,0 a46,46 0 1,0 92,0 a46,46 0 1,0 -92,0" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M148,66 L188,90 L148,114 Z" />
+</vector>

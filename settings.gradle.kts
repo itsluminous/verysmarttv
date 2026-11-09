@@ -1,7 +1,6 @@
 // VerySmartTV: one Gradle project for the launcher and its two companions (DESIGN.md §5).
-// Phase 0 registers the two library modules that have sources; :launcher and :traktshelf join in
-// Phase 1 (carry + rename) and :livescore in Phase 4, each as `include(":name")` here plus one
-// `plugins { id("verysmarttv.android.app") }` build file.
+// :core and :testkit are libraries, :launcher and :traktshelf the two carried apps; :livescore joins in
+// Phase 4 as one more `include(":name")` here plus a `plugins { id("verysmarttv.android.app") }` build file.
 pluginManagement {
     includeBuild("build-logic")
     repositories {
@@ -35,3 +34,5 @@ rootProject.name = "verysmarttv"
 
 include(":core")
 include(":testkit")
+include(":launcher")
+include(":traktshelf")

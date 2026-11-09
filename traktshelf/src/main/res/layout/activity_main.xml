@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Backdrop of the focused title, top right, faded into the slate on its left and bottom. -->
+    <FrameLayout
+        android:layout_width="600dp"
+        android:layout_height="338dp"
+        android:layout_gravity="top|end">
+        <ImageView
+            android:id="@+id/backdrop"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:alpha="0"
+            android:importantForAccessibility="no" />
+        <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/backdrop_fade" />
+    </FrameLayout>
+
+    <!-- Brand line, top left. -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="26dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+        <View android:layout_width="6dp" android:layout_height="6dp" android:layout_marginEnd="10dp" android:background="@drawable/dot_accent" />
+        <TextView
+            android:id="@+id/brand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textAllCaps="true"
+            android:letterSpacing="0.3"
+            android:textSize="12sp"
+            android:textColor="#99FFFFFF" />
+    </LinearLayout>
+
+    <!-- Pills, top right: sign in (or the account), sync, settings. -->
+    <LinearLayout
+        android:id="@+id/topButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginEnd="40dp"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal"
+        android:clipChildren="false">
+        <TextView android:id="@+id/btnSignIn" style="@style/Pill" android:text="@string/sign_in" android:layout_marginEnd="8dp" android:nextFocusDown="@+id/rows" />
+        <TextView android:id="@+id/btnSync" style="@style/Pill" android:text="@string/sync_now" android:layout_marginEnd="8dp" android:nextFocusDown="@+id/rows" />
+        <TextView android:id="@+id/btnSettings" style="@style/Pill" android:text="@string/settings" android:nextFocusDown="@+id/rows" />
+    </LinearLayout>
+
+    <!-- The hero: what the focused poster is. -->
+    <LinearLayout
+        android:id="@+id/hero"
+        android:layout_width="520dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="66dp"
+        android:orientation="vertical">
+        <TextView android:id="@+id/heroTag" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textAllCaps="true" android:letterSpacing="0.22" android:textSize="11sp" android:textColor="#8CFFFFFF" android:singleLine="true" />
+        <TextView android:id="@+id/heroTitle" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="6dp" android:textSize="40sp" android:textColor="#FFFFFFFF" android:letterSpacing="-0.02"
+            android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" />
+        <TextView android:id="@+id/heroMeta" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:textSize="14sp" android:textColor="#B3FFFFFF" android:singleLine="true" />
+        <TextView android:id="@+id/heroSynopsis" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" android:textSize="14sp" android:textColor="#D1FFFFFF" android:maxLines="3" android:ellipsize="end"
+            android:lineSpacingMultiplier="1.25" />
+        <LinearLayout android:id="@+id/heroChips" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:orientation="horizontal" />
+    </LinearLayout>
+
+    <!-- Rows of posters. The focused row is scrolled to the top of this area; the hero stays put above. -->
+    <ScrollView
+        android:id="@+id/rowsScroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="300dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:scrollbars="none"
+        android:focusable="false">
+        <LinearLayout
+            android:id="@+id/rows"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="260dp"
+            android:clipChildren="false"
+            android:clipToPadding="false" />
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="18dp"
+        android:textSize="12sp"
+        android:textColor="#80FFFFFF"
+        android:letterSpacing="0.06" />
+</FrameLayout>

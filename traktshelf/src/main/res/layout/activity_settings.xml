@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The rows scroll: seven of them (Sign out last) run past a 540dp-tall screen, where the last one used to show only
+     its top edge, with no text. The focused row is scrolled into view. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:scrollbars="none"
+    android:overScrollMode="never"
+    android:focusable="false"
+    android:clipToPadding="false"
+    android:paddingStart="48dp"
+    android:paddingTop="40dp"
+    android:paddingEnd="48dp"
+    android:paddingBottom="24dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/settings"
+            android:textSize="34sp" android:textColor="#FFFFFFFF" android:letterSpacing="-0.02" />
+        <LinearLayout android:id="@+id/list" android:layout_width="440dp" android:layout_height="wrap_content" android:layout_marginTop="26dp" android:orientation="vertical" />
+        <TextView android:id="@+id/about" android:layout_width="440dp" android:layout_height="wrap_content" android:layout_marginTop="22dp"
+            android:text="@string/about_sync" android:textSize="13sp" android:textColor="#80FFFFFF" android:lineSpacingMultiplier="1.3" />
+    </LinearLayout>
+</ScrollView>

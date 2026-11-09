@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The "Coming 17 May" pill on a poster: dark, so it reads on any art. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#B3000000" />
+    <corners android:radius="999dp" />
+</shape>

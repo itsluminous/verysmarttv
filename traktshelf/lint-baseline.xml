@@ -1,0 +1,779 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.5.1" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.1)" variant="all" version="9.5.1">
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="                it.nextEpisode = String.format(&quot;S%02d E%02d&quot;, it.nextSeason, it.nextNumber) + (epTitle != null ? &quot; · &quot; + epTitle : &quot;&quot;);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/Trakt.java"
+            line="178"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 33 (current min is 26): `android.content.Context#RECEIVER_NOT_EXPORTED`"
+        errorLine1="        registerReceiver(synced, new IntentFilter(Sync.ACTION_SYNCED), Context.RECEIVER_NOT_EXPORTED);"
+        errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/MainActivity.java"
+            line="74"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="        List&lt;ResolveInfo> handlers = a.getPackageManager().queryIntentActivities(view, 0);"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/Players.java"
+            line="121"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="VectorRaster"
+        message="Limit vector icons sizes to 200×200 to keep icon drawing fast; see https://developer.android.com/studio/write/vector-asset-studio#when for more"
+        errorLine1="    android:width=&quot;320dp&quot; android:height=&quot;180dp&quot; android:viewportWidth=&quot;320&quot; android:viewportHeight=&quot;180&quot;>"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/main/res/drawable/icon.xml"
+            line="4"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsupportedChromeOsHardware"
+        message="Expecting `android:required=&quot;false&quot;` for this hardware feature that may not be supported by all Chrome OS devices"
+        errorLine1="    &lt;uses-feature android:name=&quot;android.software.leanback&quot; android:required=&quot;true&quot; />"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="14"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="ProviderReadPermissionOnly"
+        message="com.itsluminous.traktshelf.HeroProvider implements {`insert`} write APIs but does not protect them with a permission. Update the &lt;provider> tag to use android:permission or android:writePermission"
+        errorLine1="        &lt;provider"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="45"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="DataExtractionRules"
+        message="The attribute `android:allowBackup` is deprecated from Android 12 and higher and may be removed in future versions. Consider adding the attribute `android:dataExtractionRules` specifying an `@xml` resource which configures cloud backups and device transfers on Android 12 and higher."
+        errorLine1="        android:allowBackup=&quot;false&quot;"
+        errorLine2="                             ~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="18"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="LogConditional"
+        message="The log call Log.i(...) should be conditional: surround with `if (Log.isLoggable(...))` or `if (BuildConfig.DEBUG) { ... }`"
+        errorLine1="        Log.i(TAG, &quot;carousel: &quot; + out.size() + &quot; of &quot; + max + &quot; from &quot; + enabled + &quot;, lead &quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/Feed.java"
+            line="297"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="LogConditional"
+        message="The log call Log.i(...) should be conditional: surround with `if (Log.isLoggable(...))` or `if (BuildConfig.DEBUG) { ... }`"
+        errorLine1="        Log.i(TAG, &quot;trimmed image cache to &quot; + (total >> 20) + &quot; MB&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/Images.java"
+            line="125"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="LogConditional"
+        message="The log call Log.i(...) should be conditional: surround with `if (Log.isLoggable(...))` or `if (BuildConfig.DEBUG) { ... }`"
+        errorLine1="            Log.i(TAG, &quot;device code shown, expires in &quot; + device.expiresIn + &quot; s, polling every &quot; + device.interval + &quot; s&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/SignInActivity.java"
+            line="65"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LogConditional"
+        message="The log call Log.i(...) should be conditional: surround with `if (Log.isLoggable(...))` or `if (BuildConfig.DEBUG) { ... }`"
+        errorLine1="        Log.i(TAG, &quot;sync done in &quot; + (feed.syncedAt - t0) / 1000 + &quot; s: &quot; + unique.size() + &quot; items in &quot; + feed.rows.size()"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/Sync.java"
+            line="232"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/activity_details.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/activity_main.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.done` appears to be unused"
+        errorLine1="    &lt;string name=&quot;done&quot;>Done&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="52"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `reload` of class `MainActivity` requires synthetic accessor"
+        errorLine1="            reload();"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/MainActivity.java"
+            line="40"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `listener` of class `PosterAdapter` requires synthetic accessor"
+        errorLine1="                if (has &amp;&amp; item != null) listener.onFocused(item, view);"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/PosterAdapter.java"
+            line="118"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `listener` of class `PosterAdapter` requires synthetic accessor"
+        errorLine1="                if (item != null) listener.onClicked(item);"
+        errorLine2="                                  ~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/PosterAdapter.java"
+            line="121"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnusedIds"
+        message="The resource `R.id.buttons` appears to be unused"
+        errorLine1="        &lt;LinearLayout android:id=&quot;@+id/buttons&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;wrap_content&quot; android:layout_marginTop=&quot;22dp&quot;"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_details.xml"
+            line="31"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnusedIds"
+        message="The resource `R.id.brand` appears to be unused"
+        errorLine1="            android:id=&quot;@+id/brand&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_main.xml"
+            line="32"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedIds"
+        message="The resource `R.id.hero` appears to be unused"
+        errorLine1="        android:id=&quot;@+id/hero&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_main.xml"
+            line="59"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedIds"
+        message="The resource `R.id.about` appears to be unused"
+        errorLine1="        &lt;TextView android:id=&quot;@+id/about&quot; android:layout_width=&quot;440dp&quot; android:layout_height=&quot;wrap_content&quot; android:layout_marginTop=&quot;22dp&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_settings.xml"
+            line="24"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnusedIds"
+        message="The resource `R.id.hint` appears to be unused"
+        errorLine1="    &lt;TextView android:id=&quot;@+id/hint&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;wrap_content&quot; android:layout_marginTop=&quot;22dp&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_signin.xml"
+            line="10"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnusedIds"
+        message="The resource `R.id.hint2` appears to be unused"
+        errorLine1="    &lt;TextView android:id=&quot;@+id/hint2&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;wrap_content&quot; android:layout_marginTop=&quot;16dp&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_signin.xml"
+            line="14"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnusedIds"
+        message="The resource `R.id.card` appears to be unused"
+        errorLine1="    android:id=&quot;@+id/card&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/card.xml"
+            line="3"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DuplicateStrings"
+        message="Duplicate string value `Trakt: %1$s`, used in `err_trakt` and `trakt_write_failed`"
+        errorLine1="    &lt;string name=&quot;err_trakt&quot;>Trakt: %1$s&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="34"
+            column="5"/>
+        <location
+            file="src/main/res/values/strings.xml"
+            line="51"
+            column="5"
+            message="Duplicates value in `err_trakt`"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="        &lt;TextView android:id=&quot;@+id/tag&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_details.xml"
+            line="18"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="        &lt;TextView android:id=&quot;@+id/title&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:layout_marginTop=&quot;6dp&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_details.xml"
+            line="20"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="        &lt;TextView android:id=&quot;@+id/meta&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;wrap_content&quot; android:layout_marginTop=&quot;8dp&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_details.xml"
+            line="22"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="        &lt;TextView android:id=&quot;@+id/synopsis&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:layout_marginTop=&quot;8dp&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_details.xml"
+            line="27"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="        &lt;TextView android:id=&quot;@+id/castLine&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:layout_marginTop=&quot;12dp&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_details.xml"
+            line="29"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="        &lt;TextView android:id=&quot;@+id/heroTag&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_main.xml"
+            line="65"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="        &lt;TextView android:id=&quot;@+id/heroTitle&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_main.xml"
+            line="67"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="        &lt;TextView android:id=&quot;@+id/heroMeta&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_main.xml"
+            line="70"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="        &lt;TextView android:id=&quot;@+id/heroSynopsis&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_main.xml"
+            line="72"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="    &lt;TextView"
+        errorLine2="     ~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_main.xml"
+            line="100"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="    &lt;TextView android:id=&quot;@+id/url&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;wrap_content&quot; android:layout_marginTop=&quot;6dp&quot;"
+        errorLine2="     ~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_signin.xml"
+            line="12"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="    &lt;TextView android:id=&quot;@+id/code&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;wrap_content&quot; android:layout_marginTop=&quot;8dp&quot;"
+        errorLine2="     ~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_signin.xml"
+            line="16"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="    &lt;TextView android:id=&quot;@+id/status&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;wrap_content&quot; android:layout_marginTop=&quot;26dp&quot;"
+        errorLine2="     ~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_signin.xml"
+            line="19"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="    &lt;TextView"
+        errorLine2="     ~~~~~~~~">
+        <location
+            file="src/main/res/layout/row.xml"
+            line="9"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="    &lt;TextView android:id=&quot;@+id/rowName&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="     ~~~~~~~~">
+        <location
+            file="src/main/res/layout/settings_row.xml"
+            line="14"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="SelectableText"
+        message="Consider making the text value selectable by specifying `android:textIsSelectable=&quot;true&quot;`"
+        errorLine1="    &lt;TextView android:id=&quot;@+id/rowValue&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;wrap_content&quot; android:layout_marginTop=&quot;2dp&quot;"
+        errorLine2="     ~~~~~~~~">
+        <location
+            file="src/main/res/layout/settings_row.xml"
+            line="16"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="SmallSp"
+        message="Avoid using sizes smaller than `11sp`: `9sp`"
+        errorLine1="        android:textSize=&quot;9sp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/card.xml"
+            line="41"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/DetailsActivity.java"
+            line="41"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="54"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {"
+        errorLine2="                        ~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="54"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {"
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="54"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {"
+        errorLine2="                                                      ~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="54"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {"
+        errorLine2="                                                                        ~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="54"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {"
+        errorLine2="                                                                                                ~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="54"
+            column="97"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="73"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {"
+        errorLine2="                                         ~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="73"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {"
+        errorLine2="                                                  ~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="73"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String getType(Uri uri) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="92"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String getType(Uri uri) {"
+        errorLine2="                          ~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="92"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Uri insert(Uri uri, ContentValues values) {"
+        errorLine2="           ~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="105"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Uri insert(Uri uri, ContentValues values) {"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="105"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Uri insert(Uri uri, ContentValues values) {"
+        errorLine2="                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="105"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public int delete(Uri uri, String selection, String[] selectionArgs) {"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="111"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public int delete(Uri uri, String selection, String[] selectionArgs) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="111"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public int delete(Uri uri, String selection, String[] selectionArgs) {"
+        errorLine2="                                                 ~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="111"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="116"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {"
+        errorLine2="                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="116"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {"
+        errorLine2="                                                     ~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="116"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {"
+        errorLine2="                                                                       ~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/HeroProvider.java"
+            line="116"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/MainActivity.java"
+            line="46"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onFocused(Item item, View card) {"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/MainActivity.java"
+            line="157"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onFocused(Item item, View card) {"
+        errorLine2="                                     ~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/MainActivity.java"
+            line="157"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onClicked(Item item) {"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/MainActivity.java"
+            line="166"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/SettingsActivity.java"
+            line="32"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/traktshelf/SignInActivity.java"
+            line="23"
+            column="29"/>
+    </issue>
+
+</issues>

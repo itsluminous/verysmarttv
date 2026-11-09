@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <FrameLayout android:layout_width="640dp" android:layout_height="360dp" android:layout_gravity="top|end">
+        <ImageView android:id="@+id/backdrop" android:layout_width="match_parent" android:layout_height="match_parent"
+            android:scaleType="centerCrop" android:importantForAccessibility="no" />
+        <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/backdrop_fade" />
+    </FrameLayout>
+    <LinearLayout
+        android:layout_width="560dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="48dp"
+        android:paddingTop="54dp"
+        android:paddingBottom="30dp"
+        android:orientation="vertical"
+        android:gravity="bottom">
+        <TextView android:id="@+id/tag" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textAllCaps="true" android:letterSpacing="0.22" android:textSize="11sp" android:textColor="#8CFFFFFF" />
+        <TextView android:id="@+id/title" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp"
+            android:textSize="46sp" android:textColor="#FFFFFFFF" android:letterSpacing="-0.02" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" />
+        <TextView android:id="@+id/meta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp"
+            android:textSize="14sp" android:textColor="#B3FFFFFF" />
+        <LinearLayout android:id="@+id/chips" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="horizontal" />
+        <TextView android:id="@+id/tagline" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp"
+            android:textSize="15sp" android:textStyle="italic" android:textColor="#B3FFFFFF" android:maxLines="1" android:ellipsize="end" android:visibility="gone" />
+        <TextView android:id="@+id/synopsis" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"
+            android:textSize="14sp" android:textColor="#D9FFFFFF" android:maxLines="5" android:ellipsize="end" android:lineSpacingMultiplier="1.25" />
+        <TextView android:id="@+id/castLine" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
+            android:textSize="13sp" android:textColor="#99FFFFFF" android:maxLines="2" android:ellipsize="end" />
+        <LinearLayout android:id="@+id/buttons" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp"
+            android:orientation="horizontal" android:clipChildren="false">
+            <TextView android:id="@+id/btnPlay" style="@style/Pill" android:text="@string/play" android:layout_marginEnd="8dp" />
+            <TextView android:id="@+id/btnTrailer" style="@style/Pill" android:text="@string/trailer" android:layout_marginEnd="8dp" />
+            <TextView android:id="@+id/btnWatchlist" style="@style/Pill" android:text="@string/add_watchlist" android:layout_marginEnd="8dp" />
+            <TextView android:id="@+id/btnWatched" style="@style/Pill" android:text="@string/mark_watched" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

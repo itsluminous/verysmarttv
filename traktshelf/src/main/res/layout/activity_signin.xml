@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="48dp">
+    <TextView android:id="@+id/title" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="@string/sign_in_title" android:textSize="34sp" android:textColor="#FFFFFFFF" android:letterSpacing="-0.02" />
+    <TextView android:id="@+id/hint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp"
+        android:text="@string/sign_in_hint" android:textSize="15sp" android:textColor="#B3FFFFFF" />
+    <TextView android:id="@+id/url" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp"
+        android:textSize="22sp" android:textColor="#FFFFFFFF" />
+    <TextView android:id="@+id/hint2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp"
+        android:text="@string/sign_in_hint2" android:textSize="15sp" android:textColor="#B3FFFFFF" />
+    <TextView android:id="@+id/code" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp"
+        android:paddingStart="28dp" android:paddingEnd="28dp" android:paddingTop="10dp" android:paddingBottom="10dp"
+        android:background="@drawable/pill" android:textSize="52sp" android:textColor="#FFFFFFFF" android:letterSpacing="0.28" android:includeFontPadding="false" />
+    <TextView android:id="@+id/status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="26dp"
+        android:textSize="14sp" android:textColor="#99FFFFFF" android:gravity="center" />
+    <TextView android:id="@+id/btnCancel" style="@style/Pill" android:layout_marginTop="28dp" android:text="@string/cancel" />
+</LinearLayout>

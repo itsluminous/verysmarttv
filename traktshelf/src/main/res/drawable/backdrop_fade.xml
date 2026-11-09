@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Over the backdrop: fades its left edge and its bottom into the slate, so the text sits on a plain surface. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item><shape><gradient android:angle="0" android:startColor="#FF101828" android:centerColor="#80101828" android:endColor="#00101828" android:centerX="0.45" /></shape></item>
+    <item><shape><gradient android:angle="90" android:startColor="#FF101828" android:centerColor="#66101828" android:endColor="#00101828" android:centerY="0.55" /></shape></item>
+</layer-list>
