@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The launcher's instrumentation APK doubles as six of the TV apps its tests count tiles of: leanback entries
+     named Tile 1 to Tile 6, all on one TileActivity (DESIGN.md §14.3). A test theme hides every other app, so the
+     grid holds exactly these, whatever else the emulator has installed; the seventh app is the :testkit:tiles
+     package, which DummyTiles enables or disables. The names sort as they are numbered, so with no saved order the
+     grid reads Tile 1 to Tile N left to right, top to bottom. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- The one activity behind the six aliases; not itself a tile (no leanback filter), never opened by a test. -->
+        <activity
+            android:name="com.itsluminous.verysmarttv.TileActivity"
+            android:exported="false" />
+        <activity-alias
+            android:name=".App1"
+            android:exported="true"
+            android:label="Tile 1"
+            android:targetActivity="com.itsluminous.verysmarttv.TileActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".App2"
+            android:exported="true"
+            android:label="Tile 2"
+            android:targetActivity="com.itsluminous.verysmarttv.TileActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".App3"
+            android:exported="true"
+            android:label="Tile 3"
+            android:targetActivity="com.itsluminous.verysmarttv.TileActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".App4"
+            android:exported="true"
+            android:label="Tile 4"
+            android:targetActivity="com.itsluminous.verysmarttv.TileActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".App5"
+            android:exported="true"
+            android:label="Tile 5"
+            android:targetActivity="com.itsluminous.verysmarttv.TileActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".App6"
+            android:exported="true"
+            android:label="Tile 6"
+            android:targetActivity="com.itsluminous.verysmarttv.TileActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+    </application>
+</manifest>

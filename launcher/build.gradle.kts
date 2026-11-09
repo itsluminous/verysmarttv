@@ -23,4 +23,13 @@ dependencies {
     implementation(libs.androidx.dynamicanimation)
     testImplementation(libs.bundles.jvm.test)
     androidTestImplementation(libs.bundles.android.test)
+    androidTestImplementation(project(":testkit"))   // HeroFixture: the titles the companion stand-in publishes
+}
+
+// The connected suite needs two test apps on the emulator first (DESIGN.md §14.3): the companion stand-in
+// (CarouselFocusTest, ADR-037), which takes the companion's package, so the real traktshelf debug build is replaced
+// until `./gradlew :traktshelf:installDebug` puts it back (its data stays); and Tile 7, the seventh TV app the focus
+// tests switch on and off. Tiles 1 to 6 ride in the launcher's own test APK, which Gradle installs anyway.
+tasks.matching { it.name == "connectedDebugAndroidTest" }.configureEach {
+    dependsOn(":testkit:hero:installDebug", ":testkit:tiles:installDebug")
 }

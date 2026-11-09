@@ -30,8 +30,10 @@ import java.util.Map;
  * an androidTest manifest). State is static because the system instantiates the provider; call
  * {@link #reset()} in {@code @After}. Like the real provider it is read-only: {@code insert},
  * {@code update} and {@code delete} do nothing and {@code openFile} refuses any mode but {@code r}.
+ * Open for the one subclass that seeds itself on create ({@code :testkit:hero}'s FixtureHeroProvider), so an
+ * installed stand-in needs no caller to script it.
  */
-public final class FakeHeroProvider extends ContentProvider {
+public class FakeHeroProvider extends ContentProvider {
     private static final List<Object[]> ROWS = new ArrayList<>();
     private static final Map<Long, byte[]> IMAGES = new HashMap<>();
     private static int queries;

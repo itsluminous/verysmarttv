@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tile 7 of the launcher's instrumentation suites: one leanback entry, so the grid has a seventh app when this
+     package is enabled. The activity shows nothing and returns to Home. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+    <!-- allowBackup false: nothing to back up. DataExtractionRules is the finding the launcher and the companion
+         carry in their baselines; a new module may not baseline, so it is named here. -->
+    <application
+        android:label="@string/app_name"
+        android:icon="@android:drawable/sym_def_app_icon"
+        android:banner="@drawable/banner"
+        android:allowBackup="false"
+        tools:ignore="DataExtractionRules">
+        <activity
+            android:name=".TileActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

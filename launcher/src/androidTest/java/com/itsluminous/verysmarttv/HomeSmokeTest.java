@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
 
@@ -16,15 +15,14 @@ import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.Until;
 
+import com.itsluminous.verysmarttv.support.Shell;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -179,21 +177,11 @@ public class HomeSmokeTest {
         boolean holds(MainActivity activity);
     }
 
-    private String shell(String command) throws IOException {
-        ParcelFileDescriptor pfd = InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand(command);
-        try (InputStream in = new FileInputStream(pfd.getFileDescriptor()); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            byte[] buf = new byte[8192];
-            int n;
-            while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
-            return out.toString("UTF-8");
-        } finally {
-            pfd.close();
-        }
+    private static String shell(String command) throws IOException {
+        return Shell.run(command);
     }
 
     private static String grep(String text, String needle) {
-        StringBuilder hits = new StringBuilder();
-        for (String line : text.split("\n")) if (line.contains(needle)) hits.append(line.trim()).append('\n');
-        return hits.toString();
+        return Shell.grep(text, needle);
     }
 }

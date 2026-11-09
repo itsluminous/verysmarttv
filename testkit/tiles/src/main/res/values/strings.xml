@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The tile's name on Home; the instrumentation APK's six are Tile 1 to Tile 6, so this sorts after them. -->
+    <string name="app_name">Tile 7</string>
+</resources>

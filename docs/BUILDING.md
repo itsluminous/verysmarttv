@@ -36,7 +36,8 @@ Reports land in `<module>/build/reports/` (tests, `lint-results-debug.html`).
 | Module | Plugin | Language | What |
 |---|---|---|---|
 | `:core` | `verysmarttv.android.lib` | Java | The provider contracts (`HeroContract`, `ScoreContract`) and small shared helpers. |
-| `:testkit` | `verysmarttv.android.lib` | Java | `FakeHeroProvider`, `FakeScoreProvider`: test-only stand-ins for the companions. |
+| `:testkit` | `verysmarttv.android.lib` | Java | `FakeHeroProvider`, `FakeScoreProvider`, `HeroFixture`: test-only stand-ins for the companions. |
+| `:testkit:hero`, `:testkit:tiles` | `verysmarttv.android.app` | Java | The two apps the launcher's connected tests install: the companion stand-in (package `com.itsluminous.traktshelf`, ADR-037) and the seventh TV app. Debug only, never released. |
 | `:launcher` | `verysmarttv.android.app` | Java | `com.itsluminous.verysmarttv`, the home screen (carried from the fork in Phase 1; decomposed in Phase 2). |
 | `:traktshelf` | `verysmarttv.android.app` | Java | `com.itsluminous.traktshelf`, the Trakt companion ([traktshelf/README.md](../traktshelf/README.md)). |
 | `:livescore` (Phase 4) | `verysmarttv.android.app` | Kotlin | `com.itsluminous.livescore`. |
@@ -67,6 +68,18 @@ Gradle uninstalls the debug APKs when a connected run ends. Add
 the emulator you are also testing by hand. On a Google TV image (`google_atv`) `cmd package set-home-activity`
 alone does not take Home from the stock launcher; `HomeSmokeTest` disables it for the test and enables it
 again afterwards, the way the setup tool's install flow does for good.
+
+The launcher's suite (`./gradlew :launcher:connectedDebugAndroidTest`) first installs two test apps
+(DESIGN.md §14.3, ADR-037): `:testkit:hero`, the companion stand-in, which takes the package
+`com.itsluminous.traktshelf` and so **replaces the traktshelf debug build on that emulator** until
+`./gradlew :traktshelf:installDebug` puts it back (its sign-in is kept); and `:testkit:tiles`, "Tile 7", the
+seventh TV app the focus tests enable and disable. Tiles 1 to 6 are entries of the launcher's test APK. With
+`leaveApksInstalledAfterRun` those tiles stay on Home; `adb uninstall com.itsluminous.verysmarttv.test` and
+`adb uninstall com.itsluminous.verysmarttv.testkit.tiles` remove them. Every test exports the launcher's
+settings before it runs and restores them after (`support/HomeTestRule`), so the theme and choices on the
+emulator survive a run. The 24 tests take about 2 minutes on `HikViewer_TV_1080p` (Apple M-series, headless
+`-no-window -no-audio -gpu swiftshader_indirect`), 115 s of it on the device, plus a minute of build on a cold
+Gradle daemon.
 
 ## Signing
 

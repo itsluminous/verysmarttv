@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The companion stand-in for the launcher's instrumentation tests (DESIGN.md §14.3, ADR-037). The permission
+     and the provider carry the companion's own names (traktshelf/src/main/AndroidManifest.xml, HeroContract):
+     the launcher's uses-permission is satisfied by this package's definition, under this package's signature.
+     No activity and no leanback feature: it is a provider, not an app anyone opens. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- The companion's name for it (HeroContract.PERMISSION_READ), not this module's namespace: lint's
+         naming rule wants the namespace, and the launcher asks for this exact name. -->
+    <permission
+        android:name="com.itsluminous.traktshelf.permission.READ_HERO"
+        android:protectionLevel="signature"
+        tools:ignore="PermissionNamingConvention" />
+
+    <!-- allowBackup false as the companion: the stand-in holds nothing. DataExtractionRules is the same finding the
+         companion and the launcher carry in their baselines; a new module may not baseline, so it is named here. -->
+    <application
+        android:label="@string/app_name"
+        android:icon="@android:drawable/sym_def_app_icon"
+        android:allowBackup="false"
+        tools:ignore="DataExtractionRules">
+        <!-- Seeds HeroFixture when the system creates it, so the launcher reads three titles with backdrops.
+             readPermission only, like the real provider: its insert/update/delete answer nothing
+             (ProviderReadPermissionOnly, baselined on the companion). -->
+        <provider
+            android:name=".FixtureHeroProvider"
+            android:authorities="com.itsluminous.traktshelf.hero"
+            android:exported="true"
+            android:readPermission="com.itsluminous.traktshelf.permission.READ_HERO"
+            android:grantUriPermissions="false"
+            tools:ignore="ProviderReadPermissionOnly" />
+    </application>
+</manifest>
