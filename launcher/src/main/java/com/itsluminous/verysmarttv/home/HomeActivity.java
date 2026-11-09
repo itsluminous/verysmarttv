@@ -176,7 +176,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     }
 
 
-    private static final int LAUNCHER_SETTINGS_REQUEST = 42;
     /** Sent by QuickSettingsActivity: open Launcher settings from here so Home rebuilds when they close. */
     public static final String ACTION_LAUNCHER_SETTINGS = "com.itsluminous.verysmarttv.action.LAUNCHER_SETTINGS";
     /** Sent by the "library" action word of app_keys: open the App library over Home (needs app_library). */
@@ -193,8 +192,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
      */
     private static final long TIME_VALID_AFTER_MS = 1_735_689_600_000L;
     private String liveTvPkg;
-    /** Launcher settings' change count this Home was built with (see onResume). */
-    private long settingsRevision;
     private String liveTvAction;
     private String liveTvInputId;
     private String inputAction;
@@ -315,41 +312,11 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     /** The highlight springs past its target (config.xml, focus_overshoot); false goes straight there. */
     private boolean focusOvershoot;
     private int greetingColor;
-    /** boot_to_live_tv: open the Live TV app on the first Home of each boot. */
-    private boolean bootToLiveTv;
-    /** open_on_start_choice: the app picked in Launcher settings may open on the first Home of each boot. */
-    private boolean openOnStartChoice;
-    /** open_on_start_network_wait, in ms; the boot's app while it waits for the network, and until when. */
-    private long openOnStartWaitMs;
-    /** open_on_start_on_wake: wakeReceiver is registered for this activity's life. */
-    private boolean openOnStartOnWake;
-    private volatile Intent startPending;
-    private long startDeadline;
-    /** Opens the boot's app once the network is validated (networkCallback posts this) or the wait is over. */
-    private final Runnable openWhenOnline = new Runnable() {
-        @Override
-        public void run() {
-            if (startPending == null) return;
-            if (!OpenOnStart.opensNow(OpenOnStart.online(HomeActivity.this), SystemClock.elapsedRealtime(),
-                    startDeadline)) return;
-            handler.removeCallbacks(this);   // the deadline's run, when the network came first
-            Intent i = startPending;
-            startPending = null;
-            open(i);
-        }
-    };
-    private final BroadcastReceiver wakeReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            openStartAppOnWake();
-        }
-    };
     /** hidden_apps as the adapter sees them (config.xml or a theme's config.json): a hidden app gets no card either. */
     private Set<String> hiddenApps = Collections.emptySet();
     /** library_excluded_apps: packages the App library catalogue never offers. */
     private Set<String> libraryExcludedApps = Collections.emptySet();
     private List<Cards.Card> cards = Collections.emptyList();
-    private boolean settingsRecreationPending;
     private Dialog cardPrompt;
     /** Set when a decision could not be saved: no more prompts until the next resume, instead of asking in a loop. */
     private boolean promptsPaused;
@@ -410,7 +377,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities caps) {
             boolean validated = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
             // open_on_start_network_wait: the boot's app opens on the first validated network.
-            if (validated && startPending != null) handler.post(openWhenOnline);
+            startup.onNetworkValidated();
             if (validated == lastValidated) return;
             lastValidated = validated;
             if (wifiNoInternetTint != null) handler.post(HomeActivity.this::updateWifiLabel);
@@ -464,6 +431,8 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     };
     /** Keeps the Home clocks moving on Android before 12 when the firmware stops ACTION_TIME_TICK (see ClockRefresh). */
     private ClockRefresh clockRefresh;
+    /** Boot and wake opens, the intents Home answers, the Launcher settings result (StartupRouter). */
+    StartupRouter startup;
     /** The glow behind the grid (AmbientGlow): the shelf asks it for colours and fades. */
     private AmbientGlow glow;
     /** home_idle_clock_minutes and back_opens_clock (IdleClock). */
@@ -498,7 +467,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         // restore_key_services: after a force stop, put back the remote's accessibility helpers that Android took
         // off the list (needs WRITE_SECURE_SETTINGS, granted by build-and-install with RESTORE_KEY_SERVICES=1).
         if (cfg.restoreKeyServices) ServiceRepair.restore(this);
-        settingsRevision = settingsRevision();
+        startup = new StartupRouter(this, cfg);
         applyViewInputsHandler(cfg.handleViewInputs);
         settingsKeycodes = cfg.settingsKeycodes;
         settingsKeyPanel = cfg.settingsKeyPanel;
@@ -513,10 +482,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         state.heroHeightPct = cfg.heroHeight;
         focusOvershoot = cfg.focusOvershoot;
         liveTvPkg = cfg.liveTvPackage;
-        bootToLiveTv = cfg.bootToLiveTv;
-        openOnStartChoice = cfg.openOnStartChoice;
-        openOnStartWaitMs = cfg.openOnStartNetworkWait * 1000L;
-        openOnStartOnWake = OpenOnStart.onWake(cfg.openOnStartChoice, cfg.openOnStartOnWake);
         liveTvAction = cfg.liveTvAction;
         liveTvInputId = cfg.liveTvInputId;
         state.appLibraryEnabled = cfg.appLibrary;
@@ -836,8 +801,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             ((TextView) btnSettings).setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_home_settings_pill, 0, 0, 0);
         }
         btnSettings.setOnClickListener(v -> {
-            if (launcherSettingsButton) startActivityForResult(
-                    new Intent(this, LauncherSettingsActivity.class), LAUNCHER_SETTINGS_REQUEST);
+            if (launcherSettingsButton) startup.openLauncherSettings();
             else open(systemIntent(Settings.ACTION_SETTINGS));
         });
         btnReorder = findViewById(R.id.btnReorder);
@@ -964,13 +928,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         } else {
             registerReceiver(packageReceiver, packageFilter);
         }
-        if (openOnStartOnWake) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                registerReceiver(wakeReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON), Context.RECEIVER_NOT_EXPORTED);
-            } else {
-                registerReceiver(wakeReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
-            }
-        }
+        startup.onCreate();
 
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
         TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
@@ -983,7 +941,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
                     .build(), vpnCallback);
         }
         // Not after recreate(): the launch intent survives it and would open the settings again.
-        if (savedInstanceState == null && !openLauncherSettingsIfAsked(getIntent()) && !openLibraryIfAsked(getIntent())) {
+        if (savedInstanceState == null && !startup.openIfAsked(getIntent())) {
             openInputsIfAsked(getIntent());
         }
     }
@@ -1039,28 +997,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     }
 
     /**
-     * ACTION_APP_LIBRARY, sent by the "library" action word: open the App library once Home is on screen. The intent
-     * is replaced so a later recreate() does not open it again. With app_library off there is no library, so the
-     * press only brings Home forward.
-     */
-    private boolean openLibraryIfAsked(Intent intent) {
-        if (intent == null || !ACTION_APP_LIBRARY.equals(intent.getAction())) return false;
-        setIntent(new Intent(Intent.ACTION_MAIN));
-        if (!state.appLibraryEnabled) return true;
-        getWindow().getDecorView().post(() -> {
-            if (!isFinishing() && !isDestroyed()) onLibraryRequested();
-        });
-        return true;
-    }
-
-    private boolean openLauncherSettingsIfAsked(Intent intent) {
-        if (intent == null || !ACTION_LAUNCHER_SETTINGS.equals(intent.getAction())) return false;
-        setIntent(new Intent(Intent.ACTION_MAIN));
-        startActivityForResult(new Intent(this, LauncherSettingsActivity.class), LAUNCHER_SETTINGS_REQUEST);
-        return true;
-    }
-
-    /**
      * Home pressed while Home is already in front: singleTask delivers it here, then onResume runs.
      * Back to the top with the first dock tile focused, like the stock launcher. Back from an app
      * never comes this way, so returning to the app you left from is unchanged (#118).
@@ -1068,8 +1004,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (openLauncherSettingsIfAsked(intent)) return;
-        if (openLibraryIfAsked(intent)) return;
+        if (startup.openIfAsked(intent)) return;
         if (openInputsIfAsked(intent)) return;
         if (intent == null || !intent.hasCategory(Intent.CATEGORY_HOME)) return;
         grid.scrollToPosition(0);
@@ -1107,7 +1042,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         // delivered their RESULT_OK; Home (the remote's button) clears them off this task and the result comes
         // back cancelled, so a new wallpaper or layout waited for the next process start. Before the carousel's
         // reader starts: with Trakt recommendations just turned off, the rebuilt Home has no reader at all.
-        if (Config.settingsChanged(settingsRevision, settingsRevision())) {
+        if (startup.settingsChanged()) {
             recreate();
             return;
         }
@@ -1134,7 +1069,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             default:
                 break;
         }
-        if (openLiveTvAfterBoot()) return;
+        if (startup.openLiveTvAfterBoot()) return;
         updateGreeting();
         // Back from an app opened from its tile, focus is still on that tile, so the state.cinematic "Last opened" line kept
         // the time from before this launch ("2 days ago" right after opening it). Refresh it.
@@ -1159,11 +1094,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         return getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
     }
 
-    /** Launcher settings' change count (Config.SETTINGS_REVISION_KEY); onResume rebuilds Home when it moved. */
-    private long settingsRevision() {
-        return getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE).getLong(Config.SETTINGS_REVISION_KEY, 0);
-    }
-
     /**
      * Only "Reorder tiles" in Launcher settings still answers with a result: Home rebuilds (the saved choices are
      * reloaded) and then enters reorder mode. Every other change is picked up in onResume through the change count.
@@ -1171,28 +1101,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == LAUNCHER_SETTINGS_REQUEST && resultCode == RESULT_OK
-                && data != null && data.getBooleanExtra(LauncherSettingsActivity.EXTRA_REORDER, false)) {
-            getIntent().putExtra(LauncherSettingsActivity.EXTRA_REORDER, true);
-            if (!Config.settingsChanged(settingsRevision, settingsRevision())) {
-                // Nothing was changed before Reorder was chosen: keep this activity and its tiles, and start the
-                // reorder when the window has focus again (onWindowFocusChanged). A recreate() here blanked Home
-                // for a moment on every use.
-                return;
-            }
-            // Something changed too: rebuild with it first. The old activity must not consume the pending action,
-            // or rebuild a second time in onResume.
-            settingsRecreationPending = true;
-            settingsRevision = settingsRevision();
-            recreate();
-        }
-    }
-
-    private void startPendingSettingsReorder() {
-        if (settingsRecreationPending || !state.tilesReady || !hasWindowFocus() || isFinishing()
-                || !getIntent().getBooleanExtra(LauncherSettingsActivity.EXTRA_REORDER, false)) return;
-        getIntent().removeExtra(LauncherSettingsActivity.EXTRA_REORDER);
-        toggleReorder();
+        startup.onActivityResult(requestCode, resultCode, data);
     }
 
     /** Rebuilds the tiles (and the module cards), then puts focus back where it was. */
@@ -1247,7 +1156,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             if (pos < 0) hideHero();
             // A newly installed app may have brought a card with it.
             state.tilesReady = true;
-            startPendingSettingsReorder();
+            startup.startPendingSettingsReorder();
             showCardPrompt();
         }
     }
@@ -1301,7 +1210,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             if (returnToLibrary || libraryFocusPending) focusLibrary();
             else focusTile(pos >= 0 ? pos : returnSlot);
             state.tilesReady = true;
-            startPendingSettingsReorder();
+            startup.startPendingSettingsReorder();
             showCardPrompt();
         });
     }
@@ -1333,8 +1242,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         glow.cancelFade();
         heroArt.animate().cancel();
         handler.removeCallbacks(minuteTick);
-        handler.removeCallbacks(openWhenOnline);
-        startPending = null;   // leaving Home before the network came back: the boot's app stays closed
+        startup.onPause();
         cancelPendingFocusScroll();
         // Nothing of ours stays on screen over another app; an undecided prompt simply returns next time.
         if (cardPrompt != null) cardPrompt.dismiss();
@@ -1380,7 +1288,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
-            startPendingSettingsReorder();
+            startup.startPendingSettingsReorder();
             if (libraryFocusPending && appLibrary == null) focusLibrary();
             showCardPrompt();
         } else {
@@ -1395,7 +1303,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         if (heroFeed != null) heroFeed.release();
         cancelHoldOk();
         unregisterReceiver(packageReceiver);
-        if (openOnStartOnWake) unregisterReceiver(wakeReceiver);
+        startup.onDestroy();
         wallpaper.close();
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
         TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
@@ -1511,7 +1419,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     }
 
     /** The reorder button: turns the mode on (focus goes back to the last tile), or off again. */
-    private void toggleReorder() {
+    void toggleReorder() {
         if (reordering) {
             endReorder();
             return;
@@ -3303,49 +3211,8 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         btnInputs.setVisibility(any ? View.VISIBLE : View.GONE);
     }
 
-    /** boot_to_live_tv, or the Open on start app: the first time Home comes up after the TV starts, open that app
-     *  instead. Once per boot, keyed on Settings.Global.BOOT_COUNT and committed to disk before the app starts: on a
-     *  low-memory TV the app can push the launcher out of memory, and an apply() still in flight was lost then, so
-     *  every Home press opened the app again. */
-    private boolean openLiveTvAfterBoot() {
-        String app = openOnStartChoice ? getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE)
-                .getString(OpenOnStart.KEY, "") : "";
-        if (!bootToLiveTv && app.isEmpty()) return false;
-        int boot = OpenOnStart.boot(this);
-        SharedPreferences prefs = getSharedPreferences(OpenOnStart.BOOT_PREFS, MODE_PRIVATE);
-        String target = bootToLiveTv ? liveTvPkg : app;
-        if (!OpenOnStart.due(boot, prefs.getInt(OpenOnStart.BOOT_KEY, -1), target, getPackageName())) return false;
-        if (!prefs.edit().putInt(OpenOnStart.BOOT_KEY, boot).commit()) return false;
-        Intent i = bootToLiveTv ? liveTvIntent() : OpenOnStart.intent(getPackageManager(), app);
-        if (i == null) return false;
-        return openWhenReady(i);
-    }
-
-    /** open_on_start_on_wake: the remote's power button is a light sleep on some sets, with no boot for
-     *  openLiveTvAfterBoot to catch. */
-    private void openStartAppOnWake() {
-        String app = getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE).getString(OpenOnStart.KEY, "");
-        if (app.isEmpty() || app.equals(getPackageName())) return;
-        Intent i = OpenOnStart.intent(getPackageManager(), app);
-        if (i != null) openWhenReady(i);
-    }
-
-    private boolean openWhenReady(Intent i) {
-        // open_on_start_network_wait: Home stays on screen until the network is back or the wait is over.
-        if (openOnStartWaitMs > 0 && !OpenOnStart.online(this)) {
-            startPending = i;
-            startDeadline = SystemClock.elapsedRealtime() + openOnStartWaitMs;
-            handler.postDelayed(openWhenOnline, openOnStartWaitMs);
-            // Validated between the check above and startPending: networkCallback may have skipped it.
-            if (OpenOnStart.online(this)) handler.post(openWhenOnline);
-            return false;
-        }
-        open(i);
-        return true;
-    }
-
     /** The Live TV app's launch intent: its leanback entry point, or the configured action if it has none. */
-    private Intent liveTvIntent() {
+    Intent liveTvIntent() {
         if (liveTvPkg.isEmpty()) return null;
         Intent i = getPackageManager().getLeanbackLaunchIntentForPackage(liveTvPkg);
         if (i != null || liveTvAction.isEmpty()) return i;
@@ -3765,7 +3632,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         addInputRow(rows, popup, R.drawable.ic_swap_vert, getString(R.string.reorder), -1, this::toggleReorder);
         if (launcherSettingsButton) {
             addInputRow(rows, popup, R.drawable.ic_home_settings_pill, getString(R.string.launcher_settings), -1,
-                    () -> startActivityForResult(new Intent(this, LauncherSettingsActivity.class), LAUNCHER_SETTINGS_REQUEST));
+                    () -> startup.openLauncherSettings());
         } else {
             addInputRow(rows, popup, R.drawable.ic_settings, getString(R.string.settings), -1,
                     () -> open(systemIntent(Settings.ACTION_SETTINGS)));
@@ -3782,8 +3649,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (200 * density));
-        if (!launcherSettingsButton) addSettingsMenuRow(rows, popup, R.string.launcher_settings, () -> startActivityForResult(
-                new Intent(this, LauncherSettingsActivity.class), LAUNCHER_SETTINGS_REQUEST));
+        if (!launcherSettingsButton) addSettingsMenuRow(rows, popup, R.string.launcher_settings, () -> startup.openLauncherSettings());
         // Firmware that ships its own settings app next to the AOSP one (Xiaomi China is one): the
         // vendor app holds pages the AOSP settings has no row for, such as Account & Security with
         // the ADB switch. Offered here only while one of them is installed.
