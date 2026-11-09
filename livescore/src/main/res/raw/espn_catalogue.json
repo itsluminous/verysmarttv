@@ -1,0 +1,1339 @@
+{
+"cricket":[
+{
+"id":"international",
+"name":"International matches",
+"short":"Internationals",
+"teams":[
+{
+"id":"6",
+"name":"India",
+"abbr":"IND"
+},
+{
+"id":"2",
+"name":"Australia",
+"abbr":"AUS"
+},
+{
+"id":"1",
+"name":"England",
+"abbr":"ENG"
+},
+{
+"id":"7",
+"name":"Pakistan",
+"abbr":"PAK"
+},
+{
+"id":"3",
+"name":"South Africa",
+"abbr":"SA"
+},
+{
+"id":"5",
+"name":"New Zealand",
+"abbr":"NZ"
+},
+{
+"id":"8",
+"name":"Sri Lanka",
+"abbr":"SL"
+},
+{
+"id":"4",
+"name":"West Indies",
+"abbr":"WI"
+},
+{
+"id":"25",
+"name":"Bangladesh",
+"abbr":"BAN"
+},
+{
+"id":"40",
+"name":"Afghanistan",
+"abbr":"AFG"
+},
+{
+"id":"9",
+"name":"Zimbabwe",
+"abbr":"ZIM"
+},
+{
+"id":"29",
+"name":"Ireland",
+"abbr":"IRE"
+}
+]
+},
+{
+"id":"8048",
+"name":"Indian Premier League",
+"short":"IPL",
+"teams":[]
+},
+{
+"id":"8679",
+"name":"Pakistan Super League",
+"short":"PSL",
+"teams":[]
+},
+{
+"id":"8623",
+"name":"Caribbean Premier League",
+"short":"CPL",
+"teams":[]
+},
+{
+"id":"21266",
+"name":"Major League Cricket",
+"short":"MLC",
+"teams":[]
+},
+{
+"id":"8053",
+"name":"Vitality Blast",
+"short":"Blast",
+"teams":[]
+},
+{
+"id":"8634",
+"name":"ICC Women's T20 World Cup",
+"short":"Women's T20 WC",
+"teams":[]
+}
+],
+"football":[
+{
+"id":"ind.1",
+"name":"Indian Super League",
+"short":"ISL",
+"teams":[
+{
+"id":"18851",
+"name":"Bengaluru FC",
+"abbr":"BFC"
+},
+{
+"id":"18000",
+"name":"Chennaiyin FC",
+"abbr":"CFC"
+},
+{
+"id":"8896",
+"name":"Churchill Brothers",
+"abbr":"CHU"
+},
+{
+"id":"8897",
+"name":"East Bengal FC",
+"abbr":"EBFC"
+},
+{
+"id":"18003",
+"name":"FC GOA",
+"abbr":"FC Goa"
+},
+{
+"id":"22069",
+"name":"Inter Kashi",
+"abbr":"ITKA"
+},
+{
+"id":"17997",
+"name":"Kerala Blasters FC",
+"abbr":"KER"
+},
+{
+"id":"20774",
+"name":"Mohun Bagan Super Giant",
+"abbr":"MBSG"
+},
+{
+"id":"18002",
+"name":"Mumbai City FC",
+"abbr":"MCFC"
+},
+{
+"id":"18004",
+"name":"NorthEast United FC",
+"abbr":"NEU"
+},
+{
+"id":"17998",
+"name":"Odisha FC",
+"abbr":"OFC"
+},
+{
+"id":"18894",
+"name":"Punjab FC",
+"abbr":"PFC"
+},
+{
+"id":"131703",
+"name":"Sporting Club Delhi",
+"abbr":"SCD"
+}
+]
+},
+{
+"id":"eng.1",
+"name":"Premier League",
+"short":"Premier League",
+"teams":[
+{
+"id":"349",
+"name":"AFC Bournemouth",
+"abbr":"BOU"
+},
+{
+"id":"359",
+"name":"Arsenal",
+"abbr":"ARS"
+},
+{
+"id":"362",
+"name":"Aston Villa",
+"abbr":"AVL"
+},
+{
+"id":"337",
+"name":"Brentford",
+"abbr":"BRE"
+},
+{
+"id":"331",
+"name":"Brighton & Hove Albion",
+"abbr":"BHA"
+},
+{
+"id":"363",
+"name":"Chelsea",
+"abbr":"CHE"
+},
+{
+"id":"388",
+"name":"Coventry City",
+"abbr":"COV"
+},
+{
+"id":"384",
+"name":"Crystal Palace",
+"abbr":"CRY"
+},
+{
+"id":"368",
+"name":"Everton",
+"abbr":"EVE"
+},
+{
+"id":"370",
+"name":"Fulham",
+"abbr":"FUL"
+},
+{
+"id":"306",
+"name":"Hull City",
+"abbr":"HUL"
+},
+{
+"id":"373",
+"name":"Ipswich Town",
+"abbr":"IPS"
+},
+{
+"id":"357",
+"name":"Leeds United",
+"abbr":"LEE"
+},
+{
+"id":"364",
+"name":"Liverpool",
+"abbr":"LIV"
+},
+{
+"id":"382",
+"name":"Manchester City",
+"abbr":"MNC"
+},
+{
+"id":"360",
+"name":"Manchester United",
+"abbr":"MAN"
+},
+{
+"id":"361",
+"name":"Newcastle United",
+"abbr":"NEW"
+},
+{
+"id":"393",
+"name":"Nottingham Forest",
+"abbr":"NFO"
+},
+{
+"id":"366",
+"name":"Sunderland",
+"abbr":"SUN"
+},
+{
+"id":"367",
+"name":"Tottenham Hotspur",
+"abbr":"TOT"
+}
+]
+},
+{
+"id":"uefa.champions",
+"name":"Champions League",
+"short":"UCL",
+"teams":[
+{
+"id":"887",
+"name":"AEK Athens",
+"abbr":"AEK"
+},
+{
+"id":"104",
+"name":"AS Roma",
+"abbr":"ROMA"
+},
+{
+"id":"359",
+"name":"Arsenal",
+"abbr":"ARS"
+},
+{
+"id":"362",
+"name":"Aston Villa",
+"abbr":"AVL"
+},
+{
+"id":"1068",
+"name":"Atlético Madrid",
+"abbr":"ATM"
+},
+{
+"id":"83",
+"name":"Barcelona",
+"abbr":"BAR"
+},
+{
+"id":"132",
+"name":"Bayern Munich",
+"abbr":"MUN"
+},
+{
+"id":"2980",
+"name":"Bodo/Glimt",
+"abbr":"BODO"
+},
+{
+"id":"124",
+"name":"Borussia Dortmund",
+"abbr":"DOR"
+},
+{
+"id":"570",
+"name":"Club Brugge",
+"abbr":"BRU"
+},
+{
+"id":"2572",
+"name":"Como",
+"abbr":"COMO"
+},
+{
+"id":"437",
+"name":"FC Porto",
+"abbr":"FCP"
+},
+{
+"id":"436",
+"name":"Fenerbahce",
+"abbr":"FEN"
+},
+{
+"id":"142",
+"name":"Feyenoord Rotterdam",
+"abbr":"FEY"
+},
+{
+"id":"432",
+"name":"Galatasaray",
+"abbr":"GAL"
+},
+{
+"id":"110",
+"name":"Internazionale",
+"abbr":"INT"
+},
+{
+"id":"4411",
+"name":"LASK Linz",
+"abbr":"LAS"
+},
+{
+"id":"175",
+"name":"Lens",
+"abbr":"RCL"
+},
+{
+"id":"166",
+"name":"Lille",
+"abbr":"LILL"
+},
+{
+"id":"364",
+"name":"Liverpool",
+"abbr":"LIV"
+},
+{
+"id":"382",
+"name":"Manchester City",
+"abbr":"MNC"
+},
+{
+"id":"360",
+"name":"Manchester United",
+"abbr":"MAN"
+},
+{
+"id":"114",
+"name":"Napoli",
+"abbr":"NAP"
+},
+{
+"id":"148",
+"name":"PSV Eindhoven",
+"abbr":"PSV"
+},
+{
+"id":"160",
+"name":"Paris Saint-Germain",
+"abbr":"PSG"
+},
+{
+"id":"11420",
+"name":"RB Leipzig",
+"abbr":"RBL"
+},
+{
+"id":"244",
+"name":"Real Betis",
+"abbr":"BET"
+},
+{
+"id":"86",
+"name":"Real Madrid",
+"abbr":"RMA"
+},
+{
+"id":"21922",
+"name":"Sabah FK",
+"abbr":"SAB"
+},
+{
+"id":"493",
+"name":"Shakhtar Donetsk",
+"abbr":"SHK"
+},
+{
+"id":"494",
+"name":"Slavia Prague",
+"abbr":"SLP"
+},
+{
+"id":"521",
+"name":"Slovan Bratislava",
+"abbr":"SLB"
+},
+{
+"id":"2250",
+"name":"Sporting CP",
+"abbr":"SCP"
+},
+{
+"id":"134",
+"name":"VfB Stuttgart",
+"abbr":"VFB"
+},
+{
+"id":"510",
+"name":"Viking FK",
+"abbr":"VFK"
+},
+{
+"id":"102",
+"name":"Villarreal",
+"abbr":"VIL"
+}
+]
+},
+{
+"id":"esp.1",
+"name":"La Liga",
+"short":"La Liga",
+"teams":[
+{
+"id":"96",
+"name":"Alavés",
+"abbr":"ALA"
+},
+{
+"id":"93",
+"name":"Athletic Club",
+"abbr":"ATH"
+},
+{
+"id":"1068",
+"name":"Atlético Madrid",
+"abbr":"ATM"
+},
+{
+"id":"83",
+"name":"Barcelona",
+"abbr":"BAR"
+},
+{
+"id":"85",
+"name":"Celta Vigo",
+"abbr":"CEL"
+},
+{
+"id":"90",
+"name":"Deportivo",
+"abbr":"DEP"
+},
+{
+"id":"3751",
+"name":"Elche",
+"abbr":"ELC"
+},
+{
+"id":"88",
+"name":"Espanyol",
+"abbr":"ESP"
+},
+{
+"id":"2922",
+"name":"Getafe",
+"abbr":"GET"
+},
+{
+"id":"1538",
+"name":"Levante",
+"abbr":"LEV"
+},
+{
+"id":"99",
+"name":"Málaga",
+"abbr":"MCF"
+},
+{
+"id":"97",
+"name":"Osasuna",
+"abbr":"OSA"
+},
+{
+"id":"87",
+"name":"Racing Santander",
+"abbr":"RAC"
+},
+{
+"id":"101",
+"name":"Rayo Vallecano",
+"abbr":"RAY"
+},
+{
+"id":"244",
+"name":"Real Betis",
+"abbr":"BET"
+},
+{
+"id":"86",
+"name":"Real Madrid",
+"abbr":"RMA"
+},
+{
+"id":"89",
+"name":"Real Sociedad",
+"abbr":"RSO"
+},
+{
+"id":"243",
+"name":"Sevilla",
+"abbr":"SEV"
+},
+{
+"id":"94",
+"name":"Valencia",
+"abbr":"VAL"
+},
+{
+"id":"102",
+"name":"Villarreal",
+"abbr":"VIL"
+}
+]
+},
+{
+"id":"ita.1",
+"name":"Serie A",
+"short":"Serie A",
+"teams":[
+{
+"id":"103",
+"name":"AC Milan",
+"abbr":"MIL"
+},
+{
+"id":"104",
+"name":"AS Roma",
+"abbr":"ROMA"
+},
+{
+"id":"105",
+"name":"Atalanta",
+"abbr":"ATA"
+},
+{
+"id":"107",
+"name":"Bologna",
+"abbr":"BOL"
+},
+{
+"id":"2925",
+"name":"Cagliari",
+"abbr":"CAG"
+},
+{
+"id":"2572",
+"name":"Como",
+"abbr":"COMO"
+},
+{
+"id":"109",
+"name":"Fiorentina",
+"abbr":"FIO"
+},
+{
+"id":"4057",
+"name":"Frosinone",
+"abbr":"FRO"
+},
+{
+"id":"3263",
+"name":"Genoa",
+"abbr":"GEN"
+},
+{
+"id":"110",
+"name":"Internazionale",
+"abbr":"INT"
+},
+{
+"id":"111",
+"name":"Juventus",
+"abbr":"JUV"
+},
+{
+"id":"112",
+"name":"Lazio",
+"abbr":"LAZ"
+},
+{
+"id":"113",
+"name":"Lecce",
+"abbr":"LEC"
+},
+{
+"id":"4007",
+"name":"Monza",
+"abbr":"MON"
+},
+{
+"id":"114",
+"name":"Napoli",
+"abbr":"NAP"
+},
+{
+"id":"115",
+"name":"Parma",
+"abbr":"PAR"
+},
+{
+"id":"3997",
+"name":"Sassuolo",
+"abbr":"SAS"
+},
+{
+"id":"239",
+"name":"Torino",
+"abbr":"TOR"
+},
+{
+"id":"118",
+"name":"Udinese",
+"abbr":"UDI"
+},
+{
+"id":"17530",
+"name":"Venezia",
+"abbr":"VEN"
+}
+]
+},
+{
+"id":"ger.1",
+"name":"Bundesliga",
+"short":"Bundesliga",
+"teams":[
+{
+"id":"598",
+"name":"1. FC Union Berlin",
+"abbr":"FCU"
+},
+{
+"id":"131",
+"name":"Bayer Leverkusen",
+"abbr":"B04"
+},
+{
+"id":"132",
+"name":"Bayern Munich",
+"abbr":"MUN"
+},
+{
+"id":"124",
+"name":"Borussia Dortmund",
+"abbr":"DOR"
+},
+{
+"id":"268",
+"name":"Borussia Mönchengladbach",
+"abbr":"BMG"
+},
+{
+"id":"125",
+"name":"Eintracht Frankfurt",
+"abbr":"SGE"
+},
+{
+"id":"3841",
+"name":"FC Augsburg",
+"abbr":"FCA"
+},
+{
+"id":"122",
+"name":"FC Cologne",
+"abbr":"KOE"
+},
+{
+"id":"127",
+"name":"Hamburg SV",
+"abbr":"HSV"
+},
+{
+"id":"2950",
+"name":"Mainz",
+"abbr":"M05"
+},
+{
+"id":"11420",
+"name":"RB Leipzig",
+"abbr":"RBL"
+},
+{
+"id":"126",
+"name":"SC Freiburg",
+"abbr":"SCF"
+},
+{
+"id":"3307",
+"name":"SC Paderborn 07",
+"abbr":"SCP"
+},
+{
+"id":"10388",
+"name":"SV Elversberg",
+"abbr":"ELV"
+},
+{
+"id":"133",
+"name":"Schalke 04",
+"abbr":"S04"
+},
+{
+"id":"7911",
+"name":"TSG Hoffenheim",
+"abbr":"TSG"
+},
+{
+"id":"134",
+"name":"VfB Stuttgart",
+"abbr":"VFB"
+},
+{
+"id":"137",
+"name":"Werder Bremen",
+"abbr":"SVW"
+}
+]
+},
+{
+"id":"fra.1",
+"name":"Ligue 1",
+"short":"Ligue 1",
+"teams":[
+{
+"id":"172",
+"name":"AJ Auxerre",
+"abbr":"AUX"
+},
+{
+"id":"174",
+"name":"AS Monaco",
+"abbr":"MON"
+},
+{
+"id":"7868",
+"name":"Angers",
+"abbr":"ANG"
+},
+{
+"id":"6997",
+"name":"Brest",
+"abbr":"BRE"
+},
+{
+"id":"3236",
+"name":"Le Havre AC",
+"abbr":"HAC"
+},
+{
+"id":"2697",
+"name":"Le Mans",
+"abbr":"MNS"
+},
+{
+"id":"175",
+"name":"Lens",
+"abbr":"RCL"
+},
+{
+"id":"166",
+"name":"Lille",
+"abbr":"LILL"
+},
+{
+"id":"273",
+"name":"Lorient",
+"abbr":"LOR"
+},
+{
+"id":"167",
+"name":"Lyon",
+"abbr":"LYON"
+},
+{
+"id":"176",
+"name":"Marseille",
+"abbr":"OLM"
+},
+{
+"id":"2502",
+"name":"Nice",
+"abbr":"NICE"
+},
+{
+"id":"6851",
+"name":"Paris FC",
+"abbr":"PAR"
+},
+{
+"id":"160",
+"name":"Paris Saint-Germain",
+"abbr":"PSG"
+},
+{
+"id":"169",
+"name":"Stade Rennais",
+"abbr":"REN"
+},
+{
+"id":"180",
+"name":"Strasbourg",
+"abbr":"STR"
+},
+{
+"id":"179",
+"name":"Toulouse",
+"abbr":"TOU"
+},
+{
+"id":"170",
+"name":"Troyes",
+"abbr":"TRY"
+}
+]
+},
+{
+"id":"uefa.europa",
+"name":"Europa League",
+"short":"UEL",
+"teams":[
+{
+"id":"103",
+"name":"AC Milan",
+"abbr":"MIL"
+},
+{
+"id":"349",
+"name":"AFC Bournemouth",
+"abbr":"BOU"
+},
+{
+"id":"140",
+"name":"AZ Alkmaar",
+"abbr":"AZ"
+},
+{
+"id":"441",
+"name":"Anderlecht",
+"abbr":"AND"
+},
+{
+"id":"20024",
+"name":"Ararat-Armenia",
+"abbr":"ARA"
+},
+{
+"id":"131",
+"name":"Bayer Leverkusen",
+"abbr":"B04"
+},
+{
+"id":"1929",
+"name":"Benfica",
+"abbr":"SLB"
+},
+{
+"id":"1895",
+"name":"Besiktas",
+"abbr":"BES"
+},
+{
+"id":"85",
+"name":"Celta Vigo",
+"abbr":"CEL"
+},
+{
+"id":"256",
+"name":"Celtic",
+"abbr":"CEL"
+},
+{
+"id":"384",
+"name":"Crystal Palace",
+"abbr":"CRY"
+},
+{
+"id":"597",
+"name":"Dinamo Zagreb",
+"abbr":"DZG"
+},
+{
+"id":"622",
+"name":"Ferencvaros",
+"abbr":"FER"
+},
+{
+"id":"13083",
+"name":"Hapoel Be'er",
+"abbr":"HBE"
+},
+{
+"id":"11505",
+"name":"Jagiellonia Bialystok",
+"abbr":"JAG"
+},
+{
+"id":"111",
+"name":"Juventus",
+"abbr":"JUV"
+},
+{
+"id":"2990",
+"name":"Lech Poznan",
+"abbr":"LECH"
+},
+{
+"id":"490",
+"name":"Levski Sofia",
+"abbr":"LEV"
+},
+{
+"id":"987",
+"name":"Lillestrom",
+"abbr":"LSK"
+},
+{
+"id":"167",
+"name":"Lyon",
+"abbr":"LYON"
+},
+{
+"id":"176",
+"name":"Marseille",
+"abbr":"OLM"
+},
+{
+"id":"147",
+"name":"NEC Nijmegen",
+"abbr":"NEC"
+},
+{
+"id":"3362",
+"name":"NK Celje",
+"abbr":"NKC"
+},
+{
+"id":"1010",
+"name":"OFI Crete",
+"abbr":"OFI"
+},
+{
+"id":"435",
+"name":"Olympiacos",
+"abbr":"OLY"
+},
+{
+"id":"617",
+"name":"Omonia Nicosia",
+"abbr":"OMON"
+},
+{
+"id":"2790",
+"name":"RB Salzburg",
+"abbr":"SLZ"
+},
+{
+"id":"89",
+"name":"Real Sociedad",
+"abbr":"RSO"
+},
+{
+"id":"3746",
+"name":"SK Sturm Graz",
+"abbr":"STG"
+},
+{
+"id":"433",
+"name":"Sparta Prague",
+"abbr":"SPP"
+},
+{
+"id":"169",
+"name":"Stade Rennais",
+"abbr":"REN"
+},
+{
+"id":"366",
+"name":"Sunderland",
+"abbr":"SUN"
+},
+{
+"id":"7911",
+"name":"TSG Hoffenheim",
+"abbr":"TSG"
+},
+{
+"id":"21615",
+"name":"Torreense",
+"abbr":"TOR"
+},
+{
+"id":"5807",
+"name":"Union St.-Gilloise",
+"abbr":"USG"
+},
+{
+"id":"11706",
+"name":"Viktoria Plzen",
+"abbr":"PLZ"
+}
+]
+},
+{
+"id":"fifa.world",
+"name":"FIFA World Cup",
+"short":"World Cup",
+"teams":[
+{
+"id":"624",
+"name":"Algeria",
+"abbr":"ALG"
+},
+{
+"id":"202",
+"name":"Argentina",
+"abbr":"ARG"
+},
+{
+"id":"628",
+"name":"Australia",
+"abbr":"AUS"
+},
+{
+"id":"474",
+"name":"Austria",
+"abbr":"AUT"
+},
+{
+"id":"459",
+"name":"Belgium",
+"abbr":"BEL"
+},
+{
+"id":"452",
+"name":"Bosnia-Herzegovina",
+"abbr":"BIH"
+},
+{
+"id":"205",
+"name":"Brazil",
+"abbr":"BRA"
+},
+{
+"id":"206",
+"name":"Canada",
+"abbr":"CAN"
+},
+{
+"id":"2597",
+"name":"Cape Verde",
+"abbr":"CPV"
+},
+{
+"id":"208",
+"name":"Colombia",
+"abbr":"COL"
+},
+{
+"id":"2850",
+"name":"Congo DR",
+"abbr":"COD"
+},
+{
+"id":"477",
+"name":"Croatia",
+"abbr":"CRO"
+},
+{
+"id":"11678",
+"name":"Curaçao",
+"abbr":"CUW"
+},
+{
+"id":"450",
+"name":"Czechia",
+"abbr":"CZE"
+},
+{
+"id":"209",
+"name":"Ecuador",
+"abbr":"ECU"
+},
+{
+"id":"2620",
+"name":"Egypt",
+"abbr":"EGY"
+},
+{
+"id":"448",
+"name":"England",
+"abbr":"ENG"
+},
+{
+"id":"478",
+"name":"France",
+"abbr":"FRA"
+},
+{
+"id":"481",
+"name":"Germany",
+"abbr":"GER"
+},
+{
+"id":"4469",
+"name":"Ghana",
+"abbr":"GHA"
+},
+{
+"id":"2654",
+"name":"Haiti",
+"abbr":"HAI"
+},
+{
+"id":"469",
+"name":"Iran",
+"abbr":"IRN"
+},
+{
+"id":"4375",
+"name":"Iraq",
+"abbr":"IRQ"
+},
+{
+"id":"4789",
+"name":"Ivory Coast",
+"abbr":"CIV"
+},
+{
+"id":"627",
+"name":"Japan",
+"abbr":"JPN"
+},
+{
+"id":"2917",
+"name":"Jordan",
+"abbr":"JOR"
+},
+{
+"id":"203",
+"name":"Mexico",
+"abbr":"MEX"
+},
+{
+"id":"2869",
+"name":"Morocco",
+"abbr":"MAR"
+},
+{
+"id":"449",
+"name":"Netherlands",
+"abbr":"NED"
+},
+{
+"id":"2666",
+"name":"New Zealand",
+"abbr":"NZL"
+},
+{
+"id":"464",
+"name":"Norway",
+"abbr":"NOR"
+},
+{
+"id":"2659",
+"name":"Panama",
+"abbr":"PAN"
+},
+{
+"id":"210",
+"name":"Paraguay",
+"abbr":"PAR"
+},
+{
+"id":"482",
+"name":"Portugal",
+"abbr":"POR"
+},
+{
+"id":"4398",
+"name":"Qatar",
+"abbr":"QAT"
+},
+{
+"id":"655",
+"name":"Saudi Arabia",
+"abbr":"KSA"
+},
+{
+"id":"580",
+"name":"Scotland",
+"abbr":"SCO"
+},
+{
+"id":"654",
+"name":"Senegal",
+"abbr":"SEN"
+},
+{
+"id":"467",
+"name":"South Africa",
+"abbr":"RSA"
+},
+{
+"id":"451",
+"name":"South Korea",
+"abbr":"KOR"
+},
+{
+"id":"164",
+"name":"Spain",
+"abbr":"ESP"
+},
+{
+"id":"466",
+"name":"Sweden",
+"abbr":"SWE"
+},
+{
+"id":"475",
+"name":"Switzerland",
+"abbr":"SUI"
+},
+{
+"id":"659",
+"name":"Tunisia",
+"abbr":"TUN"
+},
+{
+"id":"465",
+"name":"Türkiye",
+"abbr":"TUR"
+},
+{
+"id":"660",
+"name":"United States",
+"abbr":"USA"
+},
+{
+"id":"212",
+"name":"Uruguay",
+"abbr":"URU"
+},
+{
+"id":"2570",
+"name":"Uzbekistan",
+"abbr":"UZB"
+}
+]
+}
+],
+"f1":[
+{
+"id":"f1",
+"name":"Formula 1",
+"short":"F1",
+"teams":[]
+}
+],
+"tennis":[
+{
+"id":"atp",
+"name":"ATP Tour",
+"short":"ATP",
+"teams":[]
+},
+{
+"id":"wta",
+"name":"WTA Tour",
+"short":"WTA",
+"teams":[]
+}
+]
+}

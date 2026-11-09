@@ -1,0 +1,80 @@
+{
+ "_note": "Hand-made edge fixture in the scorepanel shape; the ids are invented.",
+ "scores": [
+  {
+   "leagues": [
+    {
+     "id": "90003",
+     "name": "England v Ireland 2026",
+     "abbreviation": "England v Ireland 2026"
+    }
+   ],
+   "events": [
+    {
+     "id": "9000003",
+     "date": "2026-11-09T13:30Z",
+     "endDate": "2026-11-09T23:59Z",
+     "name": "ENG v IRE",
+     "shortName": "ENG v IRE",
+     "status": {
+      "clock": 0,
+      "displayClock": "0'",
+      "period": 0,
+      "summary": "Match abandoned without a ball bowled",
+      "type": {
+       "id": "x",
+       "description": "Abandoned",
+       "detail": "Live",
+       "state": "in"
+      }
+     },
+     "competitions": [
+      {
+       "id": "9000003",
+       "description": "1st T20I",
+       "class": {
+        "internationalClassId": "2",
+        "generalClassId": "2",
+        "generalClassCard": "List A",
+        "eventType": "ODI"
+       },
+       "competitors": [
+        {
+         "homeAway": "home",
+         "winner": false,
+         "score": "",
+         "team": {
+          "id": "1",
+          "abbreviation": "ENG",
+          "displayName": "England",
+          "shortDisplayName": "England"
+         },
+         "linescores": []
+        },
+        {
+         "homeAway": "away",
+         "winner": false,
+         "score": "",
+         "team": {
+          "id": "29",
+          "abbreviation": "IRE",
+          "displayName": "Ireland",
+          "shortDisplayName": "Ireland"
+         },
+         "linescores": []
+        }
+       ],
+       "status": {
+        "period": 0,
+        "type": {
+         "description": "Abandoned",
+         "state": "in"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

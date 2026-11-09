@@ -1,0 +1,130 @@
+{
+ "_note": "Hand-made edge fixture in the scorepanel shape; the ids are invented.",
+ "scores": [
+  {
+   "leagues": [
+    {
+     "id": "90002",
+     "name": "India v Australia 2026-27",
+     "abbreviation": "India v Australia 2026-27"
+    }
+   ],
+   "events": [
+    {
+     "id": "9000002",
+     "date": "2026-11-09T13:30Z",
+     "endDate": "2026-11-09T23:59Z",
+     "name": "IND v AUS",
+     "shortName": "IND v AUS",
+     "status": {
+      "clock": 0,
+      "displayClock": "0'",
+      "period": 3,
+      "summary": "Scores level, super over",
+      "type": {
+       "id": "x",
+       "description": "Live",
+       "detail": "Live",
+       "state": "in"
+      }
+     },
+     "competitions": [
+      {
+       "id": "9000002",
+       "description": "1st T20I",
+       "class": {
+        "internationalClassId": "3",
+        "generalClassId": "6",
+        "generalClassCard": "Twenty20",
+        "eventType": "T20"
+       },
+       "competitors": [
+        {
+         "homeAway": "home",
+         "winner": false,
+         "score": "186/5 & 8/0 (0.4/1 ov)",
+         "team": {
+          "id": "6",
+          "abbreviation": "IND",
+          "displayName": "India",
+          "shortDisplayName": "India"
+         },
+         "linescores": [
+          {
+           "period": 1,
+           "runs": 186,
+           "wickets": 5,
+           "overs": 20.0,
+           "isBatting": true,
+           "isCurrent": 0
+          },
+          {
+           "period": 2,
+           "runs": 0,
+           "wickets": 0,
+           "overs": 20.0,
+           "isBatting": false,
+           "isCurrent": 0
+          },
+          {
+           "period": 3,
+           "runs": 8,
+           "wickets": 0,
+           "overs": 0.4,
+           "isBatting": true,
+           "isCurrent": 1
+          }
+         ]
+        },
+        {
+         "homeAway": "away",
+         "winner": false,
+         "score": "186/7",
+         "team": {
+          "id": "2",
+          "abbreviation": "AUS",
+          "displayName": "Australia",
+          "shortDisplayName": "Australia"
+         },
+         "linescores": [
+          {
+           "period": 1,
+           "runs": 0,
+           "wickets": 0,
+           "overs": 20.0,
+           "isBatting": false,
+           "isCurrent": 0
+          },
+          {
+           "period": 2,
+           "runs": 186,
+           "wickets": 7,
+           "overs": 20.0,
+           "isBatting": true,
+           "isCurrent": 0
+          },
+          {
+           "period": 3,
+           "runs": 0,
+           "wickets": 0,
+           "overs": 0.4,
+           "isBatting": false,
+           "isCurrent": 1
+          }
+         ]
+        }
+       ],
+       "status": {
+        "period": 3,
+        "type": {
+         "description": "Live",
+         "state": "in"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

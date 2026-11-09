@@ -1,0 +1,98 @@
+{
+ "_note": "Hand-made edge fixture in the scorepanel shape; the ids are invented.",
+ "scores": [
+  {
+   "leagues": [
+    {
+     "id": "90001",
+     "name": "Afghanistan v Zimbabwe 2026-27",
+     "abbreviation": "Afghanistan v Zimbabwe 2026-27"
+    }
+   ],
+   "events": [
+    {
+     "id": "9000001",
+     "date": "2026-11-09T13:30Z",
+     "endDate": "2026-11-09T23:59Z",
+     "name": "AFG v ZIM",
+     "shortName": "AFG v ZIM",
+     "status": {
+      "clock": 0,
+      "displayClock": "0'",
+      "period": 1,
+      "summary": "Rain delay",
+      "type": {
+       "id": "x",
+       "description": "Rain",
+       "detail": "Live",
+       "state": "in"
+      }
+     },
+     "competitions": [
+      {
+       "id": "9000001",
+       "description": "1st T20I",
+       "class": {
+        "internationalClassId": "3",
+        "generalClassId": "6",
+        "generalClassCard": "Twenty20",
+        "eventType": "T20"
+       },
+       "competitors": [
+        {
+         "homeAway": "home",
+         "winner": false,
+         "score": "19/4 (6/20 ov)",
+         "team": {
+          "id": "40",
+          "abbreviation": "AFG",
+          "displayName": "Afghanistan",
+          "shortDisplayName": "Afghanistan"
+         },
+         "linescores": [
+          {
+           "period": 1,
+           "runs": 19,
+           "wickets": 4,
+           "overs": 6.0,
+           "isBatting": true,
+           "isCurrent": 1
+          }
+         ]
+        },
+        {
+         "homeAway": "away",
+         "winner": false,
+         "score": "",
+         "team": {
+          "id": "9",
+          "abbreviation": "ZIM",
+          "displayName": "Zimbabwe",
+          "shortDisplayName": "Zimbabwe"
+         },
+         "linescores": [
+          {
+           "period": 1,
+           "runs": 0,
+           "wickets": 0,
+           "overs": 6.0,
+           "isBatting": false,
+           "isCurrent": 1
+          }
+         ]
+        }
+       ],
+       "status": {
+        "period": 1,
+        "type": {
+         "description": "Rain",
+         "state": "in"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

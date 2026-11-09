@@ -1,0 +1,114 @@
+{
+ "_note": "Hand-made edge fixture in the scorepanel shape; the ids are invented.",
+ "scores": [
+  {
+   "leagues": [
+    {
+     "id": "90004",
+     "name": "Pakistan v Sri Lanka 2026-27",
+     "abbreviation": "Pakistan v Sri Lanka 2026-27"
+    }
+   ],
+   "events": [
+    {
+     "id": "9000004",
+     "date": "2026-11-09T13:30Z",
+     "endDate": "2026-11-09T23:59Z",
+     "name": "PAK v SL",
+     "shortName": "PAK v SL",
+     "status": {
+      "clock": 0,
+      "displayClock": "0'",
+      "period": 2,
+      "summary": "Match tied",
+      "type": {
+       "id": "x",
+       "description": "Result",
+       "detail": "Final",
+       "state": "post"
+      }
+     },
+     "competitions": [
+      {
+       "id": "9000004",
+       "description": "1st T20I",
+       "class": {
+        "internationalClassId": "2",
+        "generalClassId": "2",
+        "generalClassCard": "List A",
+        "eventType": "ODI"
+       },
+       "competitors": [
+        {
+         "homeAway": "home",
+         "winner": false,
+         "score": "240/8 (50 ov, target 241)",
+         "team": {
+          "id": "7",
+          "abbreviation": "PAK",
+          "displayName": "Pakistan",
+          "shortDisplayName": "Pakistan"
+         },
+         "linescores": [
+          {
+           "period": 1,
+           "runs": 0,
+           "wickets": 0,
+           "overs": 50.0,
+           "isBatting": false,
+           "isCurrent": 0
+          },
+          {
+           "period": 2,
+           "runs": 240,
+           "wickets": 8,
+           "overs": 50.0,
+           "isBatting": true,
+           "isCurrent": 1
+          }
+         ]
+        },
+        {
+         "homeAway": "away",
+         "winner": false,
+         "score": "240/9",
+         "team": {
+          "id": "8",
+          "abbreviation": "SL",
+          "displayName": "Sri Lanka",
+          "shortDisplayName": "Sri Lanka"
+         },
+         "linescores": [
+          {
+           "period": 1,
+           "runs": 240,
+           "wickets": 9,
+           "overs": 50.0,
+           "isBatting": true,
+           "isCurrent": 0
+          },
+          {
+           "period": 2,
+           "runs": 0,
+           "wickets": 0,
+           "overs": 50.0,
+           "isBatting": false,
+           "isCurrent": 1
+          }
+         ]
+        }
+       ],
+       "status": {
+        "period": 2,
+        "type": {
+         "description": "Result",
+         "state": "post"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

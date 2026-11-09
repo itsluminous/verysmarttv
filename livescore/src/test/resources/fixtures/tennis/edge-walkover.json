@@ -1,0 +1,134 @@
+{
+ "_note": "Hand-made edge fixture in the tennis scoreboard shape; the ids are invented.",
+ "leagues": [
+  {
+   "id": "851",
+   "name": "ATP",
+   "abbreviation": "ATP",
+   "slug": "atp"
+  }
+ ],
+ "events": [
+  {
+   "id": "900-2026",
+   "date": "2026-11-09T05:00Z",
+   "name": "Example Open",
+   "shortName": "Example Open",
+   "status": {
+    "period": 0,
+    "type": {
+     "state": "in",
+     "description": "In Progress",
+     "detail": "In Progress"
+    }
+   },
+   "groupings": [
+    {
+     "grouping": {
+      "id": "1",
+      "displayName": "Men's Singles"
+     },
+     "competitions": [
+      {
+       "id": "9100001",
+       "date": "2026-11-09T10:00Z",
+       "round": {
+        "displayName": "Round 2"
+       },
+       "status": {
+        "period": 0,
+        "type": {
+         "state": "post",
+         "description": "Walkover",
+         "detail": "Walkover"
+        }
+       },
+       "notes": [
+        {
+         "text": "Alex Example bt Ben Sample (walkover)",
+         "type": "event"
+        }
+       ],
+       "competitors": [
+        {
+         "id": "1",
+         "homeAway": "home",
+         "winner": false,
+         "athlete": {
+          "displayName": "Ben Sample"
+         },
+         "linescores": []
+        },
+        {
+         "id": "2",
+         "homeAway": "away",
+         "winner": true,
+         "athlete": {
+          "displayName": "Alex Example"
+         },
+         "linescores": []
+        }
+       ]
+      },
+      {
+       "id": "9100002",
+       "date": "2026-11-09T12:00Z",
+       "round": {
+        "displayName": "Round 2"
+       },
+       "status": {
+        "period": 3,
+        "type": {
+         "state": "in",
+         "description": "In Progress",
+         "detail": "Set 3"
+        }
+       },
+       "notes": [],
+       "competitors": [
+        {
+         "id": "3",
+         "homeAway": "home",
+         "winner": false,
+         "athlete": {
+          "displayName": "Carl Test"
+         },
+         "linescores": [
+          {
+           "value": 6
+          },
+          {
+           "value": 3
+          },
+          {
+           "value": 2
+          }
+         ]
+        },
+        {
+         "id": "4",
+         "homeAway": "away",
+         "winner": false,
+         "athlete": {
+          "displayName": "Dan Fixture"
+         },
+         "linescores": [
+          {
+           "value": 4
+          },
+          {
+           "value": 6
+          },
+          {
+           "value": 1
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

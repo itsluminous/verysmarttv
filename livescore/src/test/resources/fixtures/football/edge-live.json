@@ -1,0 +1,225 @@
+{
+ "_note": "Hand-made edge fixture in the soccer scoreboard shape; the ids are invented.",
+ "leagues": [
+  {
+   "id": "700",
+   "name": "English Premier League",
+   "abbreviation": "Premier League",
+   "slug": "eng.1"
+  }
+ ],
+ "events": [
+  {
+   "id": "9200001",
+   "date": "2026-11-09T16:30Z",
+   "shortName": "CHE @ ARS",
+   "status": {
+    "clock": 4020,
+    "displayClock": "67'",
+    "period": 2,
+    "type": {
+     "state": "in",
+     "description": "In Progress",
+     "detail": "67'"
+    }
+   },
+   "competitions": [
+    {
+     "id": "9200001",
+     "competitors": [
+      {
+       "homeAway": "home",
+       "winner": false,
+       "score": "2",
+       "team": {
+        "id": "359",
+        "abbreviation": "ARS",
+        "displayName": "Arsenal",
+        "shortDisplayName": "Arsenal"
+       }
+      },
+      {
+       "homeAway": "away",
+       "winner": false,
+       "score": "1",
+       "team": {
+        "id": "363",
+        "abbreviation": "CHE",
+        "displayName": "Chelsea",
+        "shortDisplayName": "Chelsea"
+       }
+      }
+     ],
+     "details": [
+      {
+       "type": {
+        "id": "70",
+        "text": "Goal"
+       },
+       "clock": {
+        "displayValue": "12'"
+       },
+       "team": {
+        "id": "359"
+       },
+       "scoringPlay": true,
+       "redCard": false,
+       "athletesInvolved": [
+        {
+         "displayName": "Bukayo Saka"
+        }
+       ]
+      },
+      {
+       "type": {
+        "id": "94",
+        "text": "Yellow Card"
+       },
+       "clock": {
+        "displayValue": "30'"
+       },
+       "team": {
+        "id": "363"
+       },
+       "scoringPlay": false,
+       "redCard": false,
+       "athletesInvolved": [
+        {
+         "displayName": "Enzo Fern\u00e1ndez"
+        }
+       ]
+      },
+      {
+       "type": {
+        "id": "70",
+        "text": "Goal"
+       },
+       "clock": {
+        "displayValue": "44'"
+       },
+       "team": {
+        "id": "363"
+       },
+       "scoringPlay": true,
+       "redCard": false,
+       "athletesInvolved": [
+        {
+         "displayName": "Cole Palmer"
+        }
+       ]
+      },
+      {
+       "type": {
+        "id": "70",
+        "text": "Goal - Header"
+       },
+       "clock": {
+        "displayValue": "61'"
+       },
+       "team": {
+        "id": "359"
+       },
+       "scoringPlay": true,
+       "redCard": false,
+       "athletesInvolved": [
+        {
+         "displayName": "Gabriel"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "9200002",
+   "date": "2026-11-09T17:00Z",
+   "shortName": "MCFC @ BFC",
+   "status": {
+    "clock": 2700,
+    "displayClock": "45'",
+    "period": 1,
+    "type": {
+     "state": "in",
+     "description": "Halftime",
+     "detail": "HT"
+    }
+   },
+   "competitions": [
+    {
+     "id": "9200002",
+     "competitors": [
+      {
+       "homeAway": "home",
+       "winner": false,
+       "score": "0",
+       "team": {
+        "id": "18851",
+        "abbreviation": "BFC",
+        "displayName": "Bengaluru FC",
+        "shortDisplayName": "Bengaluru"
+       }
+      },
+      {
+       "homeAway": "away",
+       "winner": false,
+       "score": "0",
+       "team": {
+        "id": "18002",
+        "abbreviation": "MCFC",
+        "displayName": "Mumbai City FC",
+        "shortDisplayName": "Mumbai City"
+       }
+      }
+     ],
+     "details": []
+    }
+   ]
+  },
+  {
+   "id": "9200003",
+   "date": "2026-11-10T14:00Z",
+   "shortName": "LIV @ MUN",
+   "status": {
+    "clock": 0,
+    "displayClock": "0'",
+    "period": 0,
+    "type": {
+     "state": "pre",
+     "description": "Scheduled",
+     "detail": "Tue, November 10th at 2:00 PM GMT"
+    }
+   },
+   "competitions": [
+    {
+     "id": "9200003",
+     "competitors": [
+      {
+       "homeAway": "home",
+       "winner": false,
+       "score": "0",
+       "team": {
+        "id": "360",
+        "abbreviation": "MUN",
+        "displayName": "Manchester United",
+        "shortDisplayName": "Man United"
+       }
+      },
+      {
+       "homeAway": "away",
+       "winner": false,
+       "score": "0",
+       "team": {
+        "id": "364",
+        "abbreviation": "LIV",
+        "displayName": "Liverpool",
+        "shortDisplayName": "Liverpool"
+       }
+      }
+     ],
+     "details": []
+    }
+   ]
+  }
+ ]
+}

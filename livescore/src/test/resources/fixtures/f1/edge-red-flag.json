@@ -1,0 +1,119 @@
+{
+ "_note": "Hand-made edge fixture in the F1 scoreboard shape; the ids are invented.",
+ "leagues": [
+  {
+   "id": "2030",
+   "name": "Formula 1",
+   "abbreviation": "F1"
+  }
+ ],
+ "events": [
+  {
+   "id": "900057000",
+   "date": "2026-11-20T00:30Z",
+   "endDate": "2026-11-22T06:00Z",
+   "name": "Heineken Las Vegas Grand Prix",
+   "shortName": "Heineken Las Vegas GP",
+   "status": {
+    "period": 32,
+    "type": {
+     "state": "in",
+     "description": "Red Flag",
+     "detail": "Red Flag"
+    }
+   },
+   "competitions": [
+    {
+     "id": "1",
+     "date": "2026-11-21T04:30Z",
+     "type": {
+      "id": "2",
+      "abbreviation": "Qual"
+     },
+     "status": {
+      "period": 24,
+      "type": {
+       "state": "post",
+       "description": "Final",
+       "detail": "Final"
+      }
+     },
+     "competitors": [
+      {
+       "id": "100",
+       "order": 1,
+       "winner": false,
+       "athlete": {
+        "displayName": "Lando Norris",
+        "shortName": "L. Norris"
+       }
+      },
+      {
+       "id": "101",
+       "order": 2,
+       "winner": false,
+       "athlete": {
+        "displayName": "Max Verstappen",
+        "shortName": "M. Verstappen"
+       }
+      },
+      {
+       "id": "102",
+       "order": 3,
+       "winner": false,
+       "athlete": {
+        "displayName": "George Russell",
+        "shortName": "G. Russell"
+       }
+      }
+     ]
+    },
+    {
+     "id": "2",
+     "date": "2026-11-22T04:00Z",
+     "type": {
+      "id": "3",
+      "abbreviation": "Race"
+     },
+     "status": {
+      "period": 32,
+      "type": {
+       "state": "in",
+       "description": "Red Flag",
+       "detail": "Red Flag"
+      }
+     },
+     "competitors": [
+      {
+       "id": "100",
+       "order": 1,
+       "winner": false,
+       "athlete": {
+        "displayName": "Max Verstappen",
+        "shortName": "M. Verstappen"
+       }
+      },
+      {
+       "id": "101",
+       "order": 2,
+       "winner": false,
+       "athlete": {
+        "displayName": "Lando Norris",
+        "shortName": "L. Norris"
+       }
+      },
+      {
+       "id": "102",
+       "order": 3,
+       "winner": false,
+       "athlete": {
+        "displayName": "Charles Leclerc",
+        "shortName": "C. Leclerc"
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

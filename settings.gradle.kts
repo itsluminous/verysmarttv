@@ -38,3 +38,5 @@ include(":testkit:hero")   // the companion stand-in the launcher's instrumentat
 include(":testkit:tiles")  // Tile 7, the seventh TV app those tests switch on and off
 include(":launcher")
 include(":traktshelf")
+
+include(":livescore")
