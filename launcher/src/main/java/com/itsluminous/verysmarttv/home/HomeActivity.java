@@ -98,8 +98,7 @@ import java.util.Map;
 import java.util.Set;
 import com.itsluminous.verysmarttv.grid.AppAdapter;
 import com.itsluminous.verysmarttv.library.AppLibraryDialog;
-import com.itsluminous.verysmarttv.cards.CardFeature;
-import com.itsluminous.verysmarttv.cards.Cards;
+import com.itsluminous.verysmarttv.cards.CardPrompts;
 import com.itsluminous.verysmarttv.clock.ClockFormat;
 import com.itsluminous.verysmarttv.clock.IdleClock;
 import com.itsluminous.verysmarttv.clock.ClockRefresh;
@@ -316,10 +315,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     private Set<String> hiddenApps = Collections.emptySet();
     /** library_excluded_apps: packages the App library catalogue never offers. */
     private Set<String> libraryExcludedApps = Collections.emptySet();
-    private List<Cards.Card> cards = Collections.emptyList();
-    private Dialog cardPrompt;
-    /** Set when a decision could not be saved: no more prompts until the next resume, instead of asking in a loop. */
-    private boolean promptsPaused;
     /** Rebuild the tiles on the way back to Home only when apps changed meanwhile (TileRefresh). */
     private final TileRefresh tileRefresh = new TileRefresh();
     /** PackageManager's change counter at the last rebuild, to catch a package broadcast that never arrived. */
@@ -328,6 +323,11 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     private PopupWindow openPopup;
     /** Reorder mode is on (top-bar button). */
     private boolean reordering;
+
+    /** Reorder mode is on; the card prompt and the tile menu stay away then (ReorderSession in Phase 2). */
+    public boolean reordering() {
+        return reordering;
+    }
     /** Key of the tile being carried in reorder mode, or null. */
     private String movingKey;
     /** Tile order when reorder mode state.started, to save only when something moved. */
@@ -431,6 +431,8 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     };
     /** Keeps the Home clocks moving on Android before 12 when the firmware stops ACTION_TIME_TICK (see ClockRefresh). */
     private ClockRefresh clockRefresh;
+    /** The module-card prompt and the Module cards list (CardPrompts). */
+    private CardPrompts cardPrompts;
     /** Boot and wake opens, the intents Home answers, the Launcher settings result (StartupRouter). */
     StartupRouter startup;
     /** The glow behind the grid (AmbientGlow): the shelf asks it for colours and fades. */
@@ -495,6 +497,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         coocaaSources = cfg.coocaaSources;
 
         root = findViewById(R.id.root);
+        cardPrompts = new CardPrompts(this, root);
         idleClock = new IdleClock(this, root, cfg);
         root.setBackgroundColor(cfg.backgroundColor);
         // root fills the window with an opaque colour (Config keeps background_color opaque), so the window's own
@@ -1053,7 +1056,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             else if (heroOwned() && heroShown && shelfTileFocused()) showCarousel(false);
         }
         idleClock.restart();
-        promptsPaused = false;
+        cardPrompts.onResume();
         if (grid.getAdapter() == null) grid.setAdapter(adapter);   // dropped by onTrimMemory
         wallpaper.restore();                                        // released by onTrimMemory
         switch (tileRefresh.onResume(packagesChangedSinceRebuild())) {
@@ -1157,7 +1160,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             // A newly installed app may have brought a card with it.
             state.tilesReady = true;
             startup.startPendingSettingsReorder();
-            showCardPrompt();
+            cardPrompts.showCardPrompt();
         }
     }
 
@@ -1177,21 +1180,18 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
      * Every step into the card code runs under CardFeature: if it fails, the tiles are the ordinary
      * ones and cards stay off for this process.
      */
-    private void reloadTiles() {
+    public void reloadTiles() {
         if (reordering) endReorder();   // an app installed or removed while reordering: keep the order so far
         // Read these before reload(): rebinding can move focus to the first tile and overwrite them.
         final String returnKey = lastFocusedKey;
         final int returnSlot = lastFocused;
-        final List<Cards.Card> none = Collections.emptyList();
         // An updated app may bring new artwork; the backdrop is cheap to make again.
         heroArtCache.clear();
         heroArtKey = null;
         // One LEANBACK query for both the tiles and the card checks.
         final List<ResolveInfo> leanback = getPackageManager().queryIntentActivities(
                 new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER), 0);
-        cards = state.moduleCards ? CardFeature.run(() -> Cards.discover(this, hiddenApps,
-                () -> Cards.load(Cards.storeFile(this)), leanback), none) : none;
-        adapter.reload(cards.isEmpty() ? none : CardFeature.run(() -> Cards.shown(cards), none), leanback);
+        adapter.reload(cardPrompts.discover(hiddenApps, leanback), leanback);
         lastFocusedKey = returnKey;
         lastFocused = returnSlot;
         packageSequence = currentPackageSequence(packageSequence);
@@ -1201,7 +1201,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
      * Return to the app we left from, or the same slot if that app is gone. Always refocus: after
      * reload() the view that holds focus may no longer show the app it had.
      */
-    private void restoreFocus() {
+    public void restoreFocus() {
         final boolean returnToLibrary = libraryFocusPending;
         final String returnKey = lastFocusedKey;
         final int returnSlot = lastFocused;
@@ -1211,7 +1211,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             else focusTile(pos >= 0 ? pos : returnSlot);
             state.tilesReady = true;
             startup.startPendingSettingsReorder();
-            showCardPrompt();
+            cardPrompts.showCardPrompt();
         });
     }
 
@@ -1245,7 +1245,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         startup.onPause();
         cancelPendingFocusScroll();
         // Nothing of ours stays on screen over another app; an undecided prompt simply returns next time.
-        if (cardPrompt != null) cardPrompt.dismiss();
+        cardPrompts.onPause();
         if (appLibrary != null) appLibrary.close();
         if (openPopup != null) openPopup.dismiss();
     }
@@ -1290,7 +1290,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         if (hasFocus) {
             startup.startPendingSettingsReorder();
             if (libraryFocusPending && appLibrary == null) focusLibrary();
-            showCardPrompt();
+            cardPrompts.showCardPrompt();
         } else {
             cancelHoldOk();   // a dialog or another window took the remote while OK was held
         }
@@ -1354,7 +1354,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         if (handleSettingsKey(event)) return true;
         if (heroFeedOn && handleCarouselKey(event)) return true;
         if (holdOk(event)) return true;
-        if (state.tileMenuEnabled && !reordering && openPopup == null && cardPrompt == null
+        if (state.tileMenuEnabled && !reordering && openPopup == null && !cardPrompts.promptShowing()
                 && event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
             int position = focusedTilePosition();
             if (position >= 0 && position < adapter.appCount()
@@ -2340,7 +2340,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
      * dock tile, Up focuses the carousel.
      */
     private boolean handleCarouselKey(KeyEvent event) {
-        if (!carouselShowing || reordering || openPopup != null || cardPrompt != null) return false;
+        if (!carouselShowing || reordering || openPopup != null || cardPrompts.promptShowing()) return false;
         int code = event.getKeyCode();
         boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
         if (hero.hasFocus()) {
@@ -3552,7 +3552,8 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         folded.add(view);
     }
 
-    private PopupWindow glassPopup(View panel, int width) {
+    @NonNull
+    public PopupWindow glassPopup(@NonNull View panel, int width) {
         final PopupWindow popup = new PopupWindow(panel, width, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));   // needed for Back to dismiss
         popup.setOutsideTouchable(true);
@@ -3566,7 +3567,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     }
 
     /** Drop in: fade and unfold from the top edge, hanging under the anchor pill. */
-    private void dropIn(PopupWindow popup, View panel, View anchor, int gravity) {
+    public void dropIn(@NonNull PopupWindow popup, @NonNull View panel, @NonNull View anchor, int gravity) {
         panel.setAlpha(0f);
         panel.setPivotY(0f);
         panel.setScaleY(0.92f);
@@ -3659,7 +3660,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
                 if (vendor != null) open(vendor);
             });
         }
-        if (state.moduleCards) addSettingsMenuRow(rows, popup, R.string.module_cards, this::showModuleCards);
+        if (state.moduleCards) addSettingsMenuRow(rows, popup, R.string.module_cards, cardPrompts::showModuleCards);
         if (state.dockRow && !state.shelfEveryRow) addSettingsMenuRow(rows, popup, R.string.dock_edit, this::startDockEdit);
         addSettingsMenuRow(rows, popup, R.string.reorder, this::toggleReorder);
         // A launcher may not restart the TV itself; the Home key helper can open the system power menu instead.
@@ -3707,7 +3708,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             if (event.getRepeatCount() == 0) {
                 holdOkFired = false;
                 handler.removeCallbacks(holdOkTimer);
-                holdOkPosition = reordering || openPopup != null || cardPrompt != null ? -1 : focusedTilePosition();
+                holdOkPosition = reordering || openPopup != null || cardPrompts.promptShowing() ? -1 : focusedTilePosition();
                 holdOkKey = holdOkPosition < 0 || holdOkPosition >= adapter.appCount() ? null : adapter.keyAt(holdOkPosition);
                 if (holdOkKey == null) {
                     holdOkDown = -1;
@@ -3843,172 +3844,4 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         rows.addView(row);
     }
 
-    /**
-     * Asks about the next card that has no decision for its current signing key. One prompt at a
-     * time, only over a laid out grid with window focus (not under a popup or another app), and
-     * the next one follows as soon as this one is answered. Nothing is shown until the owner says Show.
-     */
-    private void showCardPrompt() {
-        if (!state.moduleCards || !state.tilesReady || promptsPaused || cardPrompt != null || !hasWindowFocus() || isFinishing()
-                || reordering) return;
-        if (cards.isEmpty() || !CardFeature.working()) return;
-        CardFeature.run(() -> {
-            showCardPromptNow();
-            return null;
-        }, null);
-    }
-
-    private void showCardPromptNow() {
-        final Cards.Card card = Cards.firstPending(cards);
-        if (card == null) return;
-
-        View panel = getLayoutInflater().inflate(R.layout.dialog_card_prompt, root, false);
-        ((TextView) panel.findViewById(R.id.title)).setText(getString(R.string.card_prompt_title, card.appLabel));
-        ((TextView) panel.findViewById(R.id.body)).setText(card.state == Cards.State.RESIGNED
-                ? getString(R.string.card_prompt_resigned, card.appLabel)
-                : card.state == Cards.State.RELABELLED
-                ? getString(R.string.card_prompt_relabelled, card.appLabel)
-                : getString(R.string.card_prompt_body, card.appLabel));
-        TextView names = panel.findViewById(R.id.names);
-        if (Cards.fold(card.label).equals(Cards.fold(card.appLabel))) names.setVisibility(View.GONE);
-        else names.setText(getString(R.string.card_prompt_names, card.label, card.appLabel));
-        ((TextView) panel.findViewById(R.id.identity)).setText(
-                getString(R.string.card_prompt_identity, card.pkg, Cards.shortDigest(card.digest)));
-        TextView keep = panel.findViewById(R.id.btnKeep);
-        TextView show = panel.findViewById(R.id.btnShow);
-        boolean rtl = isRtl();   // the framework mirrors the two buttons; the key guard names the visual ends
-
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(panel);
-        dialog.setCanceledOnTouchOutside(false);
-        Window w = dialog.getWindow();
-        if (w != null) {
-            w.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            w.setLayout((int) (440 * density), ViewGroup.LayoutParams.WRAP_CONTENT);
-            w.setDimAmount(0.6f);
-        }
-        // One decision per prompt: the buttons and Back (cancel) all end here.
-        final boolean[] decided = {false};
-        View.OnClickListener choose = v -> {
-            if (decided[0]) return;
-            decided[0] = true;
-            cardPrompt = null;
-            dialog.dismiss();
-            decideCard(card, v.getId() == R.id.btnShow);   // guards its own card calls; the tile reload stays outside
-            restoreFocus();   // the tiles changed under the prompt; this also chains the next prompt
-        };
-        keep.setOnClickListener(choose);
-        show.setOnClickListener(choose);
-        dialog.setOnCancelListener(d -> choose.onClick(keep));
-        dialog.setOnDismissListener(d -> {
-            if (cardPrompt == dialog) cardPrompt = null;
-        });
-        // Left and Right move between the two buttons; Up and Down stay put; the ends don't wrap.
-        View.OnKeyListener keys = (v, keyCode, event) -> {
-            if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_DPAD_DOWN) return true;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT)
-                return v.getId() == (rtl ? R.id.btnShow : R.id.btnKeep);
-            return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT
-                    && v.getId() == (rtl ? R.id.btnKeep : R.id.btnShow);
-        };
-        keep.setOnKeyListener(keys);
-        show.setOnKeyListener(keys);
-        cardPrompt = dialog;
-        dialog.show();
-        keep.requestFocus();
-    }
-
-    /** Writes the owner's decision and rebuilds the tiles; focus is left where it is. */
-    private void decideCard(Cards.Card card, boolean show) {
-        boolean saved = CardFeature.run(() -> Cards.decide(Cards.storeFile(this), card, show), false);
-        if (!saved) {
-            Toast.makeText(this, R.string.card_not_saved, Toast.LENGTH_SHORT).show();
-            promptsPaused = true;
-        }
-        reloadTiles();
-    }
-
-    /** Dropdown under the Settings pill (hold OK): every discovered card, its package and key; OK toggles Shown and Hidden. */
-    private void showModuleCards() {
-        if (cards.isEmpty() || !CardFeature.working()) {
-            Toast.makeText(this, R.string.no_module_cards, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        CardFeature.run(() -> {
-            showModuleCardsNow();
-            return null;
-        }, null);
-    }
-
-    private void showModuleCardsNow() {
-        View anchor = findViewById(R.id.btnSettings);
-        View panel = getLayoutInflater().inflate(R.layout.popup_cards, root, false);
-        LinearLayout rows = panel.findViewById(R.id.rows);
-        final PopupWindow popup = glassPopup(panel, (int) (400 * density));
-        List<Cards.Card> listed = new ArrayList<>(cards);
-        Collections.sort(listed, Cards::byLabel);
-        for (Cards.Card card : listed) {
-            View row = getLayoutInflater().inflate(R.layout.item_card_row, rows, false);
-            row.setTag(card.pkg);
-            ((TextView) row.findViewById(R.id.title)).setText(card.label);
-            TextView app = row.findViewById(R.id.app);
-            if (Cards.fold(card.label).equals(Cards.fold(card.appLabel))) app.setVisibility(View.GONE);
-            else app.setText(getString(R.string.card_app_name, card.appLabel));
-            ((TextView) row.findViewById(R.id.pkg)).setText(card.pkg);
-            ((TextView) row.findViewById(R.id.digest)).setText(Cards.longDigest(card.digest));
-            final String pkg = card.pkg;
-            row.setOnClickListener(v -> CardFeature.run(() -> {
-                // The list stays open; the decision is for the card as it is now, not as it was listed.
-                Cards.Card now = cardFor(pkg);
-                if (now == null) return null;
-                decideCard(now, now.state != Cards.State.SHOWN);
-                // Every row, not only this one: a toggle can move another card across the limit of 8.
-                updateCardStates(rows);
-                return null;
-            }, null));
-            rows.addView(row);
-        }
-        updateCardStates(rows);
-        // Scroll inside the panel instead of running off the bottom of a 720p screen.
-        panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        int[] at = new int[2];
-        anchor.getLocationInWindow(at);
-        int room = root.getHeight() - (at[1] + anchor.getHeight()) - (int) (34 * density);
-        popup.setHeight(Math.min(panel.getMeasuredHeight(), Math.max(room, (int) (120 * density))));
-        dropIn(popup, panel, anchor, Gravity.END);
-        rows.getChildAt(0).requestFocus();
-    }
-
-    private Cards.Card cardFor(String pkg) {
-        for (Cards.Card c : cards) if (c.pkg.equals(pkg)) return c;
-        return null;
-    }
-
-    /** Writes the state of every row in the Module cards list from the current card list. */
-    private void updateCardStates(LinearLayout rows) {
-        List<Cards.Card> drawn = Cards.shown(cards);
-        for (int i = 0; i < rows.getChildCount(); i++) {
-            View row = rows.getChildAt(i);
-            Cards.Card card = row.getTag() instanceof String ? cardFor((String) row.getTag()) : null;
-            ((TextView) row.findViewById(R.id.state)).setText(card != null ? stateText(card, drawn.contains(card)) : "");
-        }
-    }
-
-    /** The row's state: a card the owner set to Shown but which is beyond the eight drawn says so. */
-    private String stateText(Cards.Card card, boolean drawn) {
-        switch (card.state) {
-            case SHOWN:
-                return getString(drawn ? R.string.card_state_shown : R.string.card_state_over_limit);
-            case HIDDEN:
-                return getString(R.string.card_state_hidden);
-            case RESIGNED:
-                return getString(R.string.card_state_new_key);
-            case RELABELLED:
-                return getString(R.string.card_state_new_label);
-            default:
-                return getString(R.string.card_state_new);
-        }
-    }
 }

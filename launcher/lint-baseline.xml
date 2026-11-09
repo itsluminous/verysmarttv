@@ -1526,7 +1526,7 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="443"
+            line="445"
             column="13"/>
     </issue>
 
@@ -1537,7 +1537,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="444"
+            line="446"
             column="13"/>
     </issue>
 
@@ -1548,7 +1548,7 @@
         errorLine2="                                                                                        ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="620"
+            line="623"
             column="89"/>
     </issue>
 
@@ -1559,7 +1559,7 @@
         errorLine2="                                                                                                           ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="620"
+            line="623"
             column="108"/>
     </issue>
 
@@ -1570,7 +1570,7 @@
         errorLine2="                                     ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="629"
+            line="632"
             column="38"/>
     </issue>
 
@@ -1581,7 +1581,7 @@
         errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="629"
+            line="632"
             column="28"/>
     </issue>
 
@@ -1592,7 +1592,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="721"
+            line="724"
             column="29"/>
     </issue>
 
@@ -1603,7 +1603,7 @@
         errorLine2="                                                                        ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="722"
+            line="725"
             column="73"/>
     </issue>
 
@@ -1614,7 +1614,7 @@
         errorLine2="                                                           ~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="722"
+            line="725"
             column="60"/>
     </issue>
 
@@ -1625,7 +1625,7 @@
         errorLine2="                                                         ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="723"
+            line="726"
             column="58"/>
     </issue>
 
@@ -1636,7 +1636,7 @@
         errorLine2="                     ~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="740"
+            line="743"
             column="22"/>
     </issue>
 
@@ -1647,7 +1647,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="741"
+            line="744"
             column="17"/>
     </issue>
 
@@ -1658,7 +1658,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="742"
+            line="745"
             column="17"/>
     </issue>
 
@@ -1669,7 +1669,7 @@
         errorLine2="                ~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="743"
+            line="746"
             column="17"/>
     </issue>
 
@@ -1680,7 +1680,7 @@
         errorLine2="                                      ~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="743"
+            line="746"
             column="39"/>
     </issue>
 
@@ -1691,7 +1691,7 @@
         errorLine2="                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="746"
+            line="749"
             column="21"/>
     </issue>
 
@@ -1702,7 +1702,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="747"
+            line="750"
             column="21"/>
     </issue>
 
@@ -1713,7 +1713,7 @@
         errorLine2="                    ~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="748"
+            line="751"
             column="21"/>
     </issue>
 
@@ -1724,7 +1724,7 @@
         errorLine2="                                          ~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="748"
+            line="751"
             column="43"/>
     </issue>
 
@@ -1735,7 +1735,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="757"
+            line="760"
             column="46"/>
     </issue>
 
@@ -1746,7 +1746,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="762"
+            line="765"
             column="43"/>
     </issue>
 
@@ -1757,7 +1757,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="768"
+            line="771"
             column="46"/>
     </issue>
 
@@ -1768,7 +1768,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="773"
+            line="776"
             column="43"/>
     </issue>
 
@@ -1779,7 +1779,7 @@
         errorLine2="                    ~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="992"
+            line="995"
             column="21"/>
     </issue>
 
@@ -3923,7 +3923,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="454"
+            line="456"
             column="29"/>
     </issue>
 
@@ -3945,7 +3945,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="3676"
+            line="3677"
             column="29"/>
     </issue>
 
@@ -3956,7 +3956,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="3768"
+            line="3769"
             column="47"/>
     </issue>
 
