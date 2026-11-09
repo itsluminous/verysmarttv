@@ -124,7 +124,7 @@ public final class CardPrompts {
             cardPrompt = null;
             dialog.dismiss();
             decideCard(card, v.getId() == R.id.btnShow);   // guards its own card calls; the tile reload stays outside
-            host.restoreFocus();   // the tiles changed under the prompt; this also chains the next prompt
+            host.grid().restoreFocus();   // the tiles changed under the prompt; this also chains the next prompt
         };
         keep.setOnClickListener(choose);
         show.setOnClickListener(choose);
@@ -155,7 +155,7 @@ public final class CardPrompts {
             Toast.makeText(host.activity(), R.string.card_not_saved, Toast.LENGTH_SHORT).show();
             promptsPaused = true;
         }
-        host.reloadTiles();
+        host.grid().reloadTiles();
     }
 
     /** Dropdown under the Settings pill (hold OK): every discovered card, its package and key; OK toggles Shown and Hidden. */

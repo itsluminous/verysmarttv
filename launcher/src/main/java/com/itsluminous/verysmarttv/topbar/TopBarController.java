@@ -608,7 +608,7 @@ public final class TopBarController {
             host.open(i != null ? i : SystemSettings.intent(host, Settings.ACTION_VPN_SETTINGS));
             return;
         }
-        host.openLibraryFromVpnPill();
+        host.grid().openLibraryFromVpnPill();
     }
 
     /** vpn_pill: the pill outlined in green with a lock while a VPN is up, outlined in red "VPN off" while it is not;
@@ -739,7 +739,7 @@ public final class TopBarController {
         showInputsMenuRow = cfg.showInputsPill;
         btnLibraryTop = host.findViewById(R.id.btnLibraryTop);
         btnLibraryTop.setOnClickListener(v -> {
-            host.openLibraryFromTopBar();   // closing it goes back to this button, not to the pill after the last row
+            host.grid().openLibraryFromTopBar();   // closing it goes back to this button, not to the pill after the last row
         });
         btnLibraryTop.setVisibility(cfg.libraryButton && cfg.appLibrary ? View.VISIBLE : View.GONE);
         addTopBarApps(cfg.topBarApps, cfg.launchActions);
@@ -796,7 +796,7 @@ public final class TopBarController {
             if (keyCode == KeyEvent.KEYCODE_DPAD_UP) return true;
             if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
                 // Back to the dock tile Up came from, not wherever the focus finder lands.
-                host.focusTile(host.state().singleRow ? host.lastFocused() : host.lastFocused() % host.state().columns);
+                host.grid().focusTile(host.state().singleRow ? host.grid().lastFocused() : host.grid().lastFocused() % host.state().columns);
                 return true;
             }
             int firstButton = btnInputs.getVisibility() == View.VISIBLE ? R.id.btnInputs : firstTopButton().getId();

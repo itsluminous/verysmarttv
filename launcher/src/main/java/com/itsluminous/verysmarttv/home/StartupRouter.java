@@ -122,7 +122,7 @@ public final class StartupRouter {
         home.setIntent(new Intent(Intent.ACTION_MAIN));
         if (!home.state().appLibraryEnabled) return true;
         home.getWindow().getDecorView().post(() -> {
-            if (!home.isFinishing() && !home.isDestroyed()) home.onLibraryRequested();
+            if (!home.isFinishing() && !home.isDestroyed()) home.grid().onLibraryRequested();
         });
         return true;
     }

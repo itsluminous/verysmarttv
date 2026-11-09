@@ -140,28 +140,28 @@ public final class GlassPopups {
     /** Hold OK on a tile: the tile menu next to it (AppAdapter.TileListener.onTileLongPress). */
     public void showTileMenu(int position, @NonNull View card) {
         if (host.reordering() || openPopup != null) return;
-        String key = host.adapter().keyAt(position);
-        String pkg = host.adapter().packageAt(position);
+        String key = host.grid().adapter().keyAt(position);
+        String pkg = host.grid().adapter().packageAt(position);
         // Empty dock slots and the Default-home tile carry the launcher's own package: no menu for them.
         if (key == null || pkg == null || pkg.equals(host.getPackageName())) return;
         View panel = host.getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (200 * host.density()));
-        if (host.state().dockRow && !host.state().shelfEveryRow && position < host.adapter().movableCount()) {
+        if (host.state().dockRow && !host.state().shelfEveryRow && position < host.grid().adapter().movableCount()) {
             boolean inDock = position < host.state().columns;
             addSettingsMenuRow(rows, popup, inDock ? R.string.tile_replace_in_dock : R.string.tile_add_to_dock,
                     () -> host.startDockEditFor(key, inDock));
         }
-        if (position < host.adapter().movableCount()) addSettingsMenuRow(rows, popup, R.string.tile_move, () -> {
+        if (position < host.grid().adapter().movableCount()) addSettingsMenuRow(rows, popup, R.string.tile_move, () -> {
             if (!host.beginReorder()) return;
-            int at = host.adapter().positionOf(key);   // beginReorder can rebuild the tiles
+            int at = host.grid().adapter().positionOf(key);   // beginReorder can rebuild the tiles
             if (at < 0) return;
-            host.focusTile(at);
+            host.grid().focusTile(at);
             host.pickUp(at);
             Toast.makeText(host, R.string.reorder_hint, Toast.LENGTH_LONG).show();
         });
         if (host.state().appLibraryEnabled) addSettingsMenuRow(rows, popup, R.string.library_remove_shortcut, () -> {
-            if (LibraryApps.save(host, pkg, false)) host.reloadApps(false);
+            if (LibraryApps.save(host, pkg, false)) host.grid().reloadApps(false);
             else Toast.makeText(host, R.string.library_save_failed, Toast.LENGTH_LONG).show();
         });
         // Some firmware has no App info page at all; a row that only toasts "can't open" helps nobody.
