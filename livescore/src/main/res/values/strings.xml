@@ -13,6 +13,7 @@
     <string name="row_leader">%1$s — %2$s leads</string>
     <string name="row_meta">%1$s · %2$s</string>
     <string name="updated_ago">Updated %1$s</string>
+    <string name="updated_now">Updated just now</string>
     <string name="updated_never">Not fetched yet</string>
     <string name="stale">stale</string>
 

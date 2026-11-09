@@ -32,8 +32,11 @@ internal object Ui {
     fun updated(c: Context, repo: ScoreRepo, event: Event?, nowMs: Long): String {
         val ms = event?.updatedMs ?: repo.lastFetchMs()
         if (ms <= 0L) return c.getString(R.string.updated_never)
-        val ago = DateUtils.getRelativeTimeSpanString(ms, nowMs, DateUtils.MINUTE_IN_MILLIS)
-        val text = c.getString(R.string.updated_ago, ago)
+        val text = if (nowMs - ms < DateUtils.MINUTE_IN_MILLIS) {
+            c.getString(R.string.updated_now)
+        } else {
+            c.getString(R.string.updated_ago, DateUtils.getRelativeTimeSpanString(ms, nowMs, DateUtils.MINUTE_IN_MILLIS))
+        }
         return if (event != null && repo.isStale(event, nowMs)) c.getString(R.string.row_meta, text, c.getString(R.string.stale)) else text
     }
 

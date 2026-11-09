@@ -101,7 +101,7 @@ class MainActivity : Activity() {
 
     private fun meta(e: Event): String {
         val sport = Ui.sportName(this, e.sport)
-        val comp = listOf(e.competition, e.format, e.session).filter { it.isNotEmpty() }.distinct().joinToString(" · ")
+        val comp = listOf(e.competition, e.format, e.session).filter { it.isNotEmpty() && it != sport }.distinct().joinToString(" · ")
         return if (comp.isEmpty()) sport else getString(R.string.row_meta, sport, comp)
     }
 
