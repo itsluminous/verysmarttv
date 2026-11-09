@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * The owner's own tile order, set with the reorder button and kept in the launcher's private files (order.txt).
@@ -22,7 +23,8 @@ import java.util.Map;
  * dock_apps changes (a rebuild or a pushed theme), the saved order is ignored, so the new dock takes effect until
  * the owner reorders again.
  *
- * Format, UTF-8 text: {@code verysmarttv-order 1}, then {@code dock <comma-separated dock_apps>}, then optionally
+ * Format, UTF-8 text: {@code verysmarttv-order 1} (any {@code <name>-order 1} header is read, so the fork's files
+ * still decode), then {@code dock <comma-separated dock_apps>}, then optionally
  * {@code docked <n>}, then one tile key (component, flattened short) per line. {@code docked} says how many of the
  * first keys are in the dock, for fill_dock false, where an app the owner moved into the dock is not in dock_apps
  * (#499). Files without it (older launchers) leave the dock to dock_apps; an older launcher reads the line as a key
@@ -33,6 +35,12 @@ final class Order {
     private static final String TAG = "VerySmartTV.Order";
     static final String FILE_NAME = "order.txt";
     private static final String MAGIC = "verysmarttv-order 1";
+    /**
+     * Any launcher's header for this same format, version 1: the product name before {@code -order 1} changed when
+     * the launcher was renamed, nothing else did, so a file or a backup from the fork still decodes (DESIGN.md §7.4,
+     * ADR-036). Lower-case letters only, as both names are.
+     */
+    private static final Pattern ANY_MAGIC = Pattern.compile("[a-z]+-order 1");
     private static final String DOCK = "dock ";
     private static final String DOCKED = "docked ";
 
@@ -67,7 +75,7 @@ final class Order {
     static Order decode(String text) {
         if (text == null) return null;
         String[] lines = text.split("\n", -1);
-        if (lines.length < 2 || !lines[0].equals(MAGIC) || !lines[1].startsWith(DOCK)) return null;
+        if (lines.length < 2 || !ANY_MAGIC.matcher(lines[0]).matches() || !lines[1].startsWith(DOCK)) return null;
         int docked = -1, first = 2;
         if (lines.length > 2 && lines[2].startsWith(DOCKED)) {
             try {

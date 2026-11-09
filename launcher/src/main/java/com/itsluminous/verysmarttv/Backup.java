@@ -48,7 +48,9 @@ import java.util.regex.Pattern;
  *  "theme": {"config.json": {"text": "{...}"}, "wallpaper.jpg": {"base64": "..."}}}
  * </pre>
  *
- * {@link #restore} replaces each of the three sections whole: a preferences file is cleared before its keys are put
+ * {@link #restore} checks only {@code version} and {@code prefs}, never {@code package}: a backup the fork's launcher
+ * wrote restores here (its order.txt header is read by Order, its Widgets tick list migrated by Config). It
+ * replaces each of the three sections whole: a preferences file is cleared before its keys are put
  * back with their types, a state or theme file the backup does not have is removed (one the export skipped as too
  * large is kept), and the ones it has are written. The theme signature is then taken over so the restored layout
  * choices survive the file change, and the settings revision moves so Home rebuilds when it resumes.
@@ -256,7 +258,7 @@ final class Backup {
      */
     static void restore(Context ctx, JSONObject doc) throws JSONException {
         if (doc.optInt("version", -1) != VERSION || !doc.has("prefs")) {
-            throw new JSONException("not a Clean Your TV settings backup (version " + doc.opt("version") + ")");
+            throw new JSONException("not a VerySmartTV settings backup (version " + doc.opt("version") + ")");
         }
         SharedPreferences settings = ctx.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE);
         long revisionBefore = settings.getLong(Config.SETTINGS_REVISION_KEY, 0);

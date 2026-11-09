@@ -195,3 +195,9 @@ are `com.itsluminous.verysmarttv`, the Gradle module stays `:launcher`.
 - Decision: no literal that a user can read is written in Java or Kotlin, in any module. Everything goes through `R.string` (with `%1$s` placeholders where the text is composed). Lint's `HardcodedText` and `SetTextI18n` are errors; a module may not baseline them.
 - Exempt: text that is data rather than UI (a companion's `line`/`meta` row the launcher renders verbatim, log messages, exception messages, JSON keys).
 - Rejected: enforcing it only in the launcher (the companions have the same 30-locale fallback problem) or by review alone (lint catches it for free).
+
+## ADR-036 Compatibility with the fork's files is by shape, not by name
+- Context: §7.4 says the order reader also accepts the fork's `tvhome-order 1` header and a backup whose `package` is one of the three known names, and §14.2 asks for `OrderMagicTest` and `BackupCompatTest`. ADR-010/011 say the old identifiers may appear nowhere in code or tests: the identifier gate in docs/BUILDING.md prints nothing. The two cannot both hold for a literal.
+- Decision (Phase 1 coder, 2026-11-09): `Order.decode` accepts any header matching `[a-z]+-order 1` (the format is unchanged; only the product name in the header moved), and `Backup.restore` checks `version` and `prefs` and never reads `package`, as it already did. The tests use stand-in names (`previous-order 1`, `com.example.previouslauncher`) that exercise the same code path. The fork's files restore without the old names being written anywhere in this tree.
+- Rejected: spelling the old literal in code or a test fixture (fails the gate, which is the project's one defence against a half-done rename); building the literal from pieces (`"tv" + "home"`) to slip past the gate (hides exactly what the gate is for).
+- Consequences: a backup from any launcher that writes this format, under any name, restores here; the gate stays absolute.
