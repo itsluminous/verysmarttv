@@ -28,6 +28,8 @@ import com.itsluminous.verysmarttv.R;
 import com.itsluminous.verysmarttv.home.HomeActivity;
 import com.itsluminous.verysmarttv.library.AppLibraryDialog;
 
+import com.itsluminous.verysmarttv.shelf.CarouselController;
+import com.itsluminous.verysmarttv.shelf.ShelfController;
 import com.itsluminous.verysmarttv.shelf.ShelfScale;
 import com.itsluminous.verysmarttv.theme.Config;
 import com.itsluminous.verysmarttv.theme.Motion;
@@ -183,7 +185,7 @@ public final class GridController {
         if (restoreFocus) {
             glassShown = false;
             glass.setAlpha(0f);
-            host.resetShelfForReload();
+            host.shelf().resetForReload();
         }
         if (rebuild) reloadTiles();
         if (animate && entrance && host.state().animations && !host.state().reducedMotion) {
@@ -201,7 +203,7 @@ public final class GridController {
             int pos = adapter.positionOf(returnKey);
             lastFocused = Math.max(0, Math.min(pos >= 0 ? pos : returnSlot, adapter.appCount() - 1));
             lastFocusedKey = adapter.keyAt(lastFocused);
-            if (pos < 0) host.hideHero();
+            if (pos < 0) host.shelf().hideHero();
             // A newly installed app may have brought a card with it.
             host.state().tilesReady = true;
             host.startup().startPendingSettingsReorder();
@@ -231,7 +233,7 @@ public final class GridController {
         final String returnKey = lastFocusedKey;
         final int returnSlot = lastFocused;
         // An updated app may bring new artwork; the backdrop is cheap to make again.
-        host.dropShelfArtCache();
+        host.shelf().dropArtCache();
         // One LEANBACK query for both the tiles and the card checks.
         final List<ResolveInfo> leanback = host.getPackageManager().queryIntentActivities(
                 new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER), 0);
@@ -376,7 +378,7 @@ public final class GridController {
         glassTargetY = y;
         // Cinematic shelf: the highlight glows in the dock app's colour, plain white in the grid (and on the dock with
         // cinematic_white_focus). app_glow: every tile. In a single row every tile is the dock's kind.
-        boolean coloured = appGlow || host.state().cinematic && !host.cinematicWhiteFocus() && (host.state().singleRow || position < host.state().columns || host.state().shelfEveryRow);
+        boolean coloured = appGlow || host.state().cinematic && !host.shelf().cinematicWhiteFocus() && (host.state().singleRow || position < host.state().columns || host.state().shelfEveryRow);
         int accent = coloured ? adapter.ambientColorAt(position) : 0;
         if ((host.state().cinematic || appGlow) && accent != glassAccent) {
             glassAccent = accent;
@@ -414,11 +416,11 @@ public final class GridController {
                 if (!host.state().animations || host.state().reducedMotion) grid.scrollBy(0, dy);
                 else grid.smoothScrollBy(0, dy);
             }
-            host.showHero(position, scroll ? r.top - dy : r.top);
+            host.shelf().showHero(position, scroll ? r.top - dy : r.top);
         } else {
             // Below the dock (or in a plain grid) the glow follows the tile without the big name; letting it
             // fade out left the grid on plain black.
-            host.showGlowOnly(position);
+            host.shelf().showGlowOnly(position);
             // Scroll just enough so the whole glass (not only the tile) is visible.
             revealRect.set(0, -(int) pad * 2, item.getWidth(), item.getHeight() + (int) pad);
             grid.requestChildRectangleOnScreen(item, revealRect, host.state().reducedMotion);
@@ -519,7 +521,7 @@ public final class GridController {
     public void onLibraryFocused() {
         libraryFocusPending = false;
         hideGlass();
-        host.hideHero();
+        host.shelf().hideHero();
     }
 
     /** AppAdapter.TileListener.onLibraryUp. */
@@ -761,8 +763,8 @@ public final class GridController {
             int gridRows = itemH * rowsBelowDock;
             // Keep the hero below the header when the library is enabled on a short screen,
             // even when the theme requests an extra visible row below the dock.
-            int carouselRoom = host.carouselHasItems() ? Math.round(HomeActivity.CAROUSEL_FULL_DP * host.density()) : 0;
-            int shelfClearance = cfg.appLibrary ? Math.max(host.shelfMeasuredHeight(), carouselRoom) + (int) (40 * host.density()) : 0;
+            int carouselRoom = host.carousel().hasItems() ? Math.round(CarouselController.CAROUSEL_FULL_DP * host.density()) : 0;
+            int shelfClearance = cfg.appLibrary ? Math.max(host.shelf().measuredHeight(), carouselRoom) + (int) (40 * host.density()) : 0;
             int want = Math.max(shelfClearance, h - dockRow - gridRows - (int) (AppAdapter.BOTTOM_ROOM_DP * host.density()));
             // hero_height: the shelf takes that share of its room, the dock and the rows under it move up (or down) with
             // it. The dock itself stays on screen, whatever the percent; the floors below still apply.
@@ -777,14 +779,14 @@ public final class GridController {
             // uniform_rows: no dock to park and no rows counted under it. The first row rests on the shelf's bottom
             // (the carousel's full height or the measured shelf, plus the 40dp gap) at hero_height, and the rows fill
             // downward from there; those that do not fit scroll up on Down.
-            if (host.state().uniformRows) want = UniformRows.restingLinePx(UniformRows.shelfRoomPx(host.shelfMeasuredHeight(), carouselRoom, host.density()), host.state().heroHeightPct);
+            if (host.state().uniformRows) want = UniformRows.restingLinePx(UniformRows.shelfRoomPx(host.shelf().measuredHeight(), carouselRoom, host.density()), host.state().heroHeightPct);
             // hero_height under 100: the line is that share of the room, but the shelf's text only scales to two
-            // thirds (ShelfScale) and the shelf never rises past the header (HomeActivity.SHELF_MIN_TOP_DP), so the line stays at
+            // thirds (ShelfScale) and the shelf never rises past the header (ShelfController.SHELF_MIN_TOP_DP), so the line stays at
             // least the shelf's measured height plus its gap under that top, whatever the percent asks: the dots
             // never land on the first row. At 100 the shelf fits in its room and this changes nothing.
-            int shelfGap = host.shelfGapPx(host.carouselShowing());
+            int shelfGap = host.shelf().shelfGapPx(host.carousel().showing());
             if (host.state().dockRow && !host.state().singleRow) {
-                want = Math.max(want, ShelfScale.floorPx(Math.round(HomeActivity.SHELF_MIN_TOP_DP * host.density()), host.shelfMeasuredHeight(), shelfGap, gridTopInRoot()));
+                want = Math.max(want, ShelfScale.floorPx(Math.round(ShelfController.SHELF_MIN_TOP_DP * host.density()), host.shelf().measuredHeight(), shelfGap, gridTopInRoot()));
             }
             // A single row never shows the names under its tiles (the title above the row names the app), so the
             // 7dp gap and 22dp label item_app.xml keeps for them would only lift the row: sit it that much lower.
@@ -803,7 +805,7 @@ public final class GridController {
             }
             // The backdrop's size follows the dock line; set after this pass, not from inside it.
             final int shelfBottom = want;
-            grid.post(() -> host.fitFeedArt(shelfBottom));
+            grid.post(() -> host.carousel().fitFeedArt(shelfBottom));
             if (grid.getPaddingTop() != want || grid.getPaddingBottom() != wantBottom) {
                 grid.setPadding(grid.getPaddingLeft(), want, grid.getPaddingRight(), wantBottom);
                 // A vertical grid parks the dock on the new padding line by scrolling (onTileFocused); a sideways
