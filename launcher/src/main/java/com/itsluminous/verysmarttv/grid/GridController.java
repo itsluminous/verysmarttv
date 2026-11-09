@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.itsluminous.verysmarttv.R;
-import com.itsluminous.verysmarttv.home.HomeActivity;
+import com.itsluminous.verysmarttv.home.HomeHost;
 import com.itsluminous.verysmarttv.library.AppLibraryDialog;
 
 import com.itsluminous.verysmarttv.shelf.CarouselController;
@@ -48,7 +48,7 @@ import java.util.Set;
 public final class GridController {
     // Not private: the anonymous listeners and receivers below read these, and an accessor per read is what lint's
     // SyntheticAccessor flags (the fork baselined them in the activity; this file has none).
-    final HomeActivity host;
+    final HomeHost host;
     final FrameLayout root;
     private SpringAnimation springX, springY;
     float glassTargetX, glassTargetY;
@@ -213,12 +213,12 @@ public final class GridController {
 
     /** True when PackageManager reports apps changed since the last rebuild (one binder call). */
     private boolean packagesChangedSinceRebuild() {
-        ChangedPackages changed = host.getPackageManager().getChangedPackages(packageSequence);
+        ChangedPackages changed = host.activity().getPackageManager().getChangedPackages(packageSequence);
         return changed != null && !changed.getPackageNames().isEmpty();
     }
 
     private int currentPackageSequence(int since) {
-        ChangedPackages changed = host.getPackageManager().getChangedPackages(since);
+        ChangedPackages changed = host.activity().getPackageManager().getChangedPackages(since);
         return changed != null ? changed.getSequenceNumber() : since;
     }
 
@@ -235,7 +235,7 @@ public final class GridController {
         // An updated app may bring new artwork; the backdrop is cheap to make again.
         host.shelf().dropArtCache();
         // One LEANBACK query for both the tiles and the card checks.
-        final List<ResolveInfo> leanback = host.getPackageManager().queryIntentActivities(
+        final List<ResolveInfo> leanback = host.activity().getPackageManager().queryIntentActivities(
                 new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER), 0);
         adapter.reload(host.cards().discover(hiddenApps, leanback), leanback);
         lastFocusedKey = returnKey;
@@ -263,7 +263,7 @@ public final class GridController {
 
     /** Adapter position of the focused tile, or -1 when focus is not on a tile. */
     public int focusedTilePosition() {
-        View f = host.getCurrentFocus();
+        View f = host.activity().getCurrentFocus();
         if (f == null || f.getId() != R.id.card || !(f.getParent() instanceof View)) return -1;
         return grid.getChildAdapterPosition((View) f.getParent());
     }
@@ -317,7 +317,7 @@ public final class GridController {
         libraryFocusPending = false;
         libraryFromTopBar = false;
         libraryFromVpnPill = false;
-        appLibrary = new AppLibraryDialog(host, host.state().animations, host.state().reducedMotion, appLibrarySelection, libraryOkOpens, libraryColumns, adapter::containsPackage, () -> reloadApps(false), () -> {
+        appLibrary = new AppLibraryDialog(host.activity(), host.state().animations, host.state().reducedMotion, appLibrarySelection, libraryOkOpens, libraryColumns, adapter::containsPackage, () -> reloadApps(false), () -> {
             appLibrary = null;
             host.popups().track(null);
             if (libraryFromTopBar) {
@@ -331,7 +331,7 @@ public final class GridController {
             if (fromVpnPill && host.topBar().focusVpnPillIfShown()) return;
             libraryFocusPending = true;
             grid.post(() -> {
-                if (libraryFocusPending && appLibrary == null && host.hasWindowFocus() && !host.isFinishing()) focusLibrary();
+                if (libraryFocusPending && appLibrary == null && host.activity().hasWindowFocus() && !host.activity().isFinishing()) focusLibrary();
             });
         }, libraryExcludedApps);
         host.popups().track(appLibrary.popup);
@@ -429,7 +429,7 @@ public final class GridController {
 
     /** Refits the glass to the focused holder once the grid layout and tile dimensions settle. */
     public void refitGlass() {
-        if (host.isDestroyed() || adapter.appCount() == 0 || libraryFocusPending) return;
+        if (host.activity().isDestroyed() || adapter.appCount() == 0 || libraryFocusPending) return;
         int pos = Math.max(0, Math.min(lastFocused, adapter.appCount() - 1));
         RecyclerView.ViewHolder vh = grid.findViewHolderForAdapterPosition(pos);
         View card = vh == null ? null : vh.itemView.findViewById(R.id.card);
@@ -547,7 +547,7 @@ public final class GridController {
         if (!host.state().animations) {
             grid.scrollToPosition(position);
             grid.post(() -> {
-                if (appLibrary != null || !host.hasWindowFocus()) return;
+                if (appLibrary != null || !host.activity().hasWindowFocus()) return;
                 RecyclerView.ViewHolder footer = grid.findViewHolderForAdapterPosition(adapter.appCount());
                 if (footer != null && adapter.isLibraryAt(adapter.appCount())
                         && footer.itemView.findViewById(R.id.btnLibrary).requestFocus()) libraryFocusPending = false;
@@ -633,7 +633,7 @@ public final class GridController {
         return r.top;
     }
 
-    public GridController(@NonNull HomeActivity host, @NonNull FrameLayout root, @NonNull Config cfg) {
+    public GridController(@NonNull HomeHost host, @NonNull FrameLayout root, @NonNull Config cfg) {
         this.host = host;
         this.root = root;
         appLibrarySelection = cfg.appLibrarySelection;
@@ -664,7 +664,7 @@ public final class GridController {
         // supportsRtl: the framework mirrors the layout; the grid's key and position arithmetic follows it.
         host.state().rtl = host.isRtl();
         // single_row: one span laid out sideways, so the same adapter, glass and dock band serve a scrolling row.
-        grid.setLayoutManager(new GridLayoutManager(host, host.state().singleRow ? 1 : host.state().columns,
+        grid.setLayoutManager(new GridLayoutManager(host.activity(), host.state().singleRow ? 1 : host.state().columns,
                 host.state().singleRow ? RecyclerView.HORIZONTAL : RecyclerView.VERTICAL, false) {
             @Override
             protected boolean isLayoutRTL() {
@@ -742,10 +742,10 @@ public final class GridController {
         // Reduced motion: the tiles are simply there, with no entrance (reloadApps skips it there too).
         if (host.state().animations && !host.state().reducedMotion) {
             grid.setLayoutAnimation(new LayoutAnimationController(
-                    AnimationUtils.loadAnimation(host, R.anim.tile_enter), 0.06f));
+                    AnimationUtils.loadAnimation(host.activity(), R.anim.tile_enter), 0.06f));
         }
-        adapter = new AppAdapter(host, host, host.state().columns, cfg);
-        Order savedOrder = Order.load(Order.file(host));
+        adapter = new AppAdapter(host.activity(), host.tileListener(), host.state().columns, cfg);
+        Order savedOrder = Order.load(Order.file(host.activity()));
         adapter.setSavedOrder(Order.ranks(savedOrder, cfg.dockApps), Order.docked(savedOrder, cfg.dockApps));
         grid.setAdapter(adapter);
 
@@ -883,7 +883,7 @@ public final class GridController {
             }
         }
         // Hide the glass when focus leaves the tiles.
-        host.getWindow().getDecorView().getViewTreeObserver().addOnGlobalFocusChangeListener((oldF, newF) -> {
+        host.activity().getWindow().getDecorView().getViewTreeObserver().addOnGlobalFocusChangeListener((oldF, newF) -> {
             boolean onTile = newF != null && newF.getId() == R.id.card;
             if (!onTile) hideGlass();
         });
@@ -894,9 +894,9 @@ public final class GridController {
         // Registered for the activity's whole life, not only while it is started: an app installed or updated while
         // another app is in front must still mark the tiles stale, or Home would have to rebuild on every return.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            host.registerReceiver(packageReceiver, packageFilter, Context.RECEIVER_NOT_EXPORTED);
+            host.activity().registerReceiver(packageReceiver, packageFilter, Context.RECEIVER_NOT_EXPORTED);
         } else {
-            host.registerReceiver(packageReceiver, packageFilter);
+            host.activity().registerReceiver(packageReceiver, packageFilter);
         }
     }
 
@@ -967,6 +967,6 @@ public final class GridController {
     }
 
     public void onDestroy() {
-        host.unregisterReceiver(packageReceiver);
+        host.activity().unregisterReceiver(packageReceiver);
     }
 }

@@ -18,7 +18,7 @@ import androidx.annotation.NonNull;
 
 import com.itsluminous.verysmarttv.R;
 import com.itsluminous.verysmarttv.core.contract.HeroContract;
-import com.itsluminous.verysmarttv.home.HomeActivity;
+import com.itsluminous.verysmarttv.home.HomeHost;
 import com.itsluminous.verysmarttv.theme.Config;
 import com.itsluminous.verysmarttv.theme.Motion;
 
@@ -31,7 +31,7 @@ import java.util.List;
  * that brings the items. It takes the shelf's views from {@link ShelfController} (one package, one hero group).
  */
 public final class CarouselController {
-    final HomeActivity host;
+    final HomeHost host;
     final FrameLayout root;
     final ShelfController shelf;
     // ---- hero_feed (HeroFeed): the Trakt companion's items on the shelf while the dock is at rest ----
@@ -104,7 +104,7 @@ public final class CarouselController {
         shelf.hero.setOnFocusChangeListener((v, has) -> {
             if (has) host.grid().hideGlass();
         });
-        heroFeed = new HeroFeed(host, host.handler(), items -> {
+        heroFeed = new HeroFeed(host.activity(), host.handler(), items -> {
             // The dock line is placed for the carousel while there are items (CAROUSEL_FULL_DP in the grid's layout
             // listener): lay the grid out again when that changes, so the line does not depend on which pass ran last.
             boolean hadItems = !feedItems.isEmpty();
@@ -202,11 +202,11 @@ public final class CarouselController {
 
     private void addFeedChip(String label, String value, int border) {
         if (value == null) return;
-        TextView t = new TextView(host);
+        TextView t = new TextView(host.activity());
         t.setTypeface(shelf.heroMeta.getTypeface());
         t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
         t.setTextColor(0xFFFFFFFF);
-        t.setText(host.getString(R.string.rating_chip, label, value));
+        t.setText(host.activity().getString(R.string.rating_chip, label, value));
         int ph = (int) (10 * host.density()), pv = (int) (4 * host.density());
         t.setPadding(ph, pv, ph, pv);
         GradientDrawable bg = new GradientDrawable();
@@ -363,13 +363,13 @@ public final class CarouselController {
                 .putExtra(HeroContract.EXTRA_TRAKT_ID, e.traktId).putExtra(HeroContract.EXTRA_KIND, e.kind)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
-            host.startActivity(i);
+            host.activity().startActivity(i);
         } catch (ActivityNotFoundException | SecurityException ex) {
             Log.w("VerySmartTV.HeroFeed", "companion details not opened: " + ex.getMessage());
         }
     }
 
-    public CarouselController(@NonNull HomeActivity host, @NonNull FrameLayout root, @NonNull ShelfController shelf) {
+    public CarouselController(@NonNull HomeHost host, @NonNull FrameLayout root, @NonNull ShelfController shelf) {
         this.host = host;
         this.root = root;
         this.shelf = shelf;

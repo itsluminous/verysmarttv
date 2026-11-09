@@ -40,7 +40,7 @@ import androidx.annotation.NonNull;
 import com.itsluminous.verysmarttv.R;
 import com.itsluminous.verysmarttv.clock.ClockRefresh;
 import com.itsluminous.verysmarttv.grid.LaunchActions;
-import com.itsluminous.verysmarttv.home.HomeActivity;
+import com.itsluminous.verysmarttv.home.HomeHost;
 import com.itsluminous.verysmarttv.inputs.CoocaaSources;
 import com.itsluminous.verysmarttv.settings.SystemSettings;
 import com.itsluminous.verysmarttv.theme.Config;
@@ -62,7 +62,7 @@ import java.util.Map;
 public final class TopBarController {
     // Not private: the anonymous callbacks and receivers below read these, and an accessor per read is what lint's
     // SyntheticAccessor flags (the fork baselined them in the activity; this file has none).
-    final HomeActivity host;
+    final HomeHost host;
     final FrameLayout root;
     private static final long MINUTE_MS = 60_000L;
 
@@ -216,7 +216,7 @@ public final class TopBarController {
      */
     private void dateOnTwoLines() {
         TextClock date = host.findViewById(R.id.date);
-        Locale locale = host.getResources().getConfiguration().getLocales().get(0);
+        Locale locale = host.activity().getResources().getConfiguration().getLocales().get(0);
         String format = android.text.format.DateFormat.getBestDateTimePattern(locale, "EEEE") + "\n"
                 + android.text.format.DateFormat.getBestDateTimePattern(locale, "d MMMM");
         date.setSingleLine(false);
@@ -325,7 +325,7 @@ public final class TopBarController {
      */
     private void addTopBarApps(List<String> packages, Map<String, String> launchActions) {
         ViewGroup bar = host.findViewById(R.id.topButtons);
-        PackageManager pm = host.getPackageManager();
+        PackageManager pm = host.activity().getPackageManager();
         int size = Math.round(22 * host.density());
         for (String pkg : packages) {
             Intent launch = pm.getLeanbackLaunchIntentForPackage(pkg);
@@ -345,7 +345,7 @@ public final class TopBarController {
             } catch (PackageManager.NameNotFoundException e) {
                 continue;
             }
-            TextView button = (TextView) host.getLayoutInflater().inflate(R.layout.top_app_button, bar, false);
+            TextView button = (TextView) host.activity().getLayoutInflater().inflate(R.layout.top_app_button, bar, false);
             // pillKeys finds the bar's ends by id: without one of its own, every app button would be an end.
             button.setId(View.generateViewId());
             logo.setBounds(0, 0, size, size);
@@ -382,7 +382,7 @@ public final class TopBarController {
         // Spain (es-ES) and Catalan: "Buenas tardes" into the evening; "Buenas noches" from 21.
         // Latin American Spanish (es-MX, es-AR, …) keeps the default hours: evening strings are also
         // «Buenas noches», and there «Buenas noches» from ~17 matches local use better than Spain's 21.
-        Locale locale = host.getResources().getConfiguration().getLocales().get(0);
+        Locale locale = host.activity().getResources().getConfiguration().getLocales().get(0);
         String lang = locale.getLanguage();
         String country = locale.getCountry();
         if ("in".equals(lang) || "id".equals(lang)) {
@@ -410,8 +410,8 @@ public final class TopBarController {
             else if (hour < 22) res = R.string.good_evening;
             else res = R.string.good_night;
         }
-        greeting.setText(greetingName.isEmpty() ? host.getString(res)
-                : host.getString(R.string.greeting_with_name, host.getString(res), greetingName));
+        greeting.setText(greetingName.isEmpty() ? host.activity().getString(res)
+                : host.activity().getString(R.string.greeting_with_name, host.activity().getString(res), greetingName));
         greeting.setTextColor(greetingColor);
     }
 
@@ -423,7 +423,7 @@ public final class TopBarController {
                 // Posted from inside the frame's traversal, so it runs after that frame is drawn. A post straight
                 // from onResume would run first: the frame is only scheduled after onResume returns.
                 host.handler().post(() -> {
-                    if (host.isDestroyed()) return;
+                    if (host.activity().isDestroyed()) return;
                     updateWifiLabel();
                     updateInputsButton();
                 });
@@ -436,11 +436,11 @@ public final class TopBarController {
     /** Shows the Wi-Fi network name on the button when we can read it, otherwise the connection type. */
     @SuppressWarnings("deprecation")
     public void updateWifiLabel() {
-        String text = host.getString(R.string.wifi);
+        String text = host.activity().getString(R.string.wifi);
         boolean vpn = false, online = false, validated = false;
         int icon = R.drawable.ic_wifi;
         try {
-            ConnectivityManager cm = (ConnectivityManager) host.getSystemService(Context.CONNECTIVITY_SERVICE);
+            ConnectivityManager cm = (ConnectivityManager) host.activity().getSystemService(Context.CONNECTIVITY_SERVICE);
             boolean wifi = false, ethernet = false;
             // All networks, not just the active one: with a VPN up the active network is the VPN itself.
             for (Network net : cm != null ? cm.getAllNetworks() : new Network[0]) {
@@ -458,13 +458,13 @@ public final class TopBarController {
                 if (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) wifi = true;
             }
             if (!online) {
-                text = host.getString(R.string.offline);
+                text = host.activity().getString(R.string.offline);
                 vpn = false;
             } else if (ethernet) {
-                text = host.getString(R.string.ethernet);
+                text = host.activity().getString(R.string.ethernet);
                 icon = R.drawable.ic_ethernet;
             } else if (wifi) {
-                WifiManager wm = (WifiManager) host.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                WifiManager wm = (WifiManager) host.activity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
                 WifiInfo info = wm != null ? wm.getConnectionInfo() : null;
                 String ssid = info != null ? info.getSSID() : null;
                 if (ssid != null) {
@@ -479,8 +479,8 @@ public final class TopBarController {
         if (vpnPill) updateVpnPill(vpn);
         if ((vpn || vpnDown) && !vpnPill) {
             // Network name, then the green lock-and-VPN (or red "VPN off") capsule drawn in place of the word.
-            String badge = host.getString(vpn ? R.string.vpn : R.string.vpn_off);
-            VpnBadge span = new VpnBadge(vpn ? host.getDrawable(R.drawable.ic_lock) : null, host.density());
+            String badge = host.activity().getString(vpn ? R.string.vpn : R.string.vpn_off);
+            VpnBadge span = new VpnBadge(vpn ? host.activity().getDrawable(R.drawable.ic_lock) : null, host.density());
             // The pill has a maximum width and ellipsizes at the end, which would cut the badge off after
             // a long network name, so shorten the name to whatever room the badge leaves. The Wi-Fi icon and its
             // gap are counted by hand: until the pill has a resolved layout direction (the first call, from
@@ -588,14 +588,14 @@ public final class TopBarController {
      */
     public void openNetworkPill() {
         Intent i = vpnPill ? null : vpnAppIntent();
-        host.open(i != null ? i : SystemSettings.intent(host, Settings.ACTION_WIFI_SETTINGS));
+        host.open(i != null ? i : SystemSettings.intent(host.activity(), Settings.ACTION_WIFI_SETTINGS));
     }
 
     /** vpn_app's launch intent, or null when none is set or it is not installed. */
     private Intent vpnAppIntent() {
         if (vpnApp.isEmpty()) return null;
-        Intent i = host.getPackageManager().getLeanbackLaunchIntentForPackage(vpnApp);
-        return i != null ? i : host.getPackageManager().getLaunchIntentForPackage(vpnApp);
+        Intent i = host.activity().getPackageManager().getLeanbackLaunchIntentForPackage(vpnApp);
+        return i != null ? i : host.activity().getPackageManager().getLaunchIntentForPackage(vpnApp);
     }
 
     /**
@@ -605,7 +605,7 @@ public final class TopBarController {
     private void openVpnPill() {
         Intent i = vpnAppIntent();
         if (i != null || !host.state().appLibraryEnabled) {
-            host.open(i != null ? i : SystemSettings.intent(host, Settings.ACTION_VPN_SETTINGS));
+            host.open(i != null ? i : SystemSettings.intent(host.activity(), Settings.ACTION_VPN_SETTINGS));
             return;
         }
         host.grid().openLibraryFromVpnPill();
@@ -632,7 +632,7 @@ public final class TopBarController {
             if (iconOnlyVpn) {
                 // An open lock on the plain glass button, or the closed lock outlined in green like the pill (solid
                 // while focused); the words go to talkback.
-                btnVpn.setContentDescription(host.getString(up ? R.string.vpn : R.string.vpn_off));
+                btnVpn.setContentDescription(host.activity().getString(up ? R.string.vpn : R.string.vpn_off));
                 btnVpn.setBackground(up ? VpnBadge.pillBackground(true, host.density()) : vpnPlainBackground.newDrawable());
                 btnVpn.setCompoundDrawablesRelativeWithIntrinsicBounds(VpnBadge.iconOnlyLock(up), 0, 0, 0);
                 btnVpn.setCompoundDrawableTintList(up ? ink : vpnPlainInk);
@@ -655,12 +655,12 @@ public final class TopBarController {
             return;
         }
         boolean any = host.inputs().liveTvIntent() != null || host.inputs().hasSourcePanel()
-                || (host.inputs().coocaaSources() && !CoocaaSources.list(host).isEmpty());
-        TvInputManager tim = (TvInputManager) host.getSystemService(Context.TV_INPUT_SERVICE);
+                || (host.inputs().coocaaSources() && !CoocaaSources.list(host.activity()).isEmpty());
+        TvInputManager tim = (TvInputManager) host.activity().getSystemService(Context.TV_INPUT_SERVICE);
         if (!any && tim != null) {
             for (TvInputInfo info : tim.getTvInputList()) {
                 // Inputs hidden in Settings > Inputs are left out of the menu, so they don't count here either.
-                if (info.isPassthroughInput() && !info.isHidden(host)) {
+                if (info.isPassthroughInput() && !info.isHidden(host.activity())) {
                     any = true;
                     break;
                 }
@@ -676,7 +676,7 @@ public final class TopBarController {
     /** Scratch rect for the date column's centring (dateOnTwoLines). */
     private final Rect scratch = new Rect();
 
-    public TopBarController(@NonNull HomeActivity host, @NonNull FrameLayout root) {
+    public TopBarController(@NonNull HomeHost host, @NonNull FrameLayout root) {
         this.host = host;
         this.root = root;
     }
@@ -718,7 +718,7 @@ public final class TopBarController {
         btnWifi.setOnClickListener(v -> openNetworkPill());
         btnVpn.setOnClickListener(v -> openVpnPill());
         btnWifi.setOnLongClickListener(v -> {
-            host.open(SystemSettings.intent(host, Settings.ACTION_WIFI_SETTINGS));
+            host.open(SystemSettings.intent(host.activity(), Settings.ACTION_WIFI_SETTINGS));
             return true;
         });
         launcherSettingsButton = cfg.launcherSettingsButton;
@@ -729,7 +729,7 @@ public final class TopBarController {
         }
         btnSettings.setOnClickListener(v -> {
             if (launcherSettingsButton) host.startup().openLauncherSettings();
-            else host.open(SystemSettings.intent(host, Settings.ACTION_SETTINGS));
+            else host.open(SystemSettings.intent(host.activity(), Settings.ACTION_SETTINGS));
         });
         btnReorder = host.findViewById(R.id.btnReorder);
         btnReorder.setOnClickListener(v -> host.reorder().toggleReorder());
@@ -748,10 +748,10 @@ public final class TopBarController {
         wifiIconOnly = iconOnlyButtons && cfg.wifiLabelWidth <= 0;
         if (cfg.wifiStatusColor) {
             wifiPlainTint = btnWifi.getCompoundDrawableTintList();
-            wifiOnlineTint = host.getColorStateList(R.color.pill_icon_online);
+            wifiOnlineTint = host.activity().getColorStateList(R.color.pill_icon_online);
             if (cfg.wifiStatusWarnings) {
-                wifiNoInternetTint = host.getColorStateList(R.color.pill_icon_no_internet);
-                wifiOfflineTint = host.getColorStateList(R.color.pill_icon_offline);
+                wifiNoInternetTint = host.activity().getColorStateList(R.color.pill_icon_no_internet);
+                wifiOfflineTint = host.activity().getColorStateList(R.color.pill_icon_offline);
             }
         }
         if (cfg.topMenu) {
@@ -839,8 +839,8 @@ public final class TopBarController {
 
     /** onCreate, last: the network, VPN and TV-input callbacks, for the activity's whole life. */
     public void registerCallbacks() {
-        ConnectivityManager cm = host.getSystemService(ConnectivityManager.class);
-        TvInputManager tim = (TvInputManager) host.getSystemService(Context.TV_INPUT_SERVICE);
+        ConnectivityManager cm = host.activity().getSystemService(ConnectivityManager.class);
+        TvInputManager tim = (TvInputManager) host.activity().getSystemService(Context.TV_INPUT_SERVICE);
         if (tim != null) tim.registerCallback(inputCallback, host.handler());
         if (cm != null) {
             cm.registerDefaultNetworkCallback(networkCallback);
@@ -852,8 +852,8 @@ public final class TopBarController {
     }
 
     public void unregisterCallbacks() {
-        ConnectivityManager cm = host.getSystemService(ConnectivityManager.class);
-        TvInputManager tim = (TvInputManager) host.getSystemService(Context.TV_INPUT_SERVICE);
+        ConnectivityManager cm = host.activity().getSystemService(ConnectivityManager.class);
+        TvInputManager tim = (TvInputManager) host.activity().getSystemService(Context.TV_INPUT_SERVICE);
         if (tim != null) tim.unregisterCallback(inputCallback);
         if (cm != null) {
             cm.unregisterNetworkCallback(networkCallback);
@@ -864,16 +864,16 @@ public final class TopBarController {
     /** onStart: the clock and the time receiver run while Home is visible, paused or not. */
     public void onStart() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            host.registerReceiver(timeReceiver, timeFilter, Context.RECEIVER_NOT_EXPORTED);
+            host.activity().registerReceiver(timeReceiver, timeFilter, Context.RECEIVER_NOT_EXPORTED);
         } else {
-            host.registerReceiver(timeReceiver, timeFilter);
+            host.activity().registerReceiver(timeReceiver, timeFilter);
         }
         updateClockVisibility();
         clockRefresh.start();   // with timeReceiver: while Home is visible, paused or not
     }
 
     public void onStop() {
-        host.unregisterReceiver(timeReceiver);
+        host.activity().unregisterReceiver(timeReceiver);
         clockRefresh.stop();
         host.handler().removeCallbacks(clockCheck);
     }

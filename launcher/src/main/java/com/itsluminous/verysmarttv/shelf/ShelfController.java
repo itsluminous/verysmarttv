@@ -26,7 +26,7 @@ import androidx.annotation.NonNull;
 import com.itsluminous.verysmarttv.R;
 import com.itsluminous.verysmarttv.grid.LastOpened;
 import com.itsluminous.verysmarttv.grid.UniformRows;
-import com.itsluminous.verysmarttv.home.HomeActivity;
+import com.itsluminous.verysmarttv.home.HomeHost;
 import com.itsluminous.verysmarttv.theme.Config;
 import com.itsluminous.verysmarttv.theme.Motion;
 
@@ -40,7 +40,7 @@ import java.util.Map;
  * (the one hero group of activity_main.xml), which is why the two live in one package and read each other's fields.
  */
 public final class ShelfController {
-    final HomeActivity host;
+    final HomeHost host;
     final FrameLayout root;
     final AmbientGlow glow;
     /** The carousel that owns the shelf while the companion has items (one view group, so it is set, not passed). */
@@ -383,7 +383,7 @@ public final class ShelfController {
                 new int[]{0x00060406, 0x00060406, 0xDB060406, 0xFF060406}, new float[]{0f, 0.28f, 0.58f, 0.76f},
                 Shader.TileMode.CLAMP));
         canvas.drawRect(0, 0, w, h, paint);
-        BitmapDrawable scrim = new BitmapDrawable(host.getResources(), bmp);
+        BitmapDrawable scrim = new BitmapDrawable(host.activity().getResources(), bmp);
         scrim.setGravity(Gravity.FILL);
         return scrim;
     }
@@ -422,13 +422,13 @@ public final class ShelfController {
 
     /** "Last opened yesterday, 9:40 PM", the time in white; nothing (but the same height) when it was never seen. */
     private void updateHeroMeta(int position) {
-        long when = LastOpened.get(host, host.grid().adapter().packageAt(position));
+        long when = LastOpened.get(host.activity(), host.grid().adapter().packageAt(position));
         if (when <= 0) {
             heroMeta.setVisibility(View.INVISIBLE);
             return;
         }
-        String rel = LastOpened.describe(host, when);
-        String text = host.getString(R.string.last_opened, rel);
+        String rel = LastOpened.describe(host.activity(), when);
+        String text = host.activity().getString(R.string.last_opened, rel);
         SpannableString line = new SpannableString(text);
         int at = text.indexOf(rel);
         if (at >= 0) line.setSpan(new ForegroundColorSpan(0xFFFFFFFF), at, at + rel.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -453,7 +453,7 @@ public final class ShelfController {
         if (heroDots.getChildCount() != count) {
             heroDots.removeAllViews();
             for (int i = 0; i < count; i++) {
-                View dot = new View(host);
+                View dot = new View(host.activity());
                 GradientDrawable bg = new GradientDrawable();
                 bg.setCornerRadius(3 * host.density());
                 dot.setBackground(bg);
@@ -525,7 +525,7 @@ public final class ShelfController {
         }
     }
 
-    public ShelfController(@NonNull HomeActivity host, @NonNull FrameLayout root, @NonNull AmbientGlow glow) {
+    public ShelfController(@NonNull HomeHost host, @NonNull FrameLayout root, @NonNull AmbientGlow glow) {
         this.host = host;
         this.root = root;
         this.glow = glow;

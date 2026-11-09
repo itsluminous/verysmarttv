@@ -19,7 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.itsluminous.verysmarttv.R;
-import com.itsluminous.verysmarttv.home.HomeActivity;
+import com.itsluminous.verysmarttv.home.HomeHost;
 import com.itsluminous.verysmarttv.keys.HomeKeyService;
 import com.itsluminous.verysmarttv.library.LibraryApps;
 import com.itsluminous.verysmarttv.settings.SystemSettings;
@@ -31,12 +31,12 @@ import com.itsluminous.verysmarttv.theme.Motion;
  * last two are built from. One popup is open at a time; onPause closes it.
  */
 public final class GlassPopups {
-    private final HomeActivity host;
+    private final HomeHost host;
     private final FrameLayout root;
     /** The Inputs or Module cards dropdown while one is open, so onPause can close it. */
     private PopupWindow openPopup;
 
-    public GlassPopups(@NonNull HomeActivity host, @NonNull FrameLayout root) {
+    public GlassPopups(@NonNull HomeHost host, @NonNull FrameLayout root) {
         this.host = host;
         this.root = root;
     }
@@ -84,25 +84,25 @@ public final class GlassPopups {
     /** top_menu: the gear's dropdown, standing in for the Inputs, Wi-Fi and Settings pills. */
     public void showTopMenu() {
         View anchor = host.findViewById(R.id.btnSettings);
-        View panel = host.getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
+        View panel = host.activity().getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (220 * host.density()));
         // Inputs opens its own list once this one has closed.
-        if (host.topBar().showInputsMenuRow()) host.inputs().addInputRow(rows, popup, R.drawable.ic_input, host.getString(R.string.inputs), -1, () -> root.post(host.inputs()::showInputs));
-        host.inputs().addInputRow(rows, popup, R.drawable.ic_wifi, host.getString(R.string.quick_network), -1, host.topBar()::openNetworkPill);
+        if (host.topBar().showInputsMenuRow()) host.inputs().addInputRow(rows, popup, R.drawable.ic_input, host.activity().getString(R.string.inputs), -1, () -> root.post(host.inputs()::showInputs));
+        host.inputs().addInputRow(rows, popup, R.drawable.ic_wifi, host.activity().getString(R.string.quick_network), -1, host.topBar()::openNetworkPill);
         CharSequence network = host.topBar().networkPillLabel();
         if (!TextUtils.isEmpty(network)) {
             TextView status = rows.getChildAt(rows.getChildCount() - 1).findViewById(R.id.status);
             status.setText(network);
             status.setVisibility(View.VISIBLE);
         }
-        host.inputs().addInputRow(rows, popup, R.drawable.ic_swap_vert, host.getString(R.string.reorder), -1, host.reorder()::toggleReorder);
+        host.inputs().addInputRow(rows, popup, R.drawable.ic_swap_vert, host.activity().getString(R.string.reorder), -1, host.reorder()::toggleReorder);
         if (host.topBar().launcherSettingsButton()) {
-            host.inputs().addInputRow(rows, popup, R.drawable.ic_home_settings_pill, host.getString(R.string.launcher_settings), -1,
+            host.inputs().addInputRow(rows, popup, R.drawable.ic_home_settings_pill, host.activity().getString(R.string.launcher_settings), -1,
                     () -> host.startup().openLauncherSettings());
         } else {
-            host.inputs().addInputRow(rows, popup, R.drawable.ic_settings, host.getString(R.string.settings), -1,
-                    () -> host.open(SystemSettings.intent(host, Settings.ACTION_SETTINGS)));
+            host.inputs().addInputRow(rows, popup, R.drawable.ic_settings, host.activity().getString(R.string.settings), -1,
+                    () -> host.open(SystemSettings.intent(host.activity(), Settings.ACTION_SETTINGS)));
         }
         panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         popup.setWidth(Math.max((int) (220 * host.density()), Math.min(panel.getMeasuredWidth(), (int) (360 * host.density()))));
@@ -113,16 +113,16 @@ public final class GlassPopups {
     /** The header opens launcher settings directly; hold OK keeps the extra home actions available. */
     public void showSettingsMenu() {
         View anchor = host.findViewById(R.id.btnSettings);
-        View panel = host.getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
+        View panel = host.activity().getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (200 * host.density()));
         if (!host.topBar().launcherSettingsButton()) addSettingsMenuRow(rows, popup, R.string.launcher_settings, () -> host.startup().openLauncherSettings());
         // Firmware that ships its own settings app next to the AOSP one (Xiaomi China is one): the
         // vendor app holds pages the AOSP settings has no row for, such as Account & Security with
         // the ADB switch. Offered here only while one of them is installed.
-        if (SystemSettings.vendorIntent(host) != null) {
+        if (SystemSettings.vendorIntent(host.activity()) != null) {
             addSettingsMenuRow(rows, popup, R.string.native_settings, () -> {
-                Intent vendor = SystemSettings.vendorIntent(host);
+                Intent vendor = SystemSettings.vendorIntent(host.activity());
                 if (vendor != null) host.open(vendor);
             });
         }
@@ -143,8 +143,8 @@ public final class GlassPopups {
         String key = host.grid().adapter().keyAt(position);
         String pkg = host.grid().adapter().packageAt(position);
         // Empty dock slots and the Default-home tile carry the launcher's own package: no menu for them.
-        if (key == null || pkg == null || pkg.equals(host.getPackageName())) return;
-        View panel = host.getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
+        if (key == null || pkg == null || pkg.equals(host.activity().getPackageName())) return;
+        View panel = host.activity().getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (200 * host.density()));
         if (host.state().dockRow && !host.state().shelfEveryRow && position < host.grid().adapter().movableCount()) {
@@ -158,14 +158,14 @@ public final class GlassPopups {
             if (at < 0) return;
             host.grid().focusTile(at);
             host.reorder().pickUp(at);
-            Toast.makeText(host, R.string.reorder_hint, Toast.LENGTH_LONG).show();
+            Toast.makeText(host.activity(), R.string.reorder_hint, Toast.LENGTH_LONG).show();
         });
         if (host.state().appLibraryEnabled) addSettingsMenuRow(rows, popup, R.string.library_remove_shortcut, () -> {
-            if (LibraryApps.save(host, pkg, false)) host.grid().reloadApps(false);
-            else Toast.makeText(host, R.string.library_save_failed, Toast.LENGTH_LONG).show();
+            if (LibraryApps.save(host.activity(), pkg, false)) host.grid().reloadApps(false);
+            else Toast.makeText(host.activity(), R.string.library_save_failed, Toast.LENGTH_LONG).show();
         });
         // Some firmware has no App info page at all; a row that only toasts "can't open" helps nobody.
-        Intent info = SystemSettings.appInfo(host, pkg);
+        Intent info = SystemSettings.appInfo(host.activity(), pkg);
         if (info != null) addSettingsMenuRow(rows, popup, R.string.library_app_info, () -> host.open(info));
         panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         popup.setWidth(Math.max((int) (200 * host.density()), panel.getMeasuredWidth()));
@@ -188,7 +188,7 @@ public final class GlassPopups {
     }
 
     public void addSettingsMenuRow(@NonNull LinearLayout rows, @NonNull PopupWindow popup, int title, @NonNull Runnable action) {
-        View row = host.getLayoutInflater().inflate(R.layout.item_input, rows, false);
+        View row = host.activity().getLayoutInflater().inflate(R.layout.item_input, rows, false);
         row.findViewById(R.id.icon).setVisibility(View.GONE);
         row.findViewById(R.id.dot).setVisibility(View.GONE);
         row.findViewById(R.id.status).setVisibility(View.GONE);

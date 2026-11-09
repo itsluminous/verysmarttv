@@ -6,7 +6,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.itsluminous.verysmarttv.R;
-import com.itsluminous.verysmarttv.home.HomeActivity;
+import com.itsluminous.verysmarttv.home.HomeHost;
 
 /**
  * Edit-dock mode (DESIGN.md §8, moved from the activity verbatim): a reorder session that swaps one chosen app into
@@ -14,9 +14,9 @@ import com.itsluminous.verysmarttv.home.HomeActivity;
  * already chosen). ReorderSession's begin and end bracket it.
  */
 public final class DockEditSession {
-    private final HomeActivity host;
+    private final HomeHost host;
 
-    public DockEditSession(@NonNull HomeActivity host) {
+    public DockEditSession(@NonNull HomeHost host) {
         this.host = host;
     }
 
@@ -53,7 +53,7 @@ public final class DockEditSession {
         dockEditing = true;
         dockEditSlot = -1;
         host.grid().focusTile(0);
-        Toast.makeText(host, R.string.dock_edit_hint, Toast.LENGTH_LONG).show();
+        Toast.makeText(host.activity(), R.string.dock_edit_hint, Toast.LENGTH_LONG).show();
     }
 
     /**
@@ -97,7 +97,7 @@ public final class DockEditSession {
                         dockEditSlot = pos;
                         host.reorder().dimOthers();
                         host.grid().focusTile(Math.min(host.state().columns, n - 1));
-                        Toast.makeText(host, R.string.dock_edit_pick_app, Toast.LENGTH_LONG).show();
+                        Toast.makeText(host.activity(), R.string.dock_edit_pick_app, Toast.LENGTH_LONG).show();
                     }
                 } else if (pos < n) {
                     swapIntoDock(dockEditSlot, pos);
@@ -124,11 +124,11 @@ public final class DockEditSession {
             dockEditSlot = pos;
             host.reorder().dimOthers();
             host.grid().focusTile(Math.min(host.state().columns, n - 1));
-            Toast.makeText(host, R.string.dock_edit_pick_app, Toast.LENGTH_LONG).show();
+            Toast.makeText(host.activity(), R.string.dock_edit_pick_app, Toast.LENGTH_LONG).show();
         } else {
             dockEditAppKey = key;
             host.grid().focusTile(0);
-            Toast.makeText(host, R.string.dock_edit_pick_place, Toast.LENGTH_LONG).show();
+            Toast.makeText(host.activity(), R.string.dock_edit_pick_place, Toast.LENGTH_LONG).show();
         }
     }
 

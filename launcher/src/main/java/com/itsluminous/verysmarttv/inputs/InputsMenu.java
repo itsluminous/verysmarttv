@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 
 import com.itsluminous.verysmarttv.R;
 import com.itsluminous.verysmarttv.home.HomeActivity;
+import com.itsluminous.verysmarttv.home.HomeHost;
 import com.itsluminous.verysmarttv.theme.Config;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ import java.util.Set;
  */
 public final class InputsMenu {
     /** Not private: the layout listener in openInputsIfAsked reads it, and an accessor is what lint's SyntheticAccessor flags. */
-    final HomeActivity host;
+    final HomeHost host;
     private final FrameLayout root;
     private final String liveTvPkg;
     private final String liveTvAction;
@@ -62,7 +63,7 @@ public final class InputsMenu {
     /** config.xml inputs_cec_state_only: only CEC device rows show a connection state, bare HDMI ports none. */
     private final boolean inputsCecStateOnly;
 
-    public InputsMenu(@NonNull HomeActivity host, @NonNull FrameLayout root, @NonNull Config cfg) {
+    public InputsMenu(@NonNull HomeHost host, @NonNull FrameLayout root, @NonNull Config cfg) {
         this.host = host;
         this.root = root;
         liveTvPkg = cfg.liveTvPackage;
@@ -97,8 +98,8 @@ public final class InputsMenu {
      * only when the state differs, so an ordinary start does not touch the package manager.
      */
     private void applyViewInputsHandler(boolean on) {
-        ComponentName handler = new ComponentName(host, InputsRequestActivity.class);
-        PackageManager pm = host.getPackageManager();
+        ComponentName handler = new ComponentName(host.activity(), InputsRequestActivity.class);
+        PackageManager pm = host.activity().getPackageManager();
         int want = on ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
         if (pm.getComponentEnabledSetting(handler) != want) {
             pm.setComponentEnabledSetting(handler, want, PackageManager.DONT_KILL_APP);
@@ -113,14 +114,14 @@ public final class InputsMenu {
      */
     public boolean openInputsIfAsked(@Nullable Intent intent) {
         if (intent == null || !HomeActivity.ACTION_VIEW_INPUTS.equals(intent.getAction())) return false;
-        host.setIntent(new Intent(Intent.ACTION_MAIN));
+        host.activity().setIntent(new Intent(Intent.ACTION_MAIN));
         View anchor = host.findViewById(host.state().topMenu ? R.id.btnSettings : R.id.btnInputs);
         if (anchor.getVisibility() != View.VISIBLE) return true;
         if (anchor.isLaidOut()) {
             // Android 9 delivers a new intent to a paused activity with a brief resume and pause around it, and
             // onPause() closes popups, so open the menu once that has run (HiSmartTV A4, Android TV 9).
             anchor.post(() -> {
-                if (host.isFinishing() || anchor.getVisibility() != View.VISIBLE) return;
+                if (host.activity().isFinishing() || anchor.getVisibility() != View.VISIBLE) return;
                 anchor.requestFocus();
                 showInputs();
             });
@@ -132,7 +133,7 @@ public final class InputsMenu {
             public void onGlobalLayout() {
                 anchor.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 anchor.post(() -> {
-                    if (host.isFinishing() || anchor.getVisibility() != View.VISIBLE) return;
+                    if (host.activity().isFinishing() || anchor.getVisibility() != View.VISIBLE) return;
                     anchor.requestFocus();
                     showInputs();
                 });
@@ -145,10 +146,10 @@ public final class InputsMenu {
     @Nullable
     public Intent liveTvIntent() {
         if (liveTvPkg.isEmpty()) return null;
-        Intent i = host.getPackageManager().getLeanbackLaunchIntentForPackage(liveTvPkg);
+        Intent i = host.activity().getPackageManager().getLeanbackLaunchIntentForPackage(liveTvPkg);
         if (i != null || liveTvAction.isEmpty()) return i;
         Intent byAction = new Intent(liveTvAction).setPackage(liveTvPkg);
-        return host.getPackageManager().resolveActivity(byAction, 0) != null ? byAction : null;
+        return host.activity().getPackageManager().resolveActivity(byAction, 0) != null ? byAction : null;
     }
 
     /** The TV's own source-selection panel, for TVs that have no TvInputManager (TCL Android TV 9): a
@@ -166,13 +167,13 @@ public final class InputsMenu {
             }
         }
         try {
-            if (host.getPackageManager().resolveActivity(i, 0) != null) {
-                host.startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            if (host.activity().getPackageManager().resolveActivity(i, 0) != null) {
+                host.activity().startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 return;
             }
-            host.startService(i);
+            host.activity().startService(i);
         } catch (Exception e) {
-            Toast.makeText(host, R.string.not_available, Toast.LENGTH_SHORT).show();
+            Toast.makeText(host.activity(), R.string.not_available, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -198,7 +199,7 @@ public final class InputsMenu {
         // A CEC device is a child input of its HDMI port; the vendor source number belongs to the port
         // (MiTV-MFFU0). Only that lookup uses the parent: the generic path below still opens the child.
         String sourceId = inputId;
-        TvInputManager tim = (TvInputManager) host.getSystemService(Context.TV_INPUT_SERVICE);
+        TvInputManager tim = (TvInputManager) host.activity().getSystemService(Context.TV_INPUT_SERVICE);
         if (tim != null) {
             try {
                 TvInputInfo info = tim.getTvInputInfo(inputId);
@@ -209,7 +210,7 @@ public final class InputsMenu {
         Integer source = mappedSource(sourceId);
         if (source != null && source >= 0 && !inputAction.isEmpty()) {
             try {
-                host.startActivity(inputActionIntent().putExtra("input", source.intValue())
+                host.activity().startActivity(inputActionIntent().putExtra("input", source.intValue())
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 return;
             } catch (ActivityNotFoundException | SecurityException e) {
@@ -220,7 +221,7 @@ public final class InputsMenu {
             // ExternalSourceActivity). Its firmware answers the standard channel URI with "unsupported", so the
             // row goes straight there; the picker is the overlay the remote's Source button opens.
             try {
-                host.startActivity(inputActionIntent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                host.activity().startActivity(inputActionIntent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 return;
             } catch (ActivityNotFoundException | SecurityException e) {
                 // fall through to the standard way
@@ -235,17 +236,17 @@ public final class InputsMenu {
         // channel URI too, and with two or more handlers Android shows a chooser instead of the input (WhaleOS).
         if (!liveTvPkg.isEmpty()) {
             try {
-                host.startActivity(new Intent(view).setPackage(liveTvPkg));
+                host.activity().startActivity(new Intent(view).setPackage(liveTvPkg));
                 return;
             } catch (ActivityNotFoundException | SecurityException ignored) {
             }
         }
         try {
-            host.startActivity(view);
+            host.activity().startActivity(view);
             return;
         } catch (ActivityNotFoundException | SecurityException e) {
             if (inputAction.isEmpty()) {
-                Toast.makeText(host, R.string.not_available, Toast.LENGTH_SHORT).show();
+                Toast.makeText(host.activity(), R.string.not_available, Toast.LENGTH_SHORT).show();
                 return;
             }
         }
@@ -263,7 +264,7 @@ public final class InputsMenu {
     public void showInputs() {
         // A configured source panel and no Live TV row to offer next to it: the panel is the whole menu.
         // The BYINTEK U4 needs this, as its TvInputManager lists three HDMI ports and an AV input it doesn't have.
-        List<CoocaaSources.Source> coocaa = coocaaSources ? CoocaaSources.list(host) : Collections.emptyList();
+        List<CoocaaSources.Source> coocaa = coocaaSources ? CoocaaSources.list(host.activity()) : Collections.emptyList();
         if (coocaa.isEmpty() && !sourcePanelService.isEmpty() && liveTvIntent() == null) {
             openSourcePanel();
             return;
@@ -273,14 +274,14 @@ public final class InputsMenu {
         // keeps its usual place.
         boolean underGear = host.state().topMenu;
         View anchor = host.findViewById(underGear ? R.id.btnSettings : R.id.btnInputs);
-        View panel = host.getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
+        View panel = host.activity().getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
 
         // Compact: as wide as the Inputs pill (a touch wider so "HDMI 1" fits), hanging right below it.
         int width = Math.max(anchor.getWidth(), (int) (150 * host.density()));
         final PopupWindow popup = host.popups().glassPopup(panel, width);
 
-        TvInputManager tim = (TvInputManager) host.getSystemService(Context.TV_INPUT_SERVICE);
+        TvInputManager tim = (TvInputManager) host.activity().getSystemService(Context.TV_INPUT_SERVICE);
         // inputs_connected_only: ports without a connected device and the AV jacks fold behind a "More inputs" row.
         boolean connectedOnly = inputsConnectedOnly;
         List<View> folded = new ArrayList<>();
@@ -296,7 +297,7 @@ public final class InputsMenu {
             Collections.sort(inputs, (a, b) -> {
                 boolean ha = a.getType() == TvInputInfo.TYPE_HDMI, hb = b.getType() == TvInputInfo.TYPE_HDMI;
                 if (ha != hb) return ha ? -1 : 1;
-                return String.valueOf(a.loadLabel(host)).compareToIgnoreCase(String.valueOf(b.loadLabel(host)));
+                return String.valueOf(a.loadLabel(host.activity())).compareToIgnoreCase(String.valueOf(b.loadLabel(host.activity())));
             });
             // An HDMI-CEC device (an Apple TV, a soundbar) gets an input of its own whose parent is the
             // port it sits on, so the port and the device would each get a row (Vestel MT7332: "HDMI 1"
@@ -308,7 +309,7 @@ public final class InputsMenu {
             for (TvInputInfo info : inputs) {
                 String parent = info.getParentId();
                 if (parent == null || !inputIds.contains(parent)) continue;
-                if (!info.isPassthroughInput() || info.isHidden(host)) continue;
+                if (!info.isPassthroughInput() || info.isHidden(host.activity())) continue;
                 List<TvInputInfo> onPort = cecDevices.get(parent);
                 if (onPort == null) cecDevices.put(parent, onPort = new ArrayList<>());
                 onPort.add(info);
@@ -348,16 +349,16 @@ public final class InputsMenu {
                     }
                 }
                 // Inputs hidden in the TV's Settings > Inputs stay out of the menu too.
-                if (!info.isPassthroughInput() || info.isHidden(host)) continue;
+                if (!info.isPassthroughInput() || info.isHidden(host.activity())) continue;
                 // input_sources can leave out ports the board reports but the set does not have ("HW8=-").
                 if (Integer.valueOf(-1).equals(mappedSource(info.getId()))) continue;
                 // A CEC device's row is added with its port, below.
                 if (info.getParentId() != null && inputIds.contains(info.getParentId())) continue;
-                CharSequence l = info.loadLabel(host);
+                CharSequence l = info.loadLabel(host.activity());
                 String label = l == null ? info.getId() : l.toString();
                 boolean hdmi = info.getType() == TvInputInfo.TYPE_HDMI;
                 if (hdmi && !label.toUpperCase(Locale.ROOT).contains("HDMI")) label = "HDMI " + label;
-                CharSequence custom = InputNames.tidy(info.loadCustomLabel(host));
+                CharSequence custom = InputNames.tidy(info.loadCustomLabel(host.activity()));
                 boolean named = custom != null && custom.length() > 0 && !custom.toString().equals(label);
                 if (!hdmi && rows.getChildCount() > 0 && !sawNonHdmi) {
                     View line = addSeparator(rows);
@@ -370,8 +371,8 @@ public final class InputsMenu {
                     // Settings > Inputs), then the port. Opening the device's input also makes it the CEC
                     // active source, which wakes it.
                     for (TvInputInfo device : devices) {
-                        CharSequence name = InputNames.tidy(device.loadCustomLabel(host));
-                        if (name == null || name.length() == 0) name = named ? custom : device.loadLabel(host);
+                        CharSequence name = InputNames.tidy(device.loadCustomLabel(host.activity()));
+                        if (name == null || name.length() == 0) name = named ? custom : device.loadLabel(host.activity());
                         String deviceLabel = name == null || name.length() == 0 ? label : name + " \u00B7 " + label;
                         final String deviceId = device.getId();
                         int state = hdmiStateBogus && !inputsCecStateOnly ? -1 : tim.getInputState(deviceId);
@@ -392,7 +393,7 @@ public final class InputsMenu {
             }
         }
         if (!folded.isEmpty()) {
-            View more = host.getLayoutInflater().inflate(R.layout.item_input, rows, false);
+            View more = host.activity().getLayoutInflater().inflate(R.layout.item_input, rows, false);
             ((ImageView) more.findViewById(R.id.icon)).setImageResource(R.drawable.ic_input);
             ((TextView) more.findViewById(R.id.title)).setText(R.string.more_inputs);
             more.findViewById(R.id.status).setVisibility(View.GONE);
@@ -412,15 +413,15 @@ public final class InputsMenu {
                 int icon = "HDMI".equals(s.name) ? R.drawable.ic_input
                         : "VOD".equals(s.name) ? R.drawable.ic_livetv : R.drawable.ic_av;
                 addInputRow(rows, popup, icon, s.label, -1, () -> {
-                    if (!CoocaaSources.open(host, s)) {
-                        Toast.makeText(host, R.string.not_available, Toast.LENGTH_SHORT).show();
+                    if (!CoocaaSources.open(host.activity(), s)) {
+                        Toast.makeText(host.activity(), R.string.not_available, Toast.LENGTH_SHORT).show();
                     }
                 });
             }
         }
         // Nothing to list where there is no TvInputManager: the TV's own source panel switches inputs.
         if (rows.getChildCount() == 0 && !sourcePanelService.isEmpty()) {
-            addInputRow(rows, popup, R.drawable.ic_input, host.getString(R.string.inputs), -1, this::openSourcePanel);
+            addInputRow(rows, popup, R.drawable.ic_input, host.activity().getString(R.string.inputs), -1, this::openSourcePanel);
         }
         Intent liveTv = liveTvIntent();
         if (liveTv != null && tunerId != null) {
@@ -438,7 +439,7 @@ public final class InputsMenu {
                                     : TvContract.buildChannelUriForPassthroughInput(tunerId),
                             configured ? TvContract.Channels.CONTENT_TYPE : TvContract.Channels.CONTENT_ITEM_TYPE)
                     .setPackage(liveTvPkg);
-            ComponentName handler = tuned.resolveActivity(host.getPackageManager());
+            ComponentName handler = tuned.resolveActivity(host.activity().getPackageManager());
             if (handler != null) {
                 // On some MediaTek sets the tuner passthrough URI leaves the app's HDMI source selected.
                 // The stock launcher addresses the same activity with the root channel URI instead (#1941).
@@ -450,10 +451,10 @@ public final class InputsMenu {
         if (liveTv != null) {
             if (rows.getChildCount() > 0) addSeparator(rows);
             final Intent liveTvIntent = liveTv;
-            addInputRow(rows, popup, R.drawable.ic_livetv, host.getString(R.string.live_tv), -1, () -> host.open(liveTvIntent));
+            addInputRow(rows, popup, R.drawable.ic_livetv, host.activity().getString(R.string.live_tv), -1, () -> host.open(liveTvIntent));
         }
         if (rows.getChildCount() == 0) {
-            Toast.makeText(host, R.string.no_inputs, Toast.LENGTH_SHORT).show();
+            Toast.makeText(host.activity(), R.string.no_inputs, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -475,7 +476,7 @@ public final class InputsMenu {
 
     @NonNull
     public View addSeparator(@NonNull LinearLayout rows) {
-        View line = new View(host);
+        View line = new View(host.activity());
         line.setBackgroundColor(0x1FFFFFFF);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) host.density());
         int m = (int) (6 * host.density()), h = (int) (12 * host.density());
@@ -486,7 +487,7 @@ public final class InputsMenu {
 
     @NonNull
     public View addInputRow(@NonNull LinearLayout rows, @NonNull PopupWindow popup, int iconRes, @NonNull String title, int state, @NonNull Runnable action) {
-        View row = host.getLayoutInflater().inflate(R.layout.item_input, rows, false);
+        View row = host.activity().getLayoutInflater().inflate(R.layout.item_input, rows, false);
         ((ImageView) row.findViewById(R.id.icon)).setImageResource(iconRes);
         ((TextView) row.findViewById(R.id.title)).setText(title);
         TextView status = row.findViewById(R.id.status);

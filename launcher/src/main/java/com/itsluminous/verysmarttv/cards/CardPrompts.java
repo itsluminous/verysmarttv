@@ -19,7 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.itsluminous.verysmarttv.R;
-import com.itsluminous.verysmarttv.home.HomeActivity;
+import com.itsluminous.verysmarttv.home.HomeHost;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,14 +32,14 @@ import java.util.Set;
  * them here; a decision rebuilds the tiles through the host.
  */
 public final class CardPrompts {
-    private final HomeActivity host;
+    private final HomeHost host;
     private final FrameLayout root;
     private List<Cards.Card> cards = Collections.emptyList();
     private Dialog cardPrompt;
     /** Set when a decision could not be saved: no more prompts until the next resume, instead of asking in a loop. */
     private boolean promptsPaused;
 
-    public CardPrompts(@NonNull HomeActivity host, @NonNull FrameLayout root) {
+    public CardPrompts(@NonNull HomeHost host, @NonNull FrameLayout root) {
         this.host = host;
         this.root = root;
     }
@@ -51,8 +51,8 @@ public final class CardPrompts {
     @NonNull
     public List<Cards.Card> discover(@NonNull Set<String> hiddenApps, @NonNull List<ResolveInfo> leanback) {
         final List<Cards.Card> none = Collections.emptyList();
-        cards = host.state().moduleCards ? CardFeature.run(() -> Cards.discover(host, hiddenApps,
-                () -> Cards.load(Cards.storeFile(host)), leanback), none) : none;
+        cards = host.state().moduleCards ? CardFeature.run(() -> Cards.discover(host.activity(), hiddenApps,
+                () -> Cards.load(Cards.storeFile(host.activity())), leanback), none) : none;
         return cards.isEmpty() ? none : CardFeature.run(() -> Cards.shown(cards), none);
     }
 

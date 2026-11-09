@@ -1,275 +1,90 @@
 package com.itsluminous.verysmarttv.home;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.ResolveInfo;
-import android.content.pm.ChangedPackages;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.LinearGradient;
-import android.graphics.Paint;
-import android.graphics.RadialGradient;
-import android.graphics.Rect;
-import android.graphics.Shader;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.StateListDrawable;
-import android.media.tv.TvContract;
-import android.media.tv.TvInputInfo;
-import android.media.tv.TvInputManager;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.NetworkRequest;
-import android.net.Uri;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
-import android.os.SystemClock;
-import android.provider.Settings;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextPaint;
-import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
-import android.util.Log;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.SoundEffectConstants;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.Window;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LayoutAnimationController;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.PopupWindow;
-import android.widget.TextClock;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.itsluminous.verysmarttv.core.contract.HeroContract;
-import com.itsluminous.verysmarttv.R;
-
 import androidx.annotation.NonNull;
-import androidx.dynamicanimation.animation.FloatPropertyCompat;
-import androidx.dynamicanimation.animation.SpringAnimation;
-import androidx.dynamicanimation.animation.SpringForce;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import com.itsluminous.verysmarttv.grid.AppAdapter;
-import com.itsluminous.verysmarttv.library.AppLibraryDialog;
+import com.itsluminous.verysmarttv.R;
 import com.itsluminous.verysmarttv.cards.CardPrompts;
 import com.itsluminous.verysmarttv.clock.ClockFormat;
 import com.itsluminous.verysmarttv.clock.IdleClock;
-import com.itsluminous.verysmarttv.clock.ClockRefresh;
-import com.itsluminous.verysmarttv.theme.Config;
-import com.itsluminous.verysmarttv.inputs.CoocaaSources;
-import com.itsluminous.verysmarttv.grid.DockDecoration;
+import com.itsluminous.verysmarttv.grid.AppAdapter;
 import com.itsluminous.verysmarttv.grid.DockEditSession;
-import com.itsluminous.verysmarttv.grid.EdgeAlignDecoration;
-import com.itsluminous.verysmarttv.grid.GlassView;
 import com.itsluminous.verysmarttv.grid.GridController;
+import com.itsluminous.verysmarttv.grid.ReorderSession;
+import com.itsluminous.verysmarttv.inputs.InputsMenu;
+import com.itsluminous.verysmarttv.keys.KeyDispatcher;
+import com.itsluminous.verysmarttv.keys.RemoteKeys;
+import com.itsluminous.verysmarttv.keys.ServiceRepair;
+import com.itsluminous.verysmarttv.menus.GlassPopups;
 import com.itsluminous.verysmarttv.shelf.AmbientGlow;
 import com.itsluminous.verysmarttv.shelf.CarouselController;
 import com.itsluminous.verysmarttv.shelf.ShelfController;
-import com.itsluminous.verysmarttv.shelf.HeroFeed;
-import com.itsluminous.verysmarttv.keys.KeyDispatcher;
-import com.itsluminous.verysmarttv.inputs.InputFold;
-import com.itsluminous.verysmarttv.inputs.InputNames;
-import com.itsluminous.verysmarttv.inputs.InputsMenu;
-import com.itsluminous.verysmarttv.inputs.InputsRequestActivity;
-import com.itsluminous.verysmarttv.grid.LastOpened;
-import com.itsluminous.verysmarttv.grid.LaunchActions;
-import com.itsluminous.verysmarttv.settings.LauncherSettingsActivity;
-import com.itsluminous.verysmarttv.library.LibraryApps;
-import com.itsluminous.verysmarttv.menus.GlassPopups;
-import com.itsluminous.verysmarttv.theme.Motion;
-import com.itsluminous.verysmarttv.settings.OpenOnStart;
-import com.itsluminous.verysmarttv.grid.ReorderSession;
-import com.itsluminous.verysmarttv.settings.QuickSettingsActivity;
-import com.itsluminous.verysmarttv.keys.RemoteKeys;
-import com.itsluminous.verysmarttv.keys.ServiceRepair;
-import com.itsluminous.verysmarttv.shelf.ShelfScale;
-import com.itsluminous.verysmarttv.settings.SystemSettings;
-import com.itsluminous.verysmarttv.grid.TileRefresh;
-import com.itsluminous.verysmarttv.grid.TopFade;
-import com.itsluminous.verysmarttv.grid.UniformRows;
-import com.itsluminous.verysmarttv.topbar.TopBarController;
+import com.itsluminous.verysmarttv.theme.Config;
 import com.itsluminous.verysmarttv.theme.Wallpaper;
+import com.itsluminous.verysmarttv.topbar.TopBarController;
 
 /**
  * tvOS style home: black, a pinned dock row, an app grid, and one glass highlight that springs between tiles.
+ *
+ * <p>The activity only wires (DESIGN.md §8, ADR-007): it reads the theme once, builds the controllers in the order
+ * their views depend on each other, and hands every lifecycle callback, key and tile event to the controller that
+ * owns it. The behaviour lives in those controllers; the flags they share live in {@link HomeState}.
  */
 public class HomeActivity extends Activity implements AppAdapter.TileListener, HomeHost {
-    @Override
-    protected void attachBaseContext(android.content.Context base) {
-        super.attachBaseContext(LauncherLocale.wrap(base));   // locale
-    }
-
-    // ---- HomeHost: what the controllers get from the activity ------------------------------------
-
-    @Override
-    @NonNull
-    public Activity activity() {
-        return this;
-    }
-
-    @Override
-    @NonNull
-    public HomeState state() {
-        return state;
-    }
-
-    @Override
-    @NonNull
-    public Handler handler() {
-        return handler;
-    }
-
-    @Override
-    public float density() {
-        return density;
-    }
-
-    @Override
-    public boolean dispatchKeyEventToViews(@NonNull KeyEvent event) {
-        return super.dispatchKeyEvent(event);
-    }
-
-
     /** Sent by QuickSettingsActivity: open Launcher settings from here so Home rebuilds when they close. */
     public static final String ACTION_LAUNCHER_SETTINGS = "com.itsluminous.verysmarttv.action.LAUNCHER_SETTINGS";
     /** Sent by the "library" action word of app_keys: open the App library over Home (needs app_library). */
     public static final String ACTION_APP_LIBRARY = "com.itsluminous.verysmarttv.action.APP_LIBRARY";
     /** The system input switcher, forwarded here by InputsRequestActivity while handle_view_inputs is on. */
     public static final String ACTION_VIEW_INPUTS = "com.android.tv.action.VIEW_INPUTS";
+
     /** The booleans and counts every controller reads (DESIGN.md §8, HomeState); filled in onCreate. */
-    final HomeState state = new HomeState();
+    private final HomeState state = new HomeState();
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private FrameLayout root;
     private Wallpaper wallpaper;
     private float density;
-    @NonNull
-    public StartupRouter startup() {
-        return startup;
-    }
 
-    @NonNull
-    public CardPrompts cards() {
-        return cardPrompts;
-    }
-
-    @NonNull
-    public GlassPopups popups() {
-        return popups;
-    }
-
-    @NonNull
-    public InputsMenu inputs() {
-        return inputs;
-    }
-
-    @NonNull
-    public TopBarController topBar() {
-        return topBar;
-    }
-
-    @NonNull
-    public GridController grid() {
-        return grid;
-    }
-
-    @NonNull
-    public ShelfController shelf() {
-        return shelf;
-    }
-
-    @NonNull
-    public CarouselController carousel() {
-        return carousel;
-    }
-
-    @NonNull
-    public AmbientGlow glow() {
-        return glow;
-    }
-
-    @NonNull
-    public ReorderSession reorder() {
-        return reorder;
-    }
-
-    @NonNull
-    public DockEditSession dockEdit() {
-        return dockEdit;
-    }
-
-    private final Handler handler = new Handler(Looper.getMainLooper());
-    /** The module-card prompt and the Module cards list (CardPrompts). */
+    /** Boot and wake opens, the intents Home answers, the Launcher settings result. */
+    private StartupRouter startup;
+    /** The module-card prompt and the Module cards list. */
     private CardPrompts cardPrompts;
-    /** Reorder mode (ReorderSession) and edit-dock mode (DockEditSession). */
-    private ReorderSession reorder;
-    private DockEditSession dockEdit;
-    /** The app grid: tiles, focus, the glass highlight, the library (GridController). */
-    private GridController grid;
-    /** The glass dropdowns: popup window, top_menu, the Settings menu, the tile menu (GlassPopups). */
+    /** The glass dropdowns: popup window, top_menu, the Settings menu, the tile menu. */
     private GlassPopups popups;
-    /** The Inputs menu, how an input opens, the Live TV intent (InputsMenu). */
+    /** The Inputs menu, how an input opens, the Live TV intent. */
     private InputsMenu inputs;
-    /** The header and the pills (TopBarController). */
+    /** The header and the pills. */
     private TopBarController topBar;
-    /** Boot and wake opens, the intents Home answers, the Launcher settings result (StartupRouter). */
-    StartupRouter startup;
-    /** The glow behind the grid (AmbientGlow): the shelf asks it for colours and fades. */
+    /** The app grid: tiles, focus, the glass highlight, the library. */
+    private GridController grid;
+    /** The glow behind the grid: the shelf asks it for colours and fades. */
     private AmbientGlow glow;
-    /** Every key Home receives (KeyDispatcher). */
-    private KeyDispatcher keys;
-    /** The top shelf (ShelfController) and the carousel on it (CarouselController). */
+    /** The top shelf and the carousel on it. */
     private ShelfController shelf;
     private CarouselController carousel;
-    /** home_idle_clock_minutes and back_opens_clock (IdleClock). */
+    /** Reorder mode and edit-dock mode. */
+    private ReorderSession reorder;
+    private DockEditSession dockEdit;
+    /** Every key Home receives. */
+    private KeyDispatcher keys;
+    /** home_idle_clock_minutes and back_opens_clock. */
     private IdleClock idleClock;
-    /** clock_format, for the race panel's session times (the TextClocks take it in onCreate). */
-    private String clockFormat = "system";
+
+    @Override
+    protected void attachBaseContext(android.content.Context base) {
+        super.attachBaseContext(LauncherLocale.wrap(base));   // locale
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -278,8 +93,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         // config.xml, overlaid by config.json from a pushed theme (see Config and tools/theme.sh).
         Config cfg = Config.load(this);
         keys = new KeyDispatcher(this, cfg);
-        clockFormat = cfg.clockFormat;
-        ClockFormat.apply(getWindow().getDecorView(), clockFormat);
+        ClockFormat.apply(getWindow().getDecorView(), cfg.clockFormat);
         // restore_key_services: after a force stop, put back the remote's accessibility helpers that Android took
         // off the list (needs WRITE_SECURE_SETTINGS, granted by build-and-install with RESTORE_KEY_SERVICES=1).
         if (cfg.restoreKeyServices) ServiceRepair.restore(this);
@@ -323,7 +137,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         reorder = new ReorderSession(this, grid.view(), cfg);
         dockEdit = new DockEditSession(this);
         topBar.setUpPills(cfg);
-
 
         startup.onCreate();
         topBar.registerCallbacks();
@@ -380,12 +193,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         shelf.onResume();
     }
 
-    /** Whether the framework lays this screen out right-to-left (supportsRtl): the drawn gradients and the grid's key arithmetic follow it. */
-    @Override
-    public boolean isRtl() {
-        return getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
-    }
-
     /**
      * Only "Reorder tiles" in Launcher settings still answers with a result: Home rebuilds (the saved choices are
      * reloaded) and then enters reorder mode. Every other change is picked up in onResume through the change count.
@@ -413,7 +220,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         RemoteKeys.release(this);
         keys.cancelHoldOk();
         idleClock.cancel();
-        reorder.endReorder();   // Home or another app while reorder.active() keeps the order so far
+        reorder.endReorder();   // Home or another app while reordering keeps the order so far
         glow.stopAmbientAnimation();
         shelf.onPause();
         glow.cancelFade();
@@ -475,15 +282,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         topBar.unregisterCallbacks();
     }
 
-    // ---- reorder ---------------------------------------------------------------------------------
-
-    /**
-     * Reorder mode (top-bar button). While it is on, every key comes here first:
-     * - nothing carried: arrows move focus as usual; OK on a tile picks it up instead of opening the app;
-     *   Back ends the mode and saves the order.
-     * - a tile carried: arrows move it; Back (or OK) puts it down and the mode stays on for the next one.
-     * Other keys (volume, Home) pass through; leaving the launcher ends the mode and saves.
-     */
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         return keys.dispatch(event);
@@ -495,19 +293,36 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         idleClock.onBackPressed();
     }
 
-    // ---- glass highlight -------------------------------------------------------------------------
+    // ---- HomeHost: what the controllers get from the activity ------------------------------------
 
-    // ---- top shelf -------------------------------------------------------------------------------
+    @Override
+    @NonNull
+    public Activity activity() {
+        return this;
+    }
 
-    // ---- hero_feed carousel ----------------------------------------------------------------------
+    @Override
+    @NonNull
+    public HomeState state() {
+        return state;
+    }
 
-    // ---- cinematic shelf -------------------------------------------------------------------------
+    @Override
+    @NonNull
+    public Handler handler() {
+        return handler;
+    }
 
-    // ---- date_two_lines --------------------------------------------------------------------------
+    @Override
+    public float density() {
+        return density;
+    }
 
-    // ---- navigation ------------------------------------------------------------------------------
-
-    // ---- top bar ---------------------------------------------------------------------------------
+    /** Whether the framework lays this screen out right-to-left (supportsRtl): the drawn gradients and the grid's key arithmetic follow it. */
+    @Override
+    public boolean isRtl() {
+        return getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+    }
 
     @Override
     public void open(@NonNull Intent i) {
@@ -519,7 +334,94 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         }
     }
 
-    // ---- launcher settings and module cards -------------------------------------------------------
+    @Override
+    public boolean dispatchKeyEventToViews(@NonNull KeyEvent event) {
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    @NonNull
+    public AppAdapter.TileListener tileListener() {
+        return this;
+    }
+
+    @Override
+    @NonNull
+    public StartupRouter startup() {
+        return startup;
+    }
+
+    @Override
+    @NonNull
+    public CardPrompts cards() {
+        return cardPrompts;
+    }
+
+    @Override
+    @NonNull
+    public GlassPopups popups() {
+        return popups;
+    }
+
+    @Override
+    @NonNull
+    public InputsMenu inputs() {
+        return inputs;
+    }
+
+    @Override
+    @NonNull
+    public TopBarController topBar() {
+        return topBar;
+    }
+
+    @Override
+    @NonNull
+    public GridController grid() {
+        return grid;
+    }
+
+    @Override
+    @NonNull
+    public ShelfController shelf() {
+        return shelf;
+    }
+
+    @Override
+    @NonNull
+    public CarouselController carousel() {
+        return carousel;
+    }
+
+    @Override
+    @NonNull
+    public AmbientGlow glow() {
+        return glow;
+    }
+
+    @Override
+    @NonNull
+    public ReorderSession reorder() {
+        return reorder;
+    }
+
+    @Override
+    @NonNull
+    public DockEditSession dockEdit() {
+        return dockEdit;
+    }
+
+    @Override
+    @NonNull
+    public KeyDispatcher keys() {
+        return keys;
+    }
+
+    @Override
+    @NonNull
+    public IdleClock idleClock() {
+        return idleClock;
+    }
 
     // ---- AppAdapter.TileListener: the grid controller answers ------------------------------------
 
@@ -548,6 +450,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         grid.onLibraryUp();
     }
 
+    /** Hold OK (or the Menu key) on a tile: the tile menu next to it. */
     @Override
     public void onTileLongPress(int position, View card) {
         popups.showTileMenu(position, card);
@@ -559,16 +462,4 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     public void onOpenInput(String inputId) {
         inputs.openInput(inputId);
     }
-
-    /**
-     * Hold OK on a tile: a glass menu next to it. Move starts reorder mode with this tile already picked up;
-     * Remove from Home takes the shortcut off (only with the app library on, where one press adds it back);
-     * App info opens the TV's page for the app, which is what holding OK used to do.
-     */
-    // ---- hold OK ---------------------------------------------------------------------------------
-    // View's own long click misses on some remotes: an IR remote that sends its repeat frames as separate
-    // presses, or a Bluetooth one whose repeats land after a tile rebind, never holds one DOWN long enough.
-    // So the launcher times the hold itself: OK down on a tile, still down (or still repeating) after
-    // HOLD_OK_MS opens the tile menu, and the UP that follows is eaten so it doesn't also open the app.
-
 }

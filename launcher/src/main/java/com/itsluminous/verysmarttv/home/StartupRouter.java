@@ -26,7 +26,7 @@ public final class StartupRouter {
 
     // Not private: the two anonymous receivers below read them, and a synthetic accessor per read is what lint's
     // SyntheticAccessor flags (the launcher runs on 1 GB TVs; the fork baselined these, this file fixes them).
-    final HomeActivity home;
+    final HomeHost home;
     /** Launcher settings' change count this Home was built with (see onResume). */
     private long settingsRevision;
     /** boot_to_live_tv: open the Live TV app on the first Home of each boot. */
@@ -45,7 +45,7 @@ public final class StartupRouter {
         @Override
         public void run() {
             if (startPending == null) return;
-            if (!OpenOnStart.opensNow(OpenOnStart.online(home), SystemClock.elapsedRealtime(),
+            if (!OpenOnStart.opensNow(OpenOnStart.online(home.activity()), SystemClock.elapsedRealtime(),
                     startDeadline)) return;
             home.handler().removeCallbacks(this);   // the deadline's run, when the network came first
             Intent i = startPending;
@@ -61,7 +61,7 @@ public final class StartupRouter {
     };
     private boolean settingsRecreationPending;
 
-    public StartupRouter(@NonNull HomeActivity home, @NonNull Config cfg) {
+    public StartupRouter(@NonNull HomeHost home, @NonNull Config cfg) {
         this.home = home;
         settingsRevision = settingsRevision();
         bootToLiveTv = cfg.bootToLiveTv;
@@ -75,9 +75,9 @@ public final class StartupRouter {
     public void onCreate() {
         if (openOnStartOnWake) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                home.registerReceiver(wakeReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON), Context.RECEIVER_NOT_EXPORTED);
+                home.activity().registerReceiver(wakeReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON), Context.RECEIVER_NOT_EXPORTED);
             } else {
-                home.registerReceiver(wakeReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
+                home.activity().registerReceiver(wakeReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
             }
         }
     }
@@ -89,7 +89,7 @@ public final class StartupRouter {
     }
 
     public void onDestroy() {
-        if (openOnStartOnWake) home.unregisterReceiver(wakeReceiver);
+        if (openOnStartOnWake) home.activity().unregisterReceiver(wakeReceiver);
     }
 
     /** open_on_start_network_wait: the boot's app opens on the first validated network (networkCallback). */
@@ -104,7 +104,7 @@ public final class StartupRouter {
 
     /** Opens Launcher settings over Home; Home rebuilds when they close with a change (onResume, onActivityResult). */
     public void openLauncherSettings() {
-        home.startActivityForResult(new Intent(home, LauncherSettingsActivity.class), LAUNCHER_SETTINGS_REQUEST);
+        home.activity().startActivityForResult(new Intent(home.activity(), LauncherSettingsActivity.class), LAUNCHER_SETTINGS_REQUEST);
     }
 
     /** The two intents Home answers besides HOME: Launcher settings, then the App library. */
@@ -119,24 +119,24 @@ public final class StartupRouter {
      */
     private boolean openLibraryIfAsked(Intent intent) {
         if (intent == null || !HomeActivity.ACTION_APP_LIBRARY.equals(intent.getAction())) return false;
-        home.setIntent(new Intent(Intent.ACTION_MAIN));
+        home.activity().setIntent(new Intent(Intent.ACTION_MAIN));
         if (!home.state().appLibraryEnabled) return true;
-        home.getWindow().getDecorView().post(() -> {
-            if (!home.isFinishing() && !home.isDestroyed()) home.grid().onLibraryRequested();
+        home.activity().getWindow().getDecorView().post(() -> {
+            if (!home.activity().isFinishing() && !home.activity().isDestroyed()) home.grid().onLibraryRequested();
         });
         return true;
     }
 
     private boolean openLauncherSettingsIfAsked(Intent intent) {
         if (intent == null || !HomeActivity.ACTION_LAUNCHER_SETTINGS.equals(intent.getAction())) return false;
-        home.setIntent(new Intent(Intent.ACTION_MAIN));
+        home.activity().setIntent(new Intent(Intent.ACTION_MAIN));
         openLauncherSettings();
         return true;
     }
 
     /** Launcher settings' change count (Config.SETTINGS_REVISION_KEY); onResume rebuilds Home when it moved. */
     private long settingsRevision() {
-        return home.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).getLong(Config.SETTINGS_REVISION_KEY, 0);
+        return home.activity().getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).getLong(Config.SETTINGS_REVISION_KEY, 0);
     }
 
     /**
@@ -146,7 +146,7 @@ public final class StartupRouter {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == LAUNCHER_SETTINGS_REQUEST && resultCode == android.app.Activity.RESULT_OK
                 && data != null && data.getBooleanExtra(LauncherSettingsActivity.EXTRA_REORDER, false)) {
-            home.getIntent().putExtra(LauncherSettingsActivity.EXTRA_REORDER, true);
+            home.activity().getIntent().putExtra(LauncherSettingsActivity.EXTRA_REORDER, true);
             if (!Config.settingsChanged(settingsRevision, settingsRevision())) {
                 // Nothing was changed before Reorder was chosen: keep this activity and its tiles, and start the
                 // reorder when the window has focus again (onWindowFocusChanged). A recreate() here blanked Home
@@ -157,14 +157,14 @@ public final class StartupRouter {
             // or rebuild a second time in onResume.
             settingsRecreationPending = true;
             settingsRevision = settingsRevision();
-            home.recreate();
+            home.activity().recreate();
         }
     }
 
     public void startPendingSettingsReorder() {
-        if (settingsRecreationPending || !home.state().tilesReady || !home.hasWindowFocus() || home.isFinishing()
-                || !home.getIntent().getBooleanExtra(LauncherSettingsActivity.EXTRA_REORDER, false)) return;
-        home.getIntent().removeExtra(LauncherSettingsActivity.EXTRA_REORDER);
+        if (settingsRecreationPending || !home.state().tilesReady || !home.activity().hasWindowFocus() || home.activity().isFinishing()
+                || !home.activity().getIntent().getBooleanExtra(LauncherSettingsActivity.EXTRA_REORDER, false)) return;
+        home.activity().getIntent().removeExtra(LauncherSettingsActivity.EXTRA_REORDER);
         home.reorder().toggleReorder();
     }
 
@@ -173,15 +173,15 @@ public final class StartupRouter {
      *  low-memory TV the app can push the launcher out of memory, and an apply() still in flight was lost then, so
      *  every Home press opened the app again. */
     public boolean openLiveTvAfterBoot() {
-        String app = openOnStartChoice ? home.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE)
+        String app = openOnStartChoice ? home.activity().getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE)
                 .getString(OpenOnStart.KEY, "") : "";
         if (!bootToLiveTv && app.isEmpty()) return false;
-        int boot = OpenOnStart.boot(home);
-        SharedPreferences prefs = home.getSharedPreferences(OpenOnStart.BOOT_PREFS, Context.MODE_PRIVATE);
+        int boot = OpenOnStart.boot(home.activity());
+        SharedPreferences prefs = home.activity().getSharedPreferences(OpenOnStart.BOOT_PREFS, Context.MODE_PRIVATE);
         String target = bootToLiveTv ? liveTvPkg : app;
-        if (!OpenOnStart.due(boot, prefs.getInt(OpenOnStart.BOOT_KEY, -1), target, home.getPackageName())) return false;
+        if (!OpenOnStart.due(boot, prefs.getInt(OpenOnStart.BOOT_KEY, -1), target, home.activity().getPackageName())) return false;
         if (!prefs.edit().putInt(OpenOnStart.BOOT_KEY, boot).commit()) return false;
-        Intent i = bootToLiveTv ? home.inputs().liveTvIntent() : OpenOnStart.intent(home.getPackageManager(), app);
+        Intent i = bootToLiveTv ? home.inputs().liveTvIntent() : OpenOnStart.intent(home.activity().getPackageManager(), app);
         if (i == null) return false;
         return openWhenReady(i);
     }
@@ -189,20 +189,20 @@ public final class StartupRouter {
     /** open_on_start_on_wake: the remote's power button is a light sleep on some sets, with no boot for
      *  openLiveTvAfterBoot to catch. */
     void openStartAppOnWake() {
-        String app = home.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).getString(OpenOnStart.KEY, "");
-        if (app.isEmpty() || app.equals(home.getPackageName())) return;
-        Intent i = OpenOnStart.intent(home.getPackageManager(), app);
+        String app = home.activity().getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).getString(OpenOnStart.KEY, "");
+        if (app.isEmpty() || app.equals(home.activity().getPackageName())) return;
+        Intent i = OpenOnStart.intent(home.activity().getPackageManager(), app);
         if (i != null) openWhenReady(i);
     }
 
     private boolean openWhenReady(Intent i) {
         // open_on_start_network_wait: Home stays on screen until the network is back or the wait is over.
-        if (openOnStartWaitMs > 0 && !OpenOnStart.online(home)) {
+        if (openOnStartWaitMs > 0 && !OpenOnStart.online(home.activity())) {
             startPending = i;
             startDeadline = SystemClock.elapsedRealtime() + openOnStartWaitMs;
             home.handler().postDelayed(openWhenOnline, openOnStartWaitMs);
             // Validated between the check above and startPending: networkCallback may have skipped it.
-            if (OpenOnStart.online(home)) home.handler().post(openWhenOnline);
+            if (OpenOnStart.online(home.activity())) home.handler().post(openWhenOnline);
             return false;
         }
         home.open(i);

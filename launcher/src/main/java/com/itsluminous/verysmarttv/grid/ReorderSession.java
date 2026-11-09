@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.itsluminous.verysmarttv.R;
-import com.itsluminous.verysmarttv.home.HomeActivity;
+import com.itsluminous.verysmarttv.home.HomeHost;
 import com.itsluminous.verysmarttv.theme.Config;
 
 import java.util.HashSet;
@@ -21,7 +21,7 @@ import java.util.Set;
  * changed. Edit-dock mode (DockEditSession) is a reorder session that swaps one app into one dock place.
  */
 public final class ReorderSession {
-    private final HomeActivity host;
+    private final HomeHost host;
     /** The grid's RecyclerView: the tiles dimmed while one is carried, and where OK's focus is read. */
     private final RecyclerView gridView;
     /** Reorder mode is on (top-bar button). */
@@ -64,7 +64,7 @@ public final class ReorderSession {
         }
         if (!beginReorder()) return;
         host.grid().focusTile(Math.max(0, Math.min(host.grid().lastFocused(), host.grid().adapter().movableCount() - 1)));
-        Toast.makeText(host, R.string.reorder_hint, Toast.LENGTH_LONG).show();
+        Toast.makeText(host.activity(), R.string.reorder_hint, Toast.LENGTH_LONG).show();
     }
 
     /** The start shared by reorder and edit-dock mode. False when there is nothing to move. */
@@ -135,10 +135,10 @@ public final class ReorderSession {
         dockInSession = null;
         if (!keys.equals(before) || (fillDockLeavesSlots && docked != dockedAtStart)) {
             Order order = new Order(Order.dockKey(dockApps), keys, docked);
-            if (Order.save(Order.file(host), order)) {
+            if (Order.save(Order.file(host.activity()), order)) {
                 host.grid().adapter().setSavedOrder(Order.ranks(order, dockApps), Order.docked(order, dockApps));
             } else {
-                Toast.makeText(host, R.string.reorder_not_saved, Toast.LENGTH_SHORT).show();
+                Toast.makeText(host.activity(), R.string.reorder_not_saved, Toast.LENGTH_SHORT).show();
             }
         }
         if (fillDockLeavesSlots) host.grid().reloadTiles();   // the empty dock slots left out while reordering come back
@@ -172,7 +172,7 @@ public final class ReorderSession {
         host.grid().refocusAfterLayout(to);
     }
 
-    public ReorderSession(@NonNull HomeActivity host, @NonNull RecyclerView gridView, @NonNull Config cfg) {
+    public ReorderSession(@NonNull HomeHost host, @NonNull RecyclerView gridView, @NonNull Config cfg) {
         this.host = host;
         this.gridView = gridView;
         dockApps = cfg.dockApps;
@@ -220,7 +220,7 @@ public final class ReorderSession {
             return true;
         }
         int pos = host.grid().focusedTilePosition();
-        View focus = host.getCurrentFocus();
+        View focus = host.activity().getCurrentFocus();
         if (ok && focus != null && focus.getId() == R.id.btnLibrary) {
             // The App library pill sits in the grid but is no tile: OK ends the mode (saving the order) and opens it.
             if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {

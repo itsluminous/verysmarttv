@@ -7,7 +7,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import com.itsluminous.verysmarttv.home.HomeActivity;
+import com.itsluminous.verysmarttv.home.HomeHost;
 import com.itsluminous.verysmarttv.settings.QuickSettingsActivity;
 import com.itsluminous.verysmarttv.settings.SystemSettings;
 import com.itsluminous.verysmarttv.theme.Config;
@@ -18,7 +18,7 @@ import com.itsluminous.verysmarttv.theme.Config;
  * long click misses, the Menu key, and then reorder mode or the focused view.
  */
 public final class KeyDispatcher {
-    private final HomeActivity host;
+    private final HomeHost host;
     /** config settings_key_keycodes / settings_key_panel, so the Settings button works on Home without HomeKeyService. */
     private final int[] settingsKeycodes;
 
@@ -38,8 +38,8 @@ public final class KeyDispatcher {
         for (int code : settingsKeycodes) {
             if (event.getKeyCode() != code) continue;
             if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
-                host.open(settingsKeyPanel ? new Intent(host, QuickSettingsActivity.class)
-                        : SystemSettings.intent(host, Settings.ACTION_SETTINGS));
+                host.open(settingsKeyPanel ? new Intent(host.activity(), QuickSettingsActivity.class)
+                        : SystemSettings.intent(host.activity(), Settings.ACTION_SETTINGS));
             }
             return true;
         }
@@ -93,7 +93,7 @@ public final class KeyDispatcher {
         holdOkKey = null;
         if (holdOkFired) {
             holdOkFired = false;
-            View f = host.getCurrentFocus();
+            View f = host.activity().getCurrentFocus();
             if (f != null) f.setPressed(false);
             return true;
         }
@@ -122,12 +122,12 @@ public final class KeyDispatcher {
         if (position < 0 || position >= host.grid().adapter().appCount() || position != host.grid().focusedTilePosition()) return;
         // Same slot is not enough: tiles may have been rebuilt during the hold, so the app must match too.
         if (!holdOkKey.equals(host.grid().adapter().keyAt(position))) return;
-        View card = host.getCurrentFocus();
+        View card = host.activity().getCurrentFocus();
         if (card != null) card.setPressed(false);
         host.popups().showTileMenu(position, card);
     }
 
-    public KeyDispatcher(@NonNull HomeActivity host, @NonNull Config cfg) {
+    public KeyDispatcher(@NonNull HomeHost host, @NonNull Config cfg) {
         this.host = host;
         homeAppKeys = RemoteKeys.parseAppKeys(cfg.appKeys);
         homeHoldAppKeys = RemoteKeys.parseHoldAppKeys(cfg.appKeys);
@@ -146,7 +146,7 @@ public final class KeyDispatcher {
         // Vendor keys (TCL Netflix button, 4062) never reach the key services, only the focused window, so their
         // "hold:" entries run here too or nowhere. Only while resumed: onPause releases Home's holds, and a DOWN
         // taken after that would arm one nothing releases.
-        if (host.state().resumed && event.getKeyCode() >= 1000 && RemoteKeys.handle(host, event, homeAppKeys.get(event.getKeyCode()),
+        if (host.state().resumed && event.getKeyCode() >= 1000 && RemoteKeys.handle(host.activity(), event, homeAppKeys.get(event.getKeyCode()),
                 homeHoldAppKeys.get(event.getKeyCode()))) return true;
         if (handleSettingsKey(event)) return true;
         if (host.carousel().on() && host.carousel().handleKey(event)) return true;
@@ -155,9 +155,9 @@ public final class KeyDispatcher {
                 && event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
             int position = host.grid().focusedTilePosition();
             if (position >= 0 && position < host.grid().adapter().appCount()
-                    && !host.getPackageName().equals(host.grid().adapter().packageAt(position))) {
+                    && !host.activity().getPackageName().equals(host.grid().adapter().packageAt(position))) {
                 if (RemoteKeys.menuReleased(event.getAction(), event.getFlags())) {
-                    host.popups().showTileMenu(position, host.getCurrentFocus());
+                    host.popups().showTileMenu(position, host.activity().getCurrentFocus());
                 }
                 return true;
             }
