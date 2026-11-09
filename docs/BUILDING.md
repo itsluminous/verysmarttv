@@ -47,6 +47,23 @@ levels, Java 17, lint as a hard gate (`warningsAsErrors`; a carried module may c
 `lint-baseline.xml` beside its build file), R8 with resource shrinking, the shared version and the
 shared signing. A module's `build.gradle.kts` sets only its namespace, applicationId and dependencies.
 
+### Launcher component names
+
+The launcher's classes live in the sub-packages of [DESIGN.md §5](design/DESIGN.md#5-repository-and-module-layout),
+so every component the TV or the setup tool names by class carries its package segment
+(`com.itsluminous.verysmarttv/.clock.ClockDream`, not `/.ClockDream`):
+
+| What | Component |
+|---|---|
+| Home | `com.itsluminous.verysmarttv/.MainActivity` (renamed `.home.HomeActivity` in Phase 2) |
+| Screensaver (`settings put secure screensaver_components …`) | `com.itsluminous.verysmarttv/.clock.ClockDream` |
+| Accessibility helpers (`enabled_accessibility_services`) | `com.itsluminous.verysmarttv/.keys.HomeKeyService`, `com.itsluminous.verysmarttv/.keys.InputKeyService` |
+| Notification listener (`cmd notification allow_listener`) | `com.itsluminous.verysmarttv/.keys.GuardRevival` |
+| Theme and backup providers | `content://com.itsluminous.verysmarttv.theme/`, `content://com.itsluminous.verysmarttv.backup/` (authorities, unchanged) |
+
+A TV that had the fork's helpers enabled under the old flat names keeps a stale entry in those secure settings until the
+setup tool (Phase 5) or `adb shell settings put secure …` names the new components.
+
 ## Emulators
 
 Instrumentation tests run on an Android TV image. CI uses `android-tv`, API 34, x86, profile

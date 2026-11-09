@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import com.itsluminous.verysmarttv.theme.Config;
 
 /**
  * A theme pushed through the {@code .theme} provider is what Home renders next (DESIGN.md §14.3 ThemePushTest). The

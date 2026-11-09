@@ -38,6 +38,8 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import com.itsluminous.verysmarttv.backup.Backup;
+import com.itsluminous.verysmarttv.theme.ThemeProvider;
 
 /**
  * What every launcher instrumentation test needs around it (DESIGN.md §14.3):

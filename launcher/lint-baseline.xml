@@ -7,8 +7,8 @@
         errorLine1="        settings.edit().putLong(Config.SETTINGS_REVISION_KEY, Math.max(revisionBefore, restored) + 1).commit();"
         errorLine2="                                                                                                      ~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/Backup.java"
-            line="291"
+            file="src/main/java/com/itsluminous/verysmarttv/backup/Backup.java"
+            line="299"
             column="103"/>
     </issue>
 
@@ -18,8 +18,8 @@
         errorLine1="        e.commit();"
         errorLine2="          ~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/Backup.java"
-            line="316"
+            file="src/main/java/com/itsluminous/verysmarttv/backup/Backup.java"
+            line="324"
             column="11"/>
     </issue>
 
@@ -29,8 +29,8 @@
         errorLine1="            editor.putString(THEME_SIGNATURE_KEY, signature).commit();"
         errorLine2="                                                             ~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/Config.java"
-            line="802"
+            file="src/main/java/com/itsluminous/verysmarttv/theme/Config.java"
+            line="812"
             column="62"/>
     </issue>
 
@@ -40,8 +40,8 @@
         errorLine1="                    .putString(THEME_SIGNATURE_KEY, signature).commit();"
         errorLine2="                                                               ~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/Config.java"
-            line="807"
+            file="src/main/java/com/itsluminous/verysmarttv/theme/Config.java"
+            line="817"
             column="64"/>
     </issue>
 
@@ -51,8 +51,8 @@
         errorLine1="                .putString(THEME_SIGNATURE_KEY, fileStamp(config) + &quot;:&quot; + revisionToken(revision)).commit();"
         errorLine2="                                                                                                   ~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/Config.java"
-            line="821"
+            file="src/main/java/com/itsluminous/verysmarttv/theme/Config.java"
+            line="831"
             column="100"/>
     </issue>
 
@@ -62,7 +62,7 @@
         errorLine1="        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_OFF, off).commit();"
         errorLine2="                                                                                                  ~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/GuardKeep.java"
+            file="src/main/java/com/itsluminous/verysmarttv/keys/GuardKeep.java"
             line="44"
             column="99"/>
     </issue>
@@ -73,8 +73,8 @@
         errorLine1="                    .remove(Config.WIDGETS_KEY).remove(OpenOnStart.KEY).commit();"
         errorLine2="                                                                        ~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/LauncherSettingsActivity.java"
-            line="149"
+            file="src/main/java/com/itsluminous/verysmarttv/settings/LauncherSettingsActivity.java"
+            line="153"
             column="73"/>
     </issue>
 
@@ -84,8 +84,8 @@
         errorLine1="        ctx.getSharedPreferences(BOOT_PREFS, Context.MODE_PRIVATE).edit().putInt(BOOT_KEY, boot(ctx)).commit();"
         errorLine2="                                                                                                      ~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/OpenOnStart.java"
-            line="39"
+            file="src/main/java/com/itsluminous/verysmarttv/settings/OpenOnStart.java"
+            line="42"
             column="103"/>
     </issue>
 
@@ -95,8 +95,8 @@
         errorLine1="            case &quot;sleep&quot;: return sdk >= 28 ? AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN : 0;"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/RemoteKeys.java"
-            line="334"
+            file="src/main/java/com/itsluminous/verysmarttv/keys/RemoteKeys.java"
+            line="340"
             column="46"/>
     </issue>
 
@@ -117,8 +117,8 @@
         errorLine1="        c.setLocale(locale);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/LauncherLocale.java"
-            line="33"
+            file="src/main/java/com/itsluminous/verysmarttv/home/LauncherLocale.java"
+            line="35"
             column="9"/>
     </issue>
 
@@ -128,8 +128,8 @@
         errorLine1="public class AppLaunchActivity extends Activity {"
         errorLine2="             ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLaunchActivity.java"
-            line="11"
+            file="src/main/java/com/itsluminous/verysmarttv/home/AppLaunchActivity.java"
+            line="12"
             column="14"/>
     </issue>
 
@@ -161,8 +161,8 @@
         errorLine1="        int id = ctx.getResources().getIdentifier(name, &quot;drawable&quot;, ctx.getPackageName());"
         errorLine2="                                    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppAdapter.java"
-            line="461"
+            file="src/main/java/com/itsluminous/verysmarttv/grid/AppAdapter.java"
+            line="470"
             column="37"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="61"
+            line="56"
             column="5"/>
     </issue>
 
@@ -184,7 +184,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="63"
+            line="58"
             column="5"/>
     </issue>
 
@@ -195,7 +195,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="88"
+            line="83"
             column="5"/>
     </issue>
 
@@ -206,7 +206,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="94"
+            line="89"
             column="5"/>
     </issue>
 
@@ -217,7 +217,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="95"
+            line="90"
             column="5"/>
     </issue>
 
@@ -283,7 +283,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="23"
+            line="22"
             column="13"/>
     </issue>
 
@@ -294,7 +294,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
-            line="23"
+            line="22"
             column="13"/>
     </issue>
 
@@ -305,7 +305,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="23"
+            line="22"
             column="13"/>
     </issue>
 
@@ -316,7 +316,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
-            line="23"
+            line="22"
             column="13"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-de/strings.xml"
-            line="24"
+            line="23"
             column="13"/>
     </issue>
 
@@ -338,7 +338,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="25"
+            line="24"
             column="13"/>
     </issue>
 
@@ -349,7 +349,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rCN/strings.xml"
-            line="45"
+            line="40"
             column="13"/>
     </issue>
 
@@ -360,7 +360,7 @@
         errorLine2="    ^">
         <location
             file="src/main/res/values-in/strings.xml"
-            line="92"
+            line="87"
             column="5"/>
     </issue>
 
@@ -392,8 +392,8 @@
         errorLine1="        notifyDataSetChanged();"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppAdapter.java"
-            line="444"
+            file="src/main/java/com/itsluminous/verysmarttv/grid/AppAdapter.java"
+            line="453"
             column="9"/>
     </issue>
 
@@ -403,8 +403,8 @@
         errorLine1="        notifyDataSetChanged();"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppAdapter.java"
-            line="494"
+            file="src/main/java/com/itsluminous/verysmarttv/grid/AppAdapter.java"
+            line="503"
             column="9"/>
     </issue>
 
@@ -447,8 +447,8 @@
         errorLine1="        list.setAdapter(new Catalog());"
         errorLine2="                        ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="416"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="424"
             column="25"/>
     </issue>
 
@@ -458,8 +458,8 @@
         errorLine1="            @Override public float getValue(View view) { return view.getTranslationX() + scrollOffset; }"
         errorLine2="                                                                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="426"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="434"
             column="90"/>
     </issue>
 
@@ -469,8 +469,8 @@
         errorLine1="            @Override public void setValue(View view, float value) { view.setTranslationX(value - scrollOffset); }"
         errorLine2="                                                                                                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="427"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="435"
             column="99"/>
     </issue>
 
@@ -480,8 +480,8 @@
         errorLine1="                scrollOffset += dx;"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="433"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="441"
             column="17"/>
     </issue>
 
@@ -491,8 +491,8 @@
         errorLine1="                highlight.setTranslationX(highlight.getTranslationX() - dx);"
         errorLine2="                ~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="434"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="442"
             column="17"/>
     </issue>
 
@@ -502,8 +502,8 @@
         errorLine1="                highlight.setTranslationX(highlight.getTranslationX() - dx);"
         errorLine2="                                          ~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="434"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="442"
             column="43"/>
     </issue>
 
@@ -513,8 +513,8 @@
         errorLine1="                highlight.setTranslationY(highlight.getTranslationY() - dy);"
         errorLine2="                ~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="436"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="444"
             column="17"/>
     </issue>
 
@@ -524,8 +524,8 @@
         errorLine1="                highlight.setTranslationY(highlight.getTranslationY() - dy);"
         errorLine2="                                          ~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="436"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="444"
             column="43"/>
     </issue>
 
@@ -535,8 +535,8 @@
         errorLine1="            FrameLayout row = new FrameLayout(activity);"
         errorLine2="                                              ~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="631"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="639"
             column="47"/>
     </issue>
 
@@ -546,8 +546,8 @@
         errorLine1="            RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(cardWidth(), cardHeight());"
         errorLine2="                                                                                          ~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="632"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="640"
             column="91"/>
     </issue>
 
@@ -557,8 +557,8 @@
         errorLine1="            RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(cardWidth(), cardHeight());"
         errorLine2="                                                                             ~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="632"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="640"
             column="78"/>
     </issue>
 
@@ -568,8 +568,8 @@
         errorLine1="            params.setMargins(dp(6), dp(2), dp(6), dp(2));"
         errorLine2="                              ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="633"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="641"
             column="31"/>
     </issue>
 
@@ -579,8 +579,8 @@
         errorLine1="            params.setMargins(dp(6), dp(2), dp(6), dp(2));"
         errorLine2="                                     ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="633"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="641"
             column="38"/>
     </issue>
 
@@ -590,8 +590,8 @@
         errorLine1="            params.setMargins(dp(6), dp(2), dp(6), dp(2));"
         errorLine2="                                            ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="633"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="641"
             column="45"/>
     </issue>
 
@@ -601,8 +601,8 @@
         errorLine1="            params.setMargins(dp(6), dp(2), dp(6), dp(2));"
         errorLine2="                                                   ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="633"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="641"
             column="52"/>
     </issue>
 
@@ -612,8 +612,8 @@
         errorLine1="            row.setPadding(dp(8), dp(grid ? 8 : 12), dp(8), dp(grid ? 6 : 10));"
         errorLine2="                                     ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="635"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="643"
             column="38"/>
     </issue>
 
@@ -623,8 +623,8 @@
         errorLine1="            row.setPadding(dp(8), dp(grid ? 8 : 12), dp(8), dp(grid ? 6 : 10));"
         errorLine2="                                                               ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="635"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="643"
             column="64"/>
     </issue>
 
@@ -634,8 +634,8 @@
         errorLine1="            row.setPadding(dp(8), dp(grid ? 8 : 12), dp(8), dp(grid ? 6 : 10));"
         errorLine2="                           ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="635"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="643"
             column="28"/>
     </issue>
 
@@ -645,8 +645,8 @@
         errorLine1="            row.setPadding(dp(8), dp(grid ? 8 : 12), dp(8), dp(grid ? 6 : 10));"
         errorLine2="                                  ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="635"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="643"
             column="35"/>
     </issue>
 
@@ -656,8 +656,8 @@
         errorLine1="            row.setPadding(dp(8), dp(grid ? 8 : 12), dp(8), dp(grid ? 6 : 10));"
         errorLine2="                                                     ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="635"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="643"
             column="54"/>
     </issue>
 
@@ -667,8 +667,8 @@
         errorLine1="            row.setPadding(dp(8), dp(grid ? 8 : 12), dp(8), dp(grid ? 6 : 10));"
         errorLine2="                                                            ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="635"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="643"
             column="61"/>
     </issue>
 
@@ -678,8 +678,8 @@
         errorLine1="            LinearLayout content = new LinearLayout(activity);"
         errorLine2="                                                    ~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="638"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="646"
             column="53"/>
     </issue>
 
@@ -689,8 +689,8 @@
         errorLine1="            ImageView icon = new ImageView(activity);"
         errorLine2="                                           ~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="642"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="650"
             column="44"/>
     </issue>
 
@@ -700,8 +700,8 @@
         errorLine1="            int iconSize = dp(grid ? 46 : 60);"
         errorLine2="                              ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="645"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="653"
             column="31"/>
     </issue>
 
@@ -711,8 +711,8 @@
         errorLine1="            int iconSize = dp(grid ? 46 : 60);"
         errorLine2="                           ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="645"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="653"
             column="28"/>
     </issue>
 
@@ -722,8 +722,8 @@
         errorLine1="            TextView name = text(&quot;&quot;, grid ? 13 : 15, Color.WHITE);"
         errorLine2="                                     ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="647"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="655"
             column="38"/>
     </issue>
 
@@ -733,8 +733,8 @@
         errorLine1="            TextView name = text(&quot;&quot;, grid ? 13 : 15, Color.WHITE);"
         errorLine2="                            ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="647"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="655"
             column="29"/>
     </issue>
 
@@ -744,8 +744,8 @@
         errorLine1="            name.setMaxLines(grid ? 1 : 2);"
         errorLine2="                             ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="650"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="658"
             column="30"/>
     </issue>
 
@@ -755,8 +755,8 @@
         errorLine1="            LinearLayout.LayoutParams nameParams = new LinearLayout.LayoutParams(-1, dp(grid ? 20 : 44));"
         errorLine2="                                                                                        ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="651"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="659"
             column="89"/>
     </issue>
 
@@ -766,8 +766,8 @@
         errorLine1="            LinearLayout.LayoutParams nameParams = new LinearLayout.LayoutParams(-1, dp(grid ? 20 : 44));"
         errorLine2="                                                                                     ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="651"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="659"
             column="86"/>
     </issue>
 
@@ -777,8 +777,8 @@
         errorLine1="            nameParams.topMargin = dp(grid ? 6 : 10);"
         errorLine2="                                      ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="652"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="660"
             column="39"/>
     </issue>
 
@@ -788,8 +788,8 @@
         errorLine1="            nameParams.topMargin = dp(grid ? 6 : 10);"
         errorLine2="                                   ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="652"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="660"
             column="36"/>
     </issue>
 
@@ -799,8 +799,8 @@
         errorLine1="            TextView status = text(&quot;&quot;, grid ? 10 : 11, 0xBBFFFFFF);"
         errorLine2="                                       ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="654"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="662"
             column="40"/>
     </issue>
 
@@ -810,8 +810,8 @@
         errorLine1="            TextView status = text(&quot;&quot;, grid ? 10 : 11, 0xBBFFFFFF);"
         errorLine2="                              ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="654"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="662"
             column="31"/>
     </issue>
 
@@ -821,8 +821,8 @@
         errorLine1="            status.setMaxLines(grid ? 1 : 2);"
         errorLine2="                               ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="657"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="665"
             column="32"/>
     </issue>
 
@@ -832,8 +832,8 @@
         errorLine1="            View check = new View(activity);"
         errorLine2="                                  ~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="659"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="667"
             column="35"/>
     </issue>
 
@@ -843,8 +843,8 @@
         errorLine1="            FrameLayout.LayoutParams badge = new FrameLayout.LayoutParams(dp(18), dp(18), Gravity.TOP | Gravity.END);"
         errorLine2="                                                                          ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="661"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="669"
             column="75"/>
     </issue>
 
@@ -854,8 +854,8 @@
         errorLine1="            FrameLayout.LayoutParams badge = new FrameLayout.LayoutParams(dp(18), dp(18), Gravity.TOP | Gravity.END);"
         errorLine2="                                                                                  ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="661"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="669"
             column="83"/>
     </issue>
 
@@ -865,8 +865,8 @@
         errorLine1="            badge.setMargins(0, dp(2), dp(2), 0);"
         errorLine2="                                ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="662"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="670"
             column="33"/>
     </issue>
 
@@ -876,8 +876,8 @@
         errorLine1="            badge.setMargins(0, dp(2), dp(2), 0);"
         errorLine2="                                       ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="662"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="670"
             column="40"/>
     </issue>
 
@@ -887,8 +887,8 @@
         errorLine1="            ResolveInfo app = apps.get(position);"
         errorLine2="                              ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="667"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="675"
             column="31"/>
     </issue>
 
@@ -898,8 +898,8 @@
         errorLine1="            bindIcon(holder.itemView.findViewById(R.id.icon), app);"
         errorLine2="            ~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="669"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="677"
             column="13"/>
     </issue>
 
@@ -909,8 +909,8 @@
         errorLine1="            name.setText(label(app));"
         errorLine2="                         ~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="671"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="679"
             column="26"/>
     </issue>
 
@@ -920,8 +920,8 @@
         errorLine1="            boolean home = onHome.test(pkg);"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="674"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="682"
             column="28"/>
     </issue>
 
@@ -931,8 +931,8 @@
         errorLine1="            boolean recent = !selectionMode &amp;&amp; LibraryApps.recent(installTimes.getOrDefault(pkg, 0L), catalogTime);"
         errorLine2="                                                                                                      ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="675"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="683"
             column="103"/>
     </issue>
 
@@ -942,8 +942,8 @@
         errorLine1="            boolean recent = !selectionMode &amp;&amp; LibraryApps.recent(installTimes.getOrDefault(pkg, 0L), catalogTime);"
         errorLine2="                                                                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="675"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="683"
             column="67"/>
     </issue>
 
@@ -953,8 +953,8 @@
         errorLine1="            boolean recent = !selectionMode &amp;&amp; LibraryApps.recent(installTimes.getOrDefault(pkg, 0L), catalogTime);"
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="675"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="683"
             column="31"/>
     </issue>
 
@@ -964,8 +964,8 @@
         errorLine1="            status.setVisibility(home || !okOpens ? View.VISIBLE : View.INVISIBLE);"
         errorLine2="                                          ~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="677"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="685"
             column="43"/>
     </issue>
 
@@ -975,8 +975,8 @@
         errorLine1="            holder.itemView.setBackground(surface(home ? 0x1475BBA4 : 0x0CFFFFFF, 18));"
         errorLine2="                                          ~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="678"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="686"
             column="43"/>
     </issue>
 
@@ -986,8 +986,8 @@
         errorLine1="            check.getLayoutParams().width = dp(home ? 18 : 8);"
         errorLine2="                                            ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="680"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="688"
             column="45"/>
     </issue>
 
@@ -997,8 +997,8 @@
         errorLine1="            check.getLayoutParams().height = dp(home ? 18 : 8);"
         errorLine2="                                             ~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="681"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="689"
             column="46"/>
     </issue>
 
@@ -1008,8 +1008,8 @@
         errorLine1="            else check.setBackground(surface(0xFF70D9A0, 8));"
         errorLine2="                                     ~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="683"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="691"
             column="38"/>
     </issue>
 
@@ -1019,8 +1019,8 @@
         errorLine1="                boolean onHomeNow = onHome.test(pkg);"
         errorLine2="                                    ~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="686"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="694"
             column="37"/>
     </issue>
 
@@ -1030,8 +1030,8 @@
         errorLine1="                if (LibraryApps.okOpens(selectionMode, okOpens, onHomeNow)) open(app);"
         errorLine2="                                                       ~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="687"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="695"
             column="56"/>
     </issue>
 
@@ -1041,8 +1041,8 @@
         errorLine1="                if (LibraryApps.okOpens(selectionMode, okOpens, onHomeNow)) open(app);"
         errorLine2="                                        ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="687"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="695"
             column="41"/>
     </issue>
 
@@ -1052,8 +1052,8 @@
         errorLine1="                if (LibraryApps.okOpens(selectionMode, okOpens, onHomeNow)) open(app);"
         errorLine2="                                                                            ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="687"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="695"
             column="77"/>
     </issue>
 
@@ -1063,8 +1063,8 @@
         errorLine1="                else changeHome(app, !onHomeNow);"
         errorLine2="                     ~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="688"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="696"
             column="22"/>
     </issue>
 
@@ -1074,8 +1074,8 @@
         errorLine1="            holder.itemView.setOnLongClickListener(selectionMode ? null : v -> { showActions(app, v); return true; });"
         errorLine2="                                                   ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="690"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="698"
             column="52"/>
     </issue>
 
@@ -1085,8 +1085,8 @@
         errorLine1="            holder.itemView.setOnLongClickListener(selectionMode ? null : v -> { showActions(app, v); return true; });"
         errorLine2="                                                                                 ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="690"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="698"
             column="82"/>
     </issue>
 
@@ -1096,8 +1096,8 @@
         errorLine1="                    selectedPackage = pkg;"
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="693"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="701"
             column="21"/>
     </issue>
 
@@ -1107,8 +1107,8 @@
         errorLine1="                    instructions.setText(hint(onHome.test(pkg)));"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="694"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="702"
             column="21"/>
     </issue>
 
@@ -1118,8 +1118,8 @@
         errorLine1="                    instructions.setText(hint(onHome.test(pkg)));"
         errorLine2="                                              ~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="694"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="702"
             column="47"/>
     </issue>
 
@@ -1129,8 +1129,8 @@
         errorLine1="                    instructions.setText(hint(onHome.test(pkg)));"
         errorLine2="                                         ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="694"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="702"
             column="42"/>
     </issue>
 
@@ -1140,8 +1140,8 @@
         errorLine1="                    v.post(() -> { if (v.hasFocus() &amp;&amp; catalog != null) highlight(v, true); });"
         errorLine2="                                                       ~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="695"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="703"
             column="56"/>
     </issue>
 
@@ -1151,8 +1151,8 @@
         errorLine1="                    v.post(() -> { if (v.hasFocus() &amp;&amp; catalog != null) highlight(v, true); });"
         errorLine2="                                                                        ~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="695"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="703"
             column="73"/>
     </issue>
 
@@ -1162,8 +1162,8 @@
         errorLine1="                    if (index != RecyclerView.NO_POSITION) selectedPosition = index;"
         errorLine2="                                                           ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="697"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="705"
             column="60"/>
     </issue>
 
@@ -1173,8 +1173,8 @@
         errorLine1="                int count = apps.size();"
         errorLine2="                            ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="706"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="714"
             column="29"/>
     </issue>
 
@@ -1184,8 +1184,8 @@
         errorLine1="                boolean toStart = rtl ? key == KeyEvent.KEYCODE_DPAD_RIGHT : key == KeyEvent.KEYCODE_DPAD_LEFT;"
         errorLine2="                                  ~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="707"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="715"
             column="35"/>
     </issue>
 
@@ -1195,8 +1195,8 @@
         errorLine1="                boolean toEnd = rtl ? key == KeyEvent.KEYCODE_DPAD_LEFT : key == KeyEvent.KEYCODE_DPAD_RIGHT;"
         errorLine2="                                ~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="708"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="716"
             column="33"/>
     </issue>
 
@@ -1206,8 +1206,8 @@
         errorLine1="                if (!grid) {"
         errorLine2="                     ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="709"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="717"
             column="22"/>
     </issue>
 
@@ -1217,8 +1217,8 @@
         errorLine1="                int row = index / columns, column = index % columns, lastRow = (count - 1) / columns;"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="713"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="721"
             column="35"/>
     </issue>
 
@@ -1228,8 +1228,8 @@
         errorLine1="                int row = index / columns, column = index % columns, lastRow = (count - 1) / columns;"
         errorLine2="                                                            ~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="713"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="721"
             column="61"/>
     </issue>
 
@@ -1239,8 +1239,8 @@
         errorLine1="                int row = index / columns, column = index % columns, lastRow = (count - 1) / columns;"
         errorLine2="                                                                                             ~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="713"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="721"
             column="94"/>
     </issue>
 
@@ -1250,8 +1250,8 @@
         errorLine1="                if (key == KeyEvent.KEYCODE_DPAD_DOWN) return row == lastRow || index + columns > count - 1;"
         errorLine2="                                                                                        ~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="715"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="723"
             column="89"/>
     </issue>
 
@@ -1261,8 +1261,8 @@
         errorLine1="                if (toEnd) return column == columns - 1 || index == count - 1;"
         errorLine2="                                            ~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="717"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="725"
             column="45"/>
     </issue>
 
@@ -1272,8 +1272,8 @@
         errorLine1="        @Override public int getItemCount() { return apps.size(); }"
         errorLine2="                                                     ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLibraryDialog.java"
-            line="721"
+            file="src/main/java/com/itsluminous/verysmarttv/library/AppLibraryDialog.java"
+            line="729"
             column="54"/>
     </issue>
 
@@ -1283,8 +1283,8 @@
         errorLine1="            moveClock();"
         errorLine2="            ~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/ClockScene.java"
-            line="57"
+            file="src/main/java/com/itsluminous/verysmarttv/clock/ClockScene.java"
+            line="61"
             column="13"/>
     </issue>
 
@@ -1294,8 +1294,8 @@
         errorLine1="            shiftGlow();"
         errorLine2="            ~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/ClockScene.java"
-            line="58"
+            file="src/main/java/com/itsluminous/verysmarttv/clock/ClockScene.java"
+            line="62"
             column="13"/>
     </issue>
 
@@ -1305,8 +1305,8 @@
         errorLine1="            handler.postDelayed(this, MOVE_MS);"
         errorLine2="            ~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/ClockScene.java"
-            line="59"
+            file="src/main/java/com/itsluminous/verysmarttv/clock/ClockScene.java"
+            line="63"
             column="13"/>
     </issue>
 
@@ -1316,7 +1316,7 @@
         errorLine1="                if (screenOn != this) return;"
         errorLine2="                    ~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/GuardKeep.java"
+            file="src/main/java/com/itsluminous/verysmarttv/keys/GuardKeep.java"
             line="97"
             column="21"/>
     </issue>
@@ -1327,7 +1327,7 @@
         errorLine1="                screenOn = null;"
         errorLine2="                ~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/GuardKeep.java"
+            file="src/main/java/com/itsluminous/verysmarttv/keys/GuardKeep.java"
             line="98"
             column="17"/>
     </issue>
@@ -1338,7 +1338,7 @@
         errorLine1="                    stopWaiting();"
         errorLine2="                    ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/GuardRevival.java"
+            file="src/main/java/com/itsluminous/verysmarttv/keys/GuardRevival.java"
             line="28"
             column="21"/>
     </issue>
@@ -1349,8 +1349,8 @@
         errorLine1="                main.removeCallbacks(reload);"
         errorLine2="                                     ~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/HeroFeed.java"
-            line="77"
+            file="src/main/java/com/itsluminous/verysmarttv/shelf/HeroFeed.java"
+            line="87"
             column="38"/>
     </issue>
 
@@ -1360,8 +1360,8 @@
         errorLine1="                main.postDelayed(reload, 800);"
         errorLine2="                                 ~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/HeroFeed.java"
-            line="78"
+            file="src/main/java/com/itsluminous/verysmarttv/shelf/HeroFeed.java"
+            line="88"
             column="34"/>
     </issue>
 
@@ -1371,8 +1371,8 @@
         errorLine1="                stopWaitingForUnlock();"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/HomeKeyService.java"
-            line="112"
+            file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
+            line="118"
             column="17"/>
     </issue>
 
@@ -1382,8 +1382,8 @@
         errorLine1="                loadConfig();"
         errorLine2="                ~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/HomeKeyService.java"
-            line="113"
+            file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
+            line="119"
             column="17"/>
     </issue>
 
@@ -1393,8 +1393,8 @@
         errorLine1="                leaveForStandby();"
         errorLine2="                ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/HomeKeyService.java"
-            line="163"
+            file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
+            line="169"
             column="17"/>
     </issue>
 
@@ -1404,8 +1404,8 @@
         errorLine1="                powerOnUntil = SystemClock.elapsedRealtime() + SCREEN_ON_WINDOW_MS;"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/HomeKeyService.java"
-            line="340"
+            file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
+            line="346"
             column="17"/>
     </issue>
 
@@ -1415,8 +1415,8 @@
         errorLine1="                if (powerOnAlways) handler.postDelayed(HomeKeyService.this::homeAtPowerOn, POWER_ON_ALWAYS_DELAY_MS);"
         errorLine2="                                   ~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/HomeKeyService.java"
-            line="341"
+            file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
+            line="347"
             column="36"/>
     </issue>
 
@@ -1426,8 +1426,8 @@
         errorLine1="                if (powerOnAlways) handler.postDelayed(HomeKeyService.this::homeAtPowerOn, POWER_ON_ALWAYS_DELAY_MS);"
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/HomeKeyService.java"
-            line="341"
+            file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
+            line="347"
             column="21"/>
     </issue>
 
@@ -1438,7 +1438,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="301"
+            line="341"
             column="17"/>
     </issue>
 
@@ -1449,7 +1449,7 @@
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="303"
+            line="343"
             column="21"/>
     </issue>
 
@@ -1460,7 +1460,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="304"
+            line="344"
             column="13"/>
     </issue>
 
@@ -1471,7 +1471,7 @@
         errorLine2="                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="305"
+            line="345"
             column="24"/>
     </issue>
 
@@ -1482,7 +1482,7 @@
         errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="306"
+            line="346"
             column="13"/>
     </issue>
 
@@ -1493,7 +1493,7 @@
         errorLine2="            ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="307"
+            line="347"
             column="13"/>
     </issue>
 
@@ -1504,7 +1504,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="313"
+            line="353"
             column="13"/>
     </issue>
 
@@ -1515,7 +1515,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="380"
+            line="420"
             column="13"/>
     </issue>
 
@@ -1526,7 +1526,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="385"
+            line="425"
             column="13"/>
     </issue>
 
@@ -1537,7 +1537,7 @@
         errorLine2="                                                   ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="395"
+            line="435"
             column="52"/>
     </issue>
 
@@ -1548,7 +1548,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="395"
+            line="435"
             column="65"/>
     </issue>
 
@@ -1559,7 +1559,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="395"
+            line="435"
             column="30"/>
     </issue>
 
@@ -1570,7 +1570,7 @@
         errorLine2="                                            ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="398"
+            line="438"
             column="45"/>
     </issue>
 
@@ -1581,7 +1581,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="398"
+            line="438"
             column="17"/>
     </issue>
 
@@ -1592,7 +1592,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="405"
+            line="445"
             column="13"/>
     </issue>
 
@@ -1603,7 +1603,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="410"
+            line="450"
             column="13"/>
     </issue>
 
@@ -1614,7 +1614,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="417"
+            line="457"
             column="13"/>
     </issue>
 
@@ -1625,7 +1625,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="422"
+            line="462"
             column="13"/>
     </issue>
 
@@ -1636,7 +1636,7 @@
         errorLine2="                 ~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="433"
+            line="473"
             column="18"/>
     </issue>
 
@@ -1647,7 +1647,7 @@
         errorLine2="            ~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="434"
+            line="474"
             column="13"/>
     </issue>
 
@@ -1658,7 +1658,7 @@
         errorLine2="                ~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="435"
+            line="475"
             column="17"/>
     </issue>
 
@@ -1669,7 +1669,7 @@
         errorLine2="                                    ~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="435"
+            line="475"
             column="37"/>
     </issue>
 
@@ -1680,7 +1680,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="443"
+            line="483"
             column="13"/>
     </issue>
 
@@ -1691,7 +1691,7 @@
         errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="444"
+            line="484"
             column="13"/>
     </issue>
 
@@ -1702,7 +1702,7 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="452"
+            line="492"
             column="13"/>
     </issue>
 
@@ -1713,7 +1713,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="453"
+            line="493"
             column="13"/>
     </issue>
 
@@ -1724,7 +1724,7 @@
         errorLine2="                       ~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="592"
+            line="632"
             column="24"/>
     </issue>
 
@@ -1735,7 +1735,7 @@
         errorLine2="                    ~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="608"
+            line="648"
             column="21"/>
     </issue>
 
@@ -1746,7 +1746,7 @@
         errorLine2="                                                       ~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="619"
+            line="659"
             column="56"/>
     </issue>
 
@@ -1757,7 +1757,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="619"
+            line="659"
             column="38"/>
     </issue>
 
@@ -1768,7 +1768,7 @@
         errorLine2="                    ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="623"
+            line="663"
             column="21"/>
     </issue>
 
@@ -1779,7 +1779,7 @@
         errorLine2="                                                   ~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="635"
+            line="675"
             column="52"/>
     </issue>
 
@@ -1790,7 +1790,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="635"
+            line="675"
             column="34"/>
     </issue>
 
@@ -1801,7 +1801,7 @@
         errorLine2="                                                                                  ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="641"
+            line="681"
             column="83"/>
     </issue>
 
@@ -1812,7 +1812,7 @@
         errorLine2="                                                                                                     ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="641"
+            line="681"
             column="102"/>
     </issue>
 
@@ -1823,7 +1823,7 @@
         errorLine2="                                                                     ~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="641"
+            line="681"
             column="70"/>
     </issue>
 
@@ -1834,7 +1834,7 @@
         errorLine2="                                     ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="650"
+            line="690"
             column="38"/>
     </issue>
 
@@ -1845,7 +1845,7 @@
         errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="650"
+            line="690"
             column="28"/>
     </issue>
 
@@ -1856,7 +1856,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="742"
+            line="782"
             column="29"/>
     </issue>
 
@@ -1867,7 +1867,7 @@
         errorLine2="                                                                        ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="743"
+            line="783"
             column="73"/>
     </issue>
 
@@ -1878,7 +1878,7 @@
         errorLine2="                                                           ~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="743"
+            line="783"
             column="60"/>
     </issue>
 
@@ -1889,7 +1889,7 @@
         errorLine2="                                                         ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="744"
+            line="784"
             column="58"/>
     </issue>
 
@@ -1900,7 +1900,7 @@
         errorLine2="                     ~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="761"
+            line="801"
             column="22"/>
     </issue>
 
@@ -1911,7 +1911,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="762"
+            line="802"
             column="17"/>
     </issue>
 
@@ -1922,7 +1922,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="763"
+            line="803"
             column="17"/>
     </issue>
 
@@ -1933,7 +1933,7 @@
         errorLine2="                ~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="764"
+            line="804"
             column="17"/>
     </issue>
 
@@ -1944,7 +1944,7 @@
         errorLine2="                                      ~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="764"
+            line="804"
             column="39"/>
     </issue>
 
@@ -1955,7 +1955,7 @@
         errorLine2="                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="767"
+            line="807"
             column="21"/>
     </issue>
 
@@ -1966,7 +1966,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="768"
+            line="808"
             column="21"/>
     </issue>
 
@@ -1977,7 +1977,7 @@
         errorLine2="                    ~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="769"
+            line="809"
             column="21"/>
     </issue>
 
@@ -1988,7 +1988,7 @@
         errorLine2="                                          ~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="769"
+            line="809"
             column="43"/>
     </issue>
 
@@ -1999,7 +1999,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="778"
+            line="818"
             column="46"/>
     </issue>
 
@@ -2010,7 +2010,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="783"
+            line="823"
             column="43"/>
     </issue>
 
@@ -2021,7 +2021,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="789"
+            line="829"
             column="46"/>
     </issue>
 
@@ -2032,7 +2032,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="794"
+            line="834"
             column="43"/>
     </issue>
 
@@ -2043,7 +2043,7 @@
         errorLine2="                    ~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="1020"
+            line="1060"
             column="21"/>
     </issue>
 
@@ -2054,7 +2054,7 @@
         errorLine2="                     ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="1753"
+            line="1794"
             column="22"/>
     </issue>
 
@@ -2065,7 +2065,7 @@
         errorLine2="                                                        ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="1753"
+            line="1794"
             column="57"/>
     </issue>
 
@@ -2076,7 +2076,7 @@
         errorLine2="                    ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="1754"
+            line="1795"
             column="21"/>
     </issue>
 
@@ -2087,7 +2087,7 @@
         errorLine2="                ~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="1757"
+            line="1798"
             column="17"/>
     </issue>
 
@@ -2098,7 +2098,7 @@
         errorLine2="                ~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="1758"
+            line="1799"
             column="17"/>
     </issue>
 
@@ -2109,7 +2109,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3006"
+            line="3041"
             column="21"/>
     </issue>
 
@@ -2120,7 +2120,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3007"
+            line="3042"
             column="17"/>
     </issue>
 
@@ -2131,7 +2131,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3010"
+            line="3045"
             column="21"/>
     </issue>
 
@@ -2142,7 +2142,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3056"
+            line="3091"
             column="21"/>
     </issue>
 
@@ -2153,7 +2153,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3057"
+            line="3092"
             column="17"/>
     </issue>
 
@@ -2164,7 +2164,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3128"
+            line="3163"
             column="17"/>
     </issue>
 
@@ -2175,7 +2175,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3131"
+            line="3166"
             column="17"/>
     </issue>
 
@@ -2186,7 +2186,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3133"
+            line="3168"
             column="21"/>
     </issue>
 
@@ -2197,7 +2197,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3134"
+            line="3169"
             column="21"/>
     </issue>
 
@@ -2207,8 +2207,8 @@
         errorLine1="            Press press = buttons.computeIfAbsent(button, b -> new Press());"
         errorLine2="                                                               ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/RemoteKeys.java"
-            line="248"
+            file="src/main/java/com/itsluminous/verysmarttv/keys/RemoteKeys.java"
+            line="254"
             column="64"/>
     </issue>
 
@@ -2218,8 +2218,8 @@
         errorLine1="            Press press = buttons.computeIfAbsent(button, b -> new Press());"
         errorLine2="                                                               ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/RemoteKeys.java"
-            line="283"
+            file="src/main/java/com/itsluminous/verysmarttv/keys/RemoteKeys.java"
+            line="289"
             column="64"/>
     </issue>
 
@@ -2229,7 +2229,7 @@
         errorLine1="                handler.postDelayed(this, REPEAT_INTERVAL_MS);"
         errorLine2="                ~~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/VolumeKeys.java"
+            file="src/main/java/com/itsluminous/verysmarttv/keys/VolumeKeys.java"
             line="55"
             column="17"/>
     </issue>
@@ -2726,7 +2726,7 @@
             column="5"/>
         <location
             file="src/main/res/values-zh-rCN/strings.xml"
-            line="29"
+            line="25"
             column="5"
             message="Duplicates value in `inputs`"/>
     </issue>
@@ -2754,11 +2754,11 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="13"
+            line="12"
             column="5"/>
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="16"
+            line="15"
             column="5"
             message="Duplicates value in `good_morning`"/>
     </issue>
@@ -2770,11 +2770,11 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pl/strings.xml"
-            line="14"
+            line="13"
             column="5"/>
         <location
             file="src/main/res/values-pl/strings.xml"
-            line="15"
+            line="14"
             column="5"
             message="Duplicates value in `good_morning`"/>
     </issue>
@@ -2786,11 +2786,11 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-iw/strings.xml"
-            line="14"
+            line="13"
             column="5"/>
         <location
             file="src/main/res/values-iw/strings.xml"
-            line="17"
+            line="16"
             column="5"
             message="Duplicates value in `good_morning`"/>
     </issue>
@@ -2802,11 +2802,11 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="15"
+            line="14"
             column="5"/>
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="17"
+            line="16"
             column="5"
             message="Duplicates value in `good_evening`"/>
     </issue>
@@ -2818,11 +2818,11 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="15"
+            line="14"
             column="5"/>
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="18"
+            line="17"
             column="5"
             message="Duplicates value in `good_morning`"/>
     </issue>
@@ -2834,8 +2834,13 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-vi/strings.xml"
-            line="15"
+            line="14"
             column="5"/>
+        <location
+            file="src/main/res/values-vi/strings.xml"
+            line="15"
+            column="5"
+            message="Duplicates value in `good_morning`"/>
         <location
             file="src/main/res/values-vi/strings.xml"
             line="16"
@@ -2844,11 +2849,6 @@
         <location
             file="src/main/res/values-vi/strings.xml"
             line="17"
-            column="5"
-            message="Duplicates value in `good_morning`"/>
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="18"
             column="5"
             message="Duplicates value in `good_morning`"/>
     </issue>
@@ -2860,11 +2860,11 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="15"
+            line="14"
             column="5"/>
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="16"
+            line="15"
             column="5"
             message="Duplicates value in `good_afternoon`"/>
     </issue>
@@ -2876,11 +2876,11 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
-            line="16"
+            line="15"
             column="5"/>
         <location
             file="src/main/res/values-pt/strings.xml"
-            line="17"
+            line="16"
             column="5"
             message="Duplicates value in `good_evening`"/>
     </issue>
@@ -2890,13 +2890,13 @@
         message="Duplicate string value `Buenas noches`, used in `good_evening` and `good_night`"
         errorLine1="    &lt;string name=&quot;good_evening&quot;>Buenas noches&lt;/string>"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="15"
+            column="5"/>
         <location
             file="src/main/res/values-es/strings.xml"
             line="16"
-            column="5"/>
-        <location
-            file="src/main/res/values-es/strings.xml"
-            line="17"
             column="5"
             message="Duplicates value in `good_evening`"/>
     </issue>
@@ -2908,11 +2908,11 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="17"
+            line="16"
             column="5"/>
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="19"
+            line="18"
             column="5"
             message="Duplicates value in `good_evening`"/>
     </issue>
@@ -2924,11 +2924,11 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-th/strings.xml"
-            line="38"
+            line="34"
             column="5"/>
         <location
             file="src/main/res/values-th/strings.xml"
-            line="57"
+            line="52"
             column="5"
             message="Duplicates value in `on`"/>
     </issue>
@@ -2940,11 +2940,11 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rCN/strings.xml"
-            line="44"
+            line="39"
             column="5"/>
         <location
             file="src/main/res/values-zh-rCN/strings.xml"
-            line="45"
+            line="40"
             column="5"
             message="Duplicates value in `date_format`"/>
     </issue>
@@ -2956,7 +2956,7 @@
         errorLine2="                                   ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="11"
+            line="10"
             column="36"/>
     </issue>
 
@@ -2967,7 +2967,7 @@
         errorLine2="                                  ~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="12"
+            line="11"
             column="35"/>
     </issue>
 
@@ -2978,7 +2978,7 @@
         errorLine2="                                  ~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="21"
+            line="20"
             column="35"/>
     </issue>
 
@@ -2989,7 +2989,7 @@
         errorLine2="                                          ~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="21"
+            line="20"
             column="43"/>
     </issue>
 
@@ -3000,7 +3000,7 @@
         errorLine2="                                 ~">
         <location
             file="src/main/res/values/strings.xml"
-            line="22"
+            line="21"
             column="34"/>
     </issue>
 
@@ -3011,7 +3011,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="22"
+            line="21"
             column="32"/>
     </issue>
 
@@ -3022,7 +3022,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
-            line="22"
+            line="21"
             column="32"/>
     </issue>
 
@@ -3033,7 +3033,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="23"
+            line="22"
             column="37"/>
     </issue>
 
@@ -3044,7 +3044,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
-            line="23"
+            line="22"
             column="37"/>
     </issue>
 
@@ -3055,7 +3055,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="24"
+            line="23"
             column="32"/>
     </issue>
 
@@ -3066,7 +3066,7 @@
         errorLine2="                                                    ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="25"
+            line="24"
             column="53"/>
     </issue>
 
@@ -3077,7 +3077,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="25"
+            line="24"
             column="37"/>
     </issue>
 
@@ -3088,7 +3088,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="26"
+            line="25"
             column="39"/>
     </issue>
 
@@ -3099,7 +3099,7 @@
         errorLine2="                                                            ~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="27"
+            line="26"
             column="61"/>
     </issue>
 
@@ -3110,7 +3110,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="32"
+            line="31"
             column="37"/>
     </issue>
 
@@ -3121,7 +3121,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="33"
+            line="32"
             column="38"/>
     </issue>
 
@@ -3132,7 +3132,7 @@
         errorLine2="                                                                                                                           ~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="34"
+            line="33"
             column="124"/>
     </issue>
 
@@ -3143,19 +3143,8 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
-            line="34"
+            line="33"
             column="38"/>
-    </issue>
-
-    <issue
-        id="TypographyQuotes"
-        message="Replace apostrophe (&apos;) with typographic apostrophe (’, &amp;#8217;) ?"
-        errorLine1="    &lt;string name=&quot;card_prompt_hint&quot;>Vous pourrez changer d\&apos;avis plus tard : maintenez OK sur Paramètres.&lt;/string>"
-        errorLine2="                                                           ~">
-        <location
-            file="src/main/res/values-fr/strings.xml"
-            line="36"
-            column="60"/>
     </issue>
 
     <issue
@@ -3165,18 +3154,7 @@
         errorLine2="                                                ~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="37"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="TypographyQuotes"
-        message="Replace apostrophe (&apos;) with typographic apostrophe (’, &amp;#8217;) ?"
-        errorLine1="    &lt;string name=&quot;open_on_start_state&quot;>Apri all\&apos;avvio: %1$s&lt;/string>"
-        errorLine2="                                                ~">
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="38"
+            line="34"
             column="49"/>
     </issue>
 
@@ -3187,19 +3165,30 @@
         errorLine2="                                         ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="39"
+            line="35"
             column="42"/>
     </issue>
 
     <issue
         id="TypographyQuotes"
         message="Replace apostrophe (&apos;) with typographic apostrophe (’, &amp;#8217;) ?"
-        errorLine1="    &lt;string name=&quot;card_not_saved&quot;>Impossible d\&apos;enregistrer le choix&lt;/string>"
-        errorLine2="                                               ~">
+        errorLine1="    &lt;string name=&quot;card_prompt_hint&quot;>Vous pourrez changer d\&apos;avis plus tard : maintenez OK sur Paramètres.&lt;/string>"
+        errorLine2="                                                           ~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="40"
-            column="48"/>
+            line="35"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="TypographyQuotes"
+        message="Replace apostrophe (&apos;) with typographic apostrophe (’, &amp;#8217;) ?"
+        errorLine1="    &lt;string name=&quot;open_on_start_state&quot;>Apri all\&apos;avvio: %1$s&lt;/string>"
+        errorLine2="                                                ~">
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="35"
+            column="49"/>
     </issue>
 
     <issue
@@ -3209,7 +3198,7 @@
         errorLine2="                                                                                     ~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="41"
+            line="36"
             column="86"/>
     </issue>
 
@@ -3220,8 +3209,19 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="42"
+            line="37"
             column="39"/>
+    </issue>
+
+    <issue
+        id="TypographyQuotes"
+        message="Replace apostrophe (&apos;) with typographic apostrophe (’, &amp;#8217;) ?"
+        errorLine1="    &lt;string name=&quot;card_not_saved&quot;>Impossible d\&apos;enregistrer le choix&lt;/string>"
+        errorLine2="                                               ~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="39"
+            column="48"/>
     </issue>
 
     <issue
@@ -3231,7 +3231,7 @@
         errorLine2="                                                                                                  ~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="45"
+            line="40"
             column="99"/>
     </issue>
 
@@ -3242,7 +3242,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="48"
+            line="43"
             column="50"/>
     </issue>
 
@@ -3253,7 +3253,7 @@
         errorLine2="                                  ~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="48"
+            line="43"
             column="35"/>
     </issue>
 
@@ -3264,7 +3264,7 @@
         errorLine2="                                         ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="49"
+            line="44"
             column="42"/>
     </issue>
 
@@ -3275,7 +3275,7 @@
         errorLine2="                                          ~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="49"
+            line="44"
             column="43"/>
     </issue>
 
@@ -3286,7 +3286,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="50"
+            line="45"
             column="41"/>
     </issue>
 
@@ -3297,7 +3297,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="52"
+            line="47"
             column="37"/>
     </issue>
 
@@ -3308,7 +3308,7 @@
         errorLine2="                                                                  ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="53"
+            line="48"
             column="67"/>
     </issue>
 
@@ -3319,7 +3319,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-in/strings.xml"
-            line="53"
+            line="48"
             column="38"/>
     </issue>
 
@@ -3330,7 +3330,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="54"
+            line="49"
             column="37"/>
     </issue>
 
@@ -3341,7 +3341,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-bn/strings.xml"
-            line="54"
+            line="49"
             column="38"/>
     </issue>
 
@@ -3352,7 +3352,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ko/strings.xml"
-            line="54"
+            line="49"
             column="38"/>
     </issue>
 
@@ -3363,7 +3363,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="54"
+            line="49"
             column="38"/>
     </issue>
 
@@ -3374,7 +3374,7 @@
         errorLine2="                                                      ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="55"
+            line="50"
             column="55"/>
     </issue>
 
@@ -3385,7 +3385,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="55"
+            line="50"
             column="38"/>
     </issue>
 
@@ -3396,7 +3396,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-vi/strings.xml"
-            line="55"
+            line="50"
             column="38"/>
     </issue>
 
@@ -3407,7 +3407,7 @@
         errorLine2="                                                                              ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="56"
+            line="51"
             column="79"/>
     </issue>
 
@@ -3418,7 +3418,7 @@
         errorLine2="                                                                         ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="65"
+            line="60"
             column="74"/>
     </issue>
 
@@ -3429,7 +3429,7 @@
         errorLine2="                                  ~">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="66"
+            line="61"
             column="35"/>
     </issue>
 
@@ -3440,7 +3440,7 @@
         errorLine2="                                                                                          ~">
         <location
             file="src/main/res/values/strings.xml"
-            line="66"
+            line="61"
             column="91"/>
     </issue>
 
@@ -3451,7 +3451,7 @@
         errorLine2="                                                    ~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="67"
+            line="62"
             column="53"/>
     </issue>
 
@@ -3462,7 +3462,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="68"
+            line="63"
             column="39"/>
     </issue>
 
@@ -3473,7 +3473,7 @@
         errorLine2="                                               ~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="68"
+            line="63"
             column="48"/>
     </issue>
 
@@ -3484,7 +3484,7 @@
         errorLine2="                                                                         ~">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="68"
+            line="63"
             column="74"/>
     </issue>
 
@@ -3495,7 +3495,7 @@
         errorLine2="                                                         ~">
         <location
             file="src/main/res/values/strings.xml"
-            line="68"
+            line="63"
             column="58"/>
     </issue>
 
@@ -3506,7 +3506,7 @@
         errorLine2="                                                              ~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="69"
+            line="64"
             column="63"/>
     </issue>
 
@@ -3517,7 +3517,7 @@
         errorLine2="                                                                                 ~">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="69"
+            line="64"
             column="82"/>
     </issue>
 
@@ -3528,7 +3528,7 @@
         errorLine2="                                         ~">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="70"
+            line="65"
             column="42"/>
     </issue>
 
@@ -3539,7 +3539,7 @@
         errorLine2="                                                                                                               ~">
         <location
             file="src/main/res/values/strings.xml"
-            line="70"
+            line="65"
             column="112"/>
     </issue>
 
@@ -3550,7 +3550,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="71"
+            line="66"
             column="38"/>
     </issue>
 
@@ -3561,7 +3561,7 @@
         errorLine2="                                          ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="72"
+            line="67"
             column="43"/>
     </issue>
 
@@ -3572,7 +3572,7 @@
         errorLine2="                                                     ~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="72"
+            line="67"
             column="54"/>
     </issue>
 
@@ -3583,7 +3583,7 @@
         errorLine2="                                                                                   ~">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="72"
+            line="67"
             column="84"/>
     </issue>
 
@@ -3594,7 +3594,7 @@
         errorLine2="                                                      ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="73"
+            line="68"
             column="55"/>
     </issue>
 
@@ -3605,7 +3605,7 @@
         errorLine2="                                                                    ~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="74"
+            line="69"
             column="69"/>
     </issue>
 
@@ -3616,7 +3616,7 @@
         errorLine2="                                        ~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="75"
+            line="70"
             column="41"/>
     </issue>
 
@@ -3627,7 +3627,7 @@
         errorLine2="                                                   ~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="75"
+            line="70"
             column="52"/>
     </issue>
 
@@ -3638,7 +3638,7 @@
         errorLine2="                                                ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="76"
+            line="71"
             column="49"/>
     </issue>
 
@@ -3649,7 +3649,7 @@
         errorLine2="                                                         ~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="76"
+            line="71"
             column="58"/>
     </issue>
 
@@ -3660,7 +3660,7 @@
         errorLine2="                                                  ~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="76"
+            line="71"
             column="51"/>
     </issue>
 
@@ -3671,7 +3671,7 @@
         errorLine2="                                                           ~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="77"
+            line="72"
             column="60"/>
     </issue>
 
@@ -3682,7 +3682,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="78"
+            line="73"
             column="37"/>
     </issue>
 
@@ -3693,7 +3693,7 @@
         errorLine2="                                         ~">
         <location
             file="src/main/res/values/strings.xml"
-            line="78"
+            line="73"
             column="42"/>
     </issue>
 
@@ -3704,7 +3704,7 @@
         errorLine2="                                  ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="79"
+            line="74"
             column="35"/>
     </issue>
 
@@ -3715,7 +3715,7 @@
         errorLine2="                                                                 ~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="79"
+            line="74"
             column="66"/>
     </issue>
 
@@ -3726,7 +3726,7 @@
         errorLine2="                                               ~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="80"
+            line="75"
             column="48"/>
     </issue>
 
@@ -3737,7 +3737,7 @@
         errorLine2="                                            ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="81"
+            line="76"
             column="45"/>
     </issue>
 
@@ -3748,7 +3748,7 @@
         errorLine2="                                             ~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="81"
+            line="76"
             column="46"/>
     </issue>
 
@@ -3759,7 +3759,7 @@
         errorLine2="                                       ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="82"
+            line="77"
             column="40"/>
     </issue>
 
@@ -3770,7 +3770,7 @@
         errorLine2="                                     ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="83"
+            line="78"
             column="38"/>
     </issue>
 
@@ -3781,7 +3781,7 @@
         errorLine2="                                                    ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="85"
+            line="80"
             column="53"/>
     </issue>
 
@@ -3792,7 +3792,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ca/strings.xml"
-            line="86"
+            line="81"
             column="35"/>
     </issue>
 
@@ -3803,7 +3803,7 @@
         errorLine2="                                                     ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="87"
+            line="82"
             column="54"/>
     </issue>
 
@@ -3814,7 +3814,7 @@
         errorLine2="                                                             ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="88"
+            line="83"
             column="62"/>
     </issue>
 
@@ -3825,7 +3825,7 @@
         errorLine2="                                            ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="90"
+            line="85"
             column="45"/>
     </issue>
 
@@ -3836,7 +3836,7 @@
         errorLine2="                                             ~">
         <location
             file="src/main/res/values-ast/strings.xml"
-            line="91"
+            line="86"
             column="46"/>
     </issue>
 
@@ -3847,7 +3847,7 @@
         errorLine2="                                            ~">
         <location
             file="src/main/res/values/strings.xml"
-            line="99"
+            line="94"
             column="45"/>
     </issue>
 
@@ -3858,7 +3858,7 @@
         errorLine2="                                                               ~">
         <location
             file="src/main/res/values/strings.xml"
-            line="140"
+            line="135"
             column="64"/>
     </issue>
 
@@ -4117,330 +4117,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onCreate(Bundle state) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/AppLaunchActivity.java"
-            line="13"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="39"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {"
-        errorLine2="                                         ~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="39"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {"
-        errorLine2="                                                  ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="39"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public String getType(Uri uri) { return &quot;application/json&quot;; }"
-        errorLine2="                     ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="80"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public String getType(Uri uri) { return &quot;application/json&quot;; }"
-        errorLine2="                                    ~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="80"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection, String[] args, String order) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="84"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection, String[] args, String order) {"
-        errorLine2="                        ~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="84"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection, String[] args, String order) {"
-        errorLine2="                                 ~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="84"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection, String[] args, String order) {"
-        errorLine2="                                                      ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="84"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection, String[] args, String order) {"
-        errorLine2="                                                                        ~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="84"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection, String[] args, String order) {"
-        errorLine2="                                                                                       ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="84"
-            column="88"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public Uri insert(Uri uri, ContentValues values) { return null; }"
-        errorLine2="                     ~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="90"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public Uri insert(Uri uri, ContentValues values) { return null; }"
-        errorLine2="                                ~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="90"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public Uri insert(Uri uri, ContentValues values) { return null; }"
-        errorLine2="                                         ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="90"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public int delete(Uri uri, String selection, String[] args) { return 0; }"
-        errorLine2="                                ~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="91"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public int delete(Uri uri, String selection, String[] args) { return 0; }"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="91"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public int delete(Uri uri, String selection, String[] args) { return 0; }"
-        errorLine2="                                                           ~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="91"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public int update(Uri uri, ContentValues values, String selection, String[] args) { return 0; }"
-        errorLine2="                                ~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="92"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public int update(Uri uri, ContentValues values, String selection, String[] args) { return 0; }"
-        errorLine2="                                         ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="92"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public int update(Uri uri, ContentValues values, String selection, String[] args) { return 0; }"
-        errorLine2="                                                               ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="92"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public int update(Uri uri, ContentValues values, String selection, String[] args) { return 0; }"
-        errorLine2="                                                                                 ~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/BackupProvider.java"
-            line="92"
-            column="82"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ClockActivity.java"
-            line="25"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public GlassView(Context context, AttributeSet attrs) {"
-        errorLine2="                     ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/GlassView.java"
-            line="33"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public GlassView(Context context, AttributeSet attrs) {"
-        errorLine2="                                      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/GlassView.java"
-            line="33"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onDraw(Canvas canvas) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/GlassView.java"
-            line="85"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onCreate(Bundle state) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/HomeSettingsActivity.java"
-            line="22"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/InputsRequestActivity.java"
-            line="20"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onCreate(Bundle state) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/LauncherSettingsActivity.java"
-            line="55"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="463"
+            line="503"
             column="29"/>
     </issue>
 
@@ -4451,7 +4132,7 @@
         errorLine2="                                            ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="1804"
+            line="1845"
             column="45"/>
     </issue>
 
@@ -4462,7 +4143,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3895"
+            line="3930"
             column="29"/>
     </issue>
 
@@ -4473,261 +4154,8 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3987"
+            line="4022"
             column="47"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ProbeActivity.java"
-            line="13"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onCreate(Bundle state) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/QuickSettingsActivity.java"
-            line="28"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="34"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {"
-        errorLine2="                                         ~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="34"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {"
-        errorLine2="                                                  ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="34"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public int delete(Uri uri, String selection, String[] selectionArgs) {"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="44"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public int delete(Uri uri, String selection, String[] selectionArgs) {"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="44"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public int delete(Uri uri, String selection, String[] selectionArgs) {"
-        errorLine2="                                                 ~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="44"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public String getType(Uri uri) { return null; }"
-        errorLine2="                     ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="53"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public String getType(Uri uri) { return null; }"
-        errorLine2="                                    ~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="53"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public Cursor query(Uri uri, String[] p, String s, String[] a, String o) { return null; }"
-        errorLine2="                     ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="54"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public Cursor query(Uri uri, String[] p, String s, String[] a, String o) { return null; }"
-        errorLine2="                                  ~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="54"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public Cursor query(Uri uri, String[] p, String s, String[] a, String o) { return null; }"
-        errorLine2="                                           ~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="54"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public Cursor query(Uri uri, String[] p, String s, String[] a, String o) { return null; }"
-        errorLine2="                                                       ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="54"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public Cursor query(Uri uri, String[] p, String s, String[] a, String o) { return null; }"
-        errorLine2="                                                                 ~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="54"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public Cursor query(Uri uri, String[] p, String s, String[] a, String o) { return null; }"
-        errorLine2="                                                                             ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="54"
-            column="78"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public Uri insert(Uri uri, ContentValues values) { return null; }"
-        errorLine2="                     ~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="55"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public Uri insert(Uri uri, ContentValues values) { return null; }"
-        errorLine2="                                ~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="55"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public Uri insert(Uri uri, ContentValues values) { return null; }"
-        errorLine2="                                         ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="55"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public int update(Uri uri, ContentValues v, String s, String[] a) { return 0; }"
-        errorLine2="                                ~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="56"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public int update(Uri uri, ContentValues v, String s, String[] a) { return 0; }"
-        errorLine2="                                         ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="56"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public int update(Uri uri, ContentValues v, String s, String[] a) { return 0; }"
-        errorLine2="                                                          ~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="56"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    @Override public int update(Uri uri, ContentValues v, String s, String[] a) { return 0; }"
-        errorLine2="                                                                    ~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/ThemeProvider.java"
-            line="56"
-            column="69"/>
     </issue>
 
 </issues>

@@ -32,6 +32,8 @@ import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
+import com.itsluminous.verysmarttv.backup.Backup;
+import com.itsluminous.verysmarttv.settings.LauncherSettingsActivity;
 
 /**
  * Backup and restore from the settings panel (DESIGN.md §14.3 BackupRestoreTest), driven by its rows' text: the

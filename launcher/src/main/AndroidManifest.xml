@@ -114,7 +114,7 @@
         </activity>
 
         <activity
-            android:name=".LauncherSettingsActivity"
+            android:name=".settings.LauncherSettingsActivity"
             android:exported="false"
             android:theme="@style/Theme.VerySmartTV.Settings"
             android:excludeFromRecents="true"
@@ -125,7 +125,7 @@
              launcher was the only handler of the action (Hisense huangshan, Android TV 10): kept off, a TV with
              its own input picker never sees a second candidate and a chooser. -->
         <activity
-            android:name=".InputsRequestActivity"
+            android:name=".inputs.InputsRequestActivity"
             android:exported="true"
             android:enabled="false"
             android:excludeFromRecents="true"
@@ -140,7 +140,7 @@
              No screenOrientation: a translucent activity may not request one on Android 8.0 (API 26),
              which throws IllegalStateException in onCreate (#1122); a TV is landscape anyway. -->
         <activity
-            android:name=".QuickSettingsActivity"
+            android:name=".settings.QuickSettingsActivity"
             android:exported="false"
             android:taskAffinity=""
             android:launchMode="singleTop"
@@ -148,7 +148,7 @@
             android:noHistory="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
         <activity
-            android:name=".HomeSettingsActivity"
+            android:name=".settings.HomeSettingsActivity"
             android:exported="false"
             android:taskAffinity=""
             android:excludeFromRecents="true"
@@ -156,7 +156,7 @@
         <!-- Home button for remotes that send KEYCODE_ALL_APPS (Xiaomi). Opt-in: HOME_KEY_SERVICE=1
              build-and-install.sh; see HomeKeyService. -->
         <service
-            android:name=".HomeKeyService"
+            android:name=".keys.HomeKeyService"
             android:label="@string/home_key_name"
             android:directBootAware="true"
             android:exported="true"
@@ -172,7 +172,7 @@
         <!-- market://launch?id=<package>: package-name app launches from the Android TV Remote service
              (Home Assistant android_tv_remote), normally served by the stock launcher. -->
         <activity
-            android:name=".AppLaunchActivity"
+            android:name=".home.AppLaunchActivity"
             android:exported="true"
             android:excludeFromRecents="true"
             android:noHistory="true"
@@ -187,7 +187,7 @@
 
         <!-- The same clock, started by Home itself after home_idle_clock_minutes without input. -->
         <activity
-            android:name=".ClockActivity"
+            android:name=".clock.ClockActivity"
             android:exported="false"
             android:excludeFromRecents="true"
             android:noHistory="true"
@@ -196,7 +196,7 @@
         <!-- stock_home_redirect at boot: HomeKeyService opens this invisible activity once, so the screen behind
              it sends a window event when it closes (HomeKeyService.probeAtBoot). -->
         <activity
-            android:name=".ProbeActivity"
+            android:name=".keys.ProbeActivity"
             android:exported="false"
             android:excludeFromRecents="true"
             android:noHistory="true"
@@ -204,10 +204,10 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <!-- Screensaver: pick it in Settings, or `settings put secure screensaver_components
-             com.itsluminous.verysmarttv/.ClockDream` over adb. Under another applicationId the component is
-             <applicationId>/com.itsluminous.verysmarttv.ClockDream: the class keeps the Java package. -->
+             com.itsluminous.verysmarttv/.clock.ClockDream` over adb. Under another applicationId the component is
+             <applicationId>/com.itsluminous.verysmarttv.clock.ClockDream: the class keeps the Java package. -->
         <service
-            android:name=".ClockDream"
+            android:name=".clock.ClockDream"
             android:label="@string/dream_name"
             android:exported="true"
             android:permission="android.permission.BIND_DREAM_SERVICE">
@@ -220,7 +220,7 @@
         <!-- tools/theme.sh writes the theme through this where the shell can't reach Android/data;
              see ThemeProvider. WRITE_SECURE_SETTINGS: the adb shell has it, ordinary apps don't. -->
         <provider
-            android:name=".ThemeProvider"
+            android:name=".theme.ThemeProvider"
             android:authorities="com.itsluminous.verysmarttv.theme"
             android:exported="true"
             android:permission="android.permission.WRITE_SECURE_SETTINGS" />
@@ -229,7 +229,7 @@
              holds the app order, hidden apps, dock, card approvals and theme, nothing secret, and it writes nothing;
              see BackupProvider. -->
         <provider
-            android:name=".BackupProvider"
+            android:name=".backup.BackupProvider"
             android:authorities="com.itsluminous.verysmarttv.backup"
             android:exported="true" />
 
@@ -237,9 +237,9 @@
          app_keys (config.xml or a theme) bring back other remote buttons; see InputKeyService. -->
         <!-- Bound again by the system after a force stop, which restarts Home on firmware that kills
              third-party apps (TCL tc8000_ay30a2). It reads no notification.
-             cmd notification allow_listener com.itsluminous.verysmarttv/.GuardRevival -->
+             cmd notification allow_listener com.itsluminous.verysmarttv/.keys.GuardRevival -->
         <service
-            android:name=".GuardRevival"
+            android:name=".keys.GuardRevival"
             android:directBootAware="true"
             android:exported="true"
             android:label="@string/home_key_name"
@@ -249,7 +249,7 @@
             </intent-filter>
         </service>
         <receiver
-            android:name=".GuardConfig"
+            android:name=".keys.GuardConfig"
             android:exported="true"
             android:permission="android.permission.WRITE_SECURE_SETTINGS">
             <intent-filter>
@@ -258,7 +258,7 @@
         </receiver>
 
         <service
-            android:name=".InputKeyService"
+            android:name=".keys.InputKeyService"
             android:exported="false"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">

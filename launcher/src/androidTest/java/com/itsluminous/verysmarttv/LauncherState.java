@@ -9,6 +9,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import com.itsluminous.verysmarttv.backup.Backup;
+import com.itsluminous.verysmarttv.theme.Config;
 
 /**
  * The launcher's package-private state, opened to the test helpers in {@code support/} (another package, so

@@ -95,6 +95,46 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import com.itsluminous.verysmarttv.grid.AppAdapter;
+import com.itsluminous.verysmarttv.library.AppLibraryDialog;
+import com.itsluminous.verysmarttv.cards.CardFeature;
+import com.itsluminous.verysmarttv.cards.Cards;
+import com.itsluminous.verysmarttv.clock.ClockActivity;
+import com.itsluminous.verysmarttv.clock.ClockFormat;
+import com.itsluminous.verysmarttv.clock.ClockRefresh;
+import com.itsluminous.verysmarttv.theme.Config;
+import com.itsluminous.verysmarttv.inputs.CoocaaSources;
+import com.itsluminous.verysmarttv.grid.DockDecoration;
+import com.itsluminous.verysmarttv.grid.DockSlots;
+import com.itsluminous.verysmarttv.grid.EdgeAlignDecoration;
+import com.itsluminous.verysmarttv.grid.GlassView;
+import com.itsluminous.verysmarttv.grid.GridNavigation;
+import com.itsluminous.verysmarttv.shelf.HeroArt;
+import com.itsluminous.verysmarttv.shelf.HeroFeed;
+import com.itsluminous.verysmarttv.keys.HomeKeyService;
+import com.itsluminous.verysmarttv.inputs.InputFold;
+import com.itsluminous.verysmarttv.inputs.InputNames;
+import com.itsluminous.verysmarttv.inputs.InputSources;
+import com.itsluminous.verysmarttv.inputs.InputsRequestActivity;
+import com.itsluminous.verysmarttv.grid.LastOpened;
+import com.itsluminous.verysmarttv.grid.LaunchActions;
+import com.itsluminous.verysmarttv.home.LauncherLocale;
+import com.itsluminous.verysmarttv.settings.LauncherSettingsActivity;
+import com.itsluminous.verysmarttv.library.LibraryApps;
+import com.itsluminous.verysmarttv.home.MemoryTrimPolicy;
+import com.itsluminous.verysmarttv.theme.Motion;
+import com.itsluminous.verysmarttv.settings.OpenOnStart;
+import com.itsluminous.verysmarttv.grid.Order;
+import com.itsluminous.verysmarttv.settings.QuickSettingsActivity;
+import com.itsluminous.verysmarttv.keys.RemoteKeys;
+import com.itsluminous.verysmarttv.keys.ServiceRepair;
+import com.itsluminous.verysmarttv.shelf.ShelfScale;
+import com.itsluminous.verysmarttv.settings.SystemSettings;
+import com.itsluminous.verysmarttv.grid.TileRefresh;
+import com.itsluminous.verysmarttv.grid.TopFade;
+import com.itsluminous.verysmarttv.grid.UniformRows;
+import com.itsluminous.verysmarttv.topbar.VpnBadge;
+import com.itsluminous.verysmarttv.theme.Wallpaper;
 
 /**
  * tvOS style home: black, a pinned dock row, an app grid, and one glass highlight that springs between tiles.
@@ -108,11 +148,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     private static final int LAUNCHER_SETTINGS_REQUEST = 42;
     /** Sent by QuickSettingsActivity: open Launcher settings from here so Home rebuilds when they close. */
-    static final String ACTION_LAUNCHER_SETTINGS = "com.itsluminous.verysmarttv.action.LAUNCHER_SETTINGS";
+    public static final String ACTION_LAUNCHER_SETTINGS = "com.itsluminous.verysmarttv.action.LAUNCHER_SETTINGS";
     /** Sent by the "library" action word of app_keys: open the App library over Home (needs app_library). */
-    static final String ACTION_APP_LIBRARY = "com.itsluminous.verysmarttv.action.APP_LIBRARY";
+    public static final String ACTION_APP_LIBRARY = "com.itsluminous.verysmarttv.action.APP_LIBRARY";
     /** The system input switcher, forwarded here by InputsRequestActivity while handle_view_inputs is on. */
-    static final String ACTION_VIEW_INPUTS = "com.android.tv.action.VIEW_INPUTS";
+    public static final String ACTION_VIEW_INPUTS = "com.android.tv.action.VIEW_INPUTS";
     /** Tiles per row and dock slots (res/values/config.xml, columns). Set in onCreate. */
     static int COLUMNS = 4;
     private boolean rtlAppGrid;
