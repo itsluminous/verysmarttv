@@ -38,8 +38,7 @@ import java.util.regex.Pattern;
  *
  * The document carries every SharedPreferences file of the app (name, then key to typed value), the state files in
  * the private files dir (order.txt with the tile order, cards.json with the module-card approvals, the app library's
- * two lists), and the theme in {@link Config#dir} (config.json, wallpaper.jpg, theme_revision, the wallpapers/
- * collection). Text is inline; a picture is base64 when it is under {@link #MAX_INLINE_BYTES}, else it is listed by
+ * two lists), and the theme in {@link Config#dir} (config.json, wallpaper.jpg, theme_revision). Text is inline; a picture is base64 when it is under {@link #MAX_INLINE_BYTES}, else it is listed by
  * name with a note and left out. Shape:
  *
  * <pre>
@@ -157,22 +156,12 @@ final class Backup {
         return names;
     }
 
-    /** The theme files present, as the paths ThemeFiles allows: the top-level three and the wallpapers/ collection. */
+    /** The theme files present, as the paths ThemeFiles allows: config.json, wallpaper.jpg, theme_revision. */
     static List<String> themeFiles(File dir) {
         List<String> names = new ArrayList<>();
         if (dir == null) return names;
         for (String n : new String[]{Config.FILE_NAME, Config.WALLPAPER_NAME, "theme_revision"}) {
             if (new File(dir, n).isFile()) names.add(n);
-        }
-        File[] images = new File(dir, ThemeFiles.WALLPAPERS).listFiles();
-        if (images != null) {
-            List<String> sorted = new ArrayList<>();
-            for (File f : images) {
-                String path = ThemeFiles.path(java.util.Arrays.asList(ThemeFiles.WALLPAPERS, f.getName()));
-                if (f.isFile() && path != null) sorted.add(path);
-            }
-            java.util.Collections.sort(sorted);
-            names.addAll(sorted);
         }
         return names;
     }
@@ -183,7 +172,7 @@ final class Backup {
             File f = new File(dir, name);
             JSONObject entry = new JSONObject();
             if (f.length() > MAX_INLINE_BYTES) {
-                entry.put("skipped", "larger than " + (MAX_INLINE_BYTES / (1024 * 1024)) + " MB; push it again with tools/theme.sh");
+                entry.put("skipped", "larger than " + (MAX_INLINE_BYTES / (1024 * 1024)) + " MB; push the theme again");
                 entry.put("size", f.length());
             } else {
                 byte[] bytes;

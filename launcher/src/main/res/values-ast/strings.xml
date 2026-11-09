@@ -15,16 +15,11 @@
     <string name="good_evening">Bones nueches</string>
     <string name="good_forenoon">Bonos díes</string>
     <string name="good_night">Bones nueches</string>
-    <string name="festival_dussehra_greeting">Feliz Dussehra</string>
-    <string name="festival_diwali_greeting">Feliz Diwali</string>
     <string name="offline">Ensin conexón</string>
     <string name="not_available">Non disponible nesta TV</string>
     <string name="cant_open">Nun se pue abrir %1$s</string>
     <string name="date_format">EEEE d MMMM</string>
     <string name="date_format_home">EEEE\nd MMMM</string>
-    <string name="stats_cpu">CPU %1$d%%</string>
-    <string name="stats_memory">Memoria %1$d / %2$d MB</string>
-    <string name="stats_storage">Almacenamientu %1$s llibre</string>
     <string name="dream_name">Reló</string>
     <string name="vpn_off">VPN apagada</string>
     <string name="home_settings">Escoyer pantalla d\'aniciu predeterminá</string>
@@ -34,11 +29,6 @@
     <string name="columns_label">Aplicaciones por filera</string>
     <string name="rows_below_dock_label">Fileres debaxo del dock</string>
     <string name="dock_opacity_label">Opacidá de la barra del dock</string>
-    <string name="wallpaper_label">Fondu</string>
-    <string name="wallpaper_state">Fondu: %1$s</string>
-    <string name="wallpaper_none">Nengún</string>
-    <string name="wallpaper_applied">Fondu camudáu</string>
-    <string name="wallpaper_theme_default">Predetermináu del tema</string>
     <string name="animations_state">Animaciones: %1$s</string>
     <string name="advanced_effects">Efeutos avanzaos</string>
     <string name="advanced_effects_state">Efeutos avanzaos: %1$s</string>
@@ -104,19 +94,5 @@
         <item quantity="other">%1$d aplicaciones</item>
     </plurals>
     <string name="greeting_with_name">%1$s, %2$s</string>
-    <string name="race_kicker">Ronda %1$d · %2$s · %3$s</string>
-    <string name="race_kicker_no_place">Ronda %1$d · %2$s</string>
-    <string name="race_next">%1$s en %2$s</string>
-    <string name="race_lights_out">Salida en %1$s</string>
-    <string name="race_live">%1$s · en direutu</string>
-    <string name="race_finished">Bandera a cuadros</string>
-    <string name="race_practice_1">Llibres 1</string>
-    <string name="race_practice_2">Llibres 2</string>
-    <string name="race_practice_3">Llibres 3</string>
-    <string name="race_sprint_qualifying">Clasificación sprint</string>
-    <string name="race_qualifying">Clasificación</string>
-    <string name="race_race">Carrera</string>
-    <string name="race_race_short">CARRERA</string>
     <string name="last_opened">Abierta per última vegada %1$s</string>
-    <string name="game_live">En direutu</string>
 </resources>

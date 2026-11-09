@@ -20,9 +20,6 @@
     <string name="not_available">Bu TV’de kullanılamıyor</string>
     <string name="cant_open">%1$s açılamıyor</string>
     <string name="date_format">d MMMM EEEE</string>
-    <string name="stats_cpu">CPU %1$d%%</string>
-    <string name="stats_memory">Bellek %1$d / %2$d MB</string>
-    <string name="stats_storage">Depolama %1$s boş</string>
     <string name="dream_name">Saat</string>
     <string name="vpn">VPN</string>
     <string name="vpn_off">VPN Kapalı</string>
@@ -93,7 +90,6 @@
         <item quantity="other">%1$d uygulama</item>
     </plurals>
     <string name="greeting_with_name">%1$s, %2$s</string>
-    <string name="game_live">Şimdi canlı</string>
     <string name="clock_format_system">Sistem</string>
     <string name="clock_format_12">12 saat</string>
     <string name="clock_format_24">24 saat</string>

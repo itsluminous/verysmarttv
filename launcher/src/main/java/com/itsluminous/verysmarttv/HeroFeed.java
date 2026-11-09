@@ -69,7 +69,7 @@ final class HeroFeed {
         this.context = context.getApplicationContext();
         this.main = main;
         this.listener = listener;
-        rtl = this.context.getResources().getBoolean(R.bool.rtl_menu_bar);
+        rtl = this.context.getResources().getConfiguration().getLayoutDirection() == android.view.View.LAYOUT_DIRECTION_RTL;
         observer = new ContentObserver(main) {
             @Override
             public void onChange(boolean selfChange) {

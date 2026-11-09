@@ -22,7 +22,7 @@ public class GlassView extends View {
     private final RectF rect = new RectF();
     private final float density;
     private float radius;
-    /** Glow colour as 0xRRGGBB: white normally, a festival's accent (diya gold) while a festive skin is on. */
+    /** Glow colour as 0xRRGGBB; 0 is the plain white highlight. */
     private int glowRgb = 0xFFFFFF;
     /** Glow strength: the white glow stays faint, a coloured one needs more alpha to read as warm light. */
     private int glowAlpha = 0x30;

@@ -30,8 +30,9 @@ import java.util.Set;
  * The launcher's settings: the values in res/values/config.xml, with an optional overlay read from
  * {@code config.json} in the app's external files directory
  * ({@code /sdcard/Android/data/com.itsluminous.verysmarttv/files/}). Every key in the JSON is optional and an
- * unknown or badly typed key is ignored, so a theme can change the dock and the look without a rebuild:
- * {@code tools/theme.sh themes/<name>} pushes a theme folder there and restarts Home.
+ * unknown or badly typed key is ignored, so a theme can change the dock and the look without a rebuild: the setup
+ * tool pushes a theme folder there and restarts Home. A key of a feature this launcher dropped ({@link #IGNORED_KEYS},
+ * ADR-008) is ignored with one log line each, so an older theme still loads.
  *
  * Read once in {@link MainActivity#onCreate}; nothing here touches the network.
  */
@@ -41,7 +42,6 @@ final class Config {
     static final String WALLPAPER_NAME = "wallpaper.jpg";
     static final String SETTINGS_NAME = "launcher_settings";
     static final String ROWS_BELOW_DOCK_KEY = "rows_below_dock";
-    static final String WALLPAPER_CHOICE_KEY = "wallpaper_choice";
     static final String DOCK_OPACITY_KEY = "dock_opacity";
     static final String CLOCK_FORMAT_KEY = "clock_format";
     /** The shelf height chosen in Launcher settings, percent (hero_height); unset means the theme's key decides. */
@@ -58,13 +58,18 @@ final class Config {
      */
     static final String HERO_FEED_KEY = "hero_feed";
     /**
-     * The Widgets tick list in Launcher settings: the string set of chips shown next to the date (WIDGET_* values).
-     * Unset means the theme's widgets key decides; an empty set is a saved "none".
+     * The System bars toggle in Launcher settings: 1 on, 0 off, unset means the theme's widgets key decides. The
+     * RAM and Storage bars themselves land in Phase 3 (DESIGN.md §9.1); until then the value is read and nothing is drawn.
      */
     static final String WIDGETS_KEY = "widgets";
-    /** The three chips widgets can name, in the order the top bar shows them: memory, cpu, storage. */
-    static final String WIDGET_MEMORY = "memory", WIDGET_CPU = "cpu", WIDGET_STORAGE = "storage";
-    static final List<String> WIDGET_NAMES = Collections.unmodifiableList(Arrays.asList(WIDGET_MEMORY, WIDGET_CPU, WIDGET_STORAGE));
+    /**
+     * Keys of features this launcher dropped (ADR-008). A theme that still carries one loads, and the key is
+     * ignored with one {@code Log.i} line, so an older config.json never fails and nobody wonders where the feature went.
+     */
+    static final List<String> IGNORED_KEYS = Collections.unmodifiableList(Arrays.asList(
+            "festival", "festival_until", "seasonal_skin", "greeting", "accent_color", "game_day", "race_calendar",
+            "sky_intensity", "latitude", "longitude", "wallpaper_rotation_minutes", "wallpaper_order",
+            "wallpaper_moods", "wallpaper_captions", "shamsi_date", "lunar_date", "lunar_utc_offset", "show_stats"));
     /**
      * A choice older launchers saved from their Advanced effects row. Advanced effects now follow the Animations
      * setting and the theme's advanced_effects key, and this key is dropped wherever it turns up (load, restore):
@@ -117,10 +122,6 @@ final class Config {
     /** The theme's advanced_effects; only in force while animations is on (every reader checks both). */
     final boolean advancedEffects;
     final int rowsBelowDock;
-    final boolean shamsiDate;
-    /** Lunisolar date under the date (config.json lunar_date), computed for lunarUtcOffset hours east of UTC (-1: by locale). */
-    final boolean lunarDate;
-    final int lunarUtcOffset;
     /** The date on its own line under the clock instead of beside it (config.xml, date_below_clock). */
     final boolean dateBelowClock;
     /** The VPN state as its own pill after the network pill, instead of a badge inside it (config.xml, vpn_pill). */
@@ -178,10 +179,6 @@ final class Config {
     final boolean focusOvershoot;
     final String vpnApp;
     final boolean showHomeSettingsShortcut;
-    /** One line under the clock: CPU, free memory, free storage. Off unless config or a theme turns it on. */
-    final boolean showStats;
-    /** game_day: the package of an add-on that publishes each team's next game (GameDay); empty = off. */
-    final String gameDay;
     /** App library pill after the last Home row (config.xml app_library). */
     final boolean appLibrary;
     /** OK directly toggles Home membership in the library (app_library_selection). */
@@ -227,23 +224,22 @@ final class Config {
     final int themeHeroHeight;
     /**
      * The date on two lines, the day of the week over the day and month ("WEDNESDAY" over "4 NOVEMBER", each in the
-     * TV's language), beside the clock (date_two_lines). Not with shamsi_date, lunar_date or date_below_clock, whose
-     * extra lines would then push the header down; the key reads false alongside them.
+     * TV's language), beside the clock (date_two_lines). Not with date_below_clock, whose extra line would push the
+     * header down; the key reads false alongside it.
      */
     final boolean dateTwoLines;
     /**
-     * The chips next to the date (widgets): WIDGET_MEMORY, WIDGET_CPU, WIDGET_STORAGE in that order, after the Widgets
-     * tick list in Launcher settings (WIDGETS_KEY) over the theme's key. Empty: no chips, and nothing is read.
+     * The RAM and Storage bars beside the date (widgets, a boolean), after the System bars toggle in Launcher settings
+     * (WIDGETS_KEY) over the theme's key. A theme from before the change may still carry the old array of chip names;
+     * it reads as on when non-empty ({@link #widgetsKey}).
      */
-    final List<String> widgets;
+    final boolean widgets;
     /** The theme's widgets before the Launcher settings choice, what its row shows while no choice is saved. */
-    final List<String> themeWidgets;
+    final boolean themeWidgets;
     /** Icon on a card tinted from that icon, instead of the app's banner (config.xml uniform_tiles). */
     final boolean uniformTiles;
     /** Background colour behind everything, #RRGGBB; black unless a theme says otherwise. */
     final int backgroundColor;
-    /** Time-of-day backdrop, 0 to 100 (config.xml, sky_intensity); 0 keeps the plain background. */
-    final int skyIntensity;
     /** Remote keycodes that open Settings through HomeKeyService (config.xml, settings_key_keycodes). */
     final int[] settingsKeycodes;
     /** Extra keycodes that open the input switcher in InputKeyService (config.xml input_key_keycodes). */
@@ -279,23 +275,11 @@ final class Config {
     final boolean wallpaperEnabled;
     /** Full-screen picture behind the launcher, or null for the plain colour. */
     final File wallpaper;
-    /** Rotating theme images, or the single wallpaper when no collection is configured. */
-    final List<File> wallpapers;
-    final int wallpaperRotationMinutes;
     final int wallpaperDim;
     /** The dock band's opacity in percent (config.json dock_opacity, 30-100): below 100 the wallpaper shows through. */
     final int dockOpacity;
-    /**
-     * Playback order for a wallpaper collection: {@code sequential} or {@code shuffle}. Missing or
-     * invalid values keep the historical shuffle so existing themes rotate exactly as before.
-     */
-    final String wallpaperOrder;
     /** Whether the overlay file was present and parsed. */
     final boolean overlayApplied;
-    /** Festive skin from a theme (festival, festival_until, greeting, accent_color); {@link Festival#NONE} if none. */
-    final Festival festival;
-    /** F1 weekends from a theme's race_calendar (see RaceWeekend); empty when the theme has none. */
-    final List<RaceWeekend.Race> raceCalendar;
     /** Cinematic top shelf (config.xml, cinematic_home): the focused dock app's artwork behind a larger shelf. */
     final boolean cinematicHome;
     /** The glow in the focused app's colour behind the dock (config.xml, ambient_glow); false keeps the background plain. */
@@ -322,8 +306,6 @@ final class Config {
     final int cinematicArt;
     /** Strength of the cinematic shelf's dark scrim, 0 to 100 percent (config.xml, cinematic_scrim); 100 as before. */
     final int cinematicScrim;
-    /** A rotating collection's groups by time of day, as file names (config.xml, wallpaper_moods); empty rotates through all of it. */
-    final Map<String, Set<String>> wallpaperMoods;
     /** Shape of the glow behind the focused app (config.xml, glow_style): {@link #GLOW_RADIAL} or {@link #GLOW_HORIZON}. */
     final String glowStyle;
     /** The focus highlight's look (config.xml, glass_style): {@link #GLASS_DEFAULT}, {@link #GLASS_RIM} or {@link #GLASS_HALO}. */
@@ -331,8 +313,6 @@ final class Config {
 
     static final String GLOW_RADIAL = "radial", GLOW_HORIZON = "horizon";
     static final String GLASS_DEFAULT = "glass", GLASS_RIM = "rim", GLASS_HALO = "halo";
-    /** Show each rotating wallpaper's name from wallpapers/captions.txt (config.xml / theme wallpaper_captions). */
-    final boolean wallpaperCaptions;
     /** Answer VIEW_INPUTS with the Inputs menu (handle_view_inputs); see InputsRequestActivity. */
     final boolean handleViewInputs;
     /** Hold OK on a tile opens a menu (Move, Remove from Home, App info) instead of App info (config.xml / theme tile_menu). */
@@ -361,15 +341,15 @@ final class Config {
                    Map<String, String> appBanners, String sourcePanelService, String sourcePanelAction,
                    String sourcePanelExtra, boolean coocaaSources, String inputAction, List<String> inputSources,
                    String inputUriScheme, int columns, int rowsBelowDock, boolean animations, boolean advancedEffects,
-                   boolean shamsiDate, String greetingName, boolean moduleCards, boolean reducedMotion, boolean bootToLiveTv, boolean openOnStartChoice, boolean dockTitle, boolean dockRow, boolean topMenu, boolean launcherSettingsButton, boolean reorderButton, boolean showNetworkPill, boolean showInputsPill, boolean iconOnlyButtons, boolean iconOnlyInputs, boolean libraryButton, boolean showLibraryPill, int wifiLabelWidth, boolean alwaysShowNames, boolean wallpaperTrueColor, boolean focusOvershoot, String vpnApp,
-                   boolean showHomeSettingsShortcut, boolean showStats, String gameDay, boolean appLibrary, boolean appLibrarySelection, boolean libraryOkOpens, int libraryColumns, boolean pillLabelsOnFocus, boolean tvSettingsFirst, boolean settingsPanel, boolean shelfEveryRow, boolean uniformRows, boolean heroFeed, boolean themeHeroFeed, int heroFeedInterval, int rowGap, int heroHeight, int themeHeroHeight, boolean dateTwoLines, List<String> widgets, List<String> themeWidgets, boolean uniformTiles, int backgroundColor, int skyIntensity,
-                   int[] settingsKeycodes, boolean settingsKeyPanel, boolean restoreKeyServices, boolean wallpaperEnabled, File wallpaper, List<File> wallpapers,
-                   int wallpaperRotationMinutes, int wallpaperDim, int dockOpacity, String wallpaperOrder, boolean overlayApplied,
-                   Festival festival, int[] inputKeycodes, List<String> appKeys, String stockHomeRedirect,
-                   List<RaceWeekend.Race> raceCalendar, boolean cinematicHome, boolean ambientGlow, boolean appGlow, boolean fadeRows, int homeIdleClockMinutes,
-                   boolean keyFilter, boolean dockGlass, String glowStyle, boolean wallpaperCaptions,
+                   String greetingName, boolean moduleCards, boolean reducedMotion, boolean bootToLiveTv, boolean openOnStartChoice, boolean dockTitle, boolean dockRow, boolean topMenu, boolean launcherSettingsButton, boolean reorderButton, boolean showNetworkPill, boolean showInputsPill, boolean iconOnlyButtons, boolean iconOnlyInputs, boolean libraryButton, boolean showLibraryPill, int wifiLabelWidth, boolean alwaysShowNames, boolean wallpaperTrueColor, boolean focusOvershoot, String vpnApp,
+                   boolean showHomeSettingsShortcut, boolean appLibrary, boolean appLibrarySelection, boolean libraryOkOpens, int libraryColumns, boolean pillLabelsOnFocus, boolean tvSettingsFirst, boolean settingsPanel, boolean shelfEveryRow, boolean uniformRows, boolean heroFeed, boolean themeHeroFeed, int heroFeedInterval, int rowGap, int heroHeight, int themeHeroHeight, boolean dateTwoLines, boolean widgets, boolean themeWidgets, boolean uniformTiles, int backgroundColor,
+                   int[] settingsKeycodes, boolean settingsKeyPanel, boolean restoreKeyServices, boolean wallpaperEnabled, File wallpaper,
+                   int wallpaperDim, int dockOpacity, boolean overlayApplied,
+                   int[] inputKeycodes, List<String> appKeys, String stockHomeRedirect,
+                   boolean cinematicHome, boolean ambientGlow, boolean appGlow, boolean fadeRows, int homeIdleClockMinutes,
+                   boolean keyFilter, boolean dockGlass, String glowStyle,
                    boolean handleViewInputs, boolean tileMenu, boolean dockEvenPadding, boolean dockBand, boolean cinematicDots, boolean cinematicWhiteFocus, boolean wifiStatusColor, int cinematicScrim, int cinematicArt,
-                   Map<String, Set<String>> wallpaperMoods, boolean gamepadPassthrough, boolean consumeVolumeKeys, boolean powerOnHome, boolean homeLongPressHome, boolean wifiStatusWarnings, List<String> topBarApps, boolean showGreeting, boolean headerWhite, boolean clockWallpaper, int clockWallpaperDim, boolean clockGlow, String glassStyle, boolean singleRow, boolean dockBandAll, boolean lunarDate, int lunarUtcOffset, boolean dateBelowClock, boolean vpnPill, String locale, boolean powerOnHomeAlways, boolean inputsConnectedOnly, boolean inputsCecStateOnly,
+                   boolean gamepadPassthrough, boolean consumeVolumeKeys, boolean powerOnHome, boolean homeLongPressHome, boolean wifiStatusWarnings, List<String> topBarApps, boolean showGreeting, boolean headerWhite, boolean clockWallpaper, int clockWallpaperDim, boolean clockGlow, String glassStyle, boolean singleRow, boolean dockBandAll, boolean dateBelowClock, boolean vpnPill, String locale, boolean powerOnHomeAlways, boolean inputsConnectedOnly, boolean inputsCecStateOnly,
                    int openOnStartNetworkWait, boolean openOnStartOnWake, boolean iconOnlyVpn, String clockFormat, boolean backOpensClock, boolean glowSnap) {
         this.handleViewInputs = handleViewInputs;
         this.tileMenu = tileMenu;
@@ -399,9 +379,6 @@ final class Config {
         this.rowsBelowDock = rowsBelowDock;
         this.animations = animations;
         this.advancedEffects = advancedEffects;
-        this.shamsiDate = shamsiDate;
-        this.lunarDate = lunarDate;
-        this.lunarUtcOffset = lunarUtcOffset;
         this.dateBelowClock = dateBelowClock;
         this.vpnPill = vpnPill;
         this.locale = locale;
@@ -430,8 +407,6 @@ final class Config {
         this.focusOvershoot = focusOvershoot;
         this.vpnApp = vpnApp;
         this.showHomeSettingsShortcut = showHomeSettingsShortcut;
-        this.showStats = showStats;
-        this.gameDay = gameDay;
         this.appLibrary = appLibrary;
         this.appLibrarySelection = appLibrarySelection;
         this.libraryOkOpens = libraryOkOpens;
@@ -448,24 +423,18 @@ final class Config {
         this.heroHeight = heroHeight;
         this.themeHeroHeight = themeHeroHeight;
         this.dateTwoLines = dateTwoLines;
-        this.widgets = Collections.unmodifiableList(widgets);
-        this.themeWidgets = Collections.unmodifiableList(themeWidgets);
+        this.widgets = widgets;
+        this.themeWidgets = themeWidgets;
         this.uniformTiles = uniformTiles;
         this.backgroundColor = backgroundColor;
-        this.skyIntensity = skyIntensity;
         this.settingsKeycodes = settingsKeycodes;
         this.settingsKeyPanel = settingsKeyPanel;
         this.restoreKeyServices = restoreKeyServices;
         this.wallpaperEnabled = wallpaperEnabled;
         this.wallpaper = wallpaper;
-        this.wallpapers = Collections.unmodifiableList(wallpapers);
-        this.wallpaperRotationMinutes = wallpaperRotationMinutes;
         this.wallpaperDim = wallpaperDim;
         this.dockOpacity = dockOpacity;
-        this.wallpaperOrder = wallpaperOrder;
         this.overlayApplied = overlayApplied;
-        this.festival = festival;
-        this.raceCalendar = Collections.unmodifiableList(raceCalendar);
         this.cinematicHome = cinematicHome;
         this.ambientGlow = ambientGlow;
         this.appGlow = appGlow;
@@ -479,7 +448,6 @@ final class Config {
         this.wifiStatusColor = wifiStatusColor;
         this.cinematicArt = cinematicArt;
         this.cinematicScrim = cinematicScrim;
-        this.wallpaperMoods = wallpaperMoods;
         this.gamepadPassthrough = gamepadPassthrough;
         this.consumeVolumeKeys = consumeVolumeKeys;
         this.powerOnHome = powerOnHome;
@@ -500,7 +468,6 @@ final class Config {
         this.singleRow = singleRow;
         this.dockBandAll = dockBandAll;
         this.glowStyle = glowStyle(glowStyle);
-        this.wallpaperCaptions = wallpaperCaptions;
         this.glassStyle = glassStyle(glassStyle);
     }
 
@@ -546,9 +513,6 @@ final class Config {
         int rowsBelow = res.getInteger(R.integer.rows_below_dock);
         boolean animations = res.getBoolean(R.bool.animations);
         boolean advancedEffects = res.getBoolean(R.bool.advanced_effects);
-        boolean shamsi = res.getBoolean(R.bool.shamsi_date);
-        boolean lunar = res.getBoolean(R.bool.lunar_date);
-        int lunarOffset = -1;
         String greetingName = res.getString(R.string.greeting_name).trim();
         boolean moduleCards = res.getBoolean(R.bool.module_cards);
         boolean reducedMotion = res.getBoolean(R.bool.reduced_motion);
@@ -574,12 +538,9 @@ final class Config {
         boolean alwaysShowNames = res.getBoolean(R.bool.always_show_names);
         boolean wallpaperTrueColor = res.getBoolean(R.bool.wallpaper_true_color);
         boolean focusOvershoot = res.getBoolean(R.bool.focus_overshoot);
-        boolean wallpaperCaptions = res.getBoolean(R.bool.wallpaper_captions);
         boolean tileMenu = res.getBoolean(R.bool.tile_menu);
         String vpn = res.getString(R.string.vpn_app).trim();
         boolean homeSettings = res.getBoolean(R.bool.show_home_settings_shortcut);
-        boolean showStats = res.getBoolean(R.bool.show_stats);
-        String gameDay = res.getString(R.string.game_day).trim();
         boolean library = res.getBoolean(R.bool.app_library);
         boolean librarySelection = res.getBoolean(R.bool.app_library_selection);
         boolean libraryOkOpens = res.getBoolean(R.bool.library_ok_opens);
@@ -594,10 +555,9 @@ final class Config {
         int rowGap = res.getInteger(R.integer.row_gap);
         int heroHeight = res.getInteger(R.integer.hero_height);
         boolean dateTwoLines = res.getBoolean(R.bool.date_two_lines);
-        List<String> widgets = new ArrayList<>(Arrays.asList(res.getStringArray(R.array.widgets)));
+        boolean widgets = res.getBoolean(R.bool.widgets);
         boolean uniformTiles = res.getBoolean(R.bool.uniform_tiles);
         int background = 0xFF000000;
-        int skyIntensity = res.getInteger(R.integer.sky_intensity);
         int[] settingsKeycodes = res.getIntArray(R.array.settings_key_keycodes);
         boolean settingsKeyPanel = res.getBoolean(R.bool.settings_key_panel);
         boolean restoreKeyServices = res.getBoolean(R.bool.restore_key_services);
@@ -627,7 +587,6 @@ final class Config {
         boolean wifiStatusColor = res.getBoolean(R.bool.wifi_status_color);
         int cinematicArt = res.getInteger(R.integer.cinematic_art);
         int cinematicScrim = res.getInteger(R.integer.cinematic_scrim);
-        Map<String, Set<String>> wallpaperMoods = moods(res.getString(R.string.wallpaper_moods));
         String glowStyle = res.getString(R.string.glow_style);
         boolean wifiStatusWarnings = res.getBoolean(R.bool.wifi_status_warnings);
         boolean dateBelowClock = res.getBoolean(R.bool.date_below_clock);
@@ -650,6 +609,7 @@ final class Config {
         JSONObject json = readOverlay(ctx, file, mounted);
         if (json != null) {
             applied = true;
+            logIgnoredKeys(json);
             dock = stringList(json, "dock_apps", dock);
             fillDock = bool(json, "fill_dock", fillDock);
             hidden = stringList(json, "hidden_apps", hidden);
@@ -672,9 +632,6 @@ final class Config {
             rowsBelow = integer(json, "rows_below_dock", rowsBelow, 0, 3);
             animations = bool(json, "animations", animations);
             advancedEffects = bool(json, "advanced_effects", advancedEffects);
-            shamsi = bool(json, "shamsi_date", shamsi);
-            lunar = bool(json, "lunar_date", lunar);
-            lunarOffset = integer(json, "lunar_utc_offset", lunarOffset, -1, 14);
             greetingName = string(json, "greeting_name", greetingName).trim();
             moduleCards = bool(json, "module_cards", moduleCards);
             reducedMotion = bool(json, "reduced_motion", reducedMotion);
@@ -700,12 +657,9 @@ final class Config {
             alwaysShowNames = bool(json, "always_show_names", alwaysShowNames);
             wallpaperTrueColor = bool(json, "wallpaper_true_color", wallpaperTrueColor);
             focusOvershoot = bool(json, "focus_overshoot", focusOvershoot);
-            wallpaperCaptions = bool(json, "wallpaper_captions", wallpaperCaptions);
             tileMenu = bool(json, "tile_menu", tileMenu);
             vpn = string(json, "vpn_app", vpn);
             homeSettings = bool(json, "show_home_settings_shortcut", homeSettings);
-            showStats = bool(json, "show_stats", showStats);
-            gameDay = string(json, "game_day", gameDay);
             library = bool(json, "app_library", library);
             librarySelection = bool(json, "app_library_selection", librarySelection);
             libraryOkOpens = bool(json, "library_ok_opens", libraryOkOpens);
@@ -720,10 +674,9 @@ final class Config {
             rowGap = integer(json, "row_gap", rowGap, 29, 90);  // 29 is AppAdapter.MIN_ROW_GAP_DP
             heroHeight = heroHeightKey(integer(json, "hero_height", heroHeight, Integer.MIN_VALUE, Integer.MAX_VALUE), heroHeight);
             dateTwoLines = bool(json, "date_two_lines", dateTwoLines);
-            widgets = stringList(json, "widgets", widgets);
+            widgets = widgetsKey(json, widgets);
             uniformTiles = bool(json, "uniform_tiles", uniformTiles);
             background = color(json, "background_color", background);
-            skyIntensity = integer(json, "sky_intensity", skyIntensity, 0, 100);
             settingsKeycodes = intArray(json, "settings_key_keycodes", settingsKeycodes);
             settingsKeyPanel = bool(json, "settings_key_panel", settingsKeyPanel);
             restoreKeyServices = bool(json, "restore_key_services", restoreKeyServices);
@@ -753,8 +706,6 @@ final class Config {
             wifiStatusColor = bool(json, "wifi_status_color", wifiStatusColor);
             cinematicArt = integer(json, "cinematic_art", cinematicArt, 0, 100);
             cinematicScrim = integer(json, "cinematic_scrim", cinematicScrim, 0, 100);
-            JSONObject moods = json.optJSONObject("wallpaper_moods");
-            if (moods != null) wallpaperMoods = moods(moods);
             wifiStatusWarnings = bool(json, "wifi_status_warnings", wifiStatusWarnings);
             dateBelowClock = bool(json, "date_below_clock", dateBelowClock);
             vpnPill = bool(json, "vpn_pill", vpnPill);
@@ -795,9 +746,10 @@ final class Config {
         heroFeed = chosenHeroFeed(choices.getInt(HERO_FEED_KEY, -1), heroFeed);
         int themeHeroHeight = heroHeight;
         heroHeight = chosenHeroHeight(choices.getInt(HERO_HEIGHT_KEY, -1), heroHeight, heroFeed);
-        // The Widgets tick list over the theme's key; both are kept to the three chips, in the bar's order.
-        List<String> themeWidgets = widgetList(widgets);
-        widgets = chosenWidgets(choices.getStringSet(WIDGETS_KEY, null), themeWidgets);
+        // The System bars toggle over the theme's key. An older launcher saved the Widgets tick list as a string set
+        // under the same key; that is read once more and migrated (chosenWidgets).
+        boolean themeWidgets = widgets;
+        widgets = chosenWidgets(choices, themeWidgets);
         animations = choices.getBoolean("animations", animations);
         // advanced_effects is the theme's alone: the Animations setting gates it (readers test animations && advancedEffects).
         File wallpaper = dir != null ? new File(dir, WALLPAPER_NAME) : null;
@@ -805,81 +757,25 @@ final class Config {
         // A theme can also switch the wallpaper off while the file is still there.
         boolean wallpaperEnabled = json == null || bool(json, "wallpaper", true);
         if (!wallpaperEnabled) wallpaper = null;
-        int rotationMinutes = json == null ? 0 : integer(json, "wallpaper_rotation_minutes", 0, 0, 1440);
         int wallpaperDim = json == null ? 0 : integer(json, "wallpaper_dim", 0, 0, 90);
         int dockOpacity = json == null ? 100 : integer(json, "dock_opacity", 100, 30, 100);
         dockOpacity = chosenDockOpacity(choices.getInt(DOCK_OPACITY_KEY, -1), dockOpacity);
         clockFormat = choices.getString(CLOCK_FORMAT_KEY, clockFormat);
-        String wallpaperOrder = json == null ? WallpaperRotation.ORDER_SHUFFLE
-                : string(json, "wallpaper_order", WallpaperRotation.ORDER_SHUFFLE);
-        // An unknown order must not silently change how an existing collection rotates.
-        if (!WallpaperRotation.validOrder(wallpaperOrder)) wallpaperOrder = WallpaperRotation.ORDER_SHUFFLE;
-        List<File> wallpapers = new ArrayList<>();
-        if (rotationMinutes > 0 && dir != null && wallpaperEnabled) {
-            wallpapers.addAll(WallpaperRotation.images(new File(dir, "wallpapers")));
-        }
-        if (wallpapers.isEmpty() && wallpaper != null) wallpapers.add(wallpaper);
-        // An on-TV wallpaper pick overrides the theme: a filename from the wallpapers/
-        // collection, or "none". Unset means the theme decides (off by default).
-        String wallpaperChoice = choices.getString(WALLPAPER_CHOICE_KEY, null);
-        List<File> chosen = WallpaperRotation.chosen(dir == null ? Collections.emptyList()
-                : WallpaperRotation.images(new File(dir, "wallpapers")), wallpaper, wallpaperChoice);
-        if (chosen != null) {
-            wallpapers.clear();
-            wallpapers.addAll(chosen);
-            wallpaper = chosen.isEmpty() ? null : chosen.get(0);
-            wallpaperEnabled = !chosen.isEmpty();
-        }
-        // A festive skin comes only from a theme; config.xml has no festival. seasonal_skin names one the same way
-        // but launchers before it ignore the key, so a theme can carry it without older ones showing the diya skin.
-        Festival festival = json == null ? Festival.NONE : Festival.parse(festivalName(json),
-                string(json, "festival_until", ""), string(json, "greeting", ""), string(json, "accent_color", ""));
-
         return new Config(dock, fillDock, hidden, libraryApps, libraryExcludedApps, liveTv, liveTvAction, liveTvInputId, packageMap(launchActions), packageMap(appLabels),
                 packageMap(appBanners), panelService, panelAction, panelExtra, coocaaSources, inputAction, inputSources, inputUriScheme, Math.max(1, columns),
-                Math.max(0, rowsBelow), animations, advancedEffects, shamsi, greetingName, moduleCards, reducedMotion, bootToLiveTv,
+                Math.max(0, rowsBelow), animations, advancedEffects, greetingName, moduleCards, reducedMotion, bootToLiveTv,
                 openOnStartChoice, dockTitle, dockRow, topMenu, launcherSettingsButton, reorderButton, showNetworkPill, showInputsPill,
                 iconOnlyButtons, iconOnlyInputs, libraryButton, showLibraryPill, wifiLabelWidth, alwaysShowNames, wallpaperTrueColor, focusOvershoot,
-                vpn, homeSettings, showStats, gameDay, library, librarySelection, libraryOkOpens, libraryColumns, pillLabelsOnFocus, tvSettingsFirst, settingsPanel, shelfEveryRow, uniformRows, heroFeed, themeHeroFeed, heroFeedInterval, rowGap, heroHeight, themeHeroHeight, dateTwoLines, widgets, themeWidgets, uniformTiles, background,
-                Math.max(0, Math.min(100, skyIntensity)), settingsKeycodes, settingsKeyPanel, restoreKeyServices, wallpaperEnabled, wallpaper,
-                wallpapers, rotationMinutes, wallpaperDim, dockOpacity, wallpaperOrder, applied, festival, inputKeycodes, appKeys, stockHomeRedirect,
-                json == null ? Collections.emptyList() : raceCalendar(json), cinematic, ambientGlow, appGlow, fadeRows,
-                Math.max(0, idleClockMinutes), keyFilter, dockGlass, glowStyle, wallpaperCaptions, handleViewInputs, tileMenu, dockEvenPadding,
-                dockBand, cinematicDots, cinematicWhiteFocus, wifiStatusColor, cinematicScrim, cinematicArt, wallpaperMoods, gamepadPassthrough,
+                vpn, homeSettings, library, librarySelection, libraryOkOpens, libraryColumns, pillLabelsOnFocus, tvSettingsFirst, settingsPanel, shelfEveryRow, uniformRows, heroFeed, themeHeroFeed, heroFeedInterval, rowGap, heroHeight, themeHeroHeight, dateTwoLines, widgets, themeWidgets, uniformTiles, background,
+                settingsKeycodes, settingsKeyPanel, restoreKeyServices, wallpaperEnabled, wallpaper,
+                wallpaperDim, dockOpacity, applied, inputKeycodes, appKeys, stockHomeRedirect,
+                cinematic, ambientGlow, appGlow, fadeRows,
+                Math.max(0, idleClockMinutes), keyFilter, dockGlass, glowStyle, handleViewInputs, tileMenu, dockEvenPadding,
+                dockBand, cinematicDots, cinematicWhiteFocus, wifiStatusColor, cinematicScrim, cinematicArt, gamepadPassthrough,
                 consumeVolumeKeys, powerOnHome, homeLongPressHome, wifiStatusWarnings, topBarApps, showGreeting, headerWhite, clockWallpaper,
-                Math.max(0, Math.min(90, clockWallpaperDim)), clockGlow, glassStyle, singleRow && dockRow, dockBandAll, lunar, lunarOffset,
+                Math.max(0, Math.min(90, clockWallpaperDim)), clockGlow, glassStyle, singleRow && dockRow, dockBandAll,
                 dateBelowClock, vpnPill, locale, powerOnHomeAlways, inputsConnectedOnly, inputsCecStateOnly,
                 Math.max(0, Math.min(600, openOnStartNetworkWait)), openOnStartOnWake, iconOnlyVpn, clockFormat, backOpensClock, glowSnap);
-    }
-
-    /**
-     * {@code "race_calendar": [{"round": 18, "name": "United States Grand Prix", "place": "Austin",
-     * "sessions": [{"name": "FP1", "start": "2026-10-23T17:30:00Z"}, ...]}, ...]}. A race or session that does
-     * not parse is left out on its own; the rest of the calendar still counts.
-     */
-    private static List<RaceWeekend.Race> raceCalendar(JSONObject json) {
-        List<RaceWeekend.Race> races = new ArrayList<>();
-        JSONArray list = json.optJSONArray("race_calendar");
-        if (list == null) return races;
-        for (int i = 0; i < list.length(); i++) {
-            JSONObject r = list.optJSONObject(i);
-            JSONArray sessions = r == null ? null : r.optJSONArray("sessions");
-            if (sessions == null) continue;
-            List<RaceWeekend.Session> parsed = new ArrayList<>();
-            for (int j = 0; j < sessions.length(); j++) {
-                JSONObject s = sessions.optJSONObject(j);
-                if (s == null) continue;
-                String name = s.optString("name", "").trim();
-                try {
-                    if (!name.isEmpty()) parsed.add(new RaceWeekend.Session(name, java.time.Instant.parse(s.optString("start", ""))));
-                } catch (java.time.format.DateTimeParseException ignored) {
-                    // a session without a readable start time cannot be counted down
-                }
-            }
-            if (!parsed.isEmpty()) races.add(new RaceWeekend.Race(r.optInt("round", 0),
-                    r.optString("name", "Grand Prix").trim(), r.optString("place", "").trim(), parsed));
-        }
-        return races;
     }
 
     /**
@@ -901,12 +797,12 @@ final class Config {
             // explicit theme push or reset by the updated tools.
             SharedPreferences.Editor editor = choices.edit();
             if (!"absent".equals(token)) editor.remove("columns").remove("animations")
-                    .remove(ROWS_BELOW_DOCK_KEY).remove(WALLPAPER_CHOICE_KEY)
+                    .remove(ROWS_BELOW_DOCK_KEY)
                     .remove(DOCK_OPACITY_KEY).remove(CLOCK_FORMAT_KEY).remove(HERO_HEIGHT_KEY).remove(HERO_FEED_KEY).remove(WIDGETS_KEY);
             editor.putString(THEME_SIGNATURE_KEY, signature).commit();
         } else if (!seen.equals(signature)) {
             choices.edit().remove("columns").remove("animations")
-                    .remove(ROWS_BELOW_DOCK_KEY).remove(WALLPAPER_CHOICE_KEY).remove(DOCK_OPACITY_KEY)
+                    .remove(ROWS_BELOW_DOCK_KEY).remove(DOCK_OPACITY_KEY)
                     .remove(CLOCK_FORMAT_KEY).remove(HERO_HEIGHT_KEY).remove(HERO_FEED_KEY).remove(WIDGETS_KEY)
                     .putString(THEME_SIGNATURE_KEY, signature).commit();
         }
@@ -952,18 +848,55 @@ final class Config {
     }
 
     /**
-     * The chips in force: the saved tick list when there is one (an empty set is a saved none), else the theme's
-     * widgets key; either way only the three names count, in WIDGET_NAMES order, each once.
+     * The bars in force: the System bars toggle (WIDGETS_KEY, 1 on, 0 off) when one is saved, else the theme's key.
+     * A tick list an older launcher saved under the same key (a string set of chip names) is migrated on the way:
+     * non-empty reads as on, empty as off, and the choice is written back as the int so the set is read only once.
      */
-    static List<String> chosenWidgets(Set<String> chosen, List<String> theme) {
-        return chosen != null ? widgetList(new ArrayList<>(chosen)) : theme;
+    static boolean chosenWidgets(SharedPreferences choices, boolean theme) {
+        if (!choices.contains(WIDGETS_KEY)) return theme;
+        try {
+            return chosenWidgets(choices.getInt(WIDGETS_KEY, -1), theme);
+        } catch (ClassCastException legacy) {
+            Set<String> ticks = choices.getStringSet(WIDGETS_KEY, null);
+            boolean on = ticks != null && !ticks.isEmpty();
+            choices.edit().putInt(WIDGETS_KEY, on ? 1 : 0).apply();
+            if (Log.isLoggable(TAG, Log.INFO)) Log.i(TAG, "migrated the widgets tick list to System bars " + (on ? "on" : "off"));
+            return on;
+        }
     }
 
-    /** {@code names} kept to WIDGET_NAMES, in that order, each once; other words are dropped. */
-    static List<String> widgetList(List<String> names) {
-        List<String> out = new ArrayList<>();
-        for (String name : WIDGET_NAMES) if (names.contains(name)) out.add(name);
-        return out;
+    /** The System bars toggle: 1 is on, 0 off, anything else leaves the theme's widgets. */
+    static boolean chosenWidgets(int chosen, boolean theme) {
+        return chosen == 1 || (chosen != 0 && theme);
+    }
+
+    /**
+     * A theme's {@code widgets}: a boolean as the Keys table has it, or the array of chip names older themes wrote
+     * ({@code ["memory", "cpu", "storage"]}), which reads as on when it names anything and off when empty; anything
+     * else keeps {@code fallback}.
+     */
+    static boolean widgetsKey(JSONObject o, boolean fallback) {
+        Object v = o.opt("widgets");
+        if (v instanceof Boolean) return (Boolean) v;
+        if (v instanceof JSONArray) {
+            boolean on = ((JSONArray) v).length() > 0;
+            if (Log.isLoggable(TAG, Log.INFO)) Log.i(TAG, "widgets is a boolean now; the chip list reads as " + (on ? "true" : "false"));
+            return on;
+        }
+        return fallback;
+    }
+
+    /** One {@code Log.i} per {@link #IGNORED_KEYS} entry the theme still carries (ADR-008). */
+    static List<String> ignoredKeys(JSONObject o) {
+        List<String> found = new ArrayList<>();
+        for (String key : IGNORED_KEYS) if (o.has(key)) found.add(key);
+        return found;
+    }
+
+    private static void logIgnoredKeys(JSONObject o) {
+        for (String key : ignoredKeys(o)) {
+            if (Log.isLoggable(TAG, Log.INFO)) Log.i(TAG, "ignored key " + key + ": that feature is not in this launcher");
+        }
     }
 
     /** A theme's hero_height value: 0 (auto) or 50 to 130; anything else keeps {@code fallback}. */
@@ -1027,41 +960,9 @@ final class Config {
         }
     }
 
-    /** wallpaper_moods as JSON text (config.xml); empty or unreadable is no groups. */
-    private static Map<String, Set<String>> moods(String text) {
-        if (text.trim().isEmpty()) return Collections.emptyMap();
-        try {
-            return moods(new JSONObject(text));
-        } catch (JSONException e) {
-            return Collections.emptyMap();
-        }
-    }
-
-    /** {"night": ["03-moon-lake.jpg", ...], ...}: each mood's picture names; other keys and names are left out. */
-    private static Map<String, Set<String>> moods(JSONObject o) {
-        Map<String, Set<String>> groups = new HashMap<>();
-        for (String mood : WallpaperMood.ALL) {
-            JSONArray names = o.optJSONArray(mood);
-            if (names == null) continue;
-            Set<String> group = new HashSet<>();
-            for (int i = 0; i < names.length(); i++) {
-                String name = names.optString(i, "").trim();
-                if (ThemeFiles.collectionImage(name)) group.add(name);
-            }
-            if (!group.isEmpty()) groups.put(mood, Collections.unmodifiableSet(group));
-        }
-        return Collections.unmodifiableMap(groups);
-    }
-
     private static String string(JSONObject o, String key, String fallback) {
         Object v = o.opt(key);
         return v instanceof String ? ((String) v).trim() : fallback;
-    }
-
-    /** The theme's festival: {@code festival}, or {@code seasonal_skin} when that is empty or missing. */
-    static String festivalName(JSONObject o) {
-        String name = string(o, "festival", "");
-        return name.isEmpty() ? string(o, "seasonal_skin", "") : name;
     }
 
     private static boolean bool(JSONObject o, String key, boolean fallback) {

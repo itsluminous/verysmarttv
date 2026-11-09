@@ -10,14 +10,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 /**
- * Lets tools/theme.sh write the theme files into {@link Config#dir} on firmware where the adb shell is
+ * Lets the setup tool write the theme files into {@link Config#dir} on firmware where the adb shell is
  * locked out of Android/data (TCL G07, Android 11). Only the files {@link ThemeFiles} allows, and only for
  * callers holding WRITE_SECURE_SETTINGS, which the adb shell has and ordinary apps cannot get.
  *
  *   content write --uri content://com.itsluminous.verysmarttv.theme/config.json < /data/local/tmp/config.json
- *   content write --uri content://com.itsluminous.verysmarttv.theme/wallpapers/dusk.jpg < /data/local/tmp/dusk.jpg
+ *   content write --uri content://com.itsluminous.verysmarttv.theme/wallpaper.jpg < /data/local/tmp/wallpaper.jpg
  *   content delete --uri content://com.itsluminous.verysmarttv.theme/config.json
- *   content delete --uri content://com.itsluminous.verysmarttv.theme/wallpapers      (every image in the collection)
  */
 public class ThemeProvider extends ContentProvider {
 
@@ -43,13 +42,6 @@ public class ThemeProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        File dir = Config.dir(getContext());
-        if (dir != null && ThemeFiles.isCollection(uri.getPathSegments())) {
-            File[] images = new File(dir, ThemeFiles.WALLPAPERS).listFiles((d, name) -> ThemeFiles.collectionImage(name));
-            int n = 0;
-            if (images != null) for (File f : images) if (f.delete()) n++;
-            return n;
-        }
         try {
             return file(uri).delete() ? 1 : 0;
         } catch (FileNotFoundException e) {

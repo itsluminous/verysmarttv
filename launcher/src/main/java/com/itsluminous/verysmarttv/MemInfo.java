@@ -1,6 +1,6 @@
 package com.itsluminous.verysmarttv;
 
-/** show_stats' memory figure from the lines of /proc/meminfo. */
+/** The RAM figure from the lines of /proc/meminfo: what the System bars' RAM row shows (DESIGN.md §9.1). */
 final class MemInfo {
     private MemInfo() {}
 

@@ -1,7 +1,6 @@
 # Trakt shelf (`:traktshelf`, `com.itsluminous.traktshelf`)
 
-The Trakt companion of VerySmartTV, carried from the owner's CleanYourTV fork (see
-[THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)). Your Trakt account on the TV, in the launcher's language: a slate home with **Up next**, **Recommended
+The Trakt companion of VerySmartTV (its origin is in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)). Your Trakt account on the TV, in the launcher's language: a slate home with **Up next**, **Recommended
 shows**, **Recommended movies**, **Watchlist · Shows**, **Watchlist · Movies**, **Trending** and **Recently
 watched** as rows of posters, the
 focused title named in large type over its backdrop with IMDb, Rotten Tomatoes and Trakt ratings, and a details

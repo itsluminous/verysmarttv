@@ -249,13 +249,8 @@
          still step). A theme's config.json can set it too. Off by default. -->
     <bool name="home_long_press_home">false</bool>
 
-    <!-- Show the Solar Hijri (Shamsi) date used in Iran and Afghanistan, e.g. "27 Mehr 1405", above the
-         Gregorian date. -->
-    <bool name="shamsi_date">false</bool>
-    <!-- Lunisolar (Vietnamese / Chinese / Korean) date under the date; config.json lunar_date, lunar_utc_offset (7, 8 or 9, default by locale). -->
-    <bool name="lunar_date">false</bool>
-    <!-- The date (with the Shamsi and lunar lines) on its own line under the clock instead of beside it, for a top bar
-         whose pills leave the date too little room. Can also be set with "date_below_clock" in a theme. -->
+    <!-- The date on its own line under the clock instead of beside it, for a top bar whose pills leave the date too
+         little room. Can also be set with "date_below_clock" in a theme. -->
     <bool name="date_below_clock">false</bool>
     <!-- The language the launcher shows itself in, as a language tag ("vi", "pt-BR", "ar-EG-u-nu-latn"
          for Arabic with Western digits), instead of the TV's. For firmware
@@ -370,17 +365,6 @@
     <!-- Wallpapers decode as RGB_565 (2 bytes a pixel, 4 MB at 1080p), which bands dark gradients such as a night
          sky, most of all under wallpaper_dim. true decodes them in 32-bit colour: 8 MB, for TVs with 2 GB or more. -->
     <bool name="wallpaper_true_color">false</bool>
-    <!-- Rotating wallpapers: show each picture's name under the top-right buttons, from a captions.txt next to the
-         pictures in wallpapers/ ("01-dusk.jpg<TAB>Dusk over the peaks", one per line). A picture without a line
-         shows no name. Can also be set with "wallpaper_captions": true in a theme's config.json. -->
-    <bool name="wallpaper_captions">false</bool>
-    <!-- Rotating wallpapers grouped by the time of day, as JSON: {"morning": [file names], "evening": [...],
-         "night": [...]}. While set, the rotation picks only from the group that fits now: morning from sunrise to
-         noon, evening until half an hour after sunset, night the rest, with the sun at latitude and longitude (07:00
-         and 18:30 without them). It moves to the new group as soon as the time of day changes. A missing or empty
-         group falls back to the whole collection; empty rotates through every picture. A theme can set
-         "wallpaper_moods" as an object. -->
-    <string name="wallpaper_moods" translatable="false"></string>
     <!-- Hold OK on a tile opens a small menu: Move (picks the tile up for reordering), Remove from Home (only with
          app_library) and App info. On by default since 3.3; false keeps the old behaviour: holding OK opens the app's
          App info page. A theme's config.json can set "tile_menu" either way. -->
@@ -480,14 +464,13 @@
          ("WEDNESDAY" over "4 NOVEMBER", each from the TV's language's own date patterns), the block centred on the
          clock's height; the line between the clock and the date stays, and the header keeps its height (the two
          14sp lines are shorter than the 52sp clock). Off, the date is the one line date_format gives. Not applied
-         alongside shamsi_date, lunar_date or date_below_clock, whose extra lines would push the header down. A
-         theme can set "date_two_lines": true. -->
+         alongside date_below_clock, whose extra line would push the header down. A theme can set
+         "date_two_lines": true. -->
     <bool name="date_two_lines">false</bool>
-    <!-- widgets: small frosted chips right of the date, each an icon and a figure, in this order: "memory" (RAM free,
-         MB), "cpu" (busy percent) and "storage" (free space on /data). Read every 5 seconds while Home is on screen,
-         like show_stats, and nothing is read while the list is empty. The Widgets tick list in Launcher settings
-         overrides this list on the TV. Empty by default; a theme can set "widgets": ["memory", "cpu", "storage"]. -->
-    <string-array name="widgets" />
+    <!-- widgets: the RAM and Storage bars right of the date (DESIGN.md §9.1; drawn from Phase 3). Off by default; a
+         theme can set "widgets": true, and the System bars row in Launcher settings overrides it on the TV. A theme
+         from before the change may still carry the old array of chip names; it reads as true when non-empty. -->
+    <bool name="widgets">false</bool>
 
     <!-- Apps pre-seeded into the App library's "added" set at startup (config.xml library_apps, or a theme's
          config.json). They show on Home as if the owner had added them in the App library UI, and stay
@@ -522,27 +505,6 @@
          (reduced_motion also removes the overshoot, but scrolls in one jump). Can also be set with
          "focus_overshoot" in a theme's config.json. -->
     <bool name="focus_overshoot">true</bool>
-
-    <!-- One line under the clock: CPU, free memory and free storage. Off by default; a theme can set
-         "show_stats": true. Nothing is read, and the clock does not move, while this is false. -->
-    <bool name="show_stats">false</bool>
-
-    <!-- Each team's next game in the F1 panel's place under the clock, rotating with the theme's F1 weekend: the package
-         of an add-on that publishes them (the Game Day add-on: io.github.justinnewman.gameday; contract in docs/modules.md).
-         Empty = off: nothing is read or watched. The launcher only reads what the add-on publishes and never goes
-         online. A theme can set "game_day". -->
-    <string name="game_day" translatable="false"></string>
-
-    <!-- Time-of-day backdrop behind everything: a dark gradient that follows the clock, with a warm
-         horizon glow around sunrise and sunset. 0 keeps the plain background (the default); 1 to 100
-         sets its opacity. Around 60 reads clearly without hiding a wallpaper. Can also be set with
-         "sky_intensity": 60 in a theme's config.json. -->
-    <integer name="sky_intensity">0</integer>
-    <!-- Where the TV is, in decimal degrees, so the sky's sunrise and sunset glows follow the real sun
-         (computed on the TV, no network). Empty: a fixed temperate day, sunset glow around 19:00.
-         Vilnius: 54.69 and 25.28. -->
-    <string name="latitude" translatable="false"></string>
-    <string name="longitude" translatable="false"></string>
 
     <!-- Cinematic top shelf: the focused dock app's artwork, softened, fills the top of the screen in its
          colour; the shelf gets a larger name, a "Last opened" line (from the apps Home opened) and dock position

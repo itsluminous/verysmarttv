@@ -20,9 +20,6 @@
     <string name="not_available">ทีวีเครื่องนี้ไม่รองรับ</string>
     <string name="cant_open">เปิด %1$s ไม่ได้</string>
     <string name="date_format">EEEE  d MMMM</string>
-    <string name="stats_cpu">CPU %1$d%%</string>
-    <string name="stats_memory">หน่วยความจำ %1$d / %2$d MB</string>
-    <string name="stats_storage">พื้นที่ว่าง %1$s</string>
     <string name="dream_name">นาฬิกา</string>
 
     <string name="launcher_settings">การตั้งค่าหน้าหลัก</string>
@@ -67,7 +64,6 @@
         <item quantity="other">%1$d แอป</item>
     </plurals>
     <string name="greeting_with_name">%1$s %2$s</string>
-    <string name="game_live">กำลังถ่ายทอดสด</string>
     <string name="clock_format_system">ระบบ</string>
     <string name="clock_format_12">12 ชั่วโมง</string>
     <string name="clock_format_24">24 ชั่วโมง</string>

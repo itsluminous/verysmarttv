@@ -169,7 +169,8 @@ final class AppLibraryDialog {
         this.grid = this.columns > 0;
         this.activity = activity;
         this.animations = animations;
-        this.rtl = activity.getResources().getBoolean(R.bool.rtl_app_grid);
+        // supportsRtl: the framework mirrors the layout; the key and scroll arithmetic below follow its direction.
+        this.rtl = activity.getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
         this.reducedMotion = reducedMotion;
         this.selectionMode = selectionMode;
         this.okOpens = okOpens && !selectionMode;
@@ -179,7 +180,6 @@ final class AppLibraryDialog {
         this.excludedApps = excludedApps;
         density = activity.getResources().getDisplayMetrics().density;
         panel = new LinearLayout(activity);
-        panel.setLayoutDirection(rtl ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(12), dp(8), dp(12), dp(12));
         panel.setBackgroundResource(R.drawable.glass_panel);
@@ -377,19 +377,13 @@ final class AppLibraryDialog {
         header.setPadding(dp(12), dp(4), dp(8), dp(4));
         TextView title = text(activity.getString(R.string.app_library), 22, Color.WHITE);
         header.addView(title, new LinearLayout.LayoutParams(0, dp(36), 1));
-        title.setGravity(Gravity.CENTER_VERTICAL | (rtl ? Gravity.RIGHT : Gravity.LEFT));
+        title.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
         title.setSingleLine(true);
         title.setEllipsize(TextUtils.TruncateAt.END);
         TextView count = text(activity.getResources().getQuantityString(
                 R.plurals.library_app_count, totalApps, totalApps), 13, 0xA6FFFFFF);
         count.setSingleLine(true);
         header.addView(count, new LinearLayout.LayoutParams(-2, -2));
-        // The launcher has no global supportsRtl: explicitly mirror this horizontal row.
-        if (rtl) {
-            header.removeView(count);
-            header.addView(count, 0);
-            count.setPadding(0, 0, dp(12), 0);
-        }
         panel.addView(header, new LinearLayout.LayoutParams(-1, dp(44)));
         instructions = text(hint(false), 13, 0xBBFFFFFF);
         instructions.setSingleLine(true);
@@ -409,17 +403,12 @@ final class AppLibraryDialog {
         shelf.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         shelf.setClipChildren(false);
         RecyclerView list = new RecyclerView(activity);
-        list.setLayoutDirection(rtl ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
         catalog = list;
         // Without columns the one horizontal row as before; with them a vertical grid whose item i sits in row
         // i / columns, column i % columns. GridLayoutManager extends LinearLayoutManager, so the casts below still hold.
         list.setLayoutManager(!grid
-                ? new LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false) {
-                    @Override protected boolean isLayoutRTL() { return rtl; }
-                }
-                : new GridLayoutManager(activity, columns, RecyclerView.VERTICAL, false) {
-                    @Override protected boolean isLayoutRTL() { return rtl; }
-                });
+                ? new LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
+                : new GridLayoutManager(activity, columns, RecyclerView.VERTICAL, false));
         list.setItemAnimator(null);
         list.setOverScrollMode(View.OVER_SCROLL_NEVER);
         list.setClipToPadding(false);
@@ -626,8 +615,7 @@ final class AppLibraryDialog {
     private TextView text(String value, int size, int color) {
         TextView view = new TextView(activity);
         view.setText(value);
-        view.setTextDirection(rtl ? View.TEXT_DIRECTION_RTL : View.TEXT_DIRECTION_FIRST_STRONG);
-        view.setGravity(rtl ? Gravity.RIGHT : Gravity.LEFT);
+        view.setGravity(Gravity.START);
         view.setTextSize(size);
         view.setTextColor(color);
         view.setTypeface(UiFont.get(activity, R.string.font_medium));

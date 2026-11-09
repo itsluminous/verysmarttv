@@ -19,9 +19,6 @@
     <string name="offline">Sense connexió</string>
     <string name="not_available">No disponible en aquest televisor</string>
     <string name="cant_open">No s\'ha pogut obrir %1$s</string>
-    <string name="stats_cpu">CPU %1$d%%</string>
-    <string name="stats_memory">Memòria %1$d / %2$d MB</string>
-    <string name="stats_storage">Emmagatzematge %1$s lliure</string>
     <string name="dream_name">Rellotge</string>
     <string name="launcher_settings">Configuració del llançador</string>
     <string name="native_settings">Configuració del fabricant</string>
@@ -70,11 +67,6 @@
     <string name="home_settings">Tria la pantalla d\'inici</string>
     <string name="home_settings_help">Tria la teva pantalla d\'inici original per deixar d\'utilitzar VerySmartTV com a inici, o VerySmartTV per tornar-hi. El llançador original ha d\'estar activat i el televisor ha de tenir un selector de pantalla d\'inici; si l\'havies desactivat, fes servir abans l\'script de restauració.</string>
     <string name="rows_below_dock_label">Files sota el dock</string>
-    <string name="wallpaper_label">Fons de pantalla</string>
-    <string name="wallpaper_state">Fons de pantalla: %1$s</string>
-    <string name="wallpaper_none">Cap</string>
-    <string name="wallpaper_applied">Fons de pantalla canviat</string>
-    <string name="wallpaper_theme_default">El del tema</string>
     <string name="quick_picture">Pantalla</string>
     <string name="quick_network">Xarxa</string>
     <string name="quick_apps">Aplicacions</string>
@@ -101,14 +93,7 @@
     <string name="card_state_new">Nova</string>
     <string name="card_state_new_key">Clau nova</string>
     <string name="card_state_new_label">Nom nou</string>
-    <string name="race_kicker">Ronda %1$d · %2$s · %3$s</string>
-    <string name="race_kicker_no_place">Ronda %1$d · %2$s</string>
-    <string name="race_next">%1$s d\'aquí a %2$s</string>
-    <string name="race_lights_out">Sortida d\'aquí a %1$s</string>
-    <string name="race_live">%1$s · en directe</string>
-    <string name="race_finished">Bandera de quadres</string>
     <string name="last_opened">Obert per últim cop: %1$s</string>
-    <string name="game_live">En directe</string>
     <string name="clock_format_system">Sistema</string>
     <string name="clock_format_12">12 hores</string>
     <string name="clock_format_24">24 hores</string>

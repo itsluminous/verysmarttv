@@ -23,7 +23,6 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -70,8 +69,7 @@ final class SettingsPanel {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setBackgroundColor(PANEL_BG);
         panel.setClickable(true);
-        boolean rtl = activity.getResources().getBoolean(R.bool.rtl_menu_bar);
-        root.addView(panel, new FrameLayout.LayoutParams(dp(360), -1, rtl ? Gravity.START : Gravity.END));
+        root.addView(panel, new FrameLayout.LayoutParams(dp(360), -1, Gravity.END));
 
         title = text(activity.getString(R.string.launcher_settings), 26, Color.WHITE, true);
         title.setPadding(dp(40), dp(36), dp(40), dp(22));
@@ -187,11 +185,15 @@ final class SettingsPanel {
         row(R.drawable.ic_livetv, activity.getString(R.string.dream_name), clockLabels[clockIndex], v ->
                 choose(activity.getString(R.string.dream_name), clockLabels, clockIndex, which ->
                         save(e -> e.putString(Config.CLOCK_FORMAT_KEY, CLOCK_FORMATS[which]))));
-        // Widgets: the Memory, CPU and Storage chips beside the date (a theme's widgets key). A tick list rather than a
-        // picker, each tick saved as it is made; the row and its page show the chips in force, the saved set, else
-        // the theme's (Config.chosenWidgets), and the row names them.
-        List<String> widgetsNow = Config.chosenWidgets(choices.getStringSet(Config.WIDGETS_KEY, null), config.themeWidgets);
-        row(R.drawable.ic_memory, activity.getString(R.string.widgets_label), widgetNames(widgetsNow), v -> showWidgets(0));
+        // System bars: the RAM and Storage bars beside the date (a theme's widgets key, a boolean). A picker like the
+        // Trakt row (On, Off); the row and its picker show the state in force, the saved choice, else the theme's
+        // (Config.chosenWidgets). The bars themselves land in Phase 3 (DESIGN.md §9.1).
+        boolean barsNow = Config.chosenWidgets(choices, config.themeWidgets);
+        row(R.drawable.ic_memory, activity.getString(R.string.widgets_label), onOff(barsNow), v -> {
+            String[] labels = {onOff(true), onOff(false)};
+            choose(activity.getString(R.string.widgets_label), labels, barsNow ? 0 : 1, which ->
+                    save(e -> e.putInt(Config.WIDGETS_KEY, which == 0 ? 1 : 0)));
+        });
 
         // Animations: one switch for all the motion. Off is still, with no zoom, lift or glow; On has the theme's
         // advanced_effects along with it (Config.advancedEffects gates on animations), so there is no Advanced
@@ -286,48 +288,6 @@ final class SettingsPanel {
                 showMain();
             });
             if (i == checked) focus = r;
-        }
-        backHandler = this::showMain;
-        scroller.scrollTo(0, 0);
-        (focus != null ? focus : list.getChildAt(0)).requestFocus();
-    }
-
-    /** "Memory, CPU, Storage" in the bar's order, or None. */
-    private String widgetNames(List<String> on) {
-        if (on.isEmpty()) return activity.getString(R.string.widgets_none);
-        StringBuilder names = new StringBuilder();
-        for (String name : on) {
-            if (names.length() > 0) names.append(", ");
-            names.append(activity.getString(widgetName(name)));
-        }
-        return names.toString();
-    }
-
-    private static int widgetName(String widget) {
-        return Config.WIDGET_CPU.equals(widget) ? R.string.widget_cpu_name
-                : Config.WIDGET_MEMORY.equals(widget) ? R.string.widget_memory_name : R.string.widget_storage_name;
-    }
-
-    /**
-     * The Widgets page: one row per chip with a tick box, Memory, CPU, Storage. OK toggles that chip and saves the set
-     * (an empty set is a saved none, so a theme's chips can all be turned off); the page is drawn again with focus
-     * where it was. Back returns to the main page, whose row then names the chips.
-     */
-    private void showWidgets(int focusAt) {
-        List<String> on = Config.chosenWidgets(choices.getStringSet(Config.WIDGETS_KEY, null), config.themeWidgets);
-        list.removeAllViews();
-        title.setText(R.string.widgets_label);
-        View focus = null;
-        for (int i = 0; i < Config.WIDGET_NAMES.size(); i++) {
-            String name = Config.WIDGET_NAMES.get(i);
-            final int which = i;
-            View r = row(tick(on.contains(name)), activity.getString(widgetName(name)), null, v -> {
-                HashSet<String> next = new HashSet<>(on);
-                if (!next.remove(name)) next.add(name);
-                save(e -> e.putStringSet(Config.WIDGETS_KEY, next));
-                showWidgets(which);
-            });
-            if (i == focusAt) focus = r;
         }
         backHandler = this::showMain;
         scroller.scrollTo(0, 0);
@@ -488,22 +448,6 @@ final class SettingsPanel {
         dot.setColor(CAPTION);
         android.graphics.drawable.LayerDrawable both = new android.graphics.drawable.LayerDrawable(new Drawable[]{ring, dot});
         both.setLayerInset(1, dp(5), dp(5), dp(5), dp(5));
-        return both;
-    }
-
-    /** A tick box: a rounded square ring, filled in the caption blue with a white mark when on. */
-    private Drawable tick(boolean on) {
-        GradientDrawable box = new GradientDrawable();
-        box.setCornerRadius(dp(4));
-        box.setSize(dp(20), dp(20));
-        box.setStroke(dp(2), on ? CAPTION : SUBTITLE);
-        box.setColor(on ? CAPTION : Color.TRANSPARENT);
-        if (!on) return box;
-        GradientDrawable mark = new GradientDrawable();
-        mark.setCornerRadius(dp(1));
-        mark.setColor(Color.WHITE);
-        android.graphics.drawable.LayerDrawable both = new android.graphics.drawable.LayerDrawable(new Drawable[]{box, mark});
-        both.setLayerInset(1, dp(6), dp(6), dp(6), dp(6));
         return both;
     }
 

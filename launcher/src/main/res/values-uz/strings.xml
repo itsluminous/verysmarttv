@@ -20,9 +20,6 @@
     <string name="not_available">Bu televizorda mavjud emas</string>
     <string name="cant_open">%1$s ochilmadi</string>
     <string name="date_format">EEEE  d-MMMM</string>
-    <string name="stats_cpu">Protsessor %1$d%%</string>
-    <string name="stats_memory">Xotira: %1$d / %2$d MB</string>
-    <string name="stats_storage">Disk: %1$s boʻsh</string>
     <string name="dream_name">Soat</string>
     <string name="vpn">VPN</string>
     <string name="vpn_off">VPN oʻchiq</string>
@@ -33,11 +30,6 @@
     <string name="columns_label">Qatordagi ilovalar</string>
     <string name="dock_opacity_label">Dock paneli noshaffofligi</string>
     <string name="rows_below_dock_label">Dock ostidagi qatorlar</string>
-    <string name="wallpaper_label">Fon rasmi</string>
-    <string name="wallpaper_state">Fon rasmi: %1$s</string>
-    <string name="wallpaper_none">Yoʻq</string>
-    <string name="wallpaper_applied">Fon rasmi oʻzgartirildi</string>
-    <string name="wallpaper_theme_default">Mavzu boʻyicha</string>
     <string name="animations_state">Animatsiyalar: %1$s</string>
     <string name="advanced_effects">Qoʻshimcha effektlar</string>
     <string name="advanced_effects_state">Qoʻshimcha effektlar: %1$s</string>
@@ -103,14 +95,7 @@
         <item quantity="other">%1$d ta ilova</item>
     </plurals>
     <string name="greeting_with_name">%1$s, %2$s</string>
-    <string name="race_kicker">%1$d-bosqich · %2$s · %3$s</string>
-    <string name="race_kicker_no_place">%1$d-bosqich · %2$s</string>
-    <string name="race_next">%1$s, %2$s dan soʻng</string>
-    <string name="race_lights_out">Start %1$s dan soʻng</string>
-    <string name="race_live">%1$s · jonli</string>
-    <string name="race_finished">Marra</string>
     <string name="last_opened">Oxirgi marta ochilgan: %1$s</string>
-    <string name="game_live">Hozir jonli</string>
     <string name="clock_format_system">Tizim</string>
     <string name="clock_format_12">12 soatlik</string>
     <string name="clock_format_24">24 soatlik</string>
