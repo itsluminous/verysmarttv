@@ -54,6 +54,12 @@ public final class SettingsChoices {
     public static final String WIDGETS_KEY = "widgets";
 
     /**
+     * The Live scores toggle in Launcher settings: 1 on, 0 off, unset means the theme's score_pill decides. Off leaves
+     * the launcher exactly as with "score_pill": false (no pill, the companion's provider is never read).
+     */
+    public static final String SCORE_PILL_KEY = "score_pill";
+
+    /**
      * A choice older launchers saved from their Advanced effects row. Advanced effects now follow the Animations
      * setting and the theme's advanced_effects key, and this key is dropped wherever it turns up (load, restore):
      * both old Animations rows wrote it false on every toggle, which then outlived turning animations back on.
@@ -102,12 +108,12 @@ public final class SettingsChoices {
             SharedPreferences.Editor editor = choices.edit();
             if (!"absent".equals(token)) editor.remove("columns").remove("animations")
                     .remove(ROWS_BELOW_DOCK_KEY)
-                    .remove(DOCK_OPACITY_KEY).remove(CLOCK_FORMAT_KEY).remove(HERO_HEIGHT_KEY).remove(HERO_FEED_KEY).remove(WIDGETS_KEY);
+                    .remove(DOCK_OPACITY_KEY).remove(CLOCK_FORMAT_KEY).remove(HERO_HEIGHT_KEY).remove(HERO_FEED_KEY).remove(WIDGETS_KEY).remove(SCORE_PILL_KEY);
             editor.putString(THEME_SIGNATURE_KEY, signature).commit();
         } else if (!seen.equals(signature)) {
             choices.edit().remove("columns").remove("animations")
                     .remove(ROWS_BELOW_DOCK_KEY).remove(DOCK_OPACITY_KEY)
-                    .remove(CLOCK_FORMAT_KEY).remove(HERO_HEIGHT_KEY).remove(HERO_FEED_KEY).remove(WIDGETS_KEY)
+                    .remove(CLOCK_FORMAT_KEY).remove(HERO_HEIGHT_KEY).remove(HERO_FEED_KEY).remove(WIDGETS_KEY).remove(SCORE_PILL_KEY)
                     .putString(THEME_SIGNATURE_KEY, signature).commit();
         }
     }
@@ -158,6 +164,11 @@ public final class SettingsChoices {
 
     /** The System bars toggle: 1 is on, 0 off, anything else leaves the theme's widgets. */
     public static boolean chosenWidgets(int chosen, boolean theme) {
+        return chosen == 1 || (chosen != 0 && theme);
+    }
+
+    /** The Live scores toggle (SCORE_PILL_KEY): 1 is on, 0 off, anything else leaves the theme's score_pill. */
+    public static boolean chosenScorePill(int chosen, boolean theme) {
         return chosen == 1 || (chosen != 0 && theme);
     }
 }

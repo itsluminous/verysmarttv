@@ -471,6 +471,13 @@
          theme can set "widgets": true, and the System bars row in Launcher settings overrides it on the TV. A theme
          from before the change may still carry the old array of chip names; it reads as true when non-empty. -->
     <bool name="widgets">false</bool>
+    <!-- score_pill: the live-score pill under the top-right pills (DESIGN.md §9.2): the live-score companion's one
+         /pill row, read through its content provider (docs/providers.md), as "LIVE  T20I · AFG 19/4 (6) v ZIM" with a
+         red dot, or a break's word, an upcoming start time or "FT" in grey. Hidden while that app is not installed, its
+         row says none, or the setting is off. Up from the first row focuses it, Up again Inputs, Down goes back; OK opens
+         the match in that app. Off by default; a theme can set "score_pill": true, and the Live scores row in Launcher
+         settings overrides it on the TV. -->
+    <bool name="score_pill">false</bool>
 
     <!-- Apps pre-seeded into the App library's "added" set at startup (config.xml library_apps, or a theme's
          config.json). They show on Home as if the owner had added them in the App library UI, and stay

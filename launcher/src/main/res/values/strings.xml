@@ -45,6 +45,9 @@
     <!-- hero_feed: the Launcher settings row that turns the Trakt carousel on or off over the theme's key. -->
     <string name="hero_feed_label">Trakt recommendations</string>
     <string name="hero_feed_not_installed">Trakt shelf app not installed</string>
+    <!-- score_pill: the Launcher settings row that turns the live-score pill on or off over the theme's key. -->
+    <string name="score_pill_label">Live scores</string>
+    <string name="score_pill_not_installed">Scores app not installed</string>
     <!-- settings_panel: the Wallpaper picker's row for the theme's rotating collection, what no saved pick gives. -->
     <string name="animations_state">Animations: %1$s</string>
     <string name="open_on_start_label">Open on start</string>

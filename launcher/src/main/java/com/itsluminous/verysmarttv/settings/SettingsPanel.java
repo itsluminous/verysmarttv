@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 import com.itsluminous.verysmarttv.backup.Backup;
 import com.itsluminous.verysmarttv.theme.Config;
 import com.itsluminous.verysmarttv.shelf.HeroFeed;
+import com.itsluminous.verysmarttv.core.contract.ScoreContract;
 import com.itsluminous.verysmarttv.theme.Wallpaper;
 import com.itsluminous.verysmarttv.R;
 import androidx.annotation.NonNull;
@@ -193,12 +194,22 @@ public final class SettingsPanel {
                         save(e -> e.putString(SettingsChoices.CLOCK_FORMAT_KEY, CLOCK_FORMATS[which]))));
         // System bars: the RAM and Storage bars beside the date (a theme's widgets key, a boolean). A picker like the
         // Trakt row (On, Off); the row and its picker show the state in force, the saved choice, else the theme's
-        // (SettingsChoices.chosenWidgets). The bars themselves land in Phase 3 (DESIGN.md §9.1).
+        // (SettingsChoices.chosenWidgets). DESIGN.md §9.1.
         boolean barsNow = SettingsChoices.chosenWidgets(choices, config.themeWidgets);
         row(R.drawable.ic_memory, activity.getString(R.string.widgets_label), onOff(barsNow), v -> {
             String[] labels = {onOff(true), onOff(false)};
             choose(activity.getString(R.string.widgets_label), labels, barsNow ? 0 : 1, which ->
                     save(e -> e.putInt(SettingsChoices.WIDGETS_KEY, which == 0 ? 1 : 0)));
+        });
+        // Live scores (score_pill): the pill under the top-right pills, over the theme's key, the same picker as the Trakt
+        // row; the value says when the live-score app is missing (DESIGN.md §9.2, §10).
+        boolean scoresNow = SettingsChoices.chosenScorePill(choices.getInt(SettingsChoices.SCORE_PILL_KEY, -1), config.themeScorePill);
+        String scoresState = onOff(scoresNow);
+        if (!providerInstalled(ScoreContract.AUTHORITY)) scoresState += " \u00b7 " + activity.getString(R.string.score_pill_not_installed);
+        row(R.drawable.ic_livetv, activity.getString(R.string.score_pill_label), scoresState, v -> {
+            String[] labels = {onOff(true), onOff(false)};
+            choose(activity.getString(R.string.score_pill_label), labels, scoresNow ? 0 : 1, which ->
+                    save(e -> e.putInt(SettingsChoices.SCORE_PILL_KEY, which == 0 ? 1 : 0)));
         });
 
         // Animations: one switch for all the motion. Off is still, with no zoom, lift or glow; On has the theme's
@@ -391,8 +402,13 @@ public final class SettingsPanel {
 
     /** True while the Trakt shelf companion's provider (HeroFeed.ITEMS) is on the TV. */
     private boolean heroFeedInstalled() {
+        return providerInstalled(HeroFeed.ITEMS.getAuthority());
+    }
+
+    /** True while a companion's provider answers {@code authority} on this TV (the Trakt shelf, the live-score app). */
+    private boolean providerInstalled(String authority) {
         try {
-            return activity.getPackageManager().resolveContentProvider(HeroFeed.ITEMS.getAuthority(), 0) != null;
+            return activity.getPackageManager().resolveContentProvider(authority, 0) != null;
         } catch (RuntimeException e) {
             return false;
         }

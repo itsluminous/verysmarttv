@@ -119,5 +119,6 @@
   "wallpaper_dim": 0,
   "dock_opacity": 100,
   "clock_format": "system",
-  "widgets": false
+  "widgets": false,
+  "score_pill": false
 }
