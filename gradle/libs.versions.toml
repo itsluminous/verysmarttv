@@ -1,0 +1,30 @@
+# VerySmartTV version catalog: the one place every module's dependency versions live.
+#
+# Versions are pinned; Dependabot (.github/dependabot.yml) proposes bumps. Alphabetical inside each
+# table, one line per entry, a comment where the choice was not obvious. A library joins this file
+# in the phase that first uses it (DESIGN.md §20), not before.
+
+[versions]
+# --- build tooling -----------------------------------------------------------
+agp = "9.5.1"                # Android Gradle Plugin; the version HikViewer pins (DESIGN.md §5.1). Needs Gradle >= 9.6 and build-tools 36.
+
+# --- libraries ---------------------------------------------------------------
+androidxAnnotation = "1.9.1"  # @NonNull/@Nullable on :core's public API (lint UnknownNullness); compile-time only, R8 strips it
+
+# --- test libraries ----------------------------------------------------------
+junit4 = "4.13.2"            # the carried launcher tests are JUnit 4 (ADR-019)
+robolectric = "4.17"         # @Config(sdk = 34) view and ContentProvider tests (DESIGN.md §14.1)
+
+[libraries]
+# --- build-logic only (the included build resolves these on its own classpath) ---
+android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
+
+# --- androidx ----------------------------------------------------------------
+androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidxAnnotation" }
+
+# --- test ------------------------------------------------------------------------
+junit4 = { module = "junit:junit", version.ref = "junit4" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+
+[bundles]
+jvm-test = ["junit4", "robolectric"]

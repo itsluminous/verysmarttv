@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Android Lint tuning shared by every module (build-logic/src/main/kotlin/LintConventions.kt).
+  warningsAsErrors + checkAllWarnings are on, so every entry here needs a reason.
+-->
+<lint>
+    <!-- Dependabot owns version bumps; a newer library must not fail an unrelated change. -->
+    <issue id="GradleDependency" severity="informational" />
+    <issue id="AndroidGradlePluginVersion" severity="informational" />
+    <issue id="NewerVersionAvailable" severity="informational" />
+
+    <!-- The 30 carried translations are kept as pure string files; new strings are English only
+         and fall back (DESIGN.md §3, ADR-009). -->
+    <issue id="MissingTranslation" severity="ignore" />
+
+    <!-- All user-facing text lives in string resources (ADR-035): these may never be baselined. -->
+    <issue id="HardcodedText" severity="error" />
+    <issue id="SetTextI18n" severity="error" />
+</lint>

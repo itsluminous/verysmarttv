@@ -1,0 +1,28 @@
+# Gradle
+.gradle/
+build/
+.kotlin/
+local.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.DS_Store
+captures/
+*.log
+
+# Signing and keys: never in the tree (see docs/BUILDING.md)
+*.jks
+*.keystore
+release.properties
+keystore.properties
+secrets.env
+*.env
+
+# Owner's local material (setup notes, TV screenshots, TV backups, ADB key)
+work/
+shots/
+backup/
+setup/.venv/
+__pycache__/

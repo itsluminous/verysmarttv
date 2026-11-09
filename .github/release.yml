@@ -1,0 +1,24 @@
+# Categories for GitHub's generated release notes (used when the tag is not annotated, ADR-024).
+# Labels come from the pull request; `area:*` says which part of the repo changed.
+changelog:
+  exclude:
+    labels:
+      - skip-changelog
+      - dependencies
+  categories:
+    - title: Features
+      labels: [feat]
+    - title: Fixes
+      labels: [fix]
+    - title: Launcher
+      labels: ["area:launcher"]
+    - title: Trakt companion
+      labels: ["area:traktshelf"]
+    - title: Live scores
+      labels: ["area:livescore"]
+    - title: Setup tool and presets
+      labels: ["area:setup"]
+    - title: Documentation
+      labels: [docs]
+    - title: Everything else
+      labels: ["*"]

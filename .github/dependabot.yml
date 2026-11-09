@@ -1,0 +1,30 @@
+# Keeps the version catalog (gradle/libs.versions.toml, the wrapper) and the GitHub Actions pinned in
+# the workflows up to date. Lint treats "newer version available" as informational, so these PRs are
+# the only place versions move.
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: [dependencies]
+    groups:
+      androidx:
+        patterns: ["androidx.*"]
+      test:
+        patterns: ["junit:*", "org.robolectric:*", "androidx.test*"]
+      build-tooling:
+        patterns: ["com.android.tools.build:*"]
+    commit-message:
+      prefix: "build(deps)"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels: [dependencies]
+    commit-message:
+      prefix: "ci(deps)"
