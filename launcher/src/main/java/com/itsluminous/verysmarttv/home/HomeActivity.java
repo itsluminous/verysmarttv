@@ -100,8 +100,8 @@ import com.itsluminous.verysmarttv.grid.AppAdapter;
 import com.itsluminous.verysmarttv.library.AppLibraryDialog;
 import com.itsluminous.verysmarttv.cards.CardFeature;
 import com.itsluminous.verysmarttv.cards.Cards;
-import com.itsluminous.verysmarttv.clock.ClockActivity;
 import com.itsluminous.verysmarttv.clock.ClockFormat;
+import com.itsluminous.verysmarttv.clock.IdleClock;
 import com.itsluminous.verysmarttv.clock.ClockRefresh;
 import com.itsluminous.verysmarttv.theme.Config;
 import com.itsluminous.verysmarttv.inputs.CoocaaSources;
@@ -194,11 +194,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     private String liveTvPkg;
     /** Launcher settings' change count this Home was built with (see onResume). */
     private long settingsRevision;
-    /** Idle time on Home before ClockActivity; 0 is off (config.xml, home_idle_clock_minutes). */
-    private long idleClockMs;
-    /** Back on Home opens ClockActivity (config.xml, back_opens_clock). */
-    private boolean backOpensClock;
-    private final Runnable showIdleClock = () -> startActivity(new Intent(this, ClockActivity.class));
     private String liveTvAction;
     private String liveTvInputId;
     private String inputAction;
@@ -478,6 +473,8 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     };
     /** Keeps the Home clocks moving on Android before 12 when the firmware stops ACTION_TIME_TICK (see ClockRefresh). */
     private ClockRefresh clockRefresh;
+    /** home_idle_clock_minutes and back_opens_clock (IdleClock). */
+    private IdleClock idleClock;
     private final Runnable minuteTick = new Runnable() {
         @Override
         public void run() {
@@ -523,8 +520,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         state.heroHeightPct = cfg.heroHeight;
         focusOvershoot = cfg.focusOvershoot;
         liveTvPkg = cfg.liveTvPackage;
-        idleClockMs = cfg.homeIdleClockMinutes * MINUTE_MS;
-        backOpensClock = cfg.backOpensClock;
         bootToLiveTv = cfg.bootToLiveTv;
         openOnStartChoice = cfg.openOnStartChoice;
         openOnStartWaitMs = cfg.openOnStartNetworkWait * 1000L;
@@ -542,6 +537,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         coocaaSources = cfg.coocaaSources;
 
         root = findViewById(R.id.root);
+        idleClock = new IdleClock(this, root, cfg);
         root.setBackgroundColor(cfg.backgroundColor);
         // root fills the window with an opaque colour (Config keeps background_color opaque), so the window's own
         // black under it is a second full-screen fill on every frame for nothing. The starting window still uses
@@ -1135,7 +1131,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             if (carouselShowing) showCarouselItem(false);
             else if (heroOwned() && heroShown && shelfTileFocused()) showCarousel(false);
         }
-        restartIdleClock();
+        idleClock.restart();
         promptsPaused = false;
         if (grid.getAdapter() == null) grid.setAdapter(adapter);   // dropped by onTrimMemory
         wallpaper.restore();                                        // released by onTrimMemory
@@ -1328,12 +1324,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     @Override
     public void onUserInteraction() {
         super.onUserInteraction();
-        restartIdleClock();
-    }
-
-    private void restartIdleClock() {
-        root.removeCallbacks(showIdleClock);
-        if (state.resumed && idleClockMs > 0) root.postDelayed(showIdleClock, idleClockMs);
+        idleClock.restart();
     }
 
     @Override
@@ -1349,7 +1340,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         // Only Home's own share is dropped: a key service that saw the same DOWN keeps its hold.
         RemoteKeys.release(this);
         cancelHoldOk();
-        root.removeCallbacks(showIdleClock);
+        idleClock.cancel();
         endReorder();   // Home or another app while reordering keeps the order so far
         stopAmbientAnimation();
         hero.animate().cancel();
@@ -1797,8 +1788,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     @Override
     @SuppressWarnings("deprecation")
     public void onBackPressed() {
-        // Home screen: Back goes nowhere, unless back_opens_clock is on.
-        if (backOpensClock) startActivity(new Intent(this, ClockActivity.class));
+        idleClock.onBackPressed();
     }
 
     // ---- glass highlight -------------------------------------------------------------------------
