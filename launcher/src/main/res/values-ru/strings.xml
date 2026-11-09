@@ -6,7 +6,6 @@
     <string name="settings">Настройки</string>
     <string name="choose_input">Источники</string>
     <string name="connected">Подключено</string>
-    <string name="standby">Ожидание</string>
     <string name="not_connected">Нет устройства</string>
     <string name="live_tv">Телеканалы</string>
     <string name="no_inputs">Источники не найдены</string>
@@ -54,11 +53,8 @@
     <string name="dock_opacity_label">Непрозрачность панели дока</string>
     <string name="rows_below_dock_label">Рядов под доком</string>
     <string name="animations_state">Анимация: %1$s</string>
-    <string name="advanced_effects">Расширенные эффекты</string>
-    <string name="advanced_effects_state">Расширенные эффекты: %1$s</string>
     <string name="open_on_start_label">Открывать при запуске</string>
     <string name="open_on_start_state">Открывать при запуске: %1$s</string>
-    <string name="advanced_effects_warning">Приподнимает плитки, увеличивает значки и сглаживает переходы цвета. Может увеличить расход памяти; результат зависит от телевизора.</string>
     <string name="follow_theme">Следовать теме (сбросить выбор)</string>
     <string name="follow_theme_hint">Использовать параметры расположения и анимации текущей темы или встроенные. Установка или сброс темы также удаляет выбор на телевизоре.</string>
     <string name="tv_settings">Системные настройки ТВ</string>
@@ -68,7 +64,6 @@
     <string name="quick_apps_hint">Включить снова</string>
     <string name="on">Вкл.</string>
     <string name="off">Выкл.</string>
-    <string name="enable">Включить</string>
     <string name="dock_edit">Изменить док</string>
     <string name="power_menu">Перезагрузить…</string>
     <string name="dock_edit_hint">Выберите место в доке и нажмите ОК. Назад — готово.</string>

@@ -6,7 +6,6 @@
     <string name="settings">الإعدادات</string>
     <string name="choose_input">المدخلات</string>
     <string name="connected">متصل</string>
-    <string name="standby">في وضع الاستعداد</string>
     <string name="not_connected">لا يوجد جهاز</string>
     <string name="live_tv">البث المباشر</string>
     <string name="no_inputs">لم يتم العثور على مدخلات</string>
@@ -52,17 +51,13 @@
     <string name="columns_label">تطبيقات في كل صف</string>
     <string name="dock_opacity_label">عتامة شريط التطبيقات</string>
     <string name="animations_state">الرسوم المتحركة: %1$s</string>
-    <string name="advanced_effects">تأثيرات متقدمة</string>
-    <string name="advanced_effects_state">تأثيرات متقدمة: %1$s</string>
     <string name="open_on_start_label">الفتح عند التشغيل</string>
     <string name="open_on_start_state">الفتح عند التشغيل: %1$s</string>
-    <string name="advanced_effects_warning">ترفع البطاقات وتكبّر الأيقونات وتنعّم انتقالات الألوان. قد تزيد استهلاك الذاكرة حسب التلفاز.</string>
     <string name="follow_theme">اتّباع السمة (إعادة ضبط الخيارات)</string>
     <string name="follow_theme_hint">استخدم تخطيط السمة الحالية وحركتها أو القيم المضمّنة. تطبيق سمة أو إعادة ضبطها يمحو خيارات التلفاز أيضًا.</string>
     <string name="tv_settings">إعدادات نظام التلفاز</string>
     <string name="on">تشغيل</string>
     <string name="off">إيقاف</string>
-    <string name="enable">تفعيل</string>
     <string name="dock_edit">تعديل شريط التطبيقات</string>
     <string name="power_menu">إعادة التشغيل…</string>
     <string name="dock_edit_hint">اختر الموضع الذي تريد تغييره في الشريط واضغط موافق. اضغط رجوع للإنهاء.</string>

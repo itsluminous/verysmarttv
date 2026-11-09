@@ -1106,6 +1106,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         restartIdleClock();
         promptsPaused = false;
         if (grid.getAdapter() == null) grid.setAdapter(adapter);   // dropped by onTrimMemory
+        wallpaper.restore();                                        // released by onTrimMemory
         switch (tileRefresh.onResume(packagesChangedSinceRebuild())) {
             case REBUILD:
                 tilesReady = false;
@@ -2464,12 +2465,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             return true;
         }
         return false;
-    }
-
-    private void topMargin(View v, int dp) {
-        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-        lp.topMargin = (int) (dp * density);
-        v.setLayoutParams(lp);
     }
 
     /** A shelf line's margin above it, the layout's dp scaled with hero_height (ShelfScale), never under 4dp. */

@@ -1,7 +1,5 @@
 package com.itsluminous.verysmarttv;
 
-import android.content.Context;
-import android.text.format.DateFormat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextClock;
@@ -22,9 +20,5 @@ final class ClockFormat {
             ViewGroup g = (ViewGroup) root;
             for (int i = 0; i < g.getChildCount(); i++) apply(g.getChildAt(i), mode);
         }
-    }
-
-    static boolean is24(Context ctx, String mode) {
-        return "24".equals(mode) || !"12".equals(mode) && DateFormat.is24HourFormat(ctx);
     }
 }

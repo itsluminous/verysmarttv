@@ -5,7 +5,6 @@
     <string name="settings">Axustes</string>
     <string name="choose_input">Entraes</string>
     <string name="connected">Coneutáu</string>
-    <string name="standby">N\'espera</string>
     <string name="not_connected">Ensin dispositivu</string>
     <string name="live_tv">TV en direutu</string>
     <string name="no_inputs">Nun s\'atoparon entraes</string>
@@ -30,11 +29,8 @@
     <string name="rows_below_dock_label">Fileres debaxo del dock</string>
     <string name="dock_opacity_label">Opacidá de la barra del dock</string>
     <string name="animations_state">Animaciones: %1$s</string>
-    <string name="advanced_effects">Efeutos avanzaos</string>
-    <string name="advanced_effects_state">Efeutos avanzaos: %1$s</string>
     <string name="open_on_start_label">Abrir al aniciar</string>
     <string name="open_on_start_state">Abrir al aniciar: %1$s</string>
-    <string name="advanced_effects_warning">Eleva les tarxetes, amplía los iconos y anidia les transiciones de color. Pue aumentar l\'usu de memoria; la diferencia real depende del to televisor.</string>
     <string name="follow_theme">Siguir el tema (reestablecer axustes)</string>
     <string name="follow_theme_hint">Usa\'l diseñu y los efeutos del tema actual o los valores integraos. Aplicar o reestablecer un tema tamién desanicia estos axustes.</string>
     <string name="tv_settings">Axustes del televisor</string>
@@ -44,7 +40,6 @@
     <string name="quick_apps_hint">Reactivar</string>
     <string name="on">Sí</string>
     <string name="off">Non</string>
-    <string name="enable">Activar</string>
     <string name="input_key_service_description">Abre\'l seleutor d\'entraes al calcar el botón d\'Entrada del mandu.</string>
     <string name="home_key_name">Botón d\'Aniciu</string>
     <string name="home_key_description">Fai que\'l botón d\'Aniciu del mandu abra esti llanzador.</string>

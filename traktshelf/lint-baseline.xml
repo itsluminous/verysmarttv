@@ -145,17 +145,6 @@
     </issue>
 
     <issue
-        id="UnusedResources"
-        message="The resource `R.string.done` appears to be unused"
-        errorLine1="    &lt;string name=&quot;done&quot;>Done&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="52"
-            column="13"/>
-    </issue>
-
-    <issue
         id="SyntheticAccessor"
         message="Access to `private` method `reload` of class `MainActivity` requires synthetic accessor"
         errorLine1="            reload();"

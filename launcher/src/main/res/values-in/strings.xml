@@ -6,7 +6,6 @@
     <string name="settings">Setelan</string>
     <string name="choose_input">Input</string>
     <string name="connected">Terhubung</string>
-    <string name="standby">Siaga</string>
     <string name="not_connected">Tidak ada perangkat</string>
     <string name="live_tv">TV Langsung</string>
     <string name="no_inputs">Tidak ada input ditemukan</string>
@@ -30,11 +29,8 @@
     <string name="dock_opacity_label">Opasitas pita dock</string>
     <string name="rows_below_dock_label">Baris di bawah dock</string>
     <string name="animations_state">Animasi: %1$s</string>
-    <string name="advanced_effects">Efek Lanjut</string>
-    <string name="advanced_effects_state">Efek lanjut: %1$s</string>
     <string name="open_on_start_label">Buka saat mulai</string>
     <string name="open_on_start_state">Buka saat mulai: %1$s</string>
-    <string name="advanced_effects_warning">Menambah tile terangkat, zoom ikon, dan transisi warna yang halus. Dapat menambah penggunaan memori; perbedaan aktual tergantung TV Anda.</string>
     <string name="follow_theme">Ikuti tema (atur ulang pilihan di TV)</string>
     <string name="follow_theme_hint">Menggunakan tema saat ini atau pengaturan tata letak dan gerakan bawaan. Memasang atau mengatur ulang tema juga menghapus pilihan di TV Anda.</string>
     <string name="tv_settings">Setelan Sistem TV</string>
@@ -44,7 +40,6 @@
     <string name="quick_apps_hint">Aktifkan kembali</string>
     <string name="on">Aktif</string>
     <string name="off">Mati</string>
-    <string name="enable">Aktifkan</string>
     <string name="input_key_service_description">Membuka pengalih input saat tombol Input pada remote ditekan.</string>
     <string name="home_key_name">Tombol beranda</string>
     <string name="home_key_description">Membuat tombol Beranda pada remote membuka antarmuka ini.</string>

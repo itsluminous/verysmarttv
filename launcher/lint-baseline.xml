@@ -442,61 +442,6 @@
     </issue>
 
     <issue
-        id="UnusedResources"
-        message="The resource `R.string.standby` appears to be unused"
-        errorLine1="    &lt;string name=&quot;standby&quot;>Standby&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="9"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.advanced_effects` appears to be unused"
-        errorLine1="    &lt;string name=&quot;advanced_effects&quot;>Advanced effects&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="51"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.advanced_effects_state` appears to be unused"
-        errorLine1="    &lt;string name=&quot;advanced_effects_state&quot;>Advanced effects: %1$s&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="52"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.advanced_effects_warning` appears to be unused"
-        errorLine1="    &lt;string name=&quot;advanced_effects_warning&quot;>Adds a lifted tile, icon zoom and smooth colour transitions. May increase memory use; the actual difference depends on your TV.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="55"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.enable` appears to be unused"
-        errorLine1="    &lt;string name=&quot;enable&quot;>Enable&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="65"
-            column="13"/>
-    </issue>
-
-    <issue
         id="SyntheticAccessor"
         message="Access to `private` member of class `Catalog` requires synthetic accessor"
         errorLine1="        list.setAdapter(new Catalog());"
@@ -3005,33 +2950,6 @@
     </issue>
 
     <issue
-        id="DuplicateStrings"
-        message="Duplicate string value `Bật`, used in `enable` and `on`"
-        errorLine1="    &lt;string name=&quot;on&quot;>Bật&lt;/string>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="47"
-            column="5"/>
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="49"
-            column="5"
-            message="Duplicates value in `on`"/>
-    </issue>
-
-    <issue
-        id="TypographyQuotes"
-        message="Replace apostrophe (&apos;) with typographic apostrophe (’, &amp;#8217;) ?"
-        errorLine1="    &lt;string name=&quot;standby&quot;>N\&apos;espera&lt;/string>"
-        errorLine2="                             ~">
-        <location
-            file="src/main/res/values-ast/strings.xml"
-            line="8"
-            column="30"/>
-    </issue>
-
-    <issue
         id="TypographyQuotes"
         message="Replace apostrophe (&apos;) with typographic apostrophe (’, &amp;#8217;) ?"
         errorLine1="    &lt;string name=&quot;no_inputs&quot;>Nun s\&apos;atoparon entraes&lt;/string>"
@@ -3243,17 +3161,6 @@
     <issue
         id="TypographyQuotes"
         message="Replace apostrophe (&apos;) with typographic apostrophe (’, &amp;#8217;) ?"
-        errorLine1="    &lt;string name=&quot;advanced_effects_warning&quot;>Eleva les tarxetes, amplía los iconos y anidia les transiciones de color. Pue aumentar l\&apos;usu de memoria; la diferencia real depende del to televisor.&lt;/string>"
-        errorLine2="                                                                                                                                     ~">
-        <location
-            file="src/main/res/values-ast/strings.xml"
-            line="37"
-            column="134"/>
-    </issue>
-
-    <issue
-        id="TypographyQuotes"
-        message="Replace apostrophe (&apos;) with typographic apostrophe (’, &amp;#8217;) ?"
         errorLine1="    &lt;string name=&quot;open_on_start_label&quot;>Apri all\&apos;avvio&lt;/string>"
         errorLine2="                                                ~">
         <location
@@ -3282,17 +3189,6 @@
             file="src/main/res/values-ast/strings.xml"
             line="39"
             column="42"/>
-    </issue>
-
-    <issue
-        id="TypographyQuotes"
-        message="Replace apostrophe (&apos;) with typographic apostrophe (’, &amp;#8217;) ?"
-        errorLine1="    &lt;string name=&quot;advanced_effects_warning&quot;>Aggiunge riquadro sollevato, zoom dell\&apos;icona e transizioni di colore fluide. Può aumentare l\&apos;uso di memoria; la differenza dipende dalla TV.&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="39"
-            column="45"/>
     </issue>
 
     <issue

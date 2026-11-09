@@ -6,7 +6,6 @@
     <string name="settings">Indstillinger</string>
     <string name="choose_input">Indgange</string>
     <string name="connected">Tilsluttet</string>
-    <string name="standby">Standby</string>
     <string name="not_connected">Ingen enhed</string>
     <string name="live_tv">Live-TV</string>
     <string name="no_inputs">Ingen indgange fundet</string>
@@ -31,8 +30,6 @@
     <string name="rows_below_dock_label">Rækker under docken</string>
     <string name="dock_opacity_label">Docken: gennemsigtighed</string>
     <string name="animations_state">Animationer: %1$s</string>
-    <string name="advanced_effects">Avancerede effekter</string>
-    <string name="advanced_effects_state">Avancerede effekter: %1$s</string>
     <string name="follow_theme">Følg tema (nulstil valg på TV)</string>
     <string name="tv_settings">TV-systemindstillinger</string>
     <string name="quick_picture">Billede</string>
@@ -41,7 +38,6 @@
     <string name="quick_apps_hint">Aktivér igen</string>
     <string name="on">Til</string>
     <string name="off">Fra</string>
-    <string name="enable">Aktivér</string>
     <string name="home_key_name">Hjem-knap</string>
     <string name="home_key_description">Får fjernbetjeningens Hjem-knap til at åbne denne launcher.</string>
     <string name="module_cards">Modulkort</string>

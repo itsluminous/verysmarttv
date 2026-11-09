@@ -49,7 +49,6 @@
     <string name="marking_watched">Marking…</string>
     <string name="watched_done">Watched ✓</string>
     <string name="trakt_write_failed">Trakt: %1$s</string>
-    <string name="done">Done</string>
     <string name="failed">That did not work; try again</string>
     <string name="needs_sign_in">Sign in to Trakt first</string>
     <string name="no_player">No player app found (Stremio, CloudStream or NetMirror)</string>

@@ -6,7 +6,6 @@
     <string name="settings">Inställningar</string>
     <string name="choose_input">Ingångar</string>
     <string name="connected">Ansluten</string>
-    <string name="standby">Viloläge</string>
     <string name="not_connected">Ingen enhet</string>
     <string name="live_tv">Live-TV</string>
     <string name="no_inputs">Inga ingångar hittades</string>
@@ -32,11 +31,8 @@
     <string name="rows_below_dock_label">Rader under favoritraden</string>
     <string name="dock_opacity_label">Favoritradens opacitet</string>
     <string name="animations_state">Animationer: %1$s</string>
-    <string name="advanced_effects">Avancerade effekter</string>
-    <string name="advanced_effects_state">Avancerade effekter: %1$s</string>
     <string name="open_on_start_label">Öppna vid start</string>
     <string name="open_on_start_state">Öppna vid start: %1$s</string>
-    <string name="advanced_effects_warning">Lägger till lyfta appbrickor, ikonzoom och mjuka färgövergångar. Kan öka minnesanvändningen; skillnaden beror på din TV.</string>
     <string name="follow_theme">Följ temat (återställ val på TV:n)</string>
     <string name="follow_theme_hint">Använder det aktuella temats eller de inbyggda inställningarna för layout och rörelse. Att skicka eller återställa ett tema rensar också valen du gjort på TV:n.</string>
     <string name="tv_settings">TV:ns systeminställningar</string>
@@ -46,7 +42,6 @@
     <string name="quick_apps_hint">Aktivera igen</string>
     <string name="on">På</string>
     <string name="off">Av</string>
-    <string name="enable">Aktivera</string>
     <string name="input_key_service_description">Öppnar ingångsväljaren när du trycker på fjärrkontrollens Input-knapp.</string>
     <string name="home_key_name">Hemknapp</string>
     <string name="home_key_description">Låter fjärrkontrollens hemknapp öppna den här startskärmen.</string>

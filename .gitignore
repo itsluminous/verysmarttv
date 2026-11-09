@@ -8,6 +8,7 @@ local.properties
 .idea/
 *.iml
 .vscode/
+bin/
 .DS_Store
 captures/
 *.log

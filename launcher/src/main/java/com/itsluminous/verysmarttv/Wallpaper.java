@@ -17,7 +17,8 @@ import java.io.File;
  * colour when there is none or {@code wallpaper} is false. Decoded once on the main thread in onCreate, as the
  * fork's single wallpaper always was, so Home's first frame already has it; sampled and scaled to cover the screen
  * ({@link WallpaperSize}), {@code wallpaper_dim} painted in, and uploaded as one hardware bitmap. Released under
- * memory pressure and shown again by the next onCreate.
+ * memory pressure ({@link #releaseForMemoryPressure}) and decoded again by {@link #restore} when Home resumes, the
+ * way the fork's player showed its picture again on the next start.
  */
 final class Wallpaper {
     private final FrameLayout root;
@@ -28,29 +29,41 @@ final class Wallpaper {
     private final int width, height;
     /** wallpaper_dim as an ARGB black, painted into the picture once instead of a full-screen shade view. */
     private final int dimColor;
+    /** The theme's picture, or null when there is none or it could not be decoded (the plain colour stays). */
+    private final File file;
     private Bitmap current;
+    private boolean closed;
 
     Wallpaper(Context context, FrameLayout root, Config config) {
+        this(context, root, config.wallpaper, config.backgroundColor, config.wallpaperTrueColor, config.wallpaperDim);
+    }
+
+    /** The values Config carries for the wallpaper, so a test needs no Config. */
+    Wallpaper(Context context, FrameLayout root, File file, int backgroundColor, boolean trueColor, int dimPercent) {
         this.root = root;
-        backgroundColor = config.backgroundColor;
-        bitmapConfig = config.wallpaperTrueColor ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
-        dimColor = config.wallpaperDim > 0 ? (config.wallpaperDim * 255 / 100) << 24 : 0;
+        this.backgroundColor = backgroundColor;
+        bitmapConfig = trueColor ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
+        dimColor = dimPercent > 0 ? (dimPercent * 255 / 100) << 24 : 0;
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         width = metrics.widthPixels;
         height = metrics.heightPixels;
         image = new ImageView(context);
         image.setScaleType(ImageView.ScaleType.CENTER_CROP);
         image.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        File file = config.wallpaper;
-        if (file == null) return;
-        Bitmap bitmap = decode(file);
-        if (bitmap == null) return;   // unreadable or over 4K: the plain colour stays
-        current = bitmap;
-        image.setImageBitmap(bitmap);
+        Bitmap bitmap = file == null ? null : decode(file);
+        if (bitmap == null) {   // none, unreadable or over 4K: the plain colour stays, and restore has nothing to do
+            this.file = null;
+            return;
+        }
+        this.file = file;
         root.addView(image, 0, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        // The picture covers the whole screen: the root's plain colour under it would be overdraw.
-        root.setBackground(null);
+        show(bitmap);
+    }
+
+    /** True while the picture is on screen; false with no picture, or after a release that restore has not undone. */
+    boolean shown() {
+        return current != null;
     }
 
     /** Drops the wallpaper texture when Home is hidden and Android asks the process to free memory. */
@@ -63,8 +76,26 @@ final class Wallpaper {
         root.setBackgroundColor(backgroundColor);
     }
 
+    /**
+     * Home is back after a release: decode the picture again, on the main thread like the first one, so the frame
+     * that brings Home back already has it. Nothing to do while it is on screen or there is no picture.
+     */
+    void restore() {
+        if (closed || current != null || file == null) return;
+        Bitmap bitmap = decode(file);
+        if (bitmap != null) show(bitmap);
+    }
+
     void close() {
+        closed = true;
         current = null;
+    }
+
+    private void show(Bitmap bitmap) {
+        current = bitmap;
+        image.setImageBitmap(bitmap);
+        // The picture covers the whole screen: the root's plain colour under it would be overdraw.
+        root.setBackground(null);
     }
 
     private Bitmap decode(File file) {
@@ -89,13 +120,21 @@ final class Wallpaper {
             Bitmap decoded = BitmapFactory.decodeFile(file.getPath(), options);
             if (decoded == null) return null;
             if (dimColor != 0) new Canvas(decoded).drawColor(dimColor);
-            // One copy in GPU memory instead of a software bitmap plus its texture.
+            return toHardware(decoded);
+        } catch (Exception | OutOfMemoryError failure) {
+            return null;
+        }
+    }
+
+    /** One copy in GPU memory instead of a software bitmap plus its texture; the software bitmap where that fails. */
+    private static Bitmap toHardware(Bitmap decoded) {
+        try {
             Bitmap gpu = decoded.copy(Bitmap.Config.HARDWARE, false);
             if (gpu == null) return decoded;
             decoded.recycle();
             return gpu;
-        } catch (Exception | OutOfMemoryError failure) {
-            return null;
+        } catch (RuntimeException unsupported) {
+            return decoded;
         }
     }
 }
