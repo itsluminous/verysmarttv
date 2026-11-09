@@ -18,7 +18,7 @@
     <string name="sign_in_denied">You declined the request. Press OK to try again.</string>
     <string name="sign_in_expired">The code expired. Press OK for a new one.</string>
     <string name="sign_in_error">Trakt did not answer. Check the TV is online, then press OK to try again.</string>
-    <string name="sign_in_no_key">This build has no Trakt client id. Put TRAKT_CLIENT_ID in work/secrets.env and rebuild.</string>
+    <string name="sign_in_no_key">This build has no Trakt client id. Put TRAKT_CLIENT_ID in secrets.env at the repository root and rebuild.</string>
     <string name="cancel">Cancel</string>
     <string name="retry">Try again</string>
     <string name="settings">Settings</string>
