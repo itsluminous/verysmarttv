@@ -72,6 +72,8 @@ public final class HomeTestRule extends ExternalResource {
     public static final String LIBRARY = "library";
     /** The top shelf while the carousel owns it. */
     public static final String CAROUSEL = "carousel";
+    /** The live-score pill under the bar (DESIGN.md §9.2). */
+    public static final String SCORE_PILL = "score pill";
     /** Longest wait for focus or a layout to settle, including a smooth scroll. */
     public static final long WAIT_MS = 8_000;
     /** How long a key that must be swallowed is given to move focus wrongly before the check. */
@@ -188,6 +190,7 @@ public final class HomeTestRule extends ExternalResource {
             if (f.getId() == R.id.card && f.getParent() instanceof View) return TILE + grid.getChildAdapterPosition((View) f.getParent());
             if (f.getId() == R.id.btnLibrary) return LIBRARY;
             if (f.getId() == R.id.hero) return CAROUSEL;
+            if (f.getId() == R.id.scorePill) return SCORE_PILL;
             ViewGroup bar = a.findViewById(R.id.topButtons);
             if (f.getParent() == bar) return PILL + " " + idName(a, f);
             return idName(a, f);

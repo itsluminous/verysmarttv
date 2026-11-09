@@ -36,6 +36,7 @@ include(":core")
 include(":testkit")
 include(":testkit:hero")   // the companion stand-in the launcher's instrumentation tests install (ADR-037)
 include(":testkit:tiles")  // Tile 7, the seventh TV app those tests switch on and off
+include(":testkit:score")  // the live-score companion stand-in those tests install (ADR-037)
 include(":launcher")
 include(":traktshelf")
 

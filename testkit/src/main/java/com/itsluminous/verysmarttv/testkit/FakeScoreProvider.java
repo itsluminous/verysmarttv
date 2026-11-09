@@ -23,9 +23,10 @@ import java.util.List;
  * {@link ScoreContract#AUTHORITY}. Until seeded, {@code /pill} answers {@link ScoreContract#STATE_NONE},
  * {@code /events} is empty and {@code /backup} holds {@code {}}: the state of a fresh companion with
  * nothing followed in the window. {@link #METHOD_RESTORE restore} stores the JSON it is given and
- * notifies {@code /pill}, as the real provider does. Call {@link #reset()} in {@code @After}.
+ * notifies {@code /pill}, as the real provider does. Call {@link #reset()} in {@code @After}. Open for the on-device
+ * stand-in ({@code :testkit:score}), which seeds it on create and adds the fixture-switching calls.
  */
-public final class FakeScoreProvider extends ContentProvider {
+public class FakeScoreProvider extends ContentProvider {
     private static Object[] pill = none();
     private static final List<Object[]> EVENTS = new ArrayList<>();
     private static String backupJson = "{}";

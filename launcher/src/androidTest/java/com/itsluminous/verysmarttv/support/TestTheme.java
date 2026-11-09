@@ -23,6 +23,8 @@ public final class TestTheme {
     private boolean uniformRows;
     private boolean heroFeed;
     private boolean settingsPanel;
+    private boolean scorePill;
+    private boolean widgets;
 
     public TestTheme columns(int n) {
         columns = n;
@@ -53,6 +55,18 @@ public final class TestTheme {
         return this;
     }
 
+    /** score_pill: the live-score pill under the bar (DESIGN.md §9.2). */
+    public TestTheme scorePill() {
+        scorePill = true;
+        return this;
+    }
+
+    /** widgets: the RAM and Storage bars beside the date (DESIGN.md §9.1). */
+    public TestTheme widgets() {
+        widgets = true;
+        return this;
+    }
+
     /** The config.json text, for the launcher at {@code target}. */
     public String json(Context target) throws JSONException {
         JSONObject json = new JSONObject();
@@ -62,6 +76,8 @@ public final class TestTheme {
         json.put("hero_feed", heroFeed);
         json.put("hero_feed_interval", 120);
         json.put("settings_panel", settingsPanel);
+        json.put("score_pill", scorePill);
+        json.put("widgets", widgets);
         json.put("app_library", true);
         json.put("library_button", true);
         json.put("show_library_pill", true);

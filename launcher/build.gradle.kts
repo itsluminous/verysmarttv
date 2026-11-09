@@ -27,10 +27,11 @@ dependencies {
     androidTestImplementation(project(":testkit"))   // HeroFixture: the titles the companion stand-in publishes
 }
 
-// The connected suite needs two test apps on the emulator first (DESIGN.md §14.3): the companion stand-in
-// (CarouselFocusTest, ADR-037), which takes the companion's package, so the real traktshelf debug build is replaced
-// until `./gradlew :traktshelf:installDebug` puts it back (its data stays); and Tile 7, the seventh TV app the focus
-// tests switch on and off. Tiles 1 to 6 ride in the launcher's own test APK, which Gradle installs anyway.
+// The connected suite needs three test apps on the emulator first (DESIGN.md §14.3): the two companion stand-ins
+// (CarouselFocusTest, HomeFocusTest; ADR-037), which take the companions' packages, so the real traktshelf and
+// livescore debug builds are replaced until `./gradlew :traktshelf:installDebug :livescore:installDebug` puts them
+// back (their data stays); and Tile 7, the seventh TV app the focus tests switch on and off. Tiles 1 to 6 ride in the
+// launcher's own test APK, which Gradle installs anyway.
 tasks.matching { it.name == "connectedDebugAndroidTest" }.configureEach {
-    dependsOn(":testkit:hero:installDebug", ":testkit:tiles:installDebug")
+    dependsOn(":testkit:hero:installDebug", ":testkit:score:installDebug", ":testkit:tiles:installDebug")
 }
