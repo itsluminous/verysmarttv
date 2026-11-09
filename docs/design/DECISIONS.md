@@ -1,0 +1,187 @@
+# LeanTV — decisions (ADR log)
+
+One entry per decision in [DESIGN.md](DESIGN.md). Format: context → decision → alternatives rejected →
+consequences. Status is **proposed** until the owner signs the design; **[CONFIRM]** marks the ones that
+go beyond the fixed requirements.
+
+## ADR-001 One Gradle project with five modules
+- Context: three apps that share provider contracts, glass drawables and D-pad helpers, and must be signed with one key.
+- Decision: `:core` (Java library), `:launcher`, `:traktshelf`, `:livescore`, `:testkit`; `build-logic` convention plugins; one version catalog.
+- Rejected: three Gradle projects as in cleanyourtv (`launcher/`, `addons/traktshelf/` each with its own wrapper): duplicated signing/version code, no shared module without publishing, three CI matrices.
+- Consequences: one `./gradlew ci`; the emulator job installs all three debug APKs from one build; a change to a contract fails the other side's compile.
+
+## ADR-002 AGP 9.x / Gradle 9.x / JDK 17
+- Context: cleanyourtv pins AGP 8.5.2 + Gradle 8.9 (JDK 17–22 only); HikViewer (the owner's other repo) pins AGP 9.5.1 + Gradle 9.8.2; the local SDK has build-tools/platform 37.
+- Decision: take the current stable AGP 9.x and Gradle 9.x at Phase 0; JDK 17 everywhere.
+- Rejected: staying on AGP 8.5.2 to match the carried build files (two toolchains for the owner; JDK ceiling at 22).
+- Consequences: AGP 9's built-in Kotlin compiles `:livescore` without KGP; build files are rewritten in Kotlin DSL during the carry.
+
+## ADR-003 compileSdk 36, targetSdk 34, minSdk 26
+- Context: carried `launcher/app/build.gradle` has `minSdk 26`, `targetSdk 34`; presets cover Android 8.0 TVs; no Play Store requirement.
+- Decision: compileSdk 36 (installed), targetSdk 34 shared by the three apps, minSdk 26.
+- Rejected: targetSdk 35/36 now (edge-to-edge and service/intent tightening untested on a TV with accessibility + notification-listener services); minSdk 29 (would exclude TVs the presets serve).
+- Consequences: a Phase 6 follow-up re-evaluates targetSdk on a real Android 14 TV.
+
+## ADR-004 Java for carried code and `:core`, Kotlin for `:livescore`
+- Context: 101 carried Java files with no tests of their own; the launcher ships no Kotlin stdlib (`packagingOptions` excludes `kotlin/**`); new code is a networking/parsing app; the owner writes Kotlin daily.
+- Decision: keep Java in `:launcher`, `:traktshelf`, `:core`; write `:livescore` in Kotlin (stdlib only).
+- Rejected: all-Java (new code in the language with weaker null-safety and more boilerplate); all-Kotlin (a multi-week conversion with no visible result, stdlib in the launcher, regressions in untested code).
+- Consequences: two languages in one repo, isolated per module; `:core` must stay Java so the launcher pulls no stdlib.
+
+## ADR-005 No coroutines, no serialization/HTTP libraries in `:livescore`
+- Context: four URLs, payloads up to 365 KB, a 1 GB TV, traktshelf already uses `HttpURLConnection` + `org.json` + threads.
+- Decision: `HttpURLConnection`, `android.util.JsonReader` streaming parse, a single-thread `Executor`, `Handler`.
+- Rejected: coroutines (+~200 KB after R8, a second concurrency idiom), OkHttp/Retrofit/Moshi/kotlinx-serialization (dependency weight for four endpoints), `org.json` tree parsing (holds ~3 MB of objects for the tennis payload).
+- Consequences: parsers are hand-written against fixtures; adding a field means editing a parser and a fixture.
+
+## ADR-006 Views + RecyclerView, no Leanback browse fragments, no Compose
+- Context: carried UI is Views; traktshelf avoided Leanback; Compose for TV is ~2 MB.
+- Decision: Views everywhere, shared glass drawables in `:core`.
+- Rejected: Compose for TV (size, 1 GB TVs), Leanback `BrowseSupportFragment` (heavy, opinionated).
+
+## ADR-007 Decompose `MainActivity` into 17 classes with pure rule objects
+- Context: 4,973 lines, 180 methods; focus and layout decisions are inline `if`s, untestable without a device.
+- Decision: §8 table; "move verbatim first, refactor second"; every focus/row decision becomes a pure class returning a value; a Gradle check fails files over 1,200 lines.
+- Rejected: leaving it (no unit tests possible for the Up→score→Inputs rule); a rewrite (loses years of device-specific fixes encoded in that file).
+- Consequences: Phase 2 is the riskiest phase; the Espresso focus suite is written before the split and gates every commit of it.
+
+## ADR-008 Drop decorative and superseded launcher features **[CONFIRM]**
+- Context: requirement 7 vs requirement 2.
+- Decision: drop festival/seasonal skins, F1 weekend and game-day panels, wallpaper rotation/scenes/moods/captions, time-of-day sky, lunar/Shamsi dates, `show_stats`/`CpuLoad`, the ring gauges, the Hebrew duplicate layout; keep all device-compatibility code and the 31 string translations.
+- Rejected: carrying everything (≈3,300 lines reachable only through themes we do not ship); dropping device-compat code (the presets target 435 TV models, so the launcher will meet those TVs).
+- Consequences: dropped theme keys are logged and ignored; RTL becomes framework mirroring, documented as untested.
+
+## ADR-009 Keep 30 translations as pure string files, English-only for new strings
+- Context: `values-*/strings.xml` files of 69–186 strings; the owner cannot maintain them.
+- Decision: keep them; disable `MissingTranslation` lint; new strings fall back to English; contributors may fill gaps.
+- Rejected: deleting them (free to keep, and they serve the TVs the presets cover); maintaining them (impossible for one owner).
+
+## ADR-010 Rename every identifier; the grep is a test
+- Context: requirement 1.
+- Decision: the naming map in §7; `tests/test_no_old_identifiers.py` allows old names only in `LICENSE`, `THIRD_PARTY_NOTICES.md`, README credits, `presets/**` headers, and `docs/design/`.
+- Rejected: keeping the Java package `com.gathin.tvhome` under a new applicationId (what the fork does to ease upstream merges; no longer a goal).
+- Consequences: third-party module cards written for the old category do not appear; the fork's backup JSON and order file are still readable (compat shims with tests).
+
+## ADR-011 Keep the old `.backup` authority in `<queries>` for one migration **[CONFIRM]**
+- Context: the owner's TV runs `com.itsluminous.tvhome`; "Import from another launcher" reads the other package's provider.
+- Decision: `Backup.KNOWN_PACKAGES = {"com.itsluminous.tvhome"}` for import; drop `com.gathin.tvhome`.
+- Rejected: dropping import entirely (the owner re-enters settings by hand); keeping both old names (one is dead).
+- Consequences: remove after the owner migrates, or keep documented as "import from the cleanyourtv fork".
+
+## ADR-012 ESPN site feeds as the single v1 score source
+- Context: §13.1 table; verified live on 2026-11-09; tv-town-launcher's production use since 2026 with 60 s polling while on screen.
+- Decision: `site.api.espn.com` scoreboards per league + `site.web.api.espn.com … cricket/scorepanel?dates=` for cricket; no key.
+- Rejected: CricAPI (100 hits/day, cricket only), TheSportsDB (livescores Premium only), football-data.org (football only, no ISL, 10/min), API-Football (100/day), Sofascore/Cricbuzz (unofficial, blocked at times), Jolpica (F1 results only).
+- Consequences: undocumented feed; fail-soft design; Disclaimer; adapter boundary (ADR-013) for a replacement; weekly CI fixture re-check.
+
+## ADR-013 `ScoreSource` adapter boundary with a source-neutral `Event` model
+- Context: one source today, likely a second later.
+- Decision: §13.3 interface; `EspnSource` the only implementation; `FakeSource` in `:testkit`.
+- Rejected: parsing ESPN JSON straight into provider rows (ties the contract to the feed shape).
+
+## ADR-014 Refresh-on-read plus JobScheduler, no services
+- Context: 1 GB TV; a 60 s interval is below JobScheduler's 15-minute periodic floor; nothing should run while nothing displays.
+- Decision: §13.5: the launcher's 60 s provider read (only while a followed event is live and Home is resumed) triggers a stale-check fetch; the scoreboard UI polls at 30 s while resumed; a one-off job 2 min before the next followed start and a 6 h periodic fixture refresh; backoff 1-2-4-8 min.
+- Rejected: a foreground service with a notification (the TV shows it, and it costs memory all day); `AlarmManager` at 60 s (wakes the device with nothing on screen); polling from the launcher itself (it has no INTERNET and must not).
+- Consequences: the pill's freshness depends on a screen looking at it, which is the point.
+
+## ADR-015 Pill text computed in the companion, not the launcher
+- Context: `HeroFeed` already takes the companion's ready-made `meta` line; the launcher has no sports knowledge.
+- Decision: `/pill` returns `state, kicker, line, color`; the launcher renders only.
+- Rejected: shipping `Event` columns and formatting in the launcher (duplicates sport logic in Java, untestable without the companion).
+
+## ADR-016 Signature-level permissions on both companion providers
+- Context: requirement 5; one keystore; the Backup provider must stay readable from `adb shell`.
+- Decision: `READ_HERO` and `READ_SCORES` custom permissions, `protectionLevel="signature"`; `.backup` stays open read-only; `.theme` stays `WRITE_SECURE_SETTINGS`.
+- Rejected: no permission on the companions (any app could read the user's Trakt rows and followed teams); `signatureOrSystem`/`dangerous` (no better fit).
+- Consequences: self-built launchers cannot read released companions; documented.
+
+## ADR-017 Up from the grid always goes to the score pill (if shown) then Inputs
+- Context: requirement 2; today `firstTopButton()` picks the first visible pill and RecyclerView may restore the last-focused pill.
+- Decision: §9.3 rules in a pure `TopBarFocus`; the carousel becomes a stop between grid and pill.
+- Rejected: restoring the last-focused pill (the owner explicitly rejected it); putting the pill in the pill row (changes the reference layout and the Left/Right bar walk).
+
+## ADR-018 `ResourceBars` as one custom view; `widgets` becomes a boolean
+- Context: requirement 2; the reference image's two-row block.
+- Decision: one `View` draws both rows; `widgets: true|false`; old arrays migrate to `true` when non-empty; the settings row is one toggle "System bars".
+- Rejected: six stock widgets (`TextView`×4 + `ProgressBar`×2: more layout passes on a 1 GB TV, harder to align); keeping the array type with only two allowed values (a type nobody needs).
+
+## ADR-019 JUnit 4 + Robolectric + Espresso/UiAutomator + Python unittest; fakes, no Mockito
+- Context: carried tests are JUnit 4; cross-app handshakes need real installs; the setup tool is Python.
+- Decision: §14.1; coverage floors per module; `:testkit` holds the fakes.
+- Rejected: JUnit 5 (two runners in one repo for no gain), Mockito (encourages mocking Android classes instead of extracting pure logic), pytest (a dependency the carried tests never needed).
+
+## ADR-020 Espresso focus suite before the decomposition
+- Context: ADR-007 risk.
+- Decision: Phase 2 step 1 writes `HomeFocusNoPillTest`, `CarouselFocusTest`, `ThemePushTest`, `BackupRestoreTest`, `HomeSmokeTest` against the undecomposed code; every decomposition commit keeps them green.
+- Rejected: writing tests after the split (would test the new shape, not preserve the old behaviour).
+
+## ADR-021 One release keystore, four signing secrets, verify-or-fail
+- Context: owner's decision; HikViewer's `release.yml` pattern.
+- Decision: §15.3; `apksigner` digest must equal the keystore's; all three digests equal; digest published in README and release body.
+- Rejected: a key per app (three secret sets, three card approvals, no signature permissions across apps); signing locally and uploading by hand (talkies' `release-apk.sh`: not reproducible by CI).
+
+## ADR-022 Emulator tests on every push to main and code PRs, not nightly
+- Context: requirement 5 asked "if feasible within free minutes"; the repo is public and GitHub Actions has no minutes cap for public repositories.
+- Decision: run `instrumented` on push to `main`, `workflow_dispatch`, and PRs that touch code (`dorny/paths-filter`); ~30–40 min per run.
+- Rejected: nightly only (a broken focus rule would be found a day late).
+
+## ADR-023 Shared version from the tag; all three APKs rebuilt per tag
+- Context: requirement 5 "versioning scheme shared across the three apps".
+- Decision: `vX.Y.Z` → `versionName X.Y.Z`, `versionCode X·10000+Y·100+Z`; dev builds `0.0.0-dev`/1; every tag publishes all three plus `SHA256SUMS`.
+- Rejected: per-app versions (users would mix incompatible contract versions; the setup tool would need a compatibility table).
+
+## ADR-024 Release notes from the annotated tag, else GitHub-generated with label categories
+- Context: HikViewer's approach; requirement 5 "generate release notes".
+- Decision: tag body wins; otherwise `generate_release_notes` with `.github/release.yml` categories; CHANGELOG.md by hand.
+- Rejected: a commit-message changelog generator (another tool to maintain).
+
+## ADR-025 One Python setup package with thin bash/PowerShell bootstraps
+- Context: requirement 6; cleanyourtv has `.sh` scripts each with a `.ps1` twin (two implementations of the Home guard to keep in step, `tests/test_core_packages.py`).
+- Decision: `setup/leantv_setup` (Python ≥ 3.9) carrying `tv.py`, `b64push.py`, `recovery.py`, `check.py`, the `disable.sh` guard logic; `setup.sh`/`setup.ps1` only find Python and make a venv.
+- Rejected: shell + PowerShell twins (double logic); a compiled binary (nothing to reproduce from source); requiring the stock `adb` (blocked on some machines, and the requirement forbids it).
+
+## ADR-026 TV discovery: mDNS, then /24 port-5555 scan, then manual
+- Context: the owner's TV moves on DHCP (`work/README-mooq1.md`); a `nc` loop is what they used.
+- Decision: `zeroconf` browse for `_adb._tcp`/`_adb-tls-connect._tcp` (2 s), threaded connect scan (≈4 s), manual entry with `address_problem` validation; remember the last TV.
+- Rejected: manual IP only (the brief asks for discovery); ARP/vendor-OUI scans (platform-specific).
+
+## ADR-027 Presets carried verbatim; tokens mined from headers; exact-tier auto-suggestion only
+- Context: `tv.json` holds only `tv, os, brand, notes` (checked across 434 files); headers are free text but name device/product/board codes.
+- Decision: §17.2 index with mined tokens; §17.3 tiers; only an exact `ro.product.model`/`ro.product.device` match is pre-selected, and still shown in full before anything is sent.
+- Rejected: hand-adding a `models` field to 434 files (a week of editing community data); fuzzy brand-only auto-apply (unsafe).
+
+## ADR-028 Recovery records keyed by serial+model hash, not IP
+- Context: `recovery.py` keys records by address and warns when the TV moves (`recovery.py:19-23`).
+- Decision: `sha256(ro.serialno + ro.product.model)[:12]` under `~/.leantv/`.
+- Rejected: IP keying (DHCP breaks it); `ANDROID_ID` (changes on factory reset, which is when you most want the record found — but a reset also clears the disables, so either works; serial is simpler to read).
+
+## ADR-029 Attribution: MIT notice + generated per-preset author names **[CONFIRM]**
+- Context: requirement 6 "keep attribution"; 732 distinct git authors over `examples/`.
+- Decision: `presets/README.md` with the CleanYourTV MIT notice; `presets/ATTRIBUTION.md` generated with slug, source path, last commit, author names (no e-mail addresses).
+- Rejected: a single collective line only (thinner than MIT's spirit); copying `git log` with e-mails (personal data).
+
+## ADR-030 Licence: MIT with the CleanYourTV derived-work notice in `LICENSE`
+- Context: requirement 8.
+- Decision: §18.1; `THIRD_PARTY_NOTICES.md` for fonts, icons, Python libraries and data services.
+- Rejected: a separate `NOTICE` file only (GitHub's licence detector reads `LICENSE`).
+
+## ADR-031 Launcher APK size gate at 900 KB
+- Context: upstream's 576 KB gate; the fork is at 615 KB; the decomposition adds classes.
+- Decision: CI fails above 900 KB.
+- Rejected: no gate (1 GB TVs still matter); 700 KB (would fight the decomposition).
+
+## ADR-032 Follows are not part of the launcher backup in v1 **[CONFIRM]**
+- Context: the launcher's Backup covers its own settings; follows live in the companion.
+- Decision: `follows.json` stays in the companion; re-entered in a minute.
+- Rejected: a backup path on the score provider (a second write-free provider path and a cross-app restore flow for a 2 KB file).
+
+## ADR-033 Default follows on first run
+- Context: the pill should show something before the picker is used; the owner is in India.
+- Decision: cricket India internationals + IPL; football ISL + Premier League + Champions League; F1; tennis off.
+- Rejected: nothing followed by default (an empty pill on first Home).
+
+## ADR-034 Companion UI without Leanback search; three-column follow picker
+- Context: catalogues under 40 items per level.
+- Decision: sport → competition → team columns, OK toggles.
+- Rejected: a search box (keyboard on a TV for lists this short).
