@@ -95,6 +95,13 @@ public final class ScoreContract {
     /** {@code String} extra of {@link #SCOREBOARD_ACTIVITY}: the {@link #EVENT_ID} to show. */
     public static final String EXTRA_EVENT_ID = "event_id";
 
+    /**
+     * Intent action the companion answers for opening a score: with {@link #EXTRA_EVENT_ID} it shows that
+     * event's scoreboard, without it the companion's Home. Equivalent to starting
+     * {@link #SCOREBOARD_ACTIVITY} by component, for a launcher that prefers an action.
+     */
+    public static final String ACTION_OPEN = PACKAGE + ".action.OPEN";
+
     // States (column STATE), §13.4.
 
     /** In play. */
