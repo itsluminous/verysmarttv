@@ -829,8 +829,10 @@ nightly (ADR-022). Concurrency group per ref with cancel-in-progress keeps queue
 
 1. Checkout with `fetch-depth: 0` (annotated tag body = release notes, HikViewer's approach).
 2. `version=${GITHUB_REF_NAME#v}`; fail unless it matches `X.Y.Z(-suffix)?` with each part < 100.
-3. Decode `KEYSTORE_BASE64` → `$RUNNER_TEMP/release.jks`; export `KEYSTORE_FILE`.
-4. `./gradlew ci` (same gates as a push).
+3. `./gradlew ci` (same gates as a push, debug-signed: the signing environment is not set yet).
+4. Decode `KEYSTORE_BASE64` → `$RUNNER_TEMP/release.jks`; export `KEYSTORE_FILE`. After `ci`, not
+   before: the convention plugin stops a build whose environment names a keystore without its
+   passwords (§15.3), which is what `KEYSTORE_FILE` alone would be.
 5. `./gradlew assembleRelease -PversionName=$version` with `KEYSTORE_PASSWORD`, `KEY_ALIAS`,
    `KEY_PASSWORD`, `TRAKT_CLIENT_ID`, `TMDB_API_KEY`, `OMDB_API_KEY` in the environment (the
    convention plugin reads env first, then `secrets.env`, then `local.properties`; a missing key builds
@@ -841,8 +843,8 @@ nightly (ADR-022). Concurrency group per ref with cancel-in-progress keeps queue
    keystore's certificate digest (`keytool -list -v`); mismatch fails the job (HikViewer's rule: a
    mis-wired secret must never ship a debug-signed release). Also assert all three digests are equal.
 8. `softprops/action-gh-release@v2`: name `VerySmartTV $version`, body = tag message if annotated else
-   `generate_release_notes: true` with `.github/release.yml` categories (`feat`, `fix`, `launcher`,
-   `traktshelf`, `livescore`, `setup`, `docs` from PR labels); `prerelease` when the tag has a `-`;
+   `generate_release_notes: true` with `.github/release.yml` categories (`feat`, `fix`, `area:launcher`,
+   `area:traktshelf`, `area:livescore`, `area:setup`, `docs` from PR labels); `prerelease` when the tag has a `-`;
    files = the three APKs + `SHA256SUMS`.
 9. A final step appends to the release body the certificate digest and
    `Install with: setup/setup.sh` (so the Obtainium/GitHub badges have something to point at).
@@ -1070,7 +1072,7 @@ says so, runs the emulator suite, takes screenshots). The owner approves each ph
 
 | Phase | Scope | Coder delivers | Reviewer checks | QA | Acceptance | Owner provides |
 |---|---|---|---|---|---|---|
-| **0 Skeleton** (½ day) | Repo, Gradle, CI shell | `settings.gradle.kts`, `build-logic` convention plugins, version catalog, empty `:core`/`:testkit`, `.gitignore`, `LICENSE`, `THIRD_PARTY_NOTICES.md`, `AGENTS.md`, `CONTRIBUTING.md`, `ci.yml`, `release.yml`, `.github/release.yml`, `docs/BUILDING.md` | Toolchain versions match §5.1; secrets never in tree; `.gitignore` first | `./gradlew ci` green on an empty project; `release.yml` dry run on a `v0.0.1-rc1` tag produces debug-signed APKs and fails the signature check as designed | CI green; a tag builds; nothing to install yet | GitHub repo `itsluminous/verysmarttv` created, Actions enabled |
+| **0 Skeleton** (½ day) | Repo, Gradle, CI shell | `settings.gradle.kts`, `build-logic` convention plugins, version catalog, empty `:core`/`:testkit`, `.gitignore`, `LICENSE`, `THIRD_PARTY_NOTICES.md`, `AGENTS.md`, `CONTRIBUTING.md`, `ci.yml`, `release.yml`, `.github/release.yml`, `docs/BUILDING.md` | Toolchain versions match §5.1; secrets never in tree; `.gitignore` first | `./gradlew ci` green on an empty project; `release.yml` dry run on a `v0.0.1-rc1` tag fails at its first step after the version check, **Check the secrets**, as designed (a release is never debug-signed; once the secrets exist it fails at collecting the APKs until Phase 1 adds the modules) | CI green; a tag builds; nothing to install yet | GitHub repo `itsluminous/verysmarttv` created, Actions enabled |
 | **1 Carry + rename** (2 days) | `:launcher`, `:traktshelf` moved and renamed; `:core` contracts | Scripted move of 101 Java files + resources into the new packages; naming map §7 applied; dropped features removed (§3); `widgets` boolean + migration; `Config`/`AppAdapter` split; lint baselines; `HeroContract` extracted; signature permission on `.hero` | Grep test passes; no behaviour change beyond §3/§6; dropped-key logging | Carried 22 JVM tests pass; `HomeActivityTest` smoke; `BackupCompatTest`, `OrderMagicTest`, `ConfigMigrationTest` written and green; manual run on `HikViewer_TV_1080p` with the frosted theme: Home renders, carousel works with traktshelf debug build | Frosted theme on the emulator looks like the fork's screenshot minus gauges; APK < 900 KB | – (the §3 and §7.2 rows are decided) |
 | **2 Decompose** (3 days) | §8 | Step 1 (QA first): `HomeFocusNoPillTest`, `CarouselFocusTest` (pre-pill rules), `ThemePushTest`, `BackupRestoreTest`, `HomeSmokeTest` green on the undecomposed code. Then move methods into the 17 classes verbatim (one commit per controller), then extract `FocusRules`, `TopBarFocus` (without the pill), `PillOrder`, `InputRows`, `ShelfScale` as pure classes | Each commit compiles and keeps Espresso green; no logic changes while moving; `HomeActivity` < 500 lines; file-length task on | `FocusRulesTest` (full table), `PillOrderTest`, `ShelfScaleTest`; coverage floor 50 % on `:launcher` | All Phase-2 suites green on the emulator; `dumpsys gfxinfo` janky-frame share within 2 pp of Phase 1 on the same AVD | – |
 | **3 Bars + pill in the launcher** (2 days) | §9, §10 rows | `ResourceBars`, `ResourceSampler`, `ScorePill`, `ScoreFeed`, `TopBarFocus` rules 1–7, settings rows System bars / Live scores, `score_pill` theme key, `themes/frosted` updated, Keys table | Pill is `GONE` without the provider; no network; 60 s read only while live; focus rules exactly §9.3 | `TopBarFocusTest`, `ResourceSamplerTest`, `ScoreLineTest`, Robolectric `ResourceBarsTest`/`ScorePillTest`/`SettingsPanelTest`; Espresso `HomeFocusTest`, `ResourceBarsVisibleTest`, `SettingsPersistTest` with a `FakeScoreProvider` from `:testkit` | The reference-image layout reproduced on `HikViewer_TV_1080p` screenshot (bars block, pill line under the pills); every focus rule green | Reviews the screenshot |
@@ -1087,7 +1089,7 @@ Total: about 16 agent-days of work plus owner gates. Phases 3 and 4 can run in p
 |---|---|---|
 | GitHub repo `itsluminous/verysmarttv`, Actions on | 0 | public |
 | Answers to every **[CONFIRM]** | done (2026-11-09) | §3 drops accepted; §7.2 old backup authority rejected; §13.2 follows are backed up; §17.4 repositories named, no per-contributor list |
-| Release keystore (`keytool -genkeypair -alias verysmarttv -keyalg RSA -keysize 4096 -validity 10950`) and its two passwords, as the four GitHub secrets | before the first `v*` tag (Phase 6; a `-rc` tag in Phase 0 runs unsigned on purpose) | keep the `.jks` in a password manager |
+| Release keystore (`keytool -genkeypair -alias verysmarttv -keyalg RSA -keysize 4096 -validity 10950`) and its two passwords, as the four GitHub secrets | before the first `v*` tag (Phase 6; a `-rc` tag pushed earlier fails at **Check the secrets** on purpose) | keep the `.jks` in a password manager |
 | `TRAKT_CLIENT_ID`, `TMDB_API_KEY`, `OMDB_API_KEY` as GitHub secrets and in local `secrets.env` | 1 (traktshelf builds with empty keys otherwise) | copied by the owner from the fork's `work/secrets.env`; agents never read or print that file |
 | livescore key | none | ESPN needs none |
 | The Mi TV 4A, ADB on, for the Phase 6 checklist | 6 | and the four README screenshots |

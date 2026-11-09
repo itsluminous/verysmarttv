@@ -82,6 +82,12 @@ jobs:
         with:
           cache-read-only: true
 
+      - name: Run quality gates
+        run: ./gradlew ci --stacktrace
+
+      # After the gates, not before: `ci` is debug-signed like a push, and build-logic stops a build whose
+      # environment names a keystore without its passwords (ReleaseSigning.load), which is exactly what
+      # KEYSTORE_FILE alone would be during `ci`. The passwords join only in the assemble step below.
       - name: Decode release keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -89,9 +95,6 @@ jobs:
           set -euo pipefail
           printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
           echo "KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
-
-      - name: Run quality gates
-        run: ./gradlew ci --stacktrace
 
       - name: Assemble signed release APKs
         env:

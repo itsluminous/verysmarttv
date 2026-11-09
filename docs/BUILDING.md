@@ -109,10 +109,11 @@ Every identifier was renamed from the upstream project and from the design's wor
 credits, the preset headers (verbatim community text) and `docs/`. The check, which must print nothing:
 
 ```bash
-git grep -niE 'leantv|gathin|tvhome|cleanyourtv' -- ':!LICENSE' ':!THIRD_PARTY_NOTICES.md' ':!README.md' ':!docs/' ':!presets/'
+git grep -niE 'leantv|gathin|tvhome|cleanyourtv' -- ':!LICENSE' ':!THIRD_PARTY_NOTICES.md' ':!README.md' ':!docs/' ':!presets/' ':!.github/workflows/ci.yml'
 ```
 
-Phase 5 turns it into `tests/test_no_old_identifiers.py`, run by `ci.yml`.
+`ci.yml` runs the same command in its `verify` job (the workflow file is left out because it holds the
+pattern). Phase 5 turns it into `tests/test_no_old_identifiers.py`.
 
 ## Local API keys for the Trakt companion (Phase 1)
 

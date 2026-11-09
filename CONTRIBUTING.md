@@ -23,6 +23,8 @@ is in [docs/design/DESIGN.md](docs/design/DESIGN.md) and every decision has a li
 3. User-facing text goes in `res/values/strings.xml` (English). The 30 other languages are
    community-maintained; filling a gap in one is welcome.
 4. Keep files under 1,200 lines (`./gradlew fileLength`). Keep lint clean; it fails on warnings.
+   No dead code: nothing lands that no shipped theme, setting, test or companion reaches, and no
+   commented-out code or `TODO` placeholders.
 5. Never commit a keystore, `release.properties`, `secrets.env`, an API key, an IP address, a Wi-Fi
    name or a serial number. `.gitignore` covers the usual files; check before adding a new type.
 6. Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/): `feat(launcher): …`,
