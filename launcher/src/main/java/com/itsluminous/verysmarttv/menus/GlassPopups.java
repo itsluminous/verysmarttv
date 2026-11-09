@@ -88,20 +88,20 @@ public final class GlassPopups {
         LinearLayout rows = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (220 * host.density()));
         // Inputs opens its own list once this one has closed.
-        if (host.showInputsMenuRow()) host.addInputRow(rows, popup, R.drawable.ic_input, host.getString(R.string.inputs), -1, () -> root.post(host::showInputs));
-        host.addInputRow(rows, popup, R.drawable.ic_wifi, host.getString(R.string.quick_network), -1, host::openNetworkPill);
+        if (host.showInputsMenuRow()) host.inputs().addInputRow(rows, popup, R.drawable.ic_input, host.getString(R.string.inputs), -1, () -> root.post(host.inputs()::showInputs));
+        host.inputs().addInputRow(rows, popup, R.drawable.ic_wifi, host.getString(R.string.quick_network), -1, host::openNetworkPill);
         CharSequence network = host.networkPillLabel();
         if (!TextUtils.isEmpty(network)) {
             TextView status = rows.getChildAt(rows.getChildCount() - 1).findViewById(R.id.status);
             status.setText(network);
             status.setVisibility(View.VISIBLE);
         }
-        host.addInputRow(rows, popup, R.drawable.ic_swap_vert, host.getString(R.string.reorder), -1, host::toggleReorder);
+        host.inputs().addInputRow(rows, popup, R.drawable.ic_swap_vert, host.getString(R.string.reorder), -1, host::toggleReorder);
         if (host.launcherSettingsButton()) {
-            host.addInputRow(rows, popup, R.drawable.ic_home_settings_pill, host.getString(R.string.launcher_settings), -1,
+            host.inputs().addInputRow(rows, popup, R.drawable.ic_home_settings_pill, host.getString(R.string.launcher_settings), -1,
                     () -> host.startup().openLauncherSettings());
         } else {
-            host.addInputRow(rows, popup, R.drawable.ic_settings, host.getString(R.string.settings), -1,
+            host.inputs().addInputRow(rows, popup, R.drawable.ic_settings, host.getString(R.string.settings), -1,
                     () -> host.open(SystemSettings.intent(host, Settings.ACTION_SETTINGS)));
         }
         panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);

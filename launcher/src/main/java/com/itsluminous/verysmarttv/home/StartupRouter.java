@@ -181,7 +181,7 @@ public final class StartupRouter {
         String target = bootToLiveTv ? liveTvPkg : app;
         if (!OpenOnStart.due(boot, prefs.getInt(OpenOnStart.BOOT_KEY, -1), target, home.getPackageName())) return false;
         if (!prefs.edit().putInt(OpenOnStart.BOOT_KEY, boot).commit()) return false;
-        Intent i = bootToLiveTv ? home.liveTvIntent() : OpenOnStart.intent(home.getPackageManager(), app);
+        Intent i = bootToLiveTv ? home.inputs().liveTvIntent() : OpenOnStart.intent(home.getPackageManager(), app);
         if (i == null) return false;
         return openWhenReady(i);
     }
