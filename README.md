@@ -59,7 +59,6 @@ IP addresses or Wi-Fi names. Coding agents: [AGENTS.md](AGENTS.md).
 - [tv-town-launcher](https://github.com/NareshJagriya/tv-town-launcher): the ESPN feed approach to
   live scores.
 - [talkies](https://github.com/rajupp/talkies): the layout of the notices and disclaimer.
-- [HikViewer](https://github.com/itsluminous/HikViewer): the CI and release shape.
 
 ## Disclaimer
 

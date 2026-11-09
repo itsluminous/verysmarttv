@@ -62,6 +62,12 @@ emulator -avd VerySmartTV_TV_1080p &
 A second AVD with `hw.ramSize=1024` in its `config.ini` stands in for a 1 GB TV when a phase asks for
 memory numbers.
 
+Gradle uninstalls the debug APKs when a connected run ends. Add
+`-Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true` to keep the launcher installed and Home on
+the emulator you are also testing by hand. On a Google TV image (`google_atv`) `cmd package set-home-activity`
+alone does not take Home from the stock launcher; `HomeSmokeTest` disables it for the test and enables it
+again afterwards, the way the setup tool's install flow does for good.
+
 ## Signing
 
 Release builds of all three apps are signed with **one** keystore, alias `verysmarttv`

@@ -22,4 +22,5 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.dynamicanimation)
     testImplementation(libs.bundles.jvm.test)
+    androidTestImplementation(libs.bundles.android.test)
 }
