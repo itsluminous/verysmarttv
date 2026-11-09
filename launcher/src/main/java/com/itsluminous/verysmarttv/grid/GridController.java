@@ -457,7 +457,7 @@ public final class GridController {
         if (!adapter.setNamesUnderTiles(on)) return;
         for (int i = 0; i < grid.getChildCount(); i++) {
             RecyclerView.ViewHolder vh = grid.getChildViewHolder(grid.getChildAt(i));
-            if (vh instanceof AppAdapter.Holder) adapter.refreshName((AppAdapter.Holder) vh, vh.getBindingAdapterPosition());
+            if (vh instanceof TileBinder.Holder) adapter.refreshName((TileBinder.Holder) vh, vh.getBindingAdapterPosition());
         }
     }
 
