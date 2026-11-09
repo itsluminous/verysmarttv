@@ -24,6 +24,13 @@
     <string name="date_format_home" translatable="false">@string/date_format</string>
     <!-- widgets: the System bars row in Launcher settings (the RAM and Storage bars beside the date, DESIGN.md §9.1). -->
     <string name="widgets_label">System bars (RAM, Storage)</string>
+    <!-- The two rows of the System bars block and their figure: "RAM   1.1 GB free" (ResourceBars). -->
+    <string name="bars_ram">RAM</string>
+    <string name="bars_storage">Storage</string>
+    <string name="bars_free">%1$s %2$s free</string>
+    <string name="unit_gb">GB</string>
+    <string name="unit_mb">MB</string>
+    <string name="unit_b">B</string>
     <string name="dream_name">Clock</string>
     <string name="vpn">VPN</string>
     <string name="vpn_off">VPN off</string>

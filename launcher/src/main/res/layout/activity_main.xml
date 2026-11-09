@@ -225,6 +225,19 @@
 
             </LinearLayout>
 
+            <!-- widgets (System bars): the RAM and Storage block, right-aligned to the pills' left edge minus 16dp and
+                 centred on the 42dp pills (DESIGN.md §9.1). GONE until the key or the Settings row turns it on; while it
+                 shows, TopBarController ends the date column at its left so a long date never runs under it. -->
+            <com.itsluminous.verysmarttv.topbar.ResourceBars
+                android:id="@+id/resourceBars"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@+id/topButtons"
+                android:layout_alignTop="@+id/topButtons"
+                android:layout_alignBottom="@+id/topButtons"
+                android:layout_marginEnd="16dp"
+                android:visibility="gone" />
+
             <LinearLayout
                 android:id="@+id/topButtons"
                 android:layout_width="wrap_content"

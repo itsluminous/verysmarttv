@@ -36,6 +36,7 @@ import android.widget.TextClock;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.itsluminous.verysmarttv.R;
 import com.itsluminous.verysmarttv.clock.ClockRefresh;
@@ -117,6 +118,11 @@ public final class TopBarController {
 
 
     private View btnReorder;
+
+    /** widgets (System bars): the RAM and Storage block right of the date, and the sampler that feeds it while Home is resumed. */
+    private ResourceBars bars;
+    @Nullable
+    private ResourceSampler sampler;
 
     /** Refreshes the network pill when the connection changes: at boot Wi-Fi often connects after Home is shown. */
     private final ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
@@ -200,6 +206,7 @@ public final class TopBarController {
     public void setPillsOverArt(boolean on) {
         if (host.state().pillsOverArt == on) return;
         host.state().pillsOverArt = on;
+        if (bars != null) bars.setOverArt(on);
         int bg = on ? R.drawable.pill_bg_over_art : R.drawable.pill_bg;
         for (View pill : new View[]{btnInputs, btnWifi, btnReorder, btnLibraryTop, host.findViewById(R.id.btnSettings)}) {
             if (pill == null) continue;
@@ -728,8 +735,17 @@ public final class TopBarController {
         if (cfg.dateBelowClock && cfg.iconOnlyButtons && !cfg.topMenu) alignDateBelowIconsWithClock();
         // date_two_lines: not with the date under the clock, which would push the header down.
         if (cfg.dateTwoLines && !cfg.dateBelowClock) dateOnTwoLines();
-        // widgets (Config.widgets): the RAM and Storage bars land here in Phase 3 (DESIGN.md §9.1); the key is read
-        // and the Settings row toggles it, and nothing is drawn yet.
+        // widgets (Config.widgets, after the System bars row): the RAM and Storage block between the date and the pills
+        // (DESIGN.md §9.1). The date column ends at the block's left while it shows, so a long date never runs under it.
+        bars = host.findViewById(R.id.resourceBars);
+        if (cfg.widgets) {
+            bars.setVisibility(View.VISIBLE);
+            RelativeLayout.LayoutParams blp = (RelativeLayout.LayoutParams) clockBlock.getLayoutParams();
+            blp.removeRule(RelativeLayout.START_OF);
+            blp.addRule(RelativeLayout.START_OF, R.id.resourceBars);
+            clockBlock.setLayoutParams(blp);
+            sampler = new ResourceSampler(ResourceSampler.ANDROID, host.handler(), bars::setValues);
+        }
         vpnApp = cfg.vpnApp;
         vpnPill = PillOrder.shown(PillOrder.of(PillOrder.Keys.of(cfg)), PillOrder.Pill.VPN);
         btnVpn = host.findViewById(R.id.btnVpn);
@@ -920,10 +936,12 @@ public final class TopBarController {
             pillsShown = true;
         }
         host.handler().postDelayed(minuteTick, MINUTE_MS);
+        if (sampler != null) sampler.start();
     }
 
     public void onPause() {
         host.handler().removeCallbacks(minuteTick);
+        if (sampler != null) sampler.stop();
     }
 
     /** show_inputs_pill as configured: top_menu clears the pill, so the gear menu's Inputs row reads this. */
