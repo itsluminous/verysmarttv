@@ -25,7 +25,7 @@ import java.util.function.ToIntFunction;
 import java.util.regex.Pattern;
 import com.itsluminous.verysmarttv.clock.ClockActivity;
 import com.itsluminous.verysmarttv.theme.Config;
-import com.itsluminous.verysmarttv.MainActivity;
+import com.itsluminous.verysmarttv.home.HomeActivity;
 import com.itsluminous.verysmarttv.settings.SystemSettings;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -387,7 +387,7 @@ public final class RemoteKeys {
                 break;
             case "library":
                 // Home with the App library open on top; Home does nothing when app_library is off.
-                start(ctx, new Intent(ctx, MainActivity.class).setAction(MainActivity.ACTION_APP_LIBRARY));
+                start(ctx, new Intent(ctx, HomeActivity.class).setAction(HomeActivity.ACTION_APP_LIBRARY));
                 break;
             default:
                 break;   // "ignore", or "sleep" below Android 9: consumed, nothing to do
@@ -419,7 +419,7 @@ public final class RemoteKeys {
             // This launcher's own Inputs menu, as InputsRequestActivity opens it: addressed to Home directly, so a
             // vendor input picker that also answers VIEW_INPUTS never turns it into a chooser.
             try {
-                ctx.startActivity(new Intent(ctx, MainActivity.class).setAction(MainActivity.ACTION_VIEW_INPUTS)
+                ctx.startActivity(new Intent(ctx, HomeActivity.class).setAction(HomeActivity.ACTION_VIEW_INPUTS)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             } catch (ActivityNotFoundException ignored) {
             }

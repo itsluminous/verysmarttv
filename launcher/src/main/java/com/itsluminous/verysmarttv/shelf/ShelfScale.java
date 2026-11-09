@@ -1,12 +1,11 @@
 package com.itsluminous.verysmarttv.shelf;
 
 import com.itsluminous.verysmarttv.theme.Config;
-import com.itsluminous.verysmarttv.MainActivity;
 
 /**
  * hero_height: the shelf's typography and spacing follow its height, so a short shelf (Compact, 60) holds its name
  * or the carousel's title above the first row instead of running into it. The grid's resting line (its top padding)
- * is that height's share of the shelf's room, but the shelf cannot move up past the header (MainActivity's
+ * is that height's share of the shelf's room, but the shelf cannot move up past the header (HomeActivity's
  * SHELF_MIN_TOP_DP), so at 60 the room under the clock was 60% of what the full-size text needs and the dots landed on
  * the tiles. Two things fix that: the sizes below scale with the height, and {@link #floorPx} keeps the line under the
  * shelf whatever the text measures. The pure arithmetic lives here so it can be tested without a TV.

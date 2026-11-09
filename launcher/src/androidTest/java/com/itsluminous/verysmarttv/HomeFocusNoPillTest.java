@@ -26,7 +26,7 @@ import java.util.Map;
 
 /**
  * The D-pad on Home without the score pill (DESIGN.md §14.3 HomeFocusNoPillTest; the pill is Phase 3), written on
- * the undecomposed MainActivity so the Phase 2 moves are checked behaviour for behaviour. Each test is one path:
+ * the undecomposed HomeActivity so the Phase 2 moves are checked behaviour for behaviour. Each test is one path:
  * a start tile, then keys with the focus expected after each. The rules it pins, as today's
  * {@code onTileVerticalKey}, the pills' key listener, {@code onLibraryUp} and {@code focusLibrary} have them:
  *

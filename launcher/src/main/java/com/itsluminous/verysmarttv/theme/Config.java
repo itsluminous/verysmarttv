@@ -31,7 +31,6 @@ import com.itsluminous.verysmarttv.clock.ClockFormat;
 import com.itsluminous.verysmarttv.keys.HomeKeyService;
 import com.itsluminous.verysmarttv.keys.InputKeyService;
 import com.itsluminous.verysmarttv.inputs.InputsRequestActivity;
-import com.itsluminous.verysmarttv.MainActivity;
 import com.itsluminous.verysmarttv.keys.ServiceRepair;
 import com.itsluminous.verysmarttv.grid.TopFade;
 import com.itsluminous.verysmarttv.grid.UniformRows;
@@ -47,7 +46,7 @@ import androidx.annotation.Nullable;
  * tool pushes a theme folder there and restarts Home. A key of a feature this launcher dropped ({@link #IGNORED_KEYS},
  * ADR-008) is ignored with one log line each, so an older theme still loads.
  *
- * Read once in {@link MainActivity#onCreate}; nothing here touches the network.
+ * Read once in {@link HomeActivity#onCreate}; nothing here touches the network.
  */
 public final class Config {
     private static final String TAG = "VerySmartTV.Config";
@@ -91,7 +90,7 @@ public final class Config {
     public static final String ADVANCED_EFFECTS_LEGACY_KEY = "advanced_effects";
     /**
      * Counts the changes made in Launcher settings. Home remembers the count it was built with and rebuilds on
-     * resume when it differs, however the settings were left (see MainActivity#onResume).
+     * resume when it differs, however the settings were left (see HomeActivity#onResume).
      */
     public static final String SETTINGS_REVISION_KEY = "settings_revision";
 

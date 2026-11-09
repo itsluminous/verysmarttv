@@ -44,7 +44,7 @@
     </style>
 
     <!-- widgets: a frosted chip beside the date, an icon and a figure ("CPU 12%"), smaller than a pill and never
-         focused. Its size comes from the LayoutParams MainActivity gives it (30dp tall). -->
+         focused. Its size comes from the LayoutParams HomeActivity gives it (30dp tall). -->
 
     <style name="SettingsRow">
         <item name="android:layout_width">match_parent</item>

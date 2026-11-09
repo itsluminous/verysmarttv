@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.provider.Settings;
-import com.itsluminous.verysmarttv.MainActivity;
 import com.itsluminous.verysmarttv.R;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,7 +44,7 @@ public final class SystemSettings {
     /** The first vendor settings entry from settings_fallback_components that is installed, or null
      *  when none is. China-market firmware keeps pages the AOSP TV settings has no row for -
      *  Xiaomi's Account & Security, where the ADB switch lives - in the vendor's own settings app;
-     *  MainActivity's Settings menu offers it as "Native settings" while one is installed. */
+     *  HomeActivity's Settings menu offers it as "Native settings" while one is installed. */
     public static @Nullable Intent vendorIntent(@NonNull Context context) {
         PackageManager pm = context.getPackageManager();
         for (String value : context.getResources().getStringArray(R.array.settings_fallback_components)) {

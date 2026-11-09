@@ -1,7 +1,6 @@
 package com.itsluminous.verysmarttv.grid;
 
 import com.itsluminous.verysmarttv.theme.Config;
-import com.itsluminous.verysmarttv.MainActivity;
 
 /**
  * uniform_rows: no dock. The grid is one flat ordered list laid out {@code columns} per row, the first row too, so
@@ -15,7 +14,7 @@ import com.itsluminous.verysmarttv.MainActivity;
 public final class UniformRows {
     private UniformRows() { }
 
-    /** Room the shelf keeps above the first row: the 40dp gap of the dock layout (MainActivity's shelf clearance). */
+    /** Room the shelf keeps above the first row: the 40dp gap of the dock layout (HomeActivity's shelf clearance). */
     static final float SHELF_GAP_DP = 40f;
 
     /** The key only applies to the dock_row layout; a single row has one row already. */

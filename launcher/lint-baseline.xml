@@ -30,7 +30,7 @@
         errorLine2="                                                             ~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/theme/Config.java"
-            line="812"
+            line="811"
             column="62"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                                               ~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/theme/Config.java"
-            line="817"
+            line="816"
             column="64"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                                                                                   ~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/theme/Config.java"
-            line="831"
+            line="830"
             column="100"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/grid/AppAdapter.java"
-            line="470"
+            line="469"
             column="37"/>
     </issue>
 
@@ -393,7 +393,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/grid/AppAdapter.java"
-            line="453"
+            line="452"
             column="9"/>
     </issue>
 
@@ -404,7 +404,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/grid/AppAdapter.java"
-            line="503"
+            line="502"
             column="9"/>
     </issue>
 
@@ -1367,12 +1367,683 @@
 
     <issue
         id="SyntheticAccessor"
+        message="Access to `private` field `startPending` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            if (startPending == null) return;"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="346"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `startDeadline` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                    startDeadline)) return;"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="348"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `handler` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            handler.removeCallbacks(this);   // the deadline&apos;s run, when the network came first"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="349"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `startPending` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            Intent i = startPending;"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="350"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `startPending` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            startPending = null;"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="351"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `openStartAppOnWake` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            openStartAppOnWake();"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="358"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `handler` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            handler.post(HomeActivity.this::updateWifiLabel);"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="412"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `handler` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            handler.post(HomeActivity.this::updateWifiLabel);"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="417"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `handler` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            if (validated &amp;&amp; startPending != null) handler.post(openWhenOnline);"
+        errorLine2="                                                   ~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="427"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `openWhenOnline` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            if (validated &amp;&amp; startPending != null) handler.post(openWhenOnline);"
+        errorLine2="                                                                ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="427"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `startPending` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            if (validated &amp;&amp; startPending != null) handler.post(openWhenOnline);"
+        errorLine2="                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="427"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `handler` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            if (wifiNoInternetTint != null) handler.post(HomeActivity.this::updateWifiLabel);"
+        errorLine2="                                            ~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="430"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `wifiNoInternetTint` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            if (wifiNoInternetTint != null) handler.post(HomeActivity.this::updateWifiLabel);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="430"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `updateInputsButton` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            updateInputsButton();"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="437"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `updateInputsButton` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            updateInputsButton();"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="442"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `handler` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            handler.post(HomeActivity.this::updateWifiLabel);"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="449"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `handler` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            handler.post(HomeActivity.this::updateWifiLabel);"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="454"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `tileRefresh` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            if (!tileRefresh.onPackagesChanged()) return;"
+        errorLine2="                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="465"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `reloadApps` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            reloadApps(false);"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="466"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `appLibrary` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            if (appLibrary != null) appLibrary.refresh();"
+        errorLine2="                ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="467"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `appLibrary` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            if (appLibrary != null) appLibrary.refresh();"
+        errorLine2="                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="467"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `updateClockVisibility` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            updateClockVisibility();"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="475"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `clockRefresh` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            clockRefresh.start();   // the wall clock was set: line the redraw up with the new minute"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="476"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `updateGreeting` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            updateGreeting();"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="484"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `handler` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            handler.postDelayed(this, MINUTE_MS);"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="485"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `adapter` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            @Override public int getSpanSize(int position) { return !state.singleRow &amp;&amp; adapter != null &amp;&amp; adapter.isLibraryAt(position) ? state.columns : 1; }"
+        errorLine2="                                                                                        ~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="673"
+            column="89"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `adapter` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="            @Override public int getSpanSize(int position) { return !state.singleRow &amp;&amp; adapter != null &amp;&amp; adapter.isLibraryAt(position) ? state.columns : 1; }"
+        errorLine2="                                                                                                           ~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="673"
+            column="108"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `grid` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                v.setAlpha(tileAlpha(grid.getChildAdapterPosition(v)));"
+        errorLine2="                                     ~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="682"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `tileAlpha` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                v.setAlpha(tileAlpha(grid.getChildAdapterPosition(v)));"
+        errorLine2="                           ~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="682"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `grid` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                            grid.getViewTreeObserver().removeOnGlobalLayoutListener(this);"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="774"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `adapter` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                            int pos = Math.max(0, Math.min(lastFocused, adapter.appCount() - 1));"
+        errorLine2="                                                                        ~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="775"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `lastFocused` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                            int pos = Math.max(0, Math.min(lastFocused, adapter.appCount() - 1));"
+        errorLine2="                                                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="775"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `grid` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                            RecyclerView.ViewHolder vh = grid.findViewHolderForAdapterPosition(pos);"
+        errorLine2="                                                         ~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="776"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `glassShown` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                if (!glassShown) return;"
+        errorLine2="                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="793"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `glassTargetY` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                glassTargetY -= dy;"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="794"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `glassScrollShift` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                glassScrollShift -= dy;"
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="795"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `glass` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                glass.setTranslationY(glass.getTranslationY() - dy);"
+        errorLine2="                ~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="796"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `glass` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                glass.setTranslationY(glass.getTranslationY() - dy);"
+        errorLine2="                                      ~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="796"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `glassTargetX` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                    glassTargetX -= dx;"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="799"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `glassScrollShiftX` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                    glassScrollShiftX -= dx;"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="800"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `glass` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                    glass.setTranslationX(glass.getTranslationX() - dx);"
+        errorLine2="                    ~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="801"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `glass` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                    glass.setTranslationX(glass.getTranslationX() - dx);"
+        errorLine2="                                          ~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="801"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `glassScrollShiftX` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                return v.getTranslationX() - glassScrollShiftX;"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="810"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `glassScrollShiftX` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                v.setTranslationX(value + glassScrollShiftX);"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="815"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `glassScrollShift` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                return v.getTranslationY() - glassScrollShift;"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="821"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `glassScrollShift` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                v.setTranslationY(value + glassScrollShift);"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="826"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `showInputs` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                    showInputs();"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="1052"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `grid` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                if ((grid.hasPendingAdapterUpdates() || grid.isLayoutRequested()) &amp;&amp; ++frames &lt; 10) {"
+        errorLine2="                     ~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="1787"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `grid` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                if ((grid.hasPendingAdapterUpdates() || grid.isLayoutRequested()) &amp;&amp; ++frames &lt; 10) {"
+        errorLine2="                                                        ~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="1787"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `grid` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                    grid.postOnAnimation(this);"
+        errorLine2="                    ~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="1788"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `focusTile` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                focusTile(pos);"
+        errorLine2="                ~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="1791"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `dimOthers` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                dimOthers();   // views that came into view or were rebound during the move"
+        errorLine2="                ~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="1792"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `pendingFocusScroll` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                if (pendingFocusScroll != this) return;"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="3034"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `pendingFocusScroll` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                pendingFocusScroll = null;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="3035"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `libraryFocusPending` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                    libraryFocusPending = false;"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="3038"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `pendingFocusScroll` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                if (pendingFocusScroll != this) return;"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="3084"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `pendingFocusScroll` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                pendingFocusScroll = null;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="3085"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `root` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                root.getViewTreeObserver().removeOnPreDrawListener(this);"
+        errorLine2="                ~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="3156"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `handler` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                handler.post(() -> {"
+        errorLine2="                ~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="3159"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `updateWifiLabel` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                    updateWifiLabel();"
+        errorLine2="                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="3161"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `updateInputsButton` of class `HomeActivity` requires synthetic accessor"
+        errorLine1="                    updateInputsButton();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="3162"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
         message="Access to `private` method `stopWaitingForUnlock` of class `HomeKeyService` requires synthetic accessor"
         errorLine1="                stopWaitingForUnlock();"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
-            line="118"
+            line="119"
             column="17"/>
     </issue>
 
@@ -1383,7 +2054,7 @@
         errorLine2="                ~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
-            line="119"
+            line="120"
             column="17"/>
     </issue>
 
@@ -1394,7 +2065,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
-            line="169"
+            line="170"
             column="17"/>
     </issue>
 
@@ -1405,7 +2076,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
-            line="346"
+            line="347"
             column="17"/>
     </issue>
 
@@ -1416,7 +2087,7 @@
         errorLine2="                                   ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
-            line="347"
+            line="348"
             column="36"/>
     </issue>
 
@@ -1427,777 +2098,7 @@
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
-            line="347"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `startPending` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            if (startPending == null) return;"
-        errorLine2="                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="341"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `startDeadline` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                    startDeadline)) return;"
-        errorLine2="                    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="343"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `handler` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            handler.removeCallbacks(this);   // the deadline&apos;s run, when the network came first"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="344"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `startPending` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            Intent i = startPending;"
-        errorLine2="                       ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="345"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `startPending` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            startPending = null;"
-        errorLine2="            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="346"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `open` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            open(i);"
-        errorLine2="            ~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="347"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `openStartAppOnWake` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            openStartAppOnWake();"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="353"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `handler` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            handler.post(MainActivity.this::updateWifiLabel);"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="420"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `handler` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            handler.post(MainActivity.this::updateWifiLabel);"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="425"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `handler` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            if (validated &amp;&amp; startPending != null) handler.post(openWhenOnline);"
-        errorLine2="                                                   ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="435"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `openWhenOnline` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            if (validated &amp;&amp; startPending != null) handler.post(openWhenOnline);"
-        errorLine2="                                                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="435"
-            column="65"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `startPending` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            if (validated &amp;&amp; startPending != null) handler.post(openWhenOnline);"
-        errorLine2="                             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="435"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `handler` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            if (wifiNoInternetTint != null) handler.post(MainActivity.this::updateWifiLabel);"
-        errorLine2="                                            ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="438"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `wifiNoInternetTint` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            if (wifiNoInternetTint != null) handler.post(MainActivity.this::updateWifiLabel);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="438"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `updateInputsButton` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            updateInputsButton();"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="445"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `updateInputsButton` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            updateInputsButton();"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="450"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `handler` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            handler.post(MainActivity.this::updateWifiLabel);"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="457"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `handler` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            handler.post(MainActivity.this::updateWifiLabel);"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="462"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `tileRefresh` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            if (!tileRefresh.onPackagesChanged()) return;"
-        errorLine2="                 ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="473"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `reloadApps` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            reloadApps(false);"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="474"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `appLibrary` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            if (appLibrary != null) appLibrary.refresh();"
-        errorLine2="                ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="475"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `appLibrary` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            if (appLibrary != null) appLibrary.refresh();"
-        errorLine2="                                    ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="475"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `updateClockVisibility` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            updateClockVisibility();"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="483"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `clockRefresh` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            clockRefresh.start();   // the wall clock was set: line the redraw up with the new minute"
-        errorLine2="            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="484"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `updateGreeting` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            updateGreeting();"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="492"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `handler` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            handler.postDelayed(this, MINUTE_MS);"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="493"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `rtlAppGrid` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                return rtlAppGrid;"
-        errorLine2="                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="632"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `singleRow` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                if (singleRow) {"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="648"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `animations` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                    if (immediate || reducedMotion || !animations) parent.scrollBy(dx, 0);"
-        errorLine2="                                                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="659"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `reducedMotion` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                    if (immediate || reducedMotion || !animations) parent.scrollBy(dx, 0);"
-        errorLine2="                                     ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="659"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `dockRow` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                if (dockRow &amp;&amp; getPosition(child) &lt; COLUMNS) return false;"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="663"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `animations` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                if (immediate || reducedMotion || !animations) parent.scrollBy(0, dy);"
-        errorLine2="                                                   ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="675"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `reducedMotion` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                if (immediate || reducedMotion || !animations) parent.scrollBy(0, dy);"
-        errorLine2="                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="675"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `adapter` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            @Override public int getSpanSize(int position) { return !singleRow &amp;&amp; adapter != null &amp;&amp; adapter.isLibraryAt(position) ? COLUMNS : 1; }"
-        errorLine2="                                                                                  ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="681"
-            column="83"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `adapter` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            @Override public int getSpanSize(int position) { return !singleRow &amp;&amp; adapter != null &amp;&amp; adapter.isLibraryAt(position) ? COLUMNS : 1; }"
-        errorLine2="                                                                                                     ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="681"
-            column="102"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `singleRow` of class `MainActivity` requires synthetic accessor"
-        errorLine1="            @Override public int getSpanSize(int position) { return !singleRow &amp;&amp; adapter != null &amp;&amp; adapter.isLibraryAt(position) ? COLUMNS : 1; }"
-        errorLine2="                                                                     ~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="681"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `grid` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                v.setAlpha(tileAlpha(grid.getChildAdapterPosition(v)));"
-        errorLine2="                                     ~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="690"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `tileAlpha` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                v.setAlpha(tileAlpha(grid.getChildAdapterPosition(v)));"
-        errorLine2="                           ~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="690"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `grid` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                            grid.getViewTreeObserver().removeOnGlobalLayoutListener(this);"
-        errorLine2="                            ~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="782"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `adapter` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                            int pos = Math.max(0, Math.min(lastFocused, adapter.appCount() - 1));"
-        errorLine2="                                                                        ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="783"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `lastFocused` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                            int pos = Math.max(0, Math.min(lastFocused, adapter.appCount() - 1));"
-        errorLine2="                                                           ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="783"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `grid` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                            RecyclerView.ViewHolder vh = grid.findViewHolderForAdapterPosition(pos);"
-        errorLine2="                                                         ~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="784"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `glassShown` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                if (!glassShown) return;"
-        errorLine2="                     ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="801"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `glassTargetY` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                glassTargetY -= dy;"
-        errorLine2="                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="802"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `glassScrollShift` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                glassScrollShift -= dy;"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="803"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `glass` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                glass.setTranslationY(glass.getTranslationY() - dy);"
-        errorLine2="                ~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="804"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `glass` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                glass.setTranslationY(glass.getTranslationY() - dy);"
-        errorLine2="                                      ~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="804"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `glassTargetX` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                    glassTargetX -= dx;"
-        errorLine2="                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="807"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `glassScrollShiftX` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                    glassScrollShiftX -= dx;"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="808"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `glass` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                    glass.setTranslationX(glass.getTranslationX() - dx);"
-        errorLine2="                    ~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="809"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `glass` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                    glass.setTranslationX(glass.getTranslationX() - dx);"
-        errorLine2="                                          ~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="809"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `glassScrollShiftX` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                return v.getTranslationX() - glassScrollShiftX;"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="818"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `glassScrollShiftX` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                v.setTranslationX(value + glassScrollShiftX);"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="823"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `glassScrollShift` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                return v.getTranslationY() - glassScrollShift;"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="829"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `glassScrollShift` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                v.setTranslationY(value + glassScrollShift);"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="834"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `showInputs` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                    showInputs();"
-        errorLine2="                    ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="1060"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `grid` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                if ((grid.hasPendingAdapterUpdates() || grid.isLayoutRequested()) &amp;&amp; ++frames &lt; 10) {"
-        errorLine2="                     ~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="1794"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `grid` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                if ((grid.hasPendingAdapterUpdates() || grid.isLayoutRequested()) &amp;&amp; ++frames &lt; 10) {"
-        errorLine2="                                                        ~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="1794"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `grid` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                    grid.postOnAnimation(this);"
-        errorLine2="                    ~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="1795"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `focusTile` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                focusTile(pos);"
-        errorLine2="                ~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="1798"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `dimOthers` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                dimOthers();   // views that came into view or were rebound during the move"
-        errorLine2="                ~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="1799"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `pendingFocusScroll` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                if (pendingFocusScroll != this) return;"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3041"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `pendingFocusScroll` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                pendingFocusScroll = null;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3042"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `libraryFocusPending` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                    libraryFocusPending = false;"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3045"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `pendingFocusScroll` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                if (pendingFocusScroll != this) return;"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3091"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `pendingFocusScroll` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                pendingFocusScroll = null;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3092"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `root` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                root.getViewTreeObserver().removeOnPreDrawListener(this);"
-        errorLine2="                ~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3163"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `handler` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                handler.post(() -> {"
-        errorLine2="                ~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3166"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `updateWifiLabel` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                    updateWifiLabel();"
-        errorLine2="                    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3168"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `updateInputsButton` of class `MainActivity` requires synthetic accessor"
-        errorLine1="                    updateInputsButton();"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3169"
+            line="348"
             column="21"/>
     </issue>
 
@@ -4120,8 +4021,8 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="503"
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="495"
             column="29"/>
     </issue>
 
@@ -4131,8 +4032,8 @@
         errorLine1="    public void onTileFocused(int position, View card) {"
         errorLine2="                                            ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="1845"
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="1838"
             column="45"/>
     </issue>
 
@@ -4142,8 +4043,8 @@
         errorLine1="    public void onOpenInput(String inputId) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="3930"
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="3920"
             column="29"/>
     </issue>
 
@@ -4153,8 +4054,8 @@
         errorLine1="    public void onTileLongPress(int position, View card) {"
         errorLine2="                                              ~~~~">
         <location
-            file="src/main/java/com/itsluminous/verysmarttv/MainActivity.java"
-            line="4022"
+            file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
+            line="4012"
             column="47"/>
     </issue>
 

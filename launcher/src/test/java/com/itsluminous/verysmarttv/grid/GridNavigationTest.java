@@ -91,7 +91,7 @@ public class GridNavigationTest {
                             + (dockStartIsLeft ? "left" : "right"),
                     GridNavigation.atHorizontalEdge(1, dockApps, columns, rtl, dockStartIsLeft));
 
-            // MainActivity must pass the reduced dock count to keep the outward dock edge here.
+            // HomeActivity must pass the reduced dock count to keep the outward dock edge here.
             // This helper contract does not exercise that wiring.
             assertTrue("grid count=" + totalSlots + ", columns=" + columns
                             + ", position=" + columns + ", rtl=" + rtl

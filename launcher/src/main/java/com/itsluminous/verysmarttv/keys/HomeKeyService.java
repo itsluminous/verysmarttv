@@ -28,11 +28,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import com.itsluminous.verysmarttv.theme.Config;
-import com.itsluminous.verysmarttv.MainActivity;
+import com.itsluminous.verysmarttv.home.HomeActivity;
 import com.itsluminous.verysmarttv.settings.OpenOnStart;
 import com.itsluminous.verysmarttv.settings.QuickSettingsActivity;
 import com.itsluminous.verysmarttv.settings.SystemSettings;
 import com.itsluminous.verysmarttv.R;
+import com.itsluminous.verysmarttv.home.HomeActivity;
 
 /**
  * Sends the remote's Home button to this launcher on remotes that emit KEYCODE_ALL_APPS for Home
@@ -421,7 +422,7 @@ public class HomeKeyService extends AccessibilityService {
     }
 
     private void openHome() {
-        Intent open = stockHomeStays() ? new Intent(this, MainActivity.class)
+        Intent open = stockHomeStays() ? new Intent(this, HomeActivity.class)
                 : new Intent(Intent.ACTION_MAIN).setPackage(getPackageName());
         startActivity(open.addCategory(Intent.CATEGORY_HOME)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED));
@@ -431,8 +432,8 @@ public class HomeKeyService extends AccessibilityService {
      *  one). A Home intent would then put this launcher in the home task and make it the home process, and from
      *  Android 10 the stock launcher, no longer exempt from the limits on background activity starts, can't open
      *  apps for the remote's YouTube and Netflix buttons (#1274). openHome starts it like an app instead:
-     *  CATEGORY_HOME without ACTION_MAIN is not a Home intent, but still sends MainActivity back to the first tile.
-     *  A MainActivity already in the home task, as the install scripts' first start leaves it, is reused as it is
+     *  CATEGORY_HOME without ACTION_MAIN is not a Home intent, but still sends HomeActivity back to the first tile.
+     *  A HomeActivity already in the home task, as the install scripts' first start leaves it, is reused as it is
      *  until that task goes (a restart or a reinstall). With this launcher or Android's chooser as Home, openHome
      *  keeps the Home intent. */
     private boolean stockHomeStays() {

@@ -15,6 +15,7 @@ import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.Until;
 
+import com.itsluminous.verysmarttv.home.HomeActivity;
 import com.itsluminous.verysmarttv.support.Shell;
 
 import org.junit.After;
@@ -53,7 +54,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RunWith(AndroidJUnit4.class)
 public class HomeSmokeTest {
     private static final String PKG = "com.itsluminous.verysmarttv";
-    private static final String HOME = PKG + "/.MainActivity";
+    private static final String HOME = PKG + "/.home.HomeActivity";
     private static final long WAIT_MS = 15_000;
     private static final String TAG = "VerySmartTV.HomeSmokeTest";
     /** The stock launchers the install flow may disable once this launcher is installed (DESIGN.md §16, carried KNOWN_STOCK_LAUNCHERS). */
@@ -61,7 +62,7 @@ public class HomeSmokeTest {
             "com.google.android.apps.tv.launcherx", "com.google.android.leanbacklauncher", "com.mitv.tvhome");
 
     private UiDevice device;
-    private ActivityScenario<MainActivity> scenario;
+    private ActivityScenario<HomeActivity> scenario;
     /** The stock launcher homeKeyLandsOnTheLauncher disabled, to enable again in tearDown; null when it disabled none. */
     private String disabledStockLauncher;
 
@@ -80,7 +81,7 @@ public class HomeSmokeTest {
         }
     }
 
-    /** `set-home-activity`, HOME keyevent, `mFocusedApp` names MainActivity (§14.3 HomeSmokeTest). */
+    /** `set-home-activity`, HOME keyevent, `mFocusedApp` names HomeActivity (§14.3 HomeSmokeTest). */
     @Test
     public void homeKeyLandsOnTheLauncher() throws IOException {
         String set = shell("cmd package set-home-activity " + HOME);
@@ -106,7 +107,7 @@ public class HomeSmokeTest {
     /** Home creates, the grid is on screen with an adapter, and the adapter has at least one tile. */
     @Test
     public void gridHasTiles() {
-        scenario = ActivityScenario.launch(MainActivity.class);
+        scenario = ActivityScenario.launch(HomeActivity.class);
         assertTrue("the grid never laid out a tile", waitForActivity(a -> {
             RecyclerView grid = a.findViewById(R.id.grid);
             return grid != null && grid.getChildCount() > 0;
@@ -127,7 +128,7 @@ public class HomeSmokeTest {
     /** Every pill the configuration shows is focusable, and the Settings pill actually takes focus. */
     @Test
     public void pillsAreFocusable() {
-        scenario = ActivityScenario.launch(MainActivity.class);
+        scenario = ActivityScenario.launch(HomeActivity.class);
         assertTrue("the Settings pill never laid out", waitForActivity(a -> {
             View settings = a.findViewById(R.id.btnSettings);
             return settings != null && settings.getWidth() > 0;
@@ -174,7 +175,7 @@ public class HomeSmokeTest {
     }
 
     private interface ActivityCheck {
-        boolean holds(MainActivity activity);
+        boolean holds(HomeActivity activity);
     }
 
     private static String shell(String command) throws IOException {

@@ -34,7 +34,7 @@ val gatedExtensions = setOf("java", "kt", "kts", "py")
  * one file on purpose (a faithful move, DESIGN.md §20 row 1); Phase 2 decomposes it into the §8 classes and
  * removes this entry. Nothing else may be added here: split the file instead.
  */
-val fileLengthAllowlist = setOf("launcher/src/main/java/com/itsluminous/verysmarttv/MainActivity.java")
+val fileLengthAllowlist = setOf("launcher/src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java")
 
 tasks.register("fileLength") {
     group = "verification"

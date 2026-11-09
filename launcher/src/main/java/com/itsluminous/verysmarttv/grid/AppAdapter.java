@@ -47,13 +47,12 @@ import com.itsluminous.verysmarttv.theme.Config;
 import com.itsluminous.verysmarttv.shelf.HeroArt;
 import com.itsluminous.verysmarttv.settings.HomeSettingsActivity;
 import com.itsluminous.verysmarttv.library.LibraryApps;
-import com.itsluminous.verysmarttv.MainActivity;
 import com.itsluminous.verysmarttv.theme.Motion;
 import com.itsluminous.verysmarttv.R;
 import androidx.annotation.Nullable;
 
 /**
- * App tiles. The first {@link MainActivity#COLUMNS} positions are the pinned dock (favourites, fixed order,
+ * App tiles. The first {@code HomeState.columns} positions are the pinned dock (favourites, fixed order,
  * then empty slots up to a full row, see {@link DockSlots}), then the module cards the owner chose to show
  * (by label), the rest is alphabetical. With uniform_rows ({@link UniformRows}) there is no dock: Config has
  * resolved fill_dock true and rows_below_dock 0, so the first row is simply the first {@code columns} tiles of
@@ -219,11 +218,11 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public static final float ITEM_EXTRA_DP = 45;
     /** DockDecoration's offsets above and below the dock row. */
     static final float DOCK_EXTRA_DP = 6 + 12;
-    /** Room kept under the last row rows_below_dock asks for (MainActivity places the dock with the same). */
+    /** Room kept under the last row rows_below_dock asks for (HomeActivity places the dock with the same). */
     public static final float BOTTOM_ROOM_DP = 30;
     /** Room kept above the dock for the dock title (48sp hero name plus its 40dp gap) when dock_title is on. */
     public static final float TITLE_ROOM_DP = 104;
-    /** dock_row false: room above the first row for its zoom and glass (MainActivity places the grid with it). */
+    /** dock_row false: room above the first row for its zoom and glass (HomeActivity places the grid with it). */
     public static final float TOP_ROOM_DP = 12;
 
     /**
@@ -259,7 +258,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         int byHeight = Math.round(tileH * DESIGN_W_DP / DESIGN_H_DP);
         // Shrink at most to MIN_HEIGHT_FIT of the width-only size. Below that the tiles look lost in their wide
         // columns (2 rows under a titled dock came out at 80dp); the rows that still don't fit run off the bottom
-        // and scroll, and MainActivity keeps the title's room above the dock.
+        // and scroll, and HomeActivity keeps the title's room above the dock.
         return Math.max(Math.max(Math.round(80 * density), Math.round(w * MIN_HEIGHT_FIT)), Math.min(w, byHeight));
     }
 
@@ -367,7 +366,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public void reload(@NonNull List<Cards.Card> cards, @NonNull List<ResolveInfo> leanback) {
         PackageManager pm = ctx.getPackageManager();
-        // The LEANBACK query is shared with the module-card check (MainActivity); copy it before adding
+        // The LEANBACK query is shared with the module-card check (HomeActivity); copy it before adding
         // library apps so the caller's list stays as it was.
         List<ResolveInfo> found = new ArrayList<>(leanback);
         Set<String> tvPackages = new HashSet<>();

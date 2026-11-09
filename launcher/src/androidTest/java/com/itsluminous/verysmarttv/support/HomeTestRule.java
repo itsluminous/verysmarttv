@@ -19,7 +19,7 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.itsluminous.verysmarttv.LauncherState;
-import com.itsluminous.verysmarttv.MainActivity;
+import com.itsluminous.verysmarttv.home.HomeActivity;
 import com.itsluminous.verysmarttv.R;
 
 import org.json.JSONException;
@@ -133,9 +133,9 @@ public final class HomeTestRule extends ExternalResource {
     }
 
     /** Starts Home and waits for its first tile to be laid out and focus to land. */
-    public ActivityScenario<MainActivity> launchHome() {
+    public ActivityScenario<HomeActivity> launchHome() {
         closeActivity();
-        ActivityScenario<MainActivity> home = ActivityScenario.launch(MainActivity.class);
+        ActivityScenario<HomeActivity> home = ActivityScenario.launch(HomeActivity.class);
         scenario = home;
         waitFor("the grid to lay out a focused tile", a -> {
             RecyclerView grid = a.findViewById(R.id.grid);
@@ -223,9 +223,9 @@ public final class HomeTestRule extends ExternalResource {
     // ---- reading Home -----------------------------------------------------------------------------
 
     /** Reads a value from the activity on its main thread. */
-    public <T> T onHome(Function<MainActivity, T> read) {
+    public <T> T onHome(Function<HomeActivity, T> read) {
         @SuppressWarnings("unchecked")
-        ActivityScenario<MainActivity> home = (ActivityScenario<MainActivity>) scenario;
+        ActivityScenario<HomeActivity> home = (ActivityScenario<HomeActivity>) scenario;
         if (home == null) throw new IllegalStateException("launchHome() first");
         AtomicReference<T> out = new AtomicReference<>();
         AtomicReference<RuntimeException> failure = new AtomicReference<>();
@@ -241,7 +241,7 @@ public final class HomeTestRule extends ExternalResource {
     }
 
     /** Polls {@code check} on the main thread every 100 ms until it holds; fails after {@link #WAIT_MS} naming {@code what}. */
-    public void waitFor(String what, Predicate<MainActivity> check) {
+    public void waitFor(String what, Predicate<HomeActivity> check) {
         long end = System.currentTimeMillis() + WAIT_MS;
         while (System.currentTimeMillis() < end) {
             if (onHome(check::test)) return;

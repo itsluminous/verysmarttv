@@ -5,7 +5,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import com.itsluminous.verysmarttv.MainActivity;
 
 /**
  * uniform_rows: no dock. Every row holds `columns` tiles of one order, the first row too; the hero dots count the
@@ -15,7 +14,7 @@ import com.itsluminous.verysmarttv.MainActivity;
 public class UniformRowsTest {
 
     private static final float D = 2f;
-    /** The carousel's full height on the shelf, MainActivity.CAROUSEL_FULL_DP, and the grid's height under the header. */
+    /** The carousel's full height on the shelf, HomeActivity.CAROUSEL_FULL_DP, and the grid's height under the header. */
     private static final int CAROUSEL_PX = Math.round(201f * D), GRID_H = 877;
 
     @Test

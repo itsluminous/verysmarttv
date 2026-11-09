@@ -55,7 +55,7 @@ so every component the TV or the setup tool names by class carries its package s
 
 | What | Component |
 |---|---|
-| Home | `com.itsluminous.verysmarttv/.MainActivity` (renamed `.home.HomeActivity` in Phase 2) |
+| Home | `com.itsluminous.verysmarttv/.home.HomeActivity` |
 | Screensaver (`settings put secure screensaver_components …`) | `com.itsluminous.verysmarttv/.clock.ClockDream` |
 | Accessibility helpers (`enabled_accessibility_services`) | `com.itsluminous.verysmarttv/.keys.HomeKeyService`, `com.itsluminous.verysmarttv/.keys.InputKeyService` |
 | Notification listener (`cmd notification allow_listener`) | `com.itsluminous.verysmarttv/.keys.GuardRevival` |

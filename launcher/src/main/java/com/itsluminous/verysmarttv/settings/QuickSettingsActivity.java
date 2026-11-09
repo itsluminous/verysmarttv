@@ -12,8 +12,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.itsluminous.verysmarttv.keys.HomeKeyService;
 import com.itsluminous.verysmarttv.home.LauncherLocale;
-import com.itsluminous.verysmarttv.MainActivity;
+import com.itsluminous.verysmarttv.home.HomeActivity;
 import com.itsluminous.verysmarttv.R;
+import com.itsluminous.verysmarttv.home.HomeActivity;
 import androidx.annotation.NonNull;
 
 /**
@@ -42,7 +43,7 @@ public final class QuickSettingsActivity extends Activity {
                 SystemSettings.intent(this, Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS));
         // Through Home, so it rebuilds with the new choices when Launcher settings closes.
         addRow(rows, R.drawable.ic_home_settings, R.string.launcher_settings, 0,
-                new Intent(this, MainActivity.class).setAction(MainActivity.ACTION_LAUNCHER_SETTINGS));
+                new Intent(this, HomeActivity.class).setAction(HomeActivity.ACTION_LAUNCHER_SETTINGS));
         rows.getChildAt(0).requestFocus();
     }
 
