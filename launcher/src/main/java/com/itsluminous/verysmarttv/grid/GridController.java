@@ -472,49 +472,24 @@ public final class GridController {
     /** AppAdapter.TileListener.onTileVerticalKey: where a D-pad key on a tile sends focus (FocusRules in step 2). */
     public boolean onTileVerticalKey(int position, int keyCode) {
         int count = adapter.appCount();
-        int target;
-        if (host.state().singleRow) {
-            // One row: Up leaves for the top bar, Down has nowhere to go, and Left/Right walk the whole row,
-            // stopping at its two ends (the default focus search scrolls the row to the next tile).
-            if (keyCode == KeyEvent.KEYCODE_DPAD_UP) return false;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) return true;
-            boolean forward = host.state().rtl ? keyCode == KeyEvent.KEYCODE_DPAD_LEFT : keyCode == KeyEvent.KEYCODE_DPAD_RIGHT;
-            int last = adapter.focusablePosition(count - 1);
-            if (forward && position >= last) {
-                if (adapter.isLibraryAt(count)) focusLibrary();
-                return true;
-            }
-            return !forward && position == 0;
-        }
-        // Horizontal: swallow the key at a row's ends so focus never wraps to the next row or
-        // escapes up into the top bar. Mid-row moves fall through to the default focus search.
-        if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
-            boolean forward = host.state().rtl ? keyCode == KeyEvent.KEYCODE_DPAD_LEFT : keyCode == KeyEvent.KEYCODE_DPAD_RIGHT;
-            if (forward && position == adapter.focusablePosition(count - 1) && adapter.isLibraryAt(count)) {
+        FocusRules.Verdict verdict = FocusRules.onTileKey(position, keyCode, new FocusRules.Grid(count, host.state().columns,
+                adapter.dockFilled(), adapter.focusablePosition(count - 1), adapter.isLibraryAt(count), host.state().rtl,
+                host.state().singleRow));
+        switch (verdict.kind) {
+            case PASS:
+                return false;
+            case LIBRARY:
                 focusLibrary();
                 return true;
-            }
-            // In the dock, the last app is the row's end: the empty slots after it take no focus.
-            int rowCount = position < host.state().columns ? Math.min(count, adapter.dockFilled()) : count;
-            return GridNavigation.atHorizontalEdge(position, rowCount, host.state().columns,
-                    host.state().rtl, keyCode == KeyEvent.KEYCODE_DPAD_LEFT);
-        }
-        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-            if (position < host.state().columns) return false;          // dock row: let focus move to the top bar
-            target = position - host.state().columns;
-        } else {
-            int lastRowStart = ((count - 1) / host.state().columns) * host.state().columns;
-            if (position >= lastRowStart) {
-                if (adapter.isLibraryAt(count)) focusLibrary();
+            case MOVE:
+                focusTile(verdict.target);
+                // The default focus search clicks for Left/Right; Up/Down are handled here, so click for them too.
+                grid.playSoundEffect(keyCode == KeyEvent.KEYCODE_DPAD_UP
+                        ? SoundEffectConstants.NAVIGATION_UP : SoundEffectConstants.NAVIGATION_DOWN);
                 return true;
-            }
-            target = Math.min(position + host.state().columns, count - 1);
+            default:
+                return true;
         }
-        focusTile(target);
-        // The default focus search clicks for Left/Right; Up/Down are handled here, so click for them too.
-        grid.playSoundEffect(keyCode == KeyEvent.KEYCODE_DPAD_UP
-                ? SoundEffectConstants.NAVIGATION_UP : SoundEffectConstants.NAVIGATION_DOWN);
-        return true;
     }
 
     /** AppAdapter.TileListener.onLibraryFocused. */
@@ -527,8 +502,7 @@ public final class GridController {
     /** AppAdapter.TileListener.onLibraryUp. */
     public void onLibraryUp() {
         if (adapter.appCount() == 0) { host.topBar().firstTopButton().requestFocus(); return; }
-        int lastRow = ((adapter.appCount() - 1) / host.state().columns) * host.state().columns;
-        focusTile(Math.min(lastRow + lastFocused % host.state().columns, adapter.appCount() - 1));
+        focusTile(FocusRules.fromLibraryUp(lastFocused, adapter.appCount(), host.state().columns));
     }
 
     public void focusLibrary() {

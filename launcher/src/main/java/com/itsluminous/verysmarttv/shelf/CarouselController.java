@@ -21,6 +21,7 @@ import com.itsluminous.verysmarttv.core.contract.HeroContract;
 import com.itsluminous.verysmarttv.home.HomeHost;
 import com.itsluminous.verysmarttv.theme.Config;
 import com.itsluminous.verysmarttv.theme.Motion;
+import com.itsluminous.verysmarttv.topbar.TopBarFocus;
 
 import java.util.Collections;
 import java.util.List;
@@ -338,7 +339,7 @@ public final class CarouselController {
                     if (down) host.grid().focusTile(host.grid().lastFocused());
                     return true;
                 case KeyEvent.KEYCODE_DPAD_UP:
-                    if (down) host.topBar().firstTopButton().requestFocus();
+                    if (down) host.topBar().focusPill(TopBarFocus.fromCarouselUp(host.topBar().bar()).pillId);
                     return true;
                 case KeyEvent.KEYCODE_DPAD_CENTER:
                 case KeyEvent.KEYCODE_ENTER:
@@ -349,7 +350,8 @@ public final class CarouselController {
                     return false;
             }
         }
-        if (code == KeyEvent.KEYCODE_DPAD_UP && down && shelf.dockTileFocused()) {
+        if (code == KeyEvent.KEYCODE_DPAD_UP && down
+                && TopBarFocus.fromGridUp(carouselShowing, shelf.dockTileFocused()).stop == TopBarFocus.Stop.CAROUSEL) {
             host.grid().hideGlass();
             shelf.hero.requestFocus();
             return true;

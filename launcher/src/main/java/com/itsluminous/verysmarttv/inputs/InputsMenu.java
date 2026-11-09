@@ -31,12 +31,7 @@ import com.itsluminous.verysmarttv.theme.Config;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * The Inputs menu and how an input opens (DESIGN.md §8, moved from the activity verbatim): HDMI ports with their
@@ -285,111 +280,32 @@ public final class InputsMenu {
         // inputs_connected_only: ports without a connected device and the AV jacks fold behind a "More inputs" row.
         boolean connectedOnly = inputsConnectedOnly;
         List<View> folded = new ArrayList<>();
-        boolean sawNonHdmi = false;
         // An explicit root URI asks the Live TV app to leave any HDMI source selected by its own UI.
         boolean rootChannel = TvContract.Channels.CONTENT_URI.toString().equals(liveTvInputId);
         String tunerId = null;
-        boolean tunerIsHw = false;
-        boolean tunerIsAnalog = false;
         if (tim != null) {
-            List<TvInputInfo> inputs = new ArrayList<>(tim.getTvInputList());
-            // HDMI ports first in port order, then AV and the rest.
-            Collections.sort(inputs, (a, b) -> {
-                boolean ha = a.getType() == TvInputInfo.TYPE_HDMI, hb = b.getType() == TvInputInfo.TYPE_HDMI;
-                if (ha != hb) return ha ? -1 : 1;
-                return String.valueOf(a.loadLabel(host.activity())).compareToIgnoreCase(String.valueOf(b.loadLabel(host.activity())));
-            });
-            // An HDMI-CEC device (an Apple TV, a soundbar) gets an input of its own whose parent is the
-            // port it sits on, so the port and the device would each get a row (Vestel MT7332: "HDMI 1"
-            // and "HDMI Apple TV"). The device takes its port's row instead, and a bare port is listed
-            // only when nothing on it speaks CEC.
-            Set<String> inputIds = new HashSet<>();
-            for (TvInputInfo info : inputs) inputIds.add(info.getId());
-            Map<String, List<TvInputInfo>> cecDevices = new HashMap<>();
-            for (TvInputInfo info : inputs) {
-                String parent = info.getParentId();
-                if (parent == null || !inputIds.contains(parent)) continue;
-                if (!info.isPassthroughInput() || info.isHidden(host.activity())) continue;
-                List<TvInputInfo> onPort = cecDevices.get(parent);
-                if (onPort == null) cecDevices.put(parent, onPort = new ArrayList<>());
-                onPort.add(info);
-            }
-            // Some TVs (Sony) report every HDMI port as connected whether or not anything is plugged in,
-            // so drop the HDMI status then. A TV with every port really in use loses it too.
-            int hdmiPorts = 0, hdmiConnected = 0;
-            for (TvInputInfo info : inputs) {
-                if (!info.isPassthroughInput() || info.getType() != TvInputInfo.TYPE_HDMI) continue;
-                if (info.getParentId() != null && inputIds.contains(info.getParentId())) continue;
-                hdmiPorts++;
-                if (tim.getInputState(info.getId()) == TvInputManager.INPUT_STATE_CONNECTED) hdmiConnected++;
-            }
-            // inputs_cec_state_only: the TV puts port states on the wrong port (TCL UnionTV, Android 9), so
-            // ports show none, and a CEC device row shows its own state, which the CEC bus keeps right.
-            boolean hdmiStateBogus = inputsCecStateOnly || (hdmiPorts > 1 && hdmiConnected == hdmiPorts);
-            for (TvInputInfo info : inputs) {
-                if (info.getType() == TvInputInfo.TYPE_TUNER
-                        && (info.getServiceInfo().applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0
-                        && (liveTvInputId.isEmpty() || rootChannel || liveTvInputId.equals(info.getId()))) {
-                    // Prefer a hardware tuner: the framework names those ".../HW<n>". System apps such as
-                    // AirPlay also register software inputs of type TUNER and may sort first (seen on TCL G05).
-                    // Among tuners of the same kind, skip an analog input when another is present.
-                    // MediaTek names them AnalogInputService and TunerInputService; alphabetical order
-                    // would pick the analog one, and Live TV then opens a dead ATV source.
-                    boolean hw = info.getId().matches(".*/HW\\d+$");
-                    boolean analog = info.getId().toLowerCase(Locale.ROOT).contains("analog");
-                    boolean better = tunerId == null
-                            || (hw && !tunerIsHw)
-                            || (hw == tunerIsHw && tunerIsAnalog && !analog)
-                            || (hw == tunerIsHw && analog == tunerIsAnalog
-                                    && info.getId().compareTo(tunerId) < 0);
-                    if (better) {
-                        tunerId = info.getId();
-                        tunerIsHw = hw;
-                        tunerIsAnalog = analog;
-                    }
-                }
-                // Inputs hidden in the TV's Settings > Inputs stay out of the menu too.
-                if (!info.isPassthroughInput() || info.isHidden(host.activity())) continue;
-                // input_sources can leave out ports the board reports but the set does not have ("HW8=-").
-                if (Integer.valueOf(-1).equals(mappedSource(info.getId()))) continue;
-                // A CEC device's row is added with its port, below.
-                if (info.getParentId() != null && inputIds.contains(info.getParentId())) continue;
+            // Which rows, in what order, with what label and state, and which tuner: InputRows decides (DESIGN.md §8 rule 2).
+            List<InputRows.Input> inputs = new ArrayList<>();
+            for (TvInputInfo info : tim.getTvInputList()) {
                 CharSequence l = info.loadLabel(host.activity());
-                String label = l == null ? info.getId() : l.toString();
-                boolean hdmi = info.getType() == TvInputInfo.TYPE_HDMI;
-                if (hdmi && !label.toUpperCase(Locale.ROOT).contains("HDMI")) label = "HDMI " + label;
                 CharSequence custom = InputNames.tidy(info.loadCustomLabel(host.activity()));
-                boolean named = custom != null && custom.length() > 0 && !custom.toString().equals(label);
-                if (!hdmi && rows.getChildCount() > 0 && !sawNonHdmi) {
+                inputs.add(new InputRows.Input(info.getId(), info.getType(), info.getParentId(), info.isPassthroughInput(),
+                        info.isHidden(host.activity()),
+                        (info.getServiceInfo().applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0,
+                        l == null ? null : l.toString(), custom == null ? null : custom.toString()));
+            }
+            InputRows.Model model = InputRows.build(inputs, new InputRows.Options(liveTvInputId, rootChannel,
+                    inputsCecStateOnly, connectedOnly, id -> Integer.valueOf(-1).equals(mappedSource(id))), tim::getInputState);
+            tunerId = model.tunerId;
+            for (InputRows.Row r : model.rows) {
+                if (r.separatorBefore) {
                     View line = addSeparator(rows);
                     if (connectedOnly) fold(line, folded);
                 }
-                if (!hdmi) sawNonHdmi = true;
-                List<TvInputInfo> devices = cecDevices.get(info.getId());
-                if (devices != null) {
-                    // "Apple TV · HDMI 1": the device's own name (or the one given to it or to its port in
-                    // Settings > Inputs), then the port. Opening the device's input also makes it the CEC
-                    // active source, which wakes it.
-                    for (TvInputInfo device : devices) {
-                        CharSequence name = InputNames.tidy(device.loadCustomLabel(host.activity()));
-                        if (name == null || name.length() == 0) name = named ? custom : device.loadLabel(host.activity());
-                        String deviceLabel = name == null || name.length() == 0 ? label : name + " \u00B7 " + label;
-                        final String deviceId = device.getId();
-                        int state = hdmiStateBogus && !inputsCecStateOnly ? -1 : tim.getInputState(deviceId);
-                        View row = addInputRow(rows, popup, R.drawable.ic_input, deviceLabel, state, () -> openInput(deviceId));
-                        if (connectedOnly && InputFold.folds(true, state)) fold(row, folded);
-                    }
-                    continue;
-                }
-                // The name given in Settings > Inputs (e.g. "MacBook Pro") goes first, the port after it.
-                if (named) label = custom + " \u00B7 " + label;
-                final String id = info.getId();
-                // Analog AV jacks have no hotplug detection, and some TVs report them as always connected
-                // (TCL Smart TV Pro G03 says "Connected" with nothing plugged in), so AV rows show no state.
-                int state = !hdmi || hdmiStateBogus ? -1 : tim.getInputState(id);
-                View row = addInputRow(rows, popup, hdmi ? R.drawable.ic_input : R.drawable.ic_av, label, state,
+                final String id = r.inputId;
+                View row = addInputRow(rows, popup, r.hdmi ? R.drawable.ic_input : R.drawable.ic_av, r.label, r.state,
                         () -> openInput(id));
-                if (connectedOnly && InputFold.folds(hdmi, state)) fold(row, folded);
+                if (r.folded) fold(row, folded);
             }
         }
         if (!folded.isEmpty()) {

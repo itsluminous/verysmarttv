@@ -39,6 +39,7 @@ import androidx.annotation.NonNull;
 
 import com.itsluminous.verysmarttv.R;
 import com.itsluminous.verysmarttv.clock.ClockRefresh;
+import com.itsluminous.verysmarttv.grid.FocusRules;
 import com.itsluminous.verysmarttv.grid.LaunchActions;
 import com.itsluminous.verysmarttv.home.HomeHost;
 import com.itsluminous.verysmarttv.inputs.CoocaaSources;
@@ -306,14 +307,26 @@ public final class TopBarController {
     /** The first top-bar button after Inputs that is shown, in bar order (top_bar_apps, the network pill, ...); Settings is always there. */
     @NonNull
     public View firstTopButton() {
-        ViewGroup bar = host.findViewById(R.id.topButtons);
-        // Bar order is child order: the framework mirrors it for a right-to-left locale (supportsRtl).
-        int n = bar.getChildCount();
+        return host.findViewById(TopBarFocus.firstTopButton(bar()));
+    }
+
+    /** The bar as TopBarFocus sees it: the pills in child order (which the framework mirrors for RTL), shown or not. */
+    @NonNull
+    public TopBarFocus.Bar bar() {
+        ViewGroup topButtons = host.findViewById(R.id.topButtons);
+        int n = topButtons.getChildCount();
+        List<TopBarFocus.Pill> pills = new ArrayList<>(n);
         for (int k = 0; k < n; k++) {
-            View button = bar.getChildAt(k);
-            if (button != btnInputs && button.getVisibility() == View.VISIBLE) return button;
+            View button = topButtons.getChildAt(k);
+            pills.add(new TopBarFocus.Pill(button.getId(), button.getVisibility() == View.VISIBLE));
         }
-        return host.findViewById(R.id.btnSettings);
+        return new TopBarFocus.Bar(pills, R.id.btnInputs, R.id.btnSettings);
+    }
+
+    /** Focus the pill with this id (a TopBarFocus verdict). */
+    public void focusPill(int id) {
+        View pill = host.findViewById(id);
+        if (pill != null) pill.requestFocus();
     }
 
     /** top_bar_apps buttons, in bar order. */
@@ -706,7 +719,7 @@ public final class TopBarController {
         // widgets (Config.widgets): the RAM and Storage bars land here in Phase 3 (DESIGN.md §9.1); the key is read
         // and the Settings row toggles it, and nothing is drawn yet.
         vpnApp = cfg.vpnApp;
-        vpnPill = cfg.vpnPill && !cfg.topMenu;
+        vpnPill = PillOrder.shown(PillOrder.of(PillOrder.Keys.of(cfg)), PillOrder.Pill.VPN);
         btnVpn = host.findViewById(R.id.btnVpn);
     }
 
@@ -733,15 +746,17 @@ public final class TopBarController {
         });
         btnReorder = host.findViewById(R.id.btnReorder);
         btnReorder.setOnClickListener(v -> host.reorder().toggleReorder());
-        btnReorder.setVisibility(cfg.reorderButton ? View.VISIBLE : View.GONE);
-        if (!cfg.showNetworkPill) btnWifi.setVisibility(View.GONE);
-        showInputsPill = cfg.showInputsPill;
+        // Which pills the theme shows, in bar order: PillOrder (DESIGN.md §8 rule 2); the pills' run-time hides stay below.
+        List<PillOrder.Entry> bar = PillOrder.of(PillOrder.Keys.of(cfg));
+        btnReorder.setVisibility(PillOrder.shown(bar, PillOrder.Pill.REORDER) ? View.VISIBLE : View.GONE);
+        if (!PillOrder.shown(bar, PillOrder.Pill.NETWORK)) btnWifi.setVisibility(View.GONE);
+        showInputsPill = PillOrder.shown(bar, PillOrder.Pill.INPUTS);
         showInputsMenuRow = cfg.showInputsPill;
         btnLibraryTop = host.findViewById(R.id.btnLibraryTop);
         btnLibraryTop.setOnClickListener(v -> {
             host.grid().openLibraryFromTopBar();   // closing it goes back to this button, not to the pill after the last row
         });
-        btnLibraryTop.setVisibility(cfg.libraryButton && cfg.appLibrary ? View.VISIBLE : View.GONE);
+        btnLibraryTop.setVisibility(PillOrder.shown(bar, PillOrder.Pill.LIBRARY) ? View.VISIBLE : View.GONE);
         addTopBarApps(cfg.topBarApps, cfg.launchActions);
         iconOnlyButtons = cfg.iconOnlyButtons;
         host.state().topMenu = cfg.topMenu;
@@ -793,19 +808,18 @@ public final class TopBarController {
         // jump to a tile far below when there is nothing in that direction.
         View.OnKeyListener pillKeys = (v, keyCode, event) -> {
             if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_UP) return true;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-                // Back to the dock tile Up came from, not wherever the focus finder lands.
-                host.grid().focusTile(host.state().singleRow ? host.grid().lastFocused() : host.grid().lastFocused() % host.state().columns);
-                return true;
+            // Where the key goes: TopBarFocus (DESIGN.md §9.3, §8 rule 2); this listener only executes it.
+            TopBarFocus.Verdict verdict = TopBarFocus.onPillKey(keyCode, v.getId(), bar(), host.isRtl());
+            switch (verdict.stop) {
+                case GRID:
+                    // Back to the dock tile Up came from, not wherever the focus finder lands.
+                    host.grid().focusTile(FocusRules.fromBarDown(host.grid().lastFocused(), host.state().columns, host.state().singleRow));
+                    return true;
+                case STAY:
+                    return true;
+                default:
+                    return false;
             }
-            int firstButton = btnInputs.getVisibility() == View.VISIBLE ? R.id.btnInputs : firstTopButton().getId();
-            // The bar's visual ends: the framework mirrors child order for a right-to-left locale.
-            boolean rtl = host.isRtl();
-            int leftButton = rtl ? R.id.btnSettings : firstButton;
-            int rightButton = rtl ? firstButton : R.id.btnSettings;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) return v.getId() == leftButton;
-            return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == rightButton;
         };
         btnInputs.setOnKeyListener(pillKeys);
         btnWifi.setOnKeyListener(pillKeys);
