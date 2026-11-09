@@ -78,7 +78,7 @@ public final class CardPrompts {
      */
     public void showCardPrompt() {
         if (!host.state().moduleCards || !host.state().tilesReady || promptsPaused || cardPrompt != null || !host.activity().hasWindowFocus() || host.activity().isFinishing()
-                || host.reordering()) return;
+                || host.reorder().active()) return;
         if (cards.isEmpty() || !CardFeature.working()) return;
         CardFeature.run(() -> {
             showCardPromptNow();

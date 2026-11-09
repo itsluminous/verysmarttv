@@ -732,7 +732,7 @@ public final class TopBarController {
             else host.open(SystemSettings.intent(host, Settings.ACTION_SETTINGS));
         });
         btnReorder = host.findViewById(R.id.btnReorder);
-        btnReorder.setOnClickListener(v -> host.toggleReorder());
+        btnReorder.setOnClickListener(v -> host.reorder().toggleReorder());
         btnReorder.setVisibility(cfg.reorderButton ? View.VISIBLE : View.GONE);
         if (!cfg.showNetworkPill) btnWifi.setVisibility(View.GONE);
         showInputsPill = cfg.showInputsPill;

@@ -165,7 +165,7 @@ public final class StartupRouter {
         if (settingsRecreationPending || !home.state().tilesReady || !home.hasWindowFocus() || home.isFinishing()
                 || !home.getIntent().getBooleanExtra(LauncherSettingsActivity.EXTRA_REORDER, false)) return;
         home.getIntent().removeExtra(LauncherSettingsActivity.EXTRA_REORDER);
-        home.toggleReorder();
+        home.reorder().toggleReorder();
     }
 
     /** boot_to_live_tv, or the Open on start app: the first time Home comes up after the TV starts, open that app

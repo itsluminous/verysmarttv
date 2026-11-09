@@ -96,7 +96,7 @@ public final class GlassPopups {
             status.setText(network);
             status.setVisibility(View.VISIBLE);
         }
-        host.inputs().addInputRow(rows, popup, R.drawable.ic_swap_vert, host.getString(R.string.reorder), -1, host::toggleReorder);
+        host.inputs().addInputRow(rows, popup, R.drawable.ic_swap_vert, host.getString(R.string.reorder), -1, host.reorder()::toggleReorder);
         if (host.topBar().launcherSettingsButton()) {
             host.inputs().addInputRow(rows, popup, R.drawable.ic_home_settings_pill, host.getString(R.string.launcher_settings), -1,
                     () -> host.startup().openLauncherSettings());
@@ -128,7 +128,7 @@ public final class GlassPopups {
         }
         if (host.state().moduleCards) addSettingsMenuRow(rows, popup, R.string.module_cards, host.cards()::showModuleCards);
         if (host.state().dockRow && !host.state().shelfEveryRow) addSettingsMenuRow(rows, popup, R.string.dock_edit, host::startDockEdit);
-        addSettingsMenuRow(rows, popup, R.string.reorder, host::toggleReorder);
+        addSettingsMenuRow(rows, popup, R.string.reorder, host.reorder()::toggleReorder);
         // A launcher may not restart the TV itself; the Home key helper can open the system power menu instead.
         if (HomeKeyService.canOpenPowerMenu()) addSettingsMenuRow(rows, popup, R.string.power_menu, HomeKeyService::openPowerMenu);
         panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
@@ -139,7 +139,7 @@ public final class GlassPopups {
 
     /** Hold OK on a tile: the tile menu next to it (AppAdapter.TileListener.onTileLongPress). */
     public void showTileMenu(int position, @NonNull View card) {
-        if (host.reordering() || openPopup != null) return;
+        if (host.reorder().active() || openPopup != null) return;
         String key = host.grid().adapter().keyAt(position);
         String pkg = host.grid().adapter().packageAt(position);
         // Empty dock slots and the Default-home tile carry the launcher's own package: no menu for them.
@@ -153,11 +153,11 @@ public final class GlassPopups {
                     () -> host.startDockEditFor(key, inDock));
         }
         if (position < host.grid().adapter().movableCount()) addSettingsMenuRow(rows, popup, R.string.tile_move, () -> {
-            if (!host.beginReorder()) return;
+            if (!host.reorder().beginReorder()) return;
             int at = host.grid().adapter().positionOf(key);   // beginReorder can rebuild the tiles
             if (at < 0) return;
             host.grid().focusTile(at);
-            host.pickUp(at);
+            host.reorder().pickUp(at);
             Toast.makeText(host, R.string.reorder_hint, Toast.LENGTH_LONG).show();
         });
         if (host.state().appLibraryEnabled) addSettingsMenuRow(rows, popup, R.string.library_remove_shortcut, () -> {

@@ -226,7 +226,7 @@ public final class GridController {
      * ones and cards stay off for this process.
      */
     public void reloadTiles() {
-        if (host.reordering()) host.endReorder();   // an app installed or removed while reordering: keep the order so far
+        if (host.reorder().active()) host.reorder().endReorder();   // an app installed or removed while reordering: keep the order so far
         // Read these before reload(): rebinding can move focus to the first tile and overwrite them.
         final String returnKey = lastFocusedKey;
         final int returnSlot = lastFocused;
@@ -303,7 +303,7 @@ public final class GridController {
                     return;
                 }
                 focusTile(pos);
-                host.dimOthers();   // views that came into view or were rebound during the move
+                host.reorder().dimOthers();   // views that came into view or were rebound during the move
             }
         });
     }
@@ -724,7 +724,7 @@ public final class GridController {
         grid.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
             @Override
             public void onChildViewAttachedToWindow(@NonNull View v) {
-                v.setAlpha(host.tileAlpha(grid.getChildAdapterPosition(v)));
+                v.setAlpha(host.reorder().tileAlpha(grid.getChildAdapterPosition(v)));
             }
 
             @Override
