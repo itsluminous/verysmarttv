@@ -113,7 +113,7 @@ import com.itsluminous.verysmarttv.shelf.AmbientGlow;
 import com.itsluminous.verysmarttv.shelf.CarouselController;
 import com.itsluminous.verysmarttv.shelf.ShelfController;
 import com.itsluminous.verysmarttv.shelf.HeroFeed;
-import com.itsluminous.verysmarttv.keys.HomeKeyService;
+import com.itsluminous.verysmarttv.keys.KeyDispatcher;
 import com.itsluminous.verysmarttv.inputs.InputFold;
 import com.itsluminous.verysmarttv.inputs.InputNames;
 import com.itsluminous.verysmarttv.inputs.InputsMenu;
@@ -188,9 +188,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     private FrameLayout root;
     private Wallpaper wallpaper;
     private float density;
-    /** config settings_key_keycodes / settings_key_panel, so the Settings button works on Home without HomeKeyService. */
-    private int[] settingsKeycodes = new int[0];
-    private boolean settingsKeyPanel;
     @NonNull
     public StartupRouter startup() {
         return startup;
@@ -264,16 +261,15 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     StartupRouter startup;
     /** The glow behind the grid (AmbientGlow): the shelf asks it for colours and fades. */
     private AmbientGlow glow;
+    /** Every key Home receives (KeyDispatcher). */
+    private KeyDispatcher keys;
     /** The top shelf (ShelfController) and the carousel on it (CarouselController). */
     private ShelfController shelf;
     private CarouselController carousel;
     /** home_idle_clock_minutes and back_opens_clock (IdleClock). */
     private IdleClock idleClock;
-    private java.util.Map<Integer, String> homeAppKeys = java.util.Collections.emptyMap();
     /** clock_format, for the race panel's session times (the TextClocks take it in onCreate). */
     private String clockFormat = "system";
-    private java.util.Map<Integer, String> homeHoldAppKeys = java.util.Collections.emptyMap();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -281,16 +277,13 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         density = getResources().getDisplayMetrics().density;
         // config.xml, overlaid by config.json from a pushed theme (see Config and tools/theme.sh).
         Config cfg = Config.load(this);
-        homeAppKeys = RemoteKeys.parseAppKeys(cfg.appKeys);
+        keys = new KeyDispatcher(this, cfg);
         clockFormat = cfg.clockFormat;
         ClockFormat.apply(getWindow().getDecorView(), clockFormat);
-        homeHoldAppKeys = RemoteKeys.parseHoldAppKeys(cfg.appKeys);
         // restore_key_services: after a force stop, put back the remote's accessibility helpers that Android took
         // off the list (needs WRITE_SECURE_SETTINGS, granted by build-and-install with RESTORE_KEY_SERVICES=1).
         if (cfg.restoreKeyServices) ServiceRepair.restore(this);
         startup = new StartupRouter(this, cfg);
-        settingsKeycodes = cfg.settingsKeycodes;
-        settingsKeyPanel = cfg.settingsKeyPanel;
         state.columns = cfg.columns;
         state.animations = cfg.animations;
         state.advancedEffects = cfg.animations && cfg.advancedEffects;
@@ -418,7 +411,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         // No UP reaches a paused Home, so a vendor-key hold it saw go down would still open its app later.
         // Only Home's own share is dropped: a key service that saw the same DOWN keeps its hold.
         RemoteKeys.release(this);
-        cancelHoldOk();
+        keys.cancelHoldOk();
         idleClock.cancel();
         reorder.endReorder();   // Home or another app while reorder.active() keeps the order so far
         glow.stopAmbientAnimation();
@@ -466,7 +459,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
             grid.onWindowFocus();
             cardPrompts.showCardPrompt();
         } else {
-            cancelHoldOk();   // a dialog or another window took the remote while OK was held
+            keys.cancelHoldOk();   // a dialog or another window took the remote while OK was held
         }
     }
 
@@ -475,29 +468,11 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         super.onDestroy();
         RemoteKeys.release(this);
         carousel.release();
-        cancelHoldOk();
+        keys.cancelHoldOk();
         grid.onDestroy();
         startup.onDestroy();
         wallpaper.close();
         topBar.unregisterCallbacks();
-    }
-
-    /**
-     * A Settings button sent as a keycode (settings_key_keycodes, e.g. 83 on TCL Google TV remotes) opens the same
-     * thing HomeKeyService would. While that service runs it consumes the key first; without it (not enabled,
-     * or switched off by a force-stop) the stock launcher that used to handle the key is gone, and the button did
-     * nothing even on Home.
-     */
-    private boolean handleSettingsKey(KeyEvent event) {
-        for (int code : settingsKeycodes) {
-            if (event.getKeyCode() != code) continue;
-            if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
-                open(settingsKeyPanel ? new Intent(this, QuickSettingsActivity.class)
-                        : SystemSettings.intent(this, Settings.ACTION_SETTINGS));
-            }
-            return true;
-        }
-        return false;
     }
 
     // ---- reorder ---------------------------------------------------------------------------------
@@ -511,27 +486,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
      */
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        // Vendor keys (TCL Netflix button, 4062) never reach the key services, only the focused window, so their
-        // "hold:" entries run here too or nowhere. Only while resumed: onPause releases Home's holds, and a DOWN
-        // taken after that would arm one nothing releases.
-        if (state.resumed && event.getKeyCode() >= 1000 && RemoteKeys.handle(this, event, homeAppKeys.get(event.getKeyCode()),
-                homeHoldAppKeys.get(event.getKeyCode()))) return true;
-        if (handleSettingsKey(event)) return true;
-        if (carousel.on() && carousel.handleKey(event)) return true;
-        if (holdOk(event)) return true;
-        if (state.tileMenuEnabled && !reorder.active() && !popups.isOpen() && !cardPrompts.promptShowing()
-                && event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
-            int position = grid.focusedTilePosition();
-            if (position >= 0 && position < grid.adapter().appCount()
-                    && !getPackageName().equals(grid.adapter().packageAt(position))) {
-                if (RemoteKeys.menuReleased(event.getAction(), event.getFlags())) {
-                    onTileLongPress(position, getCurrentFocus());
-                }
-                return true;
-            }
-        }
-        if (!reorder.active()) return super.dispatchKeyEvent(event);
-        return reorder.dispatch(event);
+        return keys.dispatch(event);
     }
 
     @Override
@@ -615,81 +570,5 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
     // presses, or a Bluetooth one whose repeats land after a tile rebind, never holds one DOWN long enough.
     // So the launcher times the hold itself: OK down on a tile, still down (or still repeating) after
     // HOLD_OK_MS opens the tile menu, and the UP that follows is eaten so it doesn't also open the app.
-
-    private static final long HOLD_OK_MS = 550;
-    private long holdOkDown = -1;
-    private int holdOkPosition = -1;
-    private String holdOkKey;    // the app under OK when it went down; a tile rebuild can move another app to that slot
-    private boolean holdOkFired;
-    private final Runnable holdOkTimer = this::fireHoldOk;
-
-    private static boolean isOkKey(int code) {
-        return code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER
-                || code == KeyEvent.KEYCODE_NUMPAD_ENTER || code == KeyEvent.KEYCODE_BUTTON_A;
-    }
-
-    /** True when the event belongs to a hold that opened the tile menu and must not reach the tile. */
-    private boolean holdOk(KeyEvent event) {
-        if (!state.tileMenuEnabled || !isOkKey(event.getKeyCode())) return false;
-        if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            if (event.getRepeatCount() == 0) {
-                holdOkFired = false;
-                handler.removeCallbacks(holdOkTimer);
-                holdOkPosition = reorder.active() || popups.isOpen() || cardPrompts.promptShowing() ? -1 : grid.focusedTilePosition();
-                holdOkKey = holdOkPosition < 0 || holdOkPosition >= grid.adapter().appCount() ? null : grid.adapter().keyAt(holdOkPosition);
-                if (holdOkKey == null) {
-                    holdOkDown = -1;
-                    return false;
-                }
-                holdOkDown = event.getDownTime();
-                handler.postDelayed(holdOkTimer, HOLD_OK_MS);
-                return false;
-            }
-            if (holdOkFired) return true;
-            if (holdOkDown >= 0 && event.getEventTime() - holdOkDown >= HOLD_OK_MS) {
-                fireHoldOk();
-                return true;
-            }
-            return false;
-        }
-        // ACTION_UP
-        handler.removeCallbacks(holdOkTimer);
-        holdOkDown = -1;
-        holdOkKey = null;
-        if (holdOkFired) {
-            holdOkFired = false;
-            View f = getCurrentFocus();
-            if (f != null) f.setPressed(false);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Stops timing a held OK when the launcher is paused, loses its window or goes away, so the menu can't open
-     * behind another screen. An interrupted press still counts as handled: its UP, if it comes back here, is eaten
-     * rather than opening the tile.
-     */
-    private void cancelHoldOk() {
-        handler.removeCallbacks(holdOkTimer);
-        if (holdOkDown >= 0) holdOkFired = true;
-        holdOkDown = -1;
-        holdOkPosition = -1;
-        holdOkKey = null;
-    }
-
-    private void fireHoldOk() {
-        handler.removeCallbacks(holdOkTimer);
-        if (holdOkDown < 0 || holdOkFired) return;
-        holdOkFired = true;
-        if (popups.isOpen() || reorder.active()) return;   // View's own long click got there first
-        int position = holdOkPosition;
-        if (position < 0 || position >= grid.adapter().appCount() || position != grid.focusedTilePosition()) return;
-        // Same slot is not enough: tiles may have been rebuilt during the hold, so the app must match too.
-        if (!holdOkKey.equals(grid.adapter().keyAt(position))) return;
-        View card = getCurrentFocus();
-        if (card != null) card.setPressed(false);
-        onTileLongPress(position, card);
-    }
 
 }
