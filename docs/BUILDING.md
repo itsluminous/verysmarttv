@@ -38,7 +38,7 @@ Reports land in `<module>/build/reports/` (tests, `lint-results-debug.html`).
 | `:core` | `verysmarttv.android.lib` | Java | The provider contracts (`HeroContract`, `ScoreContract`) and small shared helpers. |
 | `:testkit` | `verysmarttv.android.lib` | Java | `FakeHeroProvider`, `FakeScoreProvider`, `HeroFixture`: test-only stand-ins for the companions. |
 | `:testkit:hero`, `:testkit:tiles` | `verysmarttv.android.app` | Java | The two apps the launcher's connected tests install: the companion stand-in (package `com.itsluminous.traktshelf`, ADR-037) and the seventh TV app. Debug only, never released. |
-| `:launcher` | `verysmarttv.android.app` | Java | `com.itsluminous.verysmarttv`, the home screen (carried from the fork in Phase 1; decomposed in Phase 2). |
+| `:launcher` | `verysmarttv.android.app` | Java | `com.itsluminous.verysmarttv`, the home screen (carried from the fork in Phase 1; decomposed into the §8 controllers in Phase 2, ADR-038). |
 | `:traktshelf` | `verysmarttv.android.app` | Java | `com.itsluminous.traktshelf`, the Trakt companion ([traktshelf/README.md](../traktshelf/README.md)). |
 | `:livescore` (Phase 4) | `verysmarttv.android.app` | Kotlin | `com.itsluminous.livescore`. |
 
