@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SelectableText: a TV has no text selection; the texts are read, not copied. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="SelectableText"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:scrollbars="none"
+    android:overScrollMode="never"
+    android:paddingStart="48dp"
+    android:paddingTop="36dp"
+    android:paddingEnd="48dp"
+    android:paddingBottom="24dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+            <TextView android:id="@+id/kicker" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="14sp" android:letterSpacing="0.08" android:textAllCaps="true" android:layout_marginEnd="14dp" />
+            <TextView android:id="@+id/header" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                android:textSize="14sp" android:textColor="#80FFFFFF" android:singleLine="true" android:ellipsize="end" />
+            <TextView android:id="@+id/updated" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="12sp" android:textColor="#66FFFFFF" />
+        </LinearLayout>
+        <TextView android:id="@+id/title" style="@style/Title" android:layout_marginTop="6dp" android:focusable="true" android:focusableInTouchMode="true" />
+        <TextView android:id="@+id/summary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp"
+            android:textSize="16sp" android:textColor="#B3FFFFFF" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="26dp" android:orientation="horizontal" android:baselineAligned="false">
+            <LinearLayout android:id="@+id/homeBlock" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginEnd="24dp" />
+            <LinearLayout android:id="@+id/awayBlock" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/details" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="26dp" android:orientation="vertical" />
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SelectableText: a TV has no text selection; the texts are read, not copied. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="SelectableText"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingStart="48dp"
+    android:paddingTop="36dp"
+    android:paddingEnd="48dp"
+    android:paddingBottom="24dp">
+    <TextView style="@style/Title" android:text="@string/title_follow" />
+    <!-- Three columns that each hold a scrolling list: the weights are the layout, nothing nested below them is weighted. -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="22dp" android:orientation="horizontal"
+        android:baselineAligned="false" tools:ignore="NestedWeights">
+        <LinearLayout android:layout_width="0dp" android:layout_weight="2" android:layout_height="match_parent" android:orientation="vertical" android:layout_marginEnd="24dp">
+            <TextView style="@style/ColumnHead" android:text="@string/column_sports" />
+            <ScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:scrollbars="none" android:overScrollMode="never">
+                <LinearLayout android:id="@+id/sports" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+            </ScrollView>
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_weight="3" android:layout_height="match_parent" android:orientation="vertical" android:layout_marginEnd="24dp">
+            <TextView style="@style/ColumnHead" android:text="@string/column_competitions" />
+            <ScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:scrollbars="none" android:overScrollMode="never">
+                <LinearLayout android:id="@+id/competitions" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+            </ScrollView>
+        </LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_weight="4" android:layout_height="match_parent" android:orientation="vertical">
+            <TextView style="@style/ColumnHead" android:text="@string/column_teams" />
+            <ScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:scrollbars="none" android:overScrollMode="never">
+                <LinearLayout android:id="@+id/teams" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+            </ScrollView>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

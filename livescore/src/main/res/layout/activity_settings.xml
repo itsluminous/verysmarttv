@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SelectableText: a TV has no text selection; the texts are read, not copied. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="SelectableText"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:scrollbars="none"
+    android:overScrollMode="never"
+    android:clipToPadding="false"
+    android:paddingStart="48dp"
+    android:paddingTop="40dp"
+    android:paddingEnd="48dp"
+    android:paddingBottom="24dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+        <TextView style="@style/Title" android:text="@string/settings" />
+        <LinearLayout android:id="@+id/list" android:layout_width="440dp" android:layout_height="wrap_content" android:layout_marginTop="26dp" android:orientation="vertical" />
+        <TextView android:layout_width="440dp" android:layout_height="wrap_content" android:layout_marginTop="22dp"
+            android:text="@string/about_source" android:textSize="13sp" android:textColor="#80FFFFFF" android:lineSpacingMultiplier="1.3" />
+    </LinearLayout>
+</ScrollView>

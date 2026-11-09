@@ -1,8 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <!-- ESPN's site feeds over HTTPS (DESIGN.md §13.1). Nothing else leaves the TV. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <application android:allowBackup="false" android:label="@string/app_name" tools:ignore="DataExtractionRules" />
+
+    <!-- Who may read the score provider and who may restore the follow list: only an app signed with this
+         app's key, which is the launcher (DESIGN.md §12.3, ADR-016, ADR-032). The names are
+         ScoreContract.PERMISSION_READ and PERMISSION_WRITE. -->
+    <permission
+        android:name="com.itsluminous.livescore.permission.READ_SCORES"
+        android:protectionLevel="signature" />
+    <permission
+        android:name="com.itsluminous.livescore.permission.WRITE_SCORES"
+        android:protectionLevel="signature" />
+
+    <!-- A TV app: leanback is required (the Chrome OS finding does not apply to a companion of a TV launcher). -->
+    <uses-feature android:name="android.software.leanback" android:required="true" tools:ignore="UnsupportedChromeOsHardware" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+    <!-- allowBackup false: the follow list travels in the launcher's Backup instead (ADR-032); DataExtractionRules
+         is the finding every module of this repository names for that attribute. -->
+    <application
+        android:allowBackup="false"
+        android:supportsRtl="false"
+        android:label="@string/app_name"
+        android:icon="@drawable/icon"
+        android:banner="@drawable/icon"
+        android:theme="@style/Theme.LiveScore"
+        tools:ignore="DataExtractionRules">
+
+        <!-- Home. Also the module card the launcher shows as a tile (docs/modules.md), and the target of
+             ScoreContract.ACTION_OPEN without an event id. -->
+        <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.itsluminous.verysmarttv.category.CARD" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.itsluminous.livescore.action.OPEN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="com.itsluminous.verysmarttv.card" android:resource="@xml/module_card" />
+        </activity>
+
+        <!-- Opened by the launcher's pill with the extra event_id (ScoreContract.SCOREBOARD_ACTIVITY). -->
+        <activity android:name=".ScoreboardActivity" android:exported="true" />
+        <!-- The follow picker, opened by a long press on the pill (ScoreContract.FOLLOW_ACTIVITY). -->
+        <activity android:name=".FollowActivity" android:exported="true" />
+        <activity android:name=".SettingsActivity" android:exported="false" />
+
+        <!-- What the launcher's score pill reads (ScoreContract): read-only for the holder of READ_SCORES,
+             call("restore") for the holder of WRITE_SCORES. -->
+        <provider
+            android:name=".ScoreProvider"
+            android:authorities="com.itsluminous.livescore.scores"
+            android:exported="true"
+            android:readPermission="com.itsluminous.livescore.permission.READ_SCORES"
+            android:writePermission="com.itsluminous.livescore.permission.WRITE_SCORES"
+            android:grantUriPermissions="false" />
+
+        <service android:name=".RefreshJob" android:permission="android.permission.BIND_JOB_SERVICE" android:exported="false" />
+    </application>
 </manifest>

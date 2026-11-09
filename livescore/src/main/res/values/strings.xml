@@ -1,4 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Live scores</string>
+
+    <!-- Home -->
+    <string name="title_scores">Scores</string>
+    <string name="follow">Follow</string>
+    <string name="settings">Settings</string>
+    <string name="empty_followed">Nothing followed is on today.</string>
+    <string name="empty_hint">Press Follow to pick sports, competitions and teams; the launcher’s pill shows the match that matters.</string>
+    <string name="row_versus">%1$s v %2$s</string>
+    <string name="row_score">%1$s %2$s · %3$s %4$s</string>
+    <string name="row_leader">%1$s — %2$s leads</string>
+    <string name="row_meta">%1$s · %2$s</string>
+    <string name="updated_ago">Updated %1$s</string>
+    <string name="updated_never">Not fetched yet</string>
+    <string name="stale">stale</string>
+
+    <!-- Follow picker -->
+    <string name="title_follow">Follow sports, competitions and teams</string>
+    <string name="column_sports">Sports</string>
+    <string name="column_competitions">Competitions</string>
+    <string name="column_teams">Teams and matches</string>
+    <string name="whole_sport">All %1$s</string>
+    <string name="follow_match">Match · %1$s</string>
+    <string name="no_teams">Pick a competition to see its teams and today’s matches.</string>
+    <string name="tick_on">\u2611</string>
+    <string name="tick_off">\u2610</string>
+    <string name="sport_cricket">Cricket</string>
+    <string name="sport_football">Football</string>
+    <string name="sport_f1">Formula 1</string>
+    <string name="sport_tennis">Tennis</string>
+
+    <!-- Scoreboard -->
+    <string name="innings_line">%1$d/%2$d (%3$s ov)</string>
+    <string name="innings_declared">%1$d/%2$dd (%3$s ov)</string>
+    <string name="innings_all_out">%1$d (%2$s ov)</string>
+    <string name="batting_now">batting</string>
+    <string name="event_missing">This match is no longer in the list.</string>
+    <string name="no_details">No further detail from the feed.</string>
+    <string name="refreshing">Refreshing…</string>
+
+    <!-- Settings -->
+    <string name="refresh_now">Refresh now</string>
+    <string name="live_refresh">Live refresh</string>
+    <string name="live_refresh_on">On: every 60 s while a screen shows a live match</string>
+    <string name="live_refresh_off">Off: fixtures every 6 hours only</string>
+    <string name="sports_shown">Sports shown</string>
+    <string name="restore_defaults">Restore default follows</string>
+    <string name="restore_defaults_value">India, IPL, ISL, Premier League, Champions League, F1</string>
+    <string name="clear_follows">Clear follows</string>
+    <plurals name="clear_follows_value">
+        <item quantity="one">%1$d follow</item>
+        <item quantity="other">%1$d follows</item>
+    </plurals>
+    <string name="clear_follows_confirm">Remove every follow? The pill goes empty until you follow something again.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="about_source">Scores come from ESPN’s public site feeds, which need no account. ESPN is not affiliated with this app and the feeds may change or stop without notice. Nothing is fetched while no screen shows a score.</string>
 </resources>
