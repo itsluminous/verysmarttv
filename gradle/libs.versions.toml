@@ -9,7 +9,7 @@
 agp = "9.5.1"                # Android Gradle Plugin; the version HikViewer pins (DESIGN.md §5.1). Needs Gradle >= 9.6 and build-tools 36.
 
 # --- libraries ---------------------------------------------------------------
-androidxAnnotation = "1.9.1"  # @NonNull/@Nullable on :core's public API (lint UnknownNullness); compile-time only, R8 strips it
+androidxAnnotation = "1.11.0"  # @NonNull/@Nullable on :core's public API (lint UnknownNullness); compile-time only, R8 strips it
 
 # --- test libraries ----------------------------------------------------------
 junit4 = "4.13.2"            # the carried launcher tests are JUnit 4 (ADR-019)
