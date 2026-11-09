@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import com.itsluminous.verysmarttv.settings.LauncherSettingsActivity;
 import com.itsluminous.verysmarttv.settings.OpenOnStart;
 import com.itsluminous.verysmarttv.theme.Config;
+import com.itsluminous.verysmarttv.settings.SettingsChoices;
 
 /**
  * What opens instead of, or over, Home when it starts (DESIGN.md §8, moved from the activity verbatim): the Live TV
@@ -99,7 +100,7 @@ public final class StartupRouter {
 
     /** onResume: something changed in Launcher settings since this Home was built. */
     public boolean settingsChanged() {
-        return Config.settingsChanged(settingsRevision, settingsRevision());
+        return SettingsChoices.settingsChanged(settingsRevision, settingsRevision());
     }
 
     /** Opens Launcher settings over Home; Home rebuilds when they close with a change (onResume, onActivityResult). */
@@ -134,9 +135,9 @@ public final class StartupRouter {
         return true;
     }
 
-    /** Launcher settings' change count (Config.SETTINGS_REVISION_KEY); onResume rebuilds Home when it moved. */
+    /** Launcher settings' change count (SettingsChoices.SETTINGS_REVISION_KEY); onResume rebuilds Home when it moved. */
     private long settingsRevision() {
-        return home.activity().getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).getLong(Config.SETTINGS_REVISION_KEY, 0);
+        return home.activity().getSharedPreferences(SettingsChoices.SETTINGS_NAME, Context.MODE_PRIVATE).getLong(SettingsChoices.SETTINGS_REVISION_KEY, 0);
     }
 
     /**
@@ -147,7 +148,7 @@ public final class StartupRouter {
         if (requestCode == LAUNCHER_SETTINGS_REQUEST && resultCode == android.app.Activity.RESULT_OK
                 && data != null && data.getBooleanExtra(LauncherSettingsActivity.EXTRA_REORDER, false)) {
             home.activity().getIntent().putExtra(LauncherSettingsActivity.EXTRA_REORDER, true);
-            if (!Config.settingsChanged(settingsRevision, settingsRevision())) {
+            if (!SettingsChoices.settingsChanged(settingsRevision, settingsRevision())) {
                 // Nothing was changed before Reorder was chosen: keep this activity and its tiles, and start the
                 // reorder when the window has focus again (onWindowFocusChanged). A recreate() here blanked Home
                 // for a moment on every use.
@@ -173,7 +174,7 @@ public final class StartupRouter {
      *  low-memory TV the app can push the launcher out of memory, and an apply() still in flight was lost then, so
      *  every Home press opened the app again. */
     public boolean openLiveTvAfterBoot() {
-        String app = openOnStartChoice ? home.activity().getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE)
+        String app = openOnStartChoice ? home.activity().getSharedPreferences(SettingsChoices.SETTINGS_NAME, Context.MODE_PRIVATE)
                 .getString(OpenOnStart.KEY, "") : "";
         if (!bootToLiveTv && app.isEmpty()) return false;
         int boot = OpenOnStart.boot(home.activity());
@@ -189,7 +190,7 @@ public final class StartupRouter {
     /** open_on_start_on_wake: the remote's power button is a light sleep on some sets, with no boot for
      *  openLiveTvAfterBoot to catch. */
     void openStartAppOnWake() {
-        String app = home.activity().getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).getString(OpenOnStart.KEY, "");
+        String app = home.activity().getSharedPreferences(SettingsChoices.SETTINGS_NAME, Context.MODE_PRIVATE).getString(OpenOnStart.KEY, "");
         if (app.isEmpty() || app.equals(home.activity().getPackageName())) return;
         Intent i = OpenOnStart.intent(home.activity().getPackageManager(), app);
         if (i != null) openWhenReady(i);

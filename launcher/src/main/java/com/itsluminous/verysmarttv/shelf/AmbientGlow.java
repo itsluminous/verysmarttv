@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 
 import com.itsluminous.verysmarttv.home.HomeHost;
 import com.itsluminous.verysmarttv.theme.Config;
+import com.itsluminous.verysmarttv.theme.ThemeKeys;
 
 /**
  * The ambient glow behind the grid: one small bitmap stretched over the screen, tinted with the focused app's colour
@@ -118,7 +119,7 @@ public final class AmbientGlow {
                         new int[]{0xA6FFFFFF, 0x47FFFFFF, 0x00FFFFFF},
                         new float[]{0f, 0.5f, 1f},
                         Shader.TileMode.CLAMP));
-            } else if (Config.GLOW_HORIZON.equals(glowStyle)) {
+            } else if (ThemeKeys.GLOW_HORIZON.equals(glowStyle)) {
                 // The colour washes down from the top edge and fades out three quarters of the way down,
                 // with a brighter band along the top like light over a horizon.
                 paint.setShader(new LinearGradient(0, 0, 0, h * 0.75f,

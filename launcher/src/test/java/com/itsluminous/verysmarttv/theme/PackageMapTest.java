@@ -11,24 +11,24 @@ import static org.junit.Assert.assertTrue;
 
 public class PackageMapTest {
     @Test public void anEntryMapsItsPackageToItsAction() {
-        Map<String, String> m = Config.packageMap(Collections.singletonList(
+        Map<String, String> m = ThemeKeys.packageMap(Collections.singletonList(
                 "com.telekom.onetv.tv.pl=com.telekom.onetv.tv.pl.action.PROGRAM_GUIDE"));
         assertEquals("com.telekom.onetv.tv.pl.action.PROGRAM_GUIDE", m.get("com.telekom.onetv.tv.pl"));
     }
 
     @Test public void spacesAroundTheHalvesAreTrimmed() {
-        assertEquals("a.ACTION", Config.packageMap(Collections.singletonList(" a.pkg = a.ACTION ")).get("a.pkg"));
+        assertEquals("a.ACTION", ThemeKeys.packageMap(Collections.singletonList(" a.pkg = a.ACTION ")).get("a.pkg"));
     }
 
     @Test public void entriesWithoutBothHalvesAreSkipped() {
-        assertTrue(Config.packageMap(Arrays.asList("a.pkg", "=a.ACTION", "a.pkg=", "")).isEmpty());
+        assertTrue(ThemeKeys.packageMap(Arrays.asList("a.pkg", "=a.ACTION", "a.pkg=", "")).isEmpty());
     }
 
     @Test public void aValueMayContainAnEqualsSign() {
-        assertEquals("a=b", Config.packageMap(Collections.singletonList("a.pkg=a=b")).get("a.pkg"));
+        assertEquals("a=b", ThemeKeys.packageMap(Collections.singletonList("a.pkg=a=b")).get("a.pkg"));
     }
 
     @Test public void aLaterEntryForAPackageWins() {
-        assertEquals("second", Config.packageMap(Arrays.asList("a.pkg=first", "a.pkg=second")).get("a.pkg"));
+        assertEquals("second", ThemeKeys.packageMap(Arrays.asList("a.pkg=first", "a.pkg=second")).get("a.pkg"));
     }
 }

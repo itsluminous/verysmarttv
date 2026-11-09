@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import com.itsluminous.verysmarttv.theme.Config;
 import com.itsluminous.verysmarttv.grid.Order;
+import com.itsluminous.verysmarttv.settings.SettingsChoices;
 
 /**
  * A backup written by the fork's launcher restores here (DESIGN.md §7.4, §19 "Owner's existing TV migration"):
@@ -39,8 +40,8 @@ public class BackupCompatTest {
                 .put("hero_feed", new JSONObject().put("type", "int").put("value", 1))
                 .put("widgets", new JSONObject().put("type", "set")
                         .put("value", new JSONArray(Arrays.asList("memory", "cpu", "storage"))))
-                .put(Config.ADVANCED_EFFECTS_LEGACY_KEY, new JSONObject().put("type", "boolean").put("value", false))
-                .put(Config.SETTINGS_REVISION_KEY, new JSONObject().put("type", "long").put("value", 40));
+                .put(SettingsChoices.ADVANCED_EFFECTS_LEGACY_KEY, new JSONObject().put("type", "boolean").put("value", false))
+                .put(SettingsChoices.SETTINGS_REVISION_KEY, new JSONObject().put("type", "long").put("value", 40));
         JSONObject files = new JSONObject().put(Order.FILE_NAME, new JSONObject()
                 .put("text", "previous-order 1\ndock com.netflix.ninja,com.stremio.one\ndocked 2\n"
                         + "com.netflix.ninja/.MainActivity\ncom.stremio.one/.MainActivity\norg.smarttube.stable/.Main\n"));
@@ -50,7 +51,7 @@ public class BackupCompatTest {
                 .put("version", 1)
                 .put("package", "com.example.previouslauncher")
                 .put("exported_at", "2026-11-02T14:44:00Z")
-                .put("prefs", new JSONObject().put(Config.SETTINGS_NAME, settings))
+                .put("prefs", new JSONObject().put(SettingsChoices.SETTINGS_NAME, settings))
                 .put("files", files)
                 .put("theme", theme);
     }
@@ -60,17 +61,17 @@ public class BackupCompatTest {
         Context ctx = RuntimeEnvironment.getApplication();
         Backup.restore(ctx, forkBackup());
 
-        SharedPreferences settings = ctx.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences settings = ctx.getSharedPreferences(SettingsChoices.SETTINGS_NAME, Context.MODE_PRIVATE);
         assertEquals(6, settings.getInt("columns", -1));
-        assertEquals(1, settings.getInt(Config.HERO_FEED_KEY, -1));
-        assertFalse("the Advanced effects choice is dropped on restore", settings.contains(Config.ADVANCED_EFFECTS_LEGACY_KEY));
-        assertTrue("the revision moved past the backup's, so Home rebuilds", settings.getLong(Config.SETTINGS_REVISION_KEY, 0) > 40);
+        assertEquals(1, settings.getInt(SettingsChoices.HERO_FEED_KEY, -1));
+        assertFalse("the Advanced effects choice is dropped on restore", settings.contains(SettingsChoices.ADVANCED_EFFECTS_LEGACY_KEY));
+        assertTrue("the revision moved past the backup's, so Home rebuilds", settings.getLong(SettingsChoices.SETTINGS_REVISION_KEY, 0) > 40);
 
         // The restored Widgets tick list is still a string set until Config reads it once; then it is the toggle.
-        assertEquals(new HashSet<>(Arrays.asList("memory", "cpu", "storage")), settings.getStringSet(Config.WIDGETS_KEY, null));
+        assertEquals(new HashSet<>(Arrays.asList("memory", "cpu", "storage")), settings.getStringSet(SettingsChoices.WIDGETS_KEY, null));
         Config cfg = Config.load(ctx);
         assertTrue(cfg.widgets);
-        assertEquals(1, settings.getInt(Config.WIDGETS_KEY, -1));
+        assertEquals(1, settings.getInt(SettingsChoices.WIDGETS_KEY, -1));
         assertEquals(6, cfg.columns);
         assertTrue("the theme's old chip list reads as on", cfg.themeWidgets);
 
@@ -85,7 +86,7 @@ public class BackupCompatTest {
     @Test
     public void anotherVersionOrNoPrefsIsRefusedBeforeAnythingChanges() throws Exception {
         Context ctx = RuntimeEnvironment.getApplication();
-        SharedPreferences settings = ctx.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences settings = ctx.getSharedPreferences(SettingsChoices.SETTINGS_NAME, Context.MODE_PRIVATE);
         settings.edit().clear().putInt("columns", 5).commit();
         for (JSONObject bad : new JSONObject[]{forkBackup().put("version", 2), new JSONObject().put("version", 1)}) {
             try {
@@ -106,6 +107,6 @@ public class BackupCompatTest {
         assertEquals(ctx.getPackageName(), exported.getString("package"));
         assertEquals(1, exported.getInt("version"));
         assertTrue(exported.getJSONObject("files").has(Order.FILE_NAME));
-        assertTrue(exported.getJSONObject("prefs").getJSONObject(Config.SETTINGS_NAME).has("columns"));
+        assertTrue(exported.getJSONObject("prefs").getJSONObject(SettingsChoices.SETTINGS_NAME).has("columns"));
     }
 }

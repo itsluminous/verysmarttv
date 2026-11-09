@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.List;
 import com.itsluminous.verysmarttv.backup.Backup;
 import com.itsluminous.verysmarttv.theme.Config;
+import com.itsluminous.verysmarttv.settings.SettingsChoices;
 
 /**
  * The launcher's package-private state, opened to the test helpers in {@code support/} (another package, so
@@ -51,14 +52,14 @@ public final class LauncherState {
         return Backup.saveToFile(ctx);
     }
 
-    /** The on-TV choices Launcher settings saves (Config.SETTINGS_NAME). */
+    /** The on-TV choices Launcher settings saves (SettingsChoices.SETTINGS_NAME). */
     public static SharedPreferences choices(Context ctx) {
-        return ctx.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE);
+        return ctx.getSharedPreferences(SettingsChoices.SETTINGS_NAME, Context.MODE_PRIVATE);
     }
 
-    /** Launcher settings' change count; Home rebuilds on resume when it moved (Config.SETTINGS_REVISION_KEY). */
+    /** Launcher settings' change count; Home rebuilds on resume when it moved (SettingsChoices.SETTINGS_REVISION_KEY). */
     public static long settingsRevision(Context ctx) {
-        return choices(ctx).getLong(Config.SETTINGS_REVISION_KEY, 0);
+        return choices(ctx).getLong(SettingsChoices.SETTINGS_REVISION_KEY, 0);
     }
 
     /** The Animations switch as Home would read it now: the saved choice over the theme's key. */

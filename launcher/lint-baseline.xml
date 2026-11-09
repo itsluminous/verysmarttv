@@ -4,12 +4,12 @@
     <issue
         id="ApplySharedPref"
         message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
-        errorLine1="        settings.edit().putLong(Config.SETTINGS_REVISION_KEY, Math.max(revisionBefore, restored) + 1).commit();"
-        errorLine2="                                                                                                      ~~~~~~~~">
+        errorLine1="        settings.edit().putLong(SettingsChoices.SETTINGS_REVISION_KEY, Math.max(revisionBefore, restored) + 1).commit();"
+        errorLine2="                                                                                                               ~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/backup/Backup.java"
-            line="299"
-            column="103"/>
+            line="301"
+            column="112"/>
     </issue>
 
     <issue
@@ -19,41 +19,19 @@
         errorLine2="          ~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/backup/Backup.java"
-            line="324"
+            line="326"
             column="11"/>
     </issue>
 
     <issue
         id="ApplySharedPref"
         message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
-        errorLine1="            editor.putString(THEME_SIGNATURE_KEY, signature).commit();"
-        errorLine2="                                                             ~~~~~~~~">
+        errorLine1="                .putString(SettingsChoices.THEME_SIGNATURE_KEY, SettingsChoices.themeSignature(config, revision)).commit();"
+        errorLine2="                                                                                                                  ~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/theme/Config.java"
-            line="811"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="ApplySharedPref"
-        message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
-        errorLine1="                    .putString(THEME_SIGNATURE_KEY, signature).commit();"
-        errorLine2="                                                               ~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/theme/Config.java"
-            line="816"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="ApplySharedPref"
-        message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
-        errorLine1="                .putString(THEME_SIGNATURE_KEY, fileStamp(config) + &quot;:&quot; + revisionToken(revision)).commit();"
-        errorLine2="                                                                                                   ~~~~~~~~">
-        <location
-            file="src/main/java/com/itsluminous/verysmarttv/theme/Config.java"
-            line="830"
-            column="100"/>
+            line="737"
+            column="115"/>
     </issue>
 
     <issue
@@ -70,12 +48,12 @@
     <issue
         id="ApplySharedPref"
         message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
-        errorLine1="                    .remove(Config.WIDGETS_KEY).remove(OpenOnStart.KEY).commit();"
-        errorLine2="                                                                        ~~~~~~~~">
+        errorLine1="                    .remove(SettingsChoices.WIDGETS_KEY).remove(OpenOnStart.KEY).commit();"
+        errorLine2="                                                                                 ~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/settings/LauncherSettingsActivity.java"
             line="153"
-            column="73"/>
+            column="82"/>
     </issue>
 
     <issue
@@ -87,6 +65,28 @@
             file="src/main/java/com/itsluminous/verysmarttv/settings/OpenOnStart.java"
             line="42"
             column="103"/>
+    </issue>
+
+    <issue
+        id="ApplySharedPref"
+        message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
+        errorLine1="            editor.putString(THEME_SIGNATURE_KEY, signature).commit();"
+        errorLine2="                                                             ~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/settings/SettingsChoices.java"
+            line="106"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="ApplySharedPref"
+        message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
+        errorLine1="                    .putString(THEME_SIGNATURE_KEY, signature).commit();"
+        errorLine2="                                                               ~~~~~~~~">
+        <location
+            file="src/main/java/com/itsluminous/verysmarttv/settings/SettingsChoices.java"
+            line="111"
+            column="64"/>
     </issue>
 
     <issue
@@ -1372,7 +1372,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
-            line="119"
+            line="120"
             column="17"/>
     </issue>
 
@@ -1383,7 +1383,7 @@
         errorLine2="                ~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
-            line="120"
+            line="121"
             column="17"/>
     </issue>
 
@@ -1394,7 +1394,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
-            line="170"
+            line="171"
             column="17"/>
     </issue>
 
@@ -1405,7 +1405,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
-            line="347"
+            line="348"
             column="17"/>
     </issue>
 
@@ -1416,7 +1416,7 @@
         errorLine2="                                   ~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
-            line="348"
+            line="349"
             column="36"/>
     </issue>
 
@@ -1427,7 +1427,7 @@
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/keys/HomeKeyService.java"
-            line="348"
+            line="349"
             column="21"/>
     </issue>
 
@@ -3351,7 +3351,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="355"
+            line="89"
             column="29"/>
     </issue>
 
@@ -3362,7 +3362,7 @@
         errorLine2="                                            ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="1650"
+            line="429"
             column="45"/>
     </issue>
 
@@ -3373,7 +3373,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="1675"
+            line="455"
             column="47"/>
     </issue>
 
@@ -3384,7 +3384,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/itsluminous/verysmarttv/home/HomeActivity.java"
-            line="1682"
+            line="462"
             column="29"/>
     </issue>
 

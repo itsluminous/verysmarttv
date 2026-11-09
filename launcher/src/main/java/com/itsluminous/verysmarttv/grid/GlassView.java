@@ -10,6 +10,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import com.itsluminous.verysmarttv.theme.Config;
 import androidx.annotation.NonNull;
+import com.itsluminous.verysmarttv.theme.ThemeKeys;
 
 /**
  * A translucent glass slab: soft sheen fill, bright top specular, crisp rim and a faint outer glow.
@@ -65,8 +66,8 @@ public class GlassView extends View {
 
     /** One of Config's GLASS_* styles. */
     public void setStyle(@NonNull String style) {
-        flat = Config.GLASS_RIM.equals(style) || Config.GLASS_HALO.equals(style);
-        halo = Config.GLASS_HALO.equals(style);
+        flat = ThemeKeys.GLASS_RIM.equals(style) || ThemeKeys.GLASS_HALO.equals(style);
+        halo = ThemeKeys.GLASS_HALO.equals(style);
         rim.setStrokeWidth((flat ? 2f : 1.5f) * density);
         invalidate();
     }

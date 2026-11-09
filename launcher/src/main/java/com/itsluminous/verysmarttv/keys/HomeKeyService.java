@@ -34,6 +34,7 @@ import com.itsluminous.verysmarttv.settings.QuickSettingsActivity;
 import com.itsluminous.verysmarttv.settings.SystemSettings;
 import com.itsluminous.verysmarttv.R;
 import com.itsluminous.verysmarttv.home.HomeActivity;
+import com.itsluminous.verysmarttv.settings.SettingsChoices;
 
 /**
  * Sends the remote's Home button to this launcher on remotes that emit KEYCODE_ALL_APPS for Home
@@ -217,7 +218,7 @@ public class HomeKeyService extends AccessibilityService {
         // power_on_home, off by default. Not with boot_to_live_tv, or with Live TV picked as the Open on start app:
         // those open Live TV on purpose at boot.
         String openOnStart = config.openOnStartChoice
-                ? getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE).getString(OpenOnStart.KEY, "") : "";
+                ? getSharedPreferences(SettingsChoices.SETTINGS_NAME, MODE_PRIVATE).getString(OpenOnStart.KEY, "") : "";
         powerOnLiveTv = config.powerOnHome && !config.bootToLiveTv && !config.liveTvPackage.equals(openOnStart)
                 ? config.liveTvPackage : "";
         powerOnAlways = config.powerOnHomeAlways && !config.bootToLiveTv && openOnStart.isEmpty();

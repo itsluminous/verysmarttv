@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 
 /** open_on_start_choice: the app Home opens once after each boot, picked in Launcher settings. */
 public final class OpenOnStart {
-    /** The picked package in Config.SETTINGS_NAME; absent or empty means Off. */
+    /** The picked package in SettingsChoices.SETTINGS_NAME; absent or empty means Off. */
     public static final String KEY = "open_on_start";
     /** The boot whose first Home has been handled, shared with boot_to_live_tv. */
     public static final String BOOT_PREFS = "boot";

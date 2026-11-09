@@ -134,11 +134,11 @@ public final class SettingsPanel {
         });
         // Trakt recommendations as it stands now (the saved toggle over the theme's hero_feed): the hero height's
         // auto rule and its row read it, so it comes before them.
-        int chosenFeed = choices.getInt(Config.HERO_FEED_KEY, -1);
-        boolean feedNow = Config.chosenHeroFeed(chosenFeed, config.themeHeroFeed);
+        int chosenFeed = choices.getInt(SettingsChoices.HERO_FEED_KEY, -1);
+        boolean feedNow = SettingsChoices.chosenHeroFeed(chosenFeed, config.themeHeroFeed);
         // uniform_rows: no dock, so nothing sits below it and no band has an opacity; the two rows are left out.
         if (config.dockRow && !config.uniformRows) {
-            int rows = choices.getInt(Config.ROWS_BELOW_DOCK_KEY, config.rowsBelowDock);
+            int rows = choices.getInt(SettingsChoices.ROWS_BELOW_DOCK_KEY, config.rowsBelowDock);
             // shelf_every_row: every row scrolls to the dock's line, so there is no dock in the owner's eyes; the row
             // keeps its key and values but names the first row, and says what the number does.
             boolean everyRow = config.shelfEveryRow;
@@ -146,9 +146,9 @@ public final class SettingsPanel {
             String rowsValue = everyRow ? rows + " \u00b7 " + activity.getString(R.string.rows_below_first_row_hint) : String.valueOf(rows);
             row(R.drawable.ic_apps_pill, rowsLabel, rowsValue, v -> {
                 String[] labels = {"0", "1", "2", "3"};
-                choose(rowsLabel, labels, rows, which -> save(e -> e.putInt(Config.ROWS_BELOW_DOCK_KEY, which)));
+                choose(rowsLabel, labels, rows, which -> save(e -> e.putInt(SettingsChoices.ROWS_BELOW_DOCK_KEY, which)));
             });
-            int opacity = choices.getInt(Config.DOCK_OPACITY_KEY, config.dockOpacity);
+            int opacity = choices.getInt(SettingsChoices.DOCK_OPACITY_KEY, config.dockOpacity);
             row(R.drawable.ic_picture, activity.getString(R.string.dock_opacity_label), opacity + "%", v -> {
                 String[] labels = new String[DOCK_OPACITIES.length];
                 int checked = 0;
@@ -157,21 +157,21 @@ public final class SettingsPanel {
                     if (DOCK_OPACITIES[i] == opacity) checked = i;
                 }
                 choose(activity.getString(R.string.dock_opacity_label), labels, checked, which ->
-                        save(e -> e.putInt(Config.DOCK_OPACITY_KEY, DOCK_OPACITIES[which])));
+                        save(e -> e.putInt(SettingsChoices.DOCK_OPACITY_KEY, DOCK_OPACITIES[which])));
             });
         }
         if (config.dockRow) {
             // Hero banner height: the shelf's share of the room above the first row. The row and its picker show the
-            // height in force, Config.chosenHeroHeight: the saved choice, else the theme's hero_height, else with its
+            // height in force, SettingsChoices.chosenHeroHeight: the saved choice, else the theme's hero_height, else with its
             // 0 (auto) 100 while the Trakt carousel is on and 80 without it. A pick saves that level; a theme push
             // hands the choice back to the theme.
-            int heroNow = Config.chosenHeroHeight(choices.getInt(Config.HERO_HEIGHT_KEY, -1), config.themeHeroHeight, feedNow);
+            int heroNow = SettingsChoices.chosenHeroHeight(choices.getInt(SettingsChoices.HERO_HEIGHT_KEY, -1), config.themeHeroHeight, feedNow);
             row(R.drawable.ic_picture, activity.getString(R.string.hero_height_label), heroHeightLabel(heroNow), v -> {
                 int[] levels = heroHeightChoices(heroNow);
                 String[] labels = new String[levels.length];
                 for (int i = 0; i < levels.length; i++) labels[i] = heroHeightLabel(levels[i]);
                 choose(activity.getString(R.string.hero_height_label), labels, indexOf(levels, heroNow), which ->
-                        save(e -> e.putInt(Config.HERO_HEIGHT_KEY, levels[which])));
+                        save(e -> e.putInt(SettingsChoices.HERO_HEIGHT_KEY, levels[which])));
             });
         }
         // Trakt recommendations (hero_feed): the carousel on the top shelf, over the theme's key. Always offered, so a
@@ -182,28 +182,28 @@ public final class SettingsPanel {
         row(R.drawable.ic_livetv, activity.getString(R.string.hero_feed_label), feedState, v -> {
             String[] labels = {onOff(true), onOff(false)};
             choose(activity.getString(R.string.hero_feed_label), labels, feedNow ? 0 : 1, which ->
-                    save(e -> e.putInt(Config.HERO_FEED_KEY, which == 0 ? 1 : 0)));
+                    save(e -> e.putInt(SettingsChoices.HERO_FEED_KEY, which == 0 ? 1 : 0)));
         });
-        String clock = choices.getString(Config.CLOCK_FORMAT_KEY, config.clockFormat);
+        String clock = choices.getString(SettingsChoices.CLOCK_FORMAT_KEY, config.clockFormat);
         String[] clockLabels = {activity.getString(R.string.clock_format_system),
                 activity.getString(R.string.clock_format_12), activity.getString(R.string.clock_format_24)};
         int clockIndex = Math.max(0, java.util.Arrays.asList(CLOCK_FORMATS).indexOf(clock));
         row(R.drawable.ic_livetv, activity.getString(R.string.dream_name), clockLabels[clockIndex], v ->
                 choose(activity.getString(R.string.dream_name), clockLabels, clockIndex, which ->
-                        save(e -> e.putString(Config.CLOCK_FORMAT_KEY, CLOCK_FORMATS[which]))));
+                        save(e -> e.putString(SettingsChoices.CLOCK_FORMAT_KEY, CLOCK_FORMATS[which]))));
         // System bars: the RAM and Storage bars beside the date (a theme's widgets key, a boolean). A picker like the
         // Trakt row (On, Off); the row and its picker show the state in force, the saved choice, else the theme's
-        // (Config.chosenWidgets). The bars themselves land in Phase 3 (DESIGN.md §9.1).
-        boolean barsNow = Config.chosenWidgets(choices, config.themeWidgets);
+        // (SettingsChoices.chosenWidgets). The bars themselves land in Phase 3 (DESIGN.md §9.1).
+        boolean barsNow = SettingsChoices.chosenWidgets(choices, config.themeWidgets);
         row(R.drawable.ic_memory, activity.getString(R.string.widgets_label), onOff(barsNow), v -> {
             String[] labels = {onOff(true), onOff(false)};
             choose(activity.getString(R.string.widgets_label), labels, barsNow ? 0 : 1, which ->
-                    save(e -> e.putInt(Config.WIDGETS_KEY, which == 0 ? 1 : 0)));
+                    save(e -> e.putInt(SettingsChoices.WIDGETS_KEY, which == 0 ? 1 : 0)));
         });
 
         // Animations: one switch for all the motion. Off is still, with no zoom, lift or glow; On has the theme's
         // advanced_effects along with it (Config.advancedEffects gates on animations), so there is no Advanced
-        // effects row here and no choice saved for it (Config.ADVANCED_EFFECTS_LEGACY_KEY).
+        // effects row here and no choice saved for it (SettingsChoices.ADVANCED_EFFECTS_LEGACY_KEY).
         // A picker like the other rows (On, Off), so the row shows the new state when the pick returns; the old
         // toggle saved its value and left the row reading the old one until the panel was reopened.
         boolean animations = choices.getBoolean("animations", config.animations);
@@ -369,7 +369,7 @@ public final class SettingsPanel {
 
     /**
      * The heights the picker offers, HERO_HEIGHTS in order, with {@code effective} (the height in force, as
-     * Config.chosenHeroHeight gives it) slotted in by size when a theme named one outside the four, so the marked row
+     * SettingsChoices.chosenHeroHeight gives it) slotted in by size when a theme named one outside the four, so the marked row
      * is always one of those shown.
      */
     @NonNull

@@ -36,6 +36,8 @@ import com.itsluminous.verysmarttv.grid.TopFade;
 import com.itsluminous.verysmarttv.grid.UniformRows;
 import com.itsluminous.verysmarttv.R;
 import androidx.annotation.NonNull;
+
+import com.itsluminous.verysmarttv.settings.SettingsChoices;
 import androidx.annotation.Nullable;
 
 /**
@@ -43,64 +45,19 @@ import androidx.annotation.Nullable;
  * {@code config.json} in the app's external files directory
  * ({@code /sdcard/Android/data/com.itsluminous.verysmarttv/files/}). Every key in the JSON is optional and an
  * unknown or badly typed key is ignored, so a theme can change the dock and the look without a rebuild: the setup
- * tool pushes a theme folder there and restarts Home. A key of a feature this launcher dropped ({@link #IGNORED_KEYS},
+ * tool pushes a theme folder there and restarts Home. A key of a feature this launcher dropped ({@link #ThemeKeys.IGNORED_KEYS},
  * ADR-008) is ignored with one log line each, so an older theme still loads.
  *
  * Read once in {@link HomeActivity#onCreate}; nothing here touches the network.
  */
 public final class Config {
-    private static final String TAG = "VerySmartTV.Config";
     public static final String FILE_NAME = "config.json";
     public static final String WALLPAPER_NAME = "wallpaper.jpg";
-    public static final String SETTINGS_NAME = "launcher_settings";
-    public static final String ROWS_BELOW_DOCK_KEY = "rows_below_dock";
-    public static final String DOCK_OPACITY_KEY = "dock_opacity";
-    public static final String CLOCK_FORMAT_KEY = "clock_format";
-    /** The shelf height chosen in Launcher settings, percent (hero_height); unset means the theme's key decides. */
-    public static final String HERO_HEIGHT_KEY = "hero_height";
-    public static final int HERO_HEIGHT_MIN = 50, HERO_HEIGHT_MAX = 130;
-    /**
-     * hero_height 0, the default: the shelf is the layout's own 100 while the carousel is on (hero_feed, after the
-     * Launcher settings toggle) and 80 without it, where the app's name alone does not need the room.
-     */
-    static final int HERO_HEIGHT_AUTO = 0, HERO_HEIGHT_WITH_FEED = 100, HERO_HEIGHT_WITHOUT_FEED = 80;
-    /**
-     * The Trakt recommendations toggle in Launcher settings: 1 on, 0 off, unset means the theme's hero_feed decides.
-     * Off leaves the launcher exactly as with "hero_feed": false (the shelf names the app, no provider is read).
-     */
-    public static final String HERO_FEED_KEY = "hero_feed";
-    /**
-     * The System bars toggle in Launcher settings: 1 on, 0 off, unset means the theme's widgets key decides. The
-     * RAM and Storage bars themselves land in Phase 3 (DESIGN.md §9.1); until then the value is read and nothing is drawn.
-     */
-    public static final String WIDGETS_KEY = "widgets";
-    /**
-     * Keys of features this launcher dropped (ADR-008). A theme that still carries one loads, and the key is
-     * ignored with one {@code Log.i} line, so an older config.json never fails and nobody wonders where the feature went.
-     */
-    static final List<String> IGNORED_KEYS = Collections.unmodifiableList(Arrays.asList(
-            "festival", "festival_until", "seasonal_skin", "greeting", "accent_color", "game_day", "race_calendar",
-            "sky_intensity", "latitude", "longitude", "wallpaper_rotation_minutes", "wallpaper_order",
-            "wallpaper_moods", "wallpaper_captions", "shamsi_date", "lunar_date", "lunar_utc_offset", "show_stats"));
-    /**
-     * A choice older launchers saved from their Advanced effects row. Advanced effects now follow the Animations
-     * setting and the theme's advanced_effects key, and this key is dropped wherever it turns up (load, restore):
-     * both old Animations rows wrote it false on every toggle, which then outlived turning animations back on.
-     */
-    public static final String ADVANCED_EFFECTS_LEGACY_KEY = "advanced_effects";
-    /**
-     * Counts the changes made in Launcher settings. Home remembers the count it was built with and rebuilds on
-     * resume when it differs, however the settings were left (see HomeActivity#onResume).
-     */
-    public static final String SETTINGS_REVISION_KEY = "settings_revision";
-
-    /** True when Launcher settings changed something since Home was built at revision {@code seen}. */
-    public static boolean settingsChanged(long seen, long current) {
-        return seen != current;
-    }
     private static final String THEME_REVISION_NAME = "theme_revision";
-    private static final String THEME_SIGNATURE_KEY = "theme_signature";
-
+    /** Shape of the glow behind the focused app (config.xml, glow_style): {@link ThemeKeys#ThemeKeys.GLOW_RADIAL} or {@link ThemeKeys#ThemeKeys.GLOW_HORIZON}. */
+    public final String glowStyle;
+    /** The focus highlight's look (config.xml, glass_style): {@link ThemeKeys#ThemeKeys.GLASS_DEFAULT}, {@link ThemeKeys#ThemeKeys.GLASS_RIM} or {@link ThemeKeys#ThemeKeys.GLASS_HALO}. */
+    public final String glassStyle;
     public final List<String> dockApps;
     /** Grid apps fill the dock slots dock_apps leaves free (config.xml, fill_dock); on by default, false leaves the slots empty. */
     public final boolean fillDock;
@@ -215,7 +172,7 @@ public final class Config {
     public final boolean uniformRows;
     /**
      * The top shelf cycles the Trakt companion's items while the dock is at rest (hero_feed), every heroFeedInterval
-     * seconds; the Trakt recommendations toggle in Launcher settings (HERO_FEED_KEY) overrides the theme's key.
+     * seconds; the Trakt recommendations toggle in Launcher settings (SettingsChoices.HERO_FEED_KEY) overrides the theme's key.
      */
     public final boolean heroFeed;
     /** The theme's hero_feed before the Launcher settings toggle, what its row shows while no choice is saved. */
@@ -231,7 +188,7 @@ public final class Config {
     public final int heroHeight;
     /**
      * The theme's hero_height before the Launcher settings choice: 0 (auto) or 50 to 130. What Follow theme in
-     * Launcher settings hands the choice back to; chosenHeroHeight(-1, themeHeroHeight, feed) is the value it gives.
+     * Launcher settings hands the choice back to; SettingsChoices.chosenHeroHeight(-1, themeHeroHeight, feed) is the value it gives.
      */
     public final int themeHeroHeight;
     /**
@@ -242,7 +199,7 @@ public final class Config {
     public final boolean dateTwoLines;
     /**
      * The RAM and Storage bars beside the date (widgets, a boolean), after the System bars toggle in Launcher settings
-     * (WIDGETS_KEY) over the theme's key. A theme from before the change may still carry the old array of chip names;
+     * (SettingsChoices.WIDGETS_KEY) over the theme's key. A theme from before the change may still carry the old array of chip names;
      * it reads as on when non-empty ({@link #widgetsKey}).
      */
     public final boolean widgets;
@@ -316,13 +273,6 @@ public final class Config {
     public final int cinematicArt;
     /** Strength of the cinematic shelf's dark scrim, 0 to 100 percent (config.xml, cinematic_scrim); 100 as before. */
     public final int cinematicScrim;
-    /** Shape of the glow behind the focused app (config.xml, glow_style): {@link #GLOW_RADIAL} or {@link #GLOW_HORIZON}. */
-    public final String glowStyle;
-    /** The focus highlight's look (config.xml, glass_style): {@link #GLASS_DEFAULT}, {@link #GLASS_RIM} or {@link #GLASS_HALO}. */
-    public final String glassStyle;
-
-    public static final String GLOW_RADIAL = "radial", GLOW_HORIZON = "horizon";
-    public static final String GLASS_DEFAULT = "glass", GLASS_RIM = "rim", GLASS_HALO = "halo";
     /** Answer VIEW_INPUTS with the Inputs menu (handle_view_inputs); see InputsRequestActivity. */
     public final boolean handleViewInputs;
     /** Hold OK on a tile opens a menu (Move, Remove from Home, App info) instead of App info (config.xml / theme tile_menu). */
@@ -476,21 +426,8 @@ public final class Config {
         this.clockGlow = clockGlow;
         this.singleRow = singleRow;
         this.dockBandAll = dockBandAll;
-        this.glowStyle = glowStyle(glowStyle);
-        this.glassStyle = glassStyle(glassStyle);
-    }
-
-    /** A known glow_style, or radial (the default) for anything else. */
-    static String glowStyle(String value) {
-        return value != null && GLOW_HORIZON.equalsIgnoreCase(value.trim()) ? GLOW_HORIZON : GLOW_RADIAL;
-    }
-
-    /** A known glass_style, or glass (the default) for anything else. */
-    static String glassStyle(String value) {
-        if (value == null) return GLASS_DEFAULT;
-        String v = value.trim();
-        if (GLASS_RIM.equalsIgnoreCase(v)) return GLASS_RIM;
-        return GLASS_HALO.equalsIgnoreCase(v) ? GLASS_HALO : GLASS_DEFAULT;
+        this.glowStyle = ThemeKeys.glowStyle(glowStyle);
+        this.glassStyle = ThemeKeys.glassStyle(glassStyle);
     }
 
     /** The folder the theme tools push into; null when external storage is unavailable. */
@@ -615,132 +552,132 @@ public final class Config {
         File dir = dir(ctx);
         File file = dir != null ? new File(dir, FILE_NAME) : null;
         boolean mounted = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
-        JSONObject json = readOverlay(ctx, file, mounted);
+        JSONObject json = ThemeKeys.readOverlay(ctx, file, mounted);
         if (json != null) {
             applied = true;
-            logIgnoredKeys(json);
-            dock = stringList(json, "dock_apps", dock);
-            fillDock = bool(json, "fill_dock", fillDock);
-            hidden = stringList(json, "hidden_apps", hidden);
-            libraryApps = stringList(json, "library_apps", libraryApps);
-            libraryExcludedApps = stringList(json, "library_excluded_apps", libraryExcludedApps);
-            liveTv = string(json, "live_tv_package", liveTv);
-            liveTvAction = string(json, "live_tv_action", liveTvAction);
-            liveTvInputId = string(json, "live_tv_input_id", liveTvInputId);
-            launchActions = stringList(json, "launch_actions", launchActions);
-            appLabels = stringList(json, "app_labels", appLabels);
-            appBanners = stringList(json, "app_banners", appBanners);
-            panelService = string(json, "source_panel_service", panelService);
-            panelAction = string(json, "source_panel_action", panelAction);
-            panelExtra = string(json, "source_panel_extra", panelExtra).trim();
-            coocaaSources = bool(json, "coocaa_sources", coocaaSources);
-            inputAction = string(json, "input_action", inputAction);
-            inputSources = stringList(json, "input_sources", inputSources);
-            inputUriScheme = string(json, "input_uri_scheme", inputUriScheme).trim();
-            columns = integer(json, "columns", columns, 1, 8);
-            rowsBelow = integer(json, "rows_below_dock", rowsBelow, 0, 3);
-            animations = bool(json, "animations", animations);
-            advancedEffects = bool(json, "advanced_effects", advancedEffects);
-            greetingName = string(json, "greeting_name", greetingName).trim();
-            moduleCards = bool(json, "module_cards", moduleCards);
-            reducedMotion = bool(json, "reduced_motion", reducedMotion);
-            bootToLiveTv = bool(json, "boot_to_live_tv", bootToLiveTv);
-            openOnStartChoice = bool(json, "open_on_start_choice", openOnStartChoice);
-            openOnStartNetworkWait = integer(json, "open_on_start_network_wait", openOnStartNetworkWait, 0, 600);
-            openOnStartOnWake = bool(json, "open_on_start_on_wake", openOnStartOnWake);
-            dockTitle = bool(json, "dock_title", dockTitle);
-            dockRow = bool(json, "dock_row", dockRow);
-            topMenu = bool(json, "top_menu", topMenu);
-            launcherSettingsButton = bool(json, "launcher_settings_button", launcherSettingsButton);
-            reorderButton = bool(json, "reorder_button", reorderButton);
-            showNetworkPill = bool(json, "show_network_pill", showNetworkPill);
-            showInputsPill = bool(json, "show_inputs_pill", showInputsPill);
-            iconOnlyButtons = bool(json, "icon_only_buttons", iconOnlyButtons);
-            iconOnlyInputs = bool(json, "icon_only_inputs", iconOnlyInputs);
-            iconOnlyVpn = bool(json, "icon_only_vpn", iconOnlyVpn);
-            backOpensClock = bool(json, "back_opens_clock", backOpensClock);
-            glowSnap = bool(json, "glow_snap", glowSnap);
-            libraryButton = bool(json, "library_button", libraryButton);
-            showLibraryPill = bool(json, "show_library_pill", showLibraryPill);
-            wifiLabelWidth = integer(json, "wifi_label_width", wifiLabelWidth, 0, 300);
-            alwaysShowNames = bool(json, "always_show_names", alwaysShowNames);
-            wallpaperTrueColor = bool(json, "wallpaper_true_color", wallpaperTrueColor);
-            focusOvershoot = bool(json, "focus_overshoot", focusOvershoot);
-            tileMenu = bool(json, "tile_menu", tileMenu);
-            vpn = string(json, "vpn_app", vpn);
-            homeSettings = bool(json, "show_home_settings_shortcut", homeSettings);
-            library = bool(json, "app_library", library);
-            librarySelection = bool(json, "app_library_selection", librarySelection);
-            libraryOkOpens = bool(json, "library_ok_opens", libraryOkOpens);
-            libraryColumns = integer(json, "library_columns", libraryColumns, 0, 8);
-            pillLabelsOnFocus = bool(json, "pill_labels_on_focus", pillLabelsOnFocus);
-            tvSettingsFirst = bool(json, "tv_settings_first", tvSettingsFirst);
-            settingsPanel = bool(json, "settings_panel", settingsPanel);
-            shelfEveryRow = bool(json, "shelf_every_row", shelfEveryRow);
-            uniformRows = bool(json, "uniform_rows", uniformRows);
-            heroFeed = bool(json, "hero_feed", heroFeed);
-            heroFeedInterval = integer(json, "hero_feed_interval", heroFeedInterval, 3, 120);
-            rowGap = integer(json, "row_gap", rowGap, 29, 90);  // 29 is AppAdapter.MIN_ROW_GAP_DP
-            heroHeight = heroHeightKey(integer(json, "hero_height", heroHeight, Integer.MIN_VALUE, Integer.MAX_VALUE), heroHeight);
-            dateTwoLines = bool(json, "date_two_lines", dateTwoLines);
-            widgets = widgetsKey(json, widgets);
-            uniformTiles = bool(json, "uniform_tiles", uniformTiles);
-            background = color(json, "background_color", background);
-            settingsKeycodes = intArray(json, "settings_key_keycodes", settingsKeycodes);
-            settingsKeyPanel = bool(json, "settings_key_panel", settingsKeyPanel);
-            restoreKeyServices = bool(json, "restore_key_services", restoreKeyServices);
-            inputKeycodes = intArray(json, "input_key_keycodes", inputKeycodes);
-            handleViewInputs = bool(json, "handle_view_inputs", handleViewInputs);
-            appKeys = stringList(json, "app_keys", appKeys);
-            stockHomeRedirect = string(json, "stock_home_redirect", stockHomeRedirect);
-            cinematic = bool(json, "cinematic_home", cinematic);
-            ambientGlow = bool(json, "ambient_glow", ambientGlow);
-            appGlow = bool(json, "app_glow", appGlow);
-            fadeRows = bool(json, "fade_rows", fadeRows);
-            idleClockMinutes = integer(json, "home_idle_clock_minutes", idleClockMinutes, 0, 1440);
-            keyFilter = bool(json, "key_filter", keyFilter);
-            gamepadPassthrough = bool(json, "gamepad_passthrough", gamepadPassthrough);
-            consumeVolumeKeys = bool(json, "consume_volume_keys", consumeVolumeKeys);
-            powerOnHome = bool(json, "power_on_home", powerOnHome);
-            homeLongPressHome = bool(json, "home_long_press_home", homeLongPressHome);
-            powerOnHomeAlways = bool(json, "power_on_home_always", powerOnHomeAlways);
-            inputsConnectedOnly = bool(json, "inputs_connected_only", inputsConnectedOnly);
-            inputsCecStateOnly = bool(json, "inputs_cec_state_only", inputsCecStateOnly);
-            clockFormat = string(json, CLOCK_FORMAT_KEY, clockFormat);
-            dockGlass = bool(json, "dock_glass", dockGlass);
-            dockEvenPadding = bool(json, "dock_even_padding", dockEvenPadding);
-            dockBand = bool(json, "dock_band", dockBand);
-            cinematicDots = bool(json, "cinematic_dots", cinematicDots);
-            cinematicWhiteFocus = bool(json, "cinematic_white_focus", cinematicWhiteFocus);
-            wifiStatusColor = bool(json, "wifi_status_color", wifiStatusColor);
-            cinematicArt = integer(json, "cinematic_art", cinematicArt, 0, 100);
-            cinematicScrim = integer(json, "cinematic_scrim", cinematicScrim, 0, 100);
-            wifiStatusWarnings = bool(json, "wifi_status_warnings", wifiStatusWarnings);
-            dateBelowClock = bool(json, "date_below_clock", dateBelowClock);
-            vpnPill = bool(json, "vpn_pill", vpnPill);
-            locale = string(json, "locale", locale).trim();
-            topBarApps = stringList(json, "top_bar_apps", topBarApps);
-            showGreeting = bool(json, "show_greeting", showGreeting);
-            headerWhite = bool(json, "header_white", headerWhite);
-            clockWallpaper = bool(json, "clock_wallpaper", clockWallpaper);
-            clockWallpaperDim = integer(json, "clock_wallpaper_dim", clockWallpaperDim, 0, 90);
-            clockGlow = bool(json, "clock_glow", clockGlow);
-            singleRow = bool(json, "single_row", singleRow);
-            dockBandAll = bool(json, "dock_band_all", dockBandAll);
-            glowStyle = string(json, "glow_style", glowStyle);
-            glassStyle = string(json, "glass_style", glassStyle);
+            ThemeKeys.logIgnoredKeys(json);
+            dock = ThemeKeys.stringList(json, "dock_apps", dock);
+            fillDock = ThemeKeys.bool(json, "fill_dock", fillDock);
+            hidden = ThemeKeys.stringList(json, "hidden_apps", hidden);
+            libraryApps = ThemeKeys.stringList(json, "library_apps", libraryApps);
+            libraryExcludedApps = ThemeKeys.stringList(json, "library_excluded_apps", libraryExcludedApps);
+            liveTv = ThemeKeys.string(json, "live_tv_package", liveTv);
+            liveTvAction = ThemeKeys.string(json, "live_tv_action", liveTvAction);
+            liveTvInputId = ThemeKeys.string(json, "live_tv_input_id", liveTvInputId);
+            launchActions = ThemeKeys.stringList(json, "launch_actions", launchActions);
+            appLabels = ThemeKeys.stringList(json, "app_labels", appLabels);
+            appBanners = ThemeKeys.stringList(json, "app_banners", appBanners);
+            panelService = ThemeKeys.string(json, "source_panel_service", panelService);
+            panelAction = ThemeKeys.string(json, "source_panel_action", panelAction);
+            panelExtra = ThemeKeys.string(json, "source_panel_extra", panelExtra).trim();
+            coocaaSources = ThemeKeys.bool(json, "coocaa_sources", coocaaSources);
+            inputAction = ThemeKeys.string(json, "input_action", inputAction);
+            inputSources = ThemeKeys.stringList(json, "input_sources", inputSources);
+            inputUriScheme = ThemeKeys.string(json, "input_uri_scheme", inputUriScheme).trim();
+            columns = ThemeKeys.integer(json, "columns", columns, 1, 8);
+            rowsBelow = ThemeKeys.integer(json, "rows_below_dock", rowsBelow, 0, 3);
+            animations = ThemeKeys.bool(json, "animations", animations);
+            advancedEffects = ThemeKeys.bool(json, "advanced_effects", advancedEffects);
+            greetingName = ThemeKeys.string(json, "greeting_name", greetingName).trim();
+            moduleCards = ThemeKeys.bool(json, "module_cards", moduleCards);
+            reducedMotion = ThemeKeys.bool(json, "reduced_motion", reducedMotion);
+            bootToLiveTv = ThemeKeys.bool(json, "boot_to_live_tv", bootToLiveTv);
+            openOnStartChoice = ThemeKeys.bool(json, "open_on_start_choice", openOnStartChoice);
+            openOnStartNetworkWait = ThemeKeys.integer(json, "open_on_start_network_wait", openOnStartNetworkWait, 0, 600);
+            openOnStartOnWake = ThemeKeys.bool(json, "open_on_start_on_wake", openOnStartOnWake);
+            dockTitle = ThemeKeys.bool(json, "dock_title", dockTitle);
+            dockRow = ThemeKeys.bool(json, "dock_row", dockRow);
+            topMenu = ThemeKeys.bool(json, "top_menu", topMenu);
+            launcherSettingsButton = ThemeKeys.bool(json, "launcher_settings_button", launcherSettingsButton);
+            reorderButton = ThemeKeys.bool(json, "reorder_button", reorderButton);
+            showNetworkPill = ThemeKeys.bool(json, "show_network_pill", showNetworkPill);
+            showInputsPill = ThemeKeys.bool(json, "show_inputs_pill", showInputsPill);
+            iconOnlyButtons = ThemeKeys.bool(json, "icon_only_buttons", iconOnlyButtons);
+            iconOnlyInputs = ThemeKeys.bool(json, "icon_only_inputs", iconOnlyInputs);
+            iconOnlyVpn = ThemeKeys.bool(json, "icon_only_vpn", iconOnlyVpn);
+            backOpensClock = ThemeKeys.bool(json, "back_opens_clock", backOpensClock);
+            glowSnap = ThemeKeys.bool(json, "glow_snap", glowSnap);
+            libraryButton = ThemeKeys.bool(json, "library_button", libraryButton);
+            showLibraryPill = ThemeKeys.bool(json, "show_library_pill", showLibraryPill);
+            wifiLabelWidth = ThemeKeys.integer(json, "wifi_label_width", wifiLabelWidth, 0, 300);
+            alwaysShowNames = ThemeKeys.bool(json, "always_show_names", alwaysShowNames);
+            wallpaperTrueColor = ThemeKeys.bool(json, "wallpaper_true_color", wallpaperTrueColor);
+            focusOvershoot = ThemeKeys.bool(json, "focus_overshoot", focusOvershoot);
+            tileMenu = ThemeKeys.bool(json, "tile_menu", tileMenu);
+            vpn = ThemeKeys.string(json, "vpn_app", vpn);
+            homeSettings = ThemeKeys.bool(json, "show_home_settings_shortcut", homeSettings);
+            library = ThemeKeys.bool(json, "app_library", library);
+            librarySelection = ThemeKeys.bool(json, "app_library_selection", librarySelection);
+            libraryOkOpens = ThemeKeys.bool(json, "library_ok_opens", libraryOkOpens);
+            libraryColumns = ThemeKeys.integer(json, "library_columns", libraryColumns, 0, 8);
+            pillLabelsOnFocus = ThemeKeys.bool(json, "pill_labels_on_focus", pillLabelsOnFocus);
+            tvSettingsFirst = ThemeKeys.bool(json, "tv_settings_first", tvSettingsFirst);
+            settingsPanel = ThemeKeys.bool(json, "settings_panel", settingsPanel);
+            shelfEveryRow = ThemeKeys.bool(json, "shelf_every_row", shelfEveryRow);
+            uniformRows = ThemeKeys.bool(json, "uniform_rows", uniformRows);
+            heroFeed = ThemeKeys.bool(json, "hero_feed", heroFeed);
+            heroFeedInterval = ThemeKeys.integer(json, "hero_feed_interval", heroFeedInterval, 3, 120);
+            rowGap = ThemeKeys.integer(json, "row_gap", rowGap, 29, 90);  // 29 is AppAdapter.MIN_ROW_GAP_DP
+            heroHeight = ThemeKeys.heroHeightKey(ThemeKeys.integer(json, "hero_height", heroHeight, Integer.MIN_VALUE, Integer.MAX_VALUE), heroHeight);
+            dateTwoLines = ThemeKeys.bool(json, "date_two_lines", dateTwoLines);
+            widgets = ThemeKeys.widgetsKey(json, widgets);
+            uniformTiles = ThemeKeys.bool(json, "uniform_tiles", uniformTiles);
+            background = ThemeKeys.color(json, "background_color", background);
+            settingsKeycodes = ThemeKeys.intArray(json, "settings_key_keycodes", settingsKeycodes);
+            settingsKeyPanel = ThemeKeys.bool(json, "settings_key_panel", settingsKeyPanel);
+            restoreKeyServices = ThemeKeys.bool(json, "restore_key_services", restoreKeyServices);
+            inputKeycodes = ThemeKeys.intArray(json, "input_key_keycodes", inputKeycodes);
+            handleViewInputs = ThemeKeys.bool(json, "handle_view_inputs", handleViewInputs);
+            appKeys = ThemeKeys.stringList(json, "app_keys", appKeys);
+            stockHomeRedirect = ThemeKeys.string(json, "stock_home_redirect", stockHomeRedirect);
+            cinematic = ThemeKeys.bool(json, "cinematic_home", cinematic);
+            ambientGlow = ThemeKeys.bool(json, "ambient_glow", ambientGlow);
+            appGlow = ThemeKeys.bool(json, "app_glow", appGlow);
+            fadeRows = ThemeKeys.bool(json, "fade_rows", fadeRows);
+            idleClockMinutes = ThemeKeys.integer(json, "home_idle_clock_minutes", idleClockMinutes, 0, 1440);
+            keyFilter = ThemeKeys.bool(json, "key_filter", keyFilter);
+            gamepadPassthrough = ThemeKeys.bool(json, "gamepad_passthrough", gamepadPassthrough);
+            consumeVolumeKeys = ThemeKeys.bool(json, "consume_volume_keys", consumeVolumeKeys);
+            powerOnHome = ThemeKeys.bool(json, "power_on_home", powerOnHome);
+            homeLongPressHome = ThemeKeys.bool(json, "home_long_press_home", homeLongPressHome);
+            powerOnHomeAlways = ThemeKeys.bool(json, "power_on_home_always", powerOnHomeAlways);
+            inputsConnectedOnly = ThemeKeys.bool(json, "inputs_connected_only", inputsConnectedOnly);
+            inputsCecStateOnly = ThemeKeys.bool(json, "inputs_cec_state_only", inputsCecStateOnly);
+            clockFormat = ThemeKeys.string(json, SettingsChoices.CLOCK_FORMAT_KEY, clockFormat);
+            dockGlass = ThemeKeys.bool(json, "dock_glass", dockGlass);
+            dockEvenPadding = ThemeKeys.bool(json, "dock_even_padding", dockEvenPadding);
+            dockBand = ThemeKeys.bool(json, "dock_band", dockBand);
+            cinematicDots = ThemeKeys.bool(json, "cinematic_dots", cinematicDots);
+            cinematicWhiteFocus = ThemeKeys.bool(json, "cinematic_white_focus", cinematicWhiteFocus);
+            wifiStatusColor = ThemeKeys.bool(json, "wifi_status_color", wifiStatusColor);
+            cinematicArt = ThemeKeys.integer(json, "cinematic_art", cinematicArt, 0, 100);
+            cinematicScrim = ThemeKeys.integer(json, "cinematic_scrim", cinematicScrim, 0, 100);
+            wifiStatusWarnings = ThemeKeys.bool(json, "wifi_status_warnings", wifiStatusWarnings);
+            dateBelowClock = ThemeKeys.bool(json, "date_below_clock", dateBelowClock);
+            vpnPill = ThemeKeys.bool(json, "vpn_pill", vpnPill);
+            locale = ThemeKeys.string(json, "locale", locale).trim();
+            topBarApps = ThemeKeys.stringList(json, "top_bar_apps", topBarApps);
+            showGreeting = ThemeKeys.bool(json, "show_greeting", showGreeting);
+            headerWhite = ThemeKeys.bool(json, "header_white", headerWhite);
+            clockWallpaper = ThemeKeys.bool(json, "clock_wallpaper", clockWallpaper);
+            clockWallpaperDim = ThemeKeys.integer(json, "clock_wallpaper_dim", clockWallpaperDim, 0, 90);
+            clockGlow = ThemeKeys.bool(json, "clock_glow", clockGlow);
+            singleRow = ThemeKeys.bool(json, "single_row", singleRow);
+            dockBandAll = ThemeKeys.bool(json, "dock_band_all", dockBandAll);
+            glowStyle = ThemeKeys.string(json, "glow_style", glowStyle);
+            glassStyle = ThemeKeys.string(json, "glass_style", glassStyle);
         }
         // A top-bar app is moved there, not copied: it leaves the grid.
         for (String pkg : topBarApps) if (!hidden.contains(pkg)) hidden.add(pkg);
         // A theme push or reset invalidates choices made on the TV. On first use, remember the
         // current theme without clearing choices from an older launcher version.
-        SharedPreferences choices = ctx.getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE);
-        dropLegacyChoices(choices);
+        SharedPreferences choices = ctx.getSharedPreferences(SettingsChoices.SETTINGS_NAME, Context.MODE_PRIVATE);
+        SettingsChoices.dropLegacyChoices(choices);
         // Unmounted storage looks like a theme reset; compare only once the file is readable.
-        if (mounted) syncThemeChoices(choices, dir, file);
+        if (mounted) SettingsChoices.syncThemeChoices(choices, file, dir == null ? null : new File(dir, THEME_REVISION_NAME));
         int chosenColumns = choices.getInt("columns", columns);
         if (chosenColumns >= 4 && chosenColumns <= 7) columns = chosenColumns;
-        int chosenRows = choices.getInt(ROWS_BELOW_DOCK_KEY, rowsBelow);
+        int chosenRows = choices.getInt(SettingsChoices.ROWS_BELOW_DOCK_KEY, rowsBelow);
         if (chosenRows >= 0 && chosenRows <= 3) rowsBelow = chosenRows;
         // uniform_rows: no dock, so the first row has no empty slots (fill_dock) and no rows are counted under it
         // (rows_below_dock: the rows fill downward from the shelf's bottom); every row takes the shelf (shelf_every_row).
@@ -752,26 +689,26 @@ public final class Config {
         }
         // The Trakt recommendations toggle, then the shelf height: its auto default (0) follows the feed as toggled.
         boolean themeHeroFeed = heroFeed;
-        heroFeed = chosenHeroFeed(choices.getInt(HERO_FEED_KEY, -1), heroFeed);
+        heroFeed = SettingsChoices.chosenHeroFeed(choices.getInt(SettingsChoices.HERO_FEED_KEY, -1), heroFeed);
         int themeHeroHeight = heroHeight;
-        heroHeight = chosenHeroHeight(choices.getInt(HERO_HEIGHT_KEY, -1), heroHeight, heroFeed);
+        heroHeight = SettingsChoices.chosenHeroHeight(choices.getInt(SettingsChoices.HERO_HEIGHT_KEY, -1), heroHeight, heroFeed);
         // The System bars toggle over the theme's key. An older launcher saved the Widgets tick list as a string set
         // under the same key; that is read once more and migrated (chosenWidgets).
         boolean themeWidgets = widgets;
-        widgets = chosenWidgets(choices, themeWidgets);
+        widgets = SettingsChoices.chosenWidgets(choices, themeWidgets);
         animations = choices.getBoolean("animations", animations);
         // advanced_effects is the theme's alone: the Animations setting gates it (readers test animations && advancedEffects).
         File wallpaper = dir != null ? new File(dir, WALLPAPER_NAME) : null;
         if (wallpaper != null && !(wallpaper.isFile() && wallpaper.length() > 0)) wallpaper = null;
         // A theme can also switch the wallpaper off while the file is still there.
         // config.json wallpaper: false keeps the plain colour; Wallpaper and ClockScene read only the file.
-        if (json != null && !bool(json, "wallpaper", true)) wallpaper = null;
-        int wallpaperDim = json == null ? 0 : integer(json, "wallpaper_dim", 0, 0, 90);
-        int dockOpacity = json == null ? 100 : integer(json, "dock_opacity", 100, 30, 100);
-        dockOpacity = chosenDockOpacity(choices.getInt(DOCK_OPACITY_KEY, -1), dockOpacity);
-        clockFormat = choices.getString(CLOCK_FORMAT_KEY, clockFormat);
-        return new Config(dock, fillDock, hidden, libraryApps, libraryExcludedApps, liveTv, liveTvAction, liveTvInputId, packageMap(launchActions), packageMap(appLabels),
-                packageMap(appBanners), panelService, panelAction, panelExtra, coocaaSources, inputAction, inputSources, inputUriScheme, Math.max(1, columns),
+        if (json != null && !ThemeKeys.bool(json, "wallpaper", true)) wallpaper = null;
+        int wallpaperDim = json == null ? 0 : ThemeKeys.integer(json, "wallpaper_dim", 0, 0, 90);
+        int dockOpacity = json == null ? 100 : ThemeKeys.integer(json, "dock_opacity", 100, 30, 100);
+        dockOpacity = SettingsChoices.chosenDockOpacity(choices.getInt(SettingsChoices.DOCK_OPACITY_KEY, -1), dockOpacity);
+        clockFormat = choices.getString(SettingsChoices.CLOCK_FORMAT_KEY, clockFormat);
+        return new Config(dock, fillDock, hidden, libraryApps, libraryExcludedApps, liveTv, liveTvAction, liveTvInputId, ThemeKeys.packageMap(launchActions), ThemeKeys.packageMap(appLabels),
+                ThemeKeys.packageMap(appBanners), panelService, panelAction, panelExtra, coocaaSources, inputAction, inputSources, inputUriScheme, Math.max(1, columns),
                 Math.max(0, rowsBelow), animations, advancedEffects, greetingName, moduleCards, reducedMotion, bootToLiveTv,
                 openOnStartChoice, dockTitle, dockRow, topMenu, launcherSettingsButton, reorderButton, showNetworkPill, showInputsPill,
                 iconOnlyButtons, iconOnlyInputs, libraryButton, showLibraryPill, wifiLabelWidth, alwaysShowNames, wallpaperTrueColor, focusOvershoot,
@@ -788,36 +725,6 @@ public final class Config {
     }
 
     /**
-     * Drops the choices no setting writes any more (ADVANCED_EFFECTS_LEGACY_KEY), so a value an older launcher
-     * saved cannot turn the theme's effects off behind the Animations row. Backup.restore calls it too, so a
-     * backup taken by that launcher restores clean.
-     */
-    public static void dropLegacyChoices(@NonNull SharedPreferences choices) {
-        if (choices.contains(ADVANCED_EFFECTS_LEGACY_KEY)) choices.edit().remove(ADVANCED_EFFECTS_LEGACY_KEY).apply();
-    }
-
-    private static void syncThemeChoices(SharedPreferences choices, File dir, File config) {
-        File revision = dir == null ? null : new File(dir, THEME_REVISION_NAME);
-        String token = revisionToken(revision);
-        String signature = fileStamp(config) + ":" + token;
-        String seen = choices.getString(THEME_SIGNATURE_KEY, null);
-        if (seen == null) {
-            // Existing preferences survive an app upgrade, unless the first launch follows an
-            // explicit theme push or reset by the updated tools.
-            SharedPreferences.Editor editor = choices.edit();
-            if (!"absent".equals(token)) editor.remove("columns").remove("animations")
-                    .remove(ROWS_BELOW_DOCK_KEY)
-                    .remove(DOCK_OPACITY_KEY).remove(CLOCK_FORMAT_KEY).remove(HERO_HEIGHT_KEY).remove(HERO_FEED_KEY).remove(WIDGETS_KEY);
-            editor.putString(THEME_SIGNATURE_KEY, signature).commit();
-        } else if (!seen.equals(signature)) {
-            choices.edit().remove("columns").remove("animations")
-                    .remove(ROWS_BELOW_DOCK_KEY).remove(DOCK_OPACITY_KEY)
-                    .remove(CLOCK_FORMAT_KEY).remove(HERO_HEIGHT_KEY).remove(HERO_FEED_KEY).remove(WIDGETS_KEY)
-                    .putString(THEME_SIGNATURE_KEY, signature).commit();
-        }
-    }
-
-    /**
      * backup_restore: Backup.restore has just written the theme files, with today's stamp. Record their signature
      * as seen, so the next load does not take the write for a theme push and clear the layout choices that were
      * restored with them.
@@ -826,213 +733,9 @@ public final class Config {
         File dir = dir(ctx);
         File config = dir == null ? null : new File(dir, FILE_NAME);
         File revision = dir == null ? null : new File(dir, THEME_REVISION_NAME);
-        ctx.getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE).edit()
-                .putString(THEME_SIGNATURE_KEY, fileStamp(config) + ":" + revisionToken(revision)).commit();
-    }
-
-    /** The dock band opacity chosen in Launcher settings, or the theme's when none (or an out-of-range one) is saved. */
-    static int chosenDockOpacity(int chosen, int theme) {
-        return chosen >= 30 && chosen <= 100 ? chosen : theme;
-    }
-
-    /**
-     * The shelf height: the Launcher settings choice (hero_height) when one in range is saved, else the theme's key
-     * when it names a height, else the auto rule for the theme's 0: HERO_HEIGHT_WITH_FEED with the carousel on
-     * ({@code feed}, the effective hero_feed after the toggle), HERO_HEIGHT_WITHOUT_FEED without it.
-     */
-    public static int chosenHeroHeight(int chosen, int theme, boolean feed) {
-        if (chosen >= HERO_HEIGHT_MIN && chosen <= HERO_HEIGHT_MAX) return chosen;
-        if (theme >= HERO_HEIGHT_MIN && theme <= HERO_HEIGHT_MAX) return theme;
-        return autoHeroHeight(feed);
-    }
-
-    /** hero_height 0: 100 while the carousel is on, 80 without it. */
-    static int autoHeroHeight(boolean feed) {
-        return feed ? HERO_HEIGHT_WITH_FEED : HERO_HEIGHT_WITHOUT_FEED;
-    }
-
-    /** The Trakt recommendations toggle (HERO_FEED_KEY): 1 is on, 0 off, anything else leaves the theme's hero_feed. */
-    public static boolean chosenHeroFeed(int chosen, boolean theme) {
-        return chosen == 1 || (chosen != 0 && theme);
-    }
-
-    /**
-     * The bars in force: the System bars toggle (WIDGETS_KEY, 1 on, 0 off) when one is saved, else the theme's key.
-     * A tick list an older launcher saved under the same key (a string set of chip names) is migrated on the way:
-     * non-empty reads as on, empty as off, and the choice is written back as the int so the set is read only once.
-     */
-    public static boolean chosenWidgets(@NonNull SharedPreferences choices, boolean theme) {
-        if (!choices.contains(WIDGETS_KEY)) return theme;
-        try {
-            return chosenWidgets(choices.getInt(WIDGETS_KEY, -1), theme);
-        } catch (ClassCastException legacy) {
-            Set<String> ticks = choices.getStringSet(WIDGETS_KEY, null);
-            boolean on = ticks != null && !ticks.isEmpty();
-            choices.edit().putInt(WIDGETS_KEY, on ? 1 : 0).apply();
-            if (Log.isLoggable(TAG, Log.INFO)) Log.i(TAG, "migrated the widgets tick list to System bars " + (on ? "on" : "off"));
-            return on;
-        }
-    }
-
-    /** The System bars toggle: 1 is on, 0 off, anything else leaves the theme's widgets. */
-    public static boolean chosenWidgets(int chosen, boolean theme) {
-        return chosen == 1 || (chosen != 0 && theme);
-    }
-
-    /**
-     * A theme's {@code widgets}: a boolean as the Keys table has it, or the array of chip names older themes wrote
-     * ({@code ["memory", "cpu", "storage"]}), which reads as on when it names anything and off when empty; anything
-     * else keeps {@code fallback}.
-     */
-    static boolean widgetsKey(JSONObject o, boolean fallback) {
-        Object v = o.opt("widgets");
-        if (v instanceof Boolean) return (Boolean) v;
-        if (v instanceof JSONArray) {
-            boolean on = ((JSONArray) v).length() > 0;
-            if (Log.isLoggable(TAG, Log.INFO)) Log.i(TAG, "widgets is a boolean now; the chip list reads as " + (on ? "true" : "false"));
-            return on;
-        }
-        return fallback;
-    }
-
-    /** One {@code Log.i} per {@link #IGNORED_KEYS} entry the theme still carries (ADR-008). */
-    static List<String> ignoredKeys(JSONObject o) {
-        List<String> found = new ArrayList<>();
-        for (String key : IGNORED_KEYS) if (o.has(key)) found.add(key);
-        return found;
-    }
-
-    private static void logIgnoredKeys(JSONObject o) {
-        for (String key : ignoredKeys(o)) {
-            if (Log.isLoggable(TAG, Log.INFO)) Log.i(TAG, "ignored key " + key + ": that feature is not in this launcher");
-        }
-    }
-
-    /** A theme's hero_height value: 0 (auto) or 50 to 130; anything else keeps {@code fallback}. */
-    static int heroHeightKey(int value, int fallback) {
-        return value == HERO_HEIGHT_AUTO || (value >= HERO_HEIGHT_MIN && value <= HERO_HEIGHT_MAX) ? value : fallback;
-    }
-
-    private static String fileStamp(File file) {
-        return file != null && file.isFile() ? file.length() + "@" + file.lastModified() : "absent";
-    }
-
-    private static String revisionToken(File file) {
-        if (file == null || !file.isFile() || file.length() > 64) return "absent";
-        try (InputStream in = new FileInputStream(file)) {
-            byte[] bytes = new byte[(int) file.length()];
-            int n = in.read(bytes);
-            return n > 0 ? new String(bytes, 0, n, StandardCharsets.US_ASCII) : "absent";
-        } catch (Exception ignored) {
-            return "absent";
-        }
+        ctx.getSharedPreferences(SettingsChoices.SETTINGS_NAME, Context.MODE_PRIVATE).edit()
+                .putString(SettingsChoices.THEME_SIGNATURE_KEY, SettingsChoices.themeSignature(config, revision)).commit();
     }
 
     /** Reads and parses the overlay; any problem means "no overlay", never a crash on the home screen. */
-    /**
-     * The overlay, or before external storage is mounted, the copy kept from the last time it was read. Home can
-     * start before the card is mounted (seen at every boot on a Xiaomi MiTV-MTEQ0), and without the copy it comes
-     * up with the built-in dock order. A missing file on mounted storage still means no overlay.
-     */
-    private static JSONObject readOverlay(Context ctx, File file, boolean mounted) {
-        File copy = new File(ctx.getFilesDir(), FILE_NAME);
-        if (!mounted) return read(copy);
-        JSONObject json = read(file);
-        if (json == null) {
-            copy.delete();
-        } else {
-            try (FileOutputStream out = new FileOutputStream(copy)) {
-                out.write(json.toString().getBytes(StandardCharsets.UTF_8));
-            } catch (IOException e) {
-                Log.w(TAG, "could not keep a copy of " + file + ": " + e.getMessage());
-            }
-        }
-        return json;
-    }
-
-    private static JSONObject read(File file) {
-        if (file == null || !file.isFile()) return null;
-        if (file.length() > 64 * 1024) {
-            Log.w(TAG, "ignoring " + file + ": larger than 64 KB");
-            return null;
-        }
-        try (InputStream in = new FileInputStream(file)) {
-            byte[] buf = new byte[(int) file.length()];
-            int n = 0, r;
-            while (n < buf.length && (r = in.read(buf, n, buf.length - n)) > 0) n += r;
-            String text = new String(buf, 0, n, StandardCharsets.UTF_8);
-            if (text.startsWith("\uFEFF")) text = text.substring(1);   // Windows editors add a BOM
-            return new JSONObject(text);
-        } catch (Exception e) {
-            Log.w(TAG, "ignoring " + file + ": " + e.getMessage());
-            return null;
-        }
-    }
-
-    private static String string(JSONObject o, String key, String fallback) {
-        Object v = o.opt(key);
-        return v instanceof String ? ((String) v).trim() : fallback;
-    }
-
-    private static boolean bool(JSONObject o, String key, boolean fallback) {
-        Object v = o.opt(key);
-        return v instanceof Boolean ? (Boolean) v : fallback;
-    }
-
-    private static int integer(JSONObject o, String key, int fallback, int min, int max) {
-        Object v = o.opt(key);
-        if (!(v instanceof Number)) return fallback;
-        int i = ((Number) v).intValue();
-        return i < min || i > max ? fallback : i;
-    }
-
-    private static int color(JSONObject o, String key, int fallback) {
-        Object v = o.opt(key);
-        if (!(v instanceof String)) return fallback;
-        try {
-            int c = Color.parseColor(((String) v).trim());
-            return c | 0xFF000000;   // always opaque: the window behind is black anyway
-        } catch (IllegalArgumentException e) {
-            return fallback;
-        }
-    }
-
-    /** Positive keycodes only (vendor remotes use codes in the thousands); a list with anything else in it is ignored as a whole. */
-    private static int[] intArray(JSONObject o, String key, int[] fallback) {
-        Object v = o.opt(key);
-        if (!(v instanceof JSONArray)) return fallback;
-        JSONArray a = (JSONArray) v;
-        int[] out = new int[a.length()];
-        for (int i = 0; i < a.length(); i++) {
-            Object item = a.opt(i);
-            if (!(item instanceof Number)) return fallback;
-            out[i] = ((Number) item).intValue();
-            if (out[i] < 1) return fallback;
-        }
-        return out;
-    }
-
-    /** "package=value" entries; an entry without both halves is skipped, and a later entry for a package wins. */
-    static Map<String, String> packageMap(List<String> entries) {
-        Map<String, String> out = new HashMap<>();
-        for (String entry : entries) {
-            int eq = entry.indexOf('=');
-            if (eq <= 0) continue;
-            String pkg = entry.substring(0, eq).trim(), value = entry.substring(eq + 1).trim();
-            if (!pkg.isEmpty() && !value.isEmpty()) out.put(pkg, value);
-        }
-        return out;
-    }
-
-    private static List<String> stringList(JSONObject o, String key, List<String> fallback) {
-        Object v = o.opt(key);
-        if (!(v instanceof JSONArray)) return fallback;
-        JSONArray a = (JSONArray) v;
-        List<String> out = new ArrayList<>();
-        for (int i = 0; i < a.length(); i++) {
-            Object item = a.opt(i);
-            if (item instanceof String && !((String) item).trim().isEmpty()) out.add(((String) item).trim());
-        }
-        return out;
-    }
 }

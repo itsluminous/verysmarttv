@@ -1,6 +1,7 @@
 package com.itsluminous.verysmarttv.shelf;
 
 import com.itsluminous.verysmarttv.theme.Config;
+import com.itsluminous.verysmarttv.settings.SettingsChoices;
 
 /**
  * hero_height: the shelf's typography and spacing follow its height, so a short shelf (Compact, 60) holds its name
@@ -21,7 +22,7 @@ public final class ShelfScale {
      * 68sp cinematic name 45sp), on the line through both (five sixths at 80, Short), down to the key's floor of 50.
      */
     static float factor(int heroHeightPct) {
-        int pct = Math.max(Config.HERO_HEIGHT_MIN, Math.min(FULL, heroHeightPct));
+        int pct = Math.max(SettingsChoices.HERO_HEIGHT_MIN, Math.min(FULL, heroHeightPct));
         return 1f - (FULL - pct) / 120f;
     }
 

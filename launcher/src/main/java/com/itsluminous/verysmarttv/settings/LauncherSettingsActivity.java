@@ -58,7 +58,7 @@ public final class LauncherSettingsActivity extends Activity {
     @Override
     protected void onCreate(@NonNull Bundle state) {
         super.onCreate(state);
-        choices = getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE);
+        choices = getSharedPreferences(SettingsChoices.SETTINGS_NAME, MODE_PRIVATE);
         Config config = Config.load(this);
         if (config.settingsPanel) {
             // settings_panel: the side panel draws itself; the rows below belong to the full-screen page.
@@ -97,7 +97,7 @@ public final class LauncherSettingsActivity extends Activity {
             rowChoices[i].setOnClickListener(v -> {
                 if (rowsBelowDock == value) return;
                 rowsBelowDock = value;
-                choices.edit().putInt(Config.ROWS_BELOW_DOCK_KEY, value).apply();
+                choices.edit().putInt(SettingsChoices.ROWS_BELOW_DOCK_KEY, value).apply();
                 changed();
                 refresh();
             });
@@ -109,7 +109,7 @@ public final class LauncherSettingsActivity extends Activity {
             dockChoices[i].setOnClickListener(v -> {
                 if (dockOpacity == value) return;
                 dockOpacity = value;
-                choices.edit().putInt(Config.DOCK_OPACITY_KEY, value).apply();
+                choices.edit().putInt(SettingsChoices.DOCK_OPACITY_KEY, value).apply();
                 changed();
                 refresh();
             });
@@ -126,7 +126,7 @@ public final class LauncherSettingsActivity extends Activity {
             clockChoices[i].setOnClickListener(v -> {
                 if (value.equals(clockFormat)) return;
                 clockFormat = value;
-                choices.edit().putString(Config.CLOCK_FORMAT_KEY, value).apply();
+                choices.edit().putString(SettingsChoices.CLOCK_FORMAT_KEY, value).apply();
                 changed();
                 refresh();
             });
@@ -148,9 +148,9 @@ public final class LauncherSettingsActivity extends Activity {
         followThemeChoice = findViewById(R.id.followThemeChoice);
         followThemeChoice.setOnClickListener(v -> {
             if (!hasOnTvChoices()) return;
-            choices.edit().remove("columns").remove(Config.ROWS_BELOW_DOCK_KEY).remove("animations")
-                    .remove(Config.DOCK_OPACITY_KEY).remove(Config.CLOCK_FORMAT_KEY).remove(Config.HERO_HEIGHT_KEY).remove(Config.HERO_FEED_KEY)
-                    .remove(Config.WIDGETS_KEY).remove(OpenOnStart.KEY).commit();
+            choices.edit().remove("columns").remove(SettingsChoices.ROWS_BELOW_DOCK_KEY).remove("animations")
+                    .remove(SettingsChoices.DOCK_OPACITY_KEY).remove(SettingsChoices.CLOCK_FORMAT_KEY).remove(SettingsChoices.HERO_HEIGHT_KEY).remove(SettingsChoices.HERO_FEED_KEY)
+                    .remove(SettingsChoices.WIDGETS_KEY).remove(OpenOnStart.KEY).commit();
             Config current = Config.load(this);
             columns = current.columns;
             rowsBelowDock = current.rowsBelowDock;
@@ -247,8 +247,8 @@ public final class LauncherSettingsActivity extends Activity {
      */
     private void changed() {
         setResult(RESULT_OK);
-        choices.edit().putLong(Config.SETTINGS_REVISION_KEY,
-                choices.getLong(Config.SETTINGS_REVISION_KEY, 0) + 1).apply();
+        choices.edit().putLong(SettingsChoices.SETTINGS_REVISION_KEY,
+                choices.getLong(SettingsChoices.SETTINGS_REVISION_KEY, 0) + 1).apply();
     }
 
     private void refresh() {
@@ -271,11 +271,11 @@ public final class LauncherSettingsActivity extends Activity {
     }
 
     private boolean hasOnTvChoices() {
-        return choices.contains("columns") || choices.contains(Config.ROWS_BELOW_DOCK_KEY)
+        return choices.contains("columns") || choices.contains(SettingsChoices.ROWS_BELOW_DOCK_KEY)
                 || choices.contains("animations")
-                || choices.contains(Config.DOCK_OPACITY_KEY)
-                || choices.contains(Config.CLOCK_FORMAT_KEY) || choices.contains(Config.HERO_HEIGHT_KEY)
-                || choices.contains(Config.HERO_FEED_KEY) || choices.contains(Config.WIDGETS_KEY)
+                || choices.contains(SettingsChoices.DOCK_OPACITY_KEY)
+                || choices.contains(SettingsChoices.CLOCK_FORMAT_KEY) || choices.contains(SettingsChoices.HERO_HEIGHT_KEY)
+                || choices.contains(SettingsChoices.HERO_FEED_KEY) || choices.contains(SettingsChoices.WIDGETS_KEY)
                 || choices.contains(OpenOnStart.KEY);
     }
 

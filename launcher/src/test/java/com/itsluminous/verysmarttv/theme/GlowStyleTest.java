@@ -9,15 +9,15 @@ public class GlowStyleTest {
 
     @Test
     public void horizonByNameAnyCase() {
-        assertEquals(Config.GLOW_HORIZON, Config.glowStyle("horizon"));
-        assertEquals(Config.GLOW_HORIZON, Config.glowStyle(" Horizon "));
+        assertEquals(ThemeKeys.GLOW_HORIZON, ThemeKeys.glowStyle("horizon"));
+        assertEquals(ThemeKeys.GLOW_HORIZON, ThemeKeys.glowStyle(" Horizon "));
     }
 
     @Test
     public void anythingElseIsRadial() {
-        assertEquals(Config.GLOW_RADIAL, Config.glowStyle("radial"));
-        assertEquals(Config.GLOW_RADIAL, Config.glowStyle(""));
-        assertEquals(Config.GLOW_RADIAL, Config.glowStyle(null));
-        assertEquals(Config.GLOW_RADIAL, Config.glowStyle("aurora"));
+        assertEquals(ThemeKeys.GLOW_RADIAL, ThemeKeys.glowStyle("radial"));
+        assertEquals(ThemeKeys.GLOW_RADIAL, ThemeKeys.glowStyle(""));
+        assertEquals(ThemeKeys.GLOW_RADIAL, ThemeKeys.glowStyle(null));
+        assertEquals(ThemeKeys.GLOW_RADIAL, ThemeKeys.glowStyle("aurora"));
     }
 }

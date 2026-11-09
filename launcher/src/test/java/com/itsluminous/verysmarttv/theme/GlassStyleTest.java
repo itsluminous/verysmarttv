@@ -9,21 +9,21 @@ public class GlassStyleTest {
 
     @Test
     public void rimByNameAnyCase() {
-        assertEquals(Config.GLASS_RIM, Config.glassStyle("rim"));
-        assertEquals(Config.GLASS_RIM, Config.glassStyle(" Rim "));
+        assertEquals(ThemeKeys.GLASS_RIM, ThemeKeys.glassStyle("rim"));
+        assertEquals(ThemeKeys.GLASS_RIM, ThemeKeys.glassStyle(" Rim "));
     }
 
     @Test
     public void haloByNameAnyCase() {
-        assertEquals(Config.GLASS_HALO, Config.glassStyle("halo"));
-        assertEquals(Config.GLASS_HALO, Config.glassStyle("HALO "));
+        assertEquals(ThemeKeys.GLASS_HALO, ThemeKeys.glassStyle("halo"));
+        assertEquals(ThemeKeys.GLASS_HALO, ThemeKeys.glassStyle("HALO "));
     }
 
     @Test
     public void anythingElseIsGlass() {
-        assertEquals(Config.GLASS_DEFAULT, Config.glassStyle("glass"));
-        assertEquals(Config.GLASS_DEFAULT, Config.glassStyle(""));
-        assertEquals(Config.GLASS_DEFAULT, Config.glassStyle(null));
-        assertEquals(Config.GLASS_DEFAULT, Config.glassStyle("frosted"));
+        assertEquals(ThemeKeys.GLASS_DEFAULT, ThemeKeys.glassStyle("glass"));
+        assertEquals(ThemeKeys.GLASS_DEFAULT, ThemeKeys.glassStyle(""));
+        assertEquals(ThemeKeys.GLASS_DEFAULT, ThemeKeys.glassStyle(null));
+        assertEquals(ThemeKeys.GLASS_DEFAULT, ThemeKeys.glassStyle("frosted"));
     }
 }

@@ -38,6 +38,8 @@ import com.itsluminous.verysmarttv.grid.Order;
 import com.itsluminous.verysmarttv.theme.ThemeFiles;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.itsluminous.verysmarttv.settings.SettingsChoices;
+import com.itsluminous.verysmarttv.theme.ThemeKeys;
 
 /**
  * backup_restore: everything the owner set on this TV, as one JSON document, and the way back from it.
@@ -72,7 +74,7 @@ public final class Backup {
     /** A state file over this size is not one this launcher wrote (Order and Cards both stop at 64 KB). */
     private static final int MAX_STATE_BYTES = 64 * 1024;
     private static final Pattern SAFE_NAME = Pattern.compile("[A-Za-z0-9_.-]+");
-    /** The private files dir's own copy of the theme (Config.readOverlay); it is derived from the theme section. */
+    /** The private files dir's own copy of the theme (ThemeKeys.readOverlay); it is derived from the theme section. */
     private static final String THEME_COPY = Config.FILE_NAME;
     public static final String BACKUP_DIR = "backup";
 
@@ -266,8 +268,8 @@ public final class Backup {
         if (doc.optInt("version", -1) != VERSION || !doc.has("prefs")) {
             throw new JSONException("not a VerySmartTV settings backup (version " + doc.opt("version") + ")");
         }
-        SharedPreferences settings = ctx.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE);
-        long revisionBefore = settings.getLong(Config.SETTINGS_REVISION_KEY, 0);
+        SharedPreferences settings = ctx.getSharedPreferences(SettingsChoices.SETTINGS_NAME, Context.MODE_PRIVATE);
+        long revisionBefore = settings.getLong(SettingsChoices.SETTINGS_REVISION_KEY, 0);
 
         JSONObject prefs = doc.getJSONObject("prefs");
         for (Iterator<String> it = prefs.keys(); it.hasNext(); ) {
@@ -276,7 +278,7 @@ public final class Backup {
             restorePrefs(ctx.getSharedPreferences(name, Context.MODE_PRIVATE), prefs.getJSONObject(name));
         }
         // A backup from a launcher that still had an Advanced effects row carries its choice; it means nothing now.
-        Config.dropLegacyChoices(settings);
+        SettingsChoices.dropLegacyChoices(settings);
 
         File filesDir = ctx.getFilesDir();
         restoreFiles(filesDir, stateFiles(filesDir), doc.optJSONObject("files"), false);
@@ -295,8 +297,8 @@ public final class Backup {
         // theme push and clear the layout choices that came back with the preferences.
         Config.adoptThemeFiles(ctx);
         // Home rebuilds in onResume when the revision moved; past both what it saw and what the backup held.
-        long restored = settings.getLong(Config.SETTINGS_REVISION_KEY, 0);
-        settings.edit().putLong(Config.SETTINGS_REVISION_KEY, Math.max(revisionBefore, restored) + 1).commit();
+        long restored = settings.getLong(SettingsChoices.SETTINGS_REVISION_KEY, 0);
+        settings.edit().putLong(SettingsChoices.SETTINGS_REVISION_KEY, Math.max(revisionBefore, restored) + 1).commit();
     }
 
     private static void restorePrefs(SharedPreferences prefs, JSONObject keys) throws JSONException {
