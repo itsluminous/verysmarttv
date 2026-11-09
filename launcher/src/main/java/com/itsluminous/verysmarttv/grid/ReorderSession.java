@@ -108,7 +108,7 @@ public final class ReorderSession {
         if (movingKey != null) {
             return pos != RecyclerView.NO_POSITION && movingKey.equals(host.grid().adapter().keyAt(pos)) ? 1f : 0.45f;
         }
-        int dockEditSlot = host.dockEditSlot();
+        int dockEditSlot = host.dockEdit().slot();
         if (dockEditSlot >= 0 && pos >= 0 && pos < host.state().columns && pos != dockEditSlot) return 0.45f;
         return 1f;
     }
@@ -116,7 +116,7 @@ public final class ReorderSession {
     /** Ends the mode and saves the order if it changed since the mode started. */
     public void endReorder() {
         if (!reordering) return;
-        host.resetDockEdit();
+        host.dockEdit().reset();
         drop();
         reordering = false;
         host.grid().adapter().setReordering(false);
@@ -193,7 +193,7 @@ public final class ReorderSession {
      * Other keys (volume, Home) pass through; leaving the launcher ends the mode and saves.
      */
     public boolean dispatch(@NonNull KeyEvent event) {
-        if (host.dockEditing()) return host.dispatchDockEdit(event);
+        if (host.dockEdit().active()) return host.dockEdit().dispatch(event);
         boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
         int code = event.getKeyCode();
         boolean ok = code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER

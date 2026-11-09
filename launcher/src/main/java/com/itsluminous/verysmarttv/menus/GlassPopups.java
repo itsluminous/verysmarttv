@@ -127,7 +127,7 @@ public final class GlassPopups {
             });
         }
         if (host.state().moduleCards) addSettingsMenuRow(rows, popup, R.string.module_cards, host.cards()::showModuleCards);
-        if (host.state().dockRow && !host.state().shelfEveryRow) addSettingsMenuRow(rows, popup, R.string.dock_edit, host::startDockEdit);
+        if (host.state().dockRow && !host.state().shelfEveryRow) addSettingsMenuRow(rows, popup, R.string.dock_edit, host.dockEdit()::startDockEdit);
         addSettingsMenuRow(rows, popup, R.string.reorder, host.reorder()::toggleReorder);
         // A launcher may not restart the TV itself; the Home key helper can open the system power menu instead.
         if (HomeKeyService.canOpenPowerMenu()) addSettingsMenuRow(rows, popup, R.string.power_menu, HomeKeyService::openPowerMenu);
@@ -150,7 +150,7 @@ public final class GlassPopups {
         if (host.state().dockRow && !host.state().shelfEveryRow && position < host.grid().adapter().movableCount()) {
             boolean inDock = position < host.state().columns;
             addSettingsMenuRow(rows, popup, inDock ? R.string.tile_replace_in_dock : R.string.tile_add_to_dock,
-                    () -> host.startDockEditFor(key, inDock));
+                    () -> host.dockEdit().startDockEditFor(key, inDock));
         }
         if (position < host.grid().adapter().movableCount()) addSettingsMenuRow(rows, popup, R.string.tile_move, () -> {
             if (!host.reorder().beginReorder()) return;

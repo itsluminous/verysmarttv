@@ -105,7 +105,7 @@ import com.itsluminous.verysmarttv.clock.ClockRefresh;
 import com.itsluminous.verysmarttv.theme.Config;
 import com.itsluminous.verysmarttv.inputs.CoocaaSources;
 import com.itsluminous.verysmarttv.grid.DockDecoration;
-import com.itsluminous.verysmarttv.grid.DockSlots;
+import com.itsluminous.verysmarttv.grid.DockEditSession;
 import com.itsluminous.verysmarttv.grid.EdgeAlignDecoration;
 import com.itsluminous.verysmarttv.grid.GlassView;
 import com.itsluminous.verysmarttv.grid.GridController;
@@ -301,21 +301,9 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         return reorder;
     }
 
-    /** Edit-dock mode is on (DockEditSession in Phase 2). */
-    public boolean dockEditing() {
-        return dockEditing;
-    }
-
-    /** Dock place being changed in edit-dock mode, or -1 (DockEditSession in Phase 2). */
-    public int dockEditSlot() {
-        return dockEditSlot;
-    }
-
-    /** endReorder: edit-dock mode ends with the session (DockEditSession in Phase 2). */
-    public void resetDockEdit() {
-        dockEditing = false;
-        dockEditSlot = -1;
-        dockEditAppKey = null;
+    @NonNull
+    public DockEditSession dockEdit() {
+        return dockEdit;
     }
 
     /** cinematic_white_focus: the cinematic shelf keeps the white highlight (ShelfController in Phase 2). */
@@ -323,17 +311,12 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         return cinematicWhiteFocus;
     }
 
-    /** Edit-dock mode (Settings menu): a reorder session that swaps one chosen app into one dock place. */
-    private boolean dockEditing;
-    /** Dock place being changed in edit-dock mode, or -1 while the place is still being chosen. */
-    private int dockEditSlot = -1;
-    /** Tile menu's "Add to dock": the app waiting for a dock place in edit-dock mode, or null. */
-    private String dockEditAppKey;
     private final Handler handler = new Handler(Looper.getMainLooper());
     /** The module-card prompt and the Module cards list (CardPrompts). */
     private CardPrompts cardPrompts;
-    /** Reorder mode (ReorderSession). */
+    /** Reorder mode (ReorderSession) and edit-dock mode (DockEditSession). */
     private ReorderSession reorder;
+    private DockEditSession dockEdit;
     /** The app grid: tiles, focus, the glass highlight, the library (GridController). */
     private GridController grid;
     /** The glass dropdowns: popup window, top_menu, the Settings menu, the tile menu (GlassPopups). */
@@ -424,6 +407,7 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
 
         grid.setUp(cfg);
         reorder = new ReorderSession(this, grid.view(), cfg);
+        dockEdit = new DockEditSession(this);
         topBar.setUpPills(cfg);
 
 
@@ -640,108 +624,6 @@ public class HomeActivity extends Activity implements AppAdapter.TileListener, H
         }
         if (!reorder.active()) return super.dispatchKeyEvent(event);
         return reorder.dispatch(event);
-    }
-
-    /** Edit dock (Settings menu): focus goes to the first dock place, which OK then chooses. */
-    public void startDockEdit() {
-        if (reorder.active()) reorder.endReorder();
-        if (!reorder.beginReorder()) return;
-        dockEditing = true;
-        dockEditSlot = -1;
-        grid.focusTile(0);
-        Toast.makeText(this, R.string.dock_edit_hint, Toast.LENGTH_LONG).show();
-    }
-
-    /**
-     * Keys in edit-dock mode. First OK on a dock tile chooses that place (the other dock tiles dim) and focus moves
-     * to the grid; then OK on any tile swaps that app into the place, saves the order and ends the mode. Back goes
-     * one step back: from choosing the app to choosing the place, and from there out of the mode.
-     */
-    public boolean dispatchDockEdit(@NonNull KeyEvent event) {
-        boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
-        int code = event.getKeyCode();
-        boolean ok = code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER
-                || code == KeyEvent.KEYCODE_NUMPAD_ENTER;
-        boolean back = code == KeyEvent.KEYCODE_BACK || code == KeyEvent.KEYCODE_ESCAPE;
-        if (back) {
-            if (!down) {
-                if (dockEditAppKey != null) {
-                    reorder.endReorder();   // "Add to dock" cancelled before a place was chosen
-                } else if (dockEditSlot >= 0) {
-                    int slot = dockEditSlot;
-                    dockEditSlot = -1;
-                    reorder.dimOthers();
-                    grid.focusTile(slot);
-                } else {
-                    reorder.endReorder();
-                }
-            }
-            return true;
-        }
-        int pos = grid.focusedTilePosition();
-        if (ok && pos >= 0) {
-            if (!down) {
-                int n = grid.adapter().movableCount();
-                if (dockEditAppKey != null) {
-                    if (pos < Math.min(state.columns, n)) {
-                        int from = grid.adapter().positionOf(dockEditAppKey);
-                        if (from >= 0) swapIntoDock(pos, from);
-                        else reorder.endReorder();
-                    }
-                } else if (dockEditSlot < 0) {
-                    if (pos < Math.min(state.columns, n)) {
-                        dockEditSlot = pos;
-                        reorder.dimOthers();
-                        grid.focusTile(Math.min(state.columns, n - 1));
-                        Toast.makeText(this, R.string.dock_edit_pick_app, Toast.LENGTH_LONG).show();
-                    }
-                } else if (pos < n) {
-                    swapIntoDock(dockEditSlot, pos);
-                }
-            }
-            return true;   // never opens the app while editing
-        }
-        return super.dispatchKeyEvent(event);   // arrows navigate as usual
-    }
-
-    /**
-     * Edit-dock mode started from the tile menu. A dock app: its place is already chosen, so focus goes to the grid
-     * for the app to put there. A grid app: it is already chosen, so focus goes to the dock for the place.
-     */
-    public void startDockEditFor(@NonNull String key, boolean inDock) {
-        if (reorder.active()) reorder.endReorder();
-        if (!reorder.beginReorder()) return;
-        dockEditing = true;
-        int pos = grid.adapter().positionOf(key);   // beginReorder can rebuild the tiles
-        int n = grid.adapter().movableCount();
-        if (pos < 0) {
-            reorder.endReorder();
-        } else if (inDock) {
-            dockEditSlot = pos;
-            reorder.dimOthers();
-            grid.focusTile(Math.min(state.columns, n - 1));
-            Toast.makeText(this, R.string.dock_edit_pick_app, Toast.LENGTH_LONG).show();
-        } else {
-            dockEditAppKey = key;
-            grid.focusTile(0);
-            Toast.makeText(this, R.string.dock_edit_pick_place, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    /** Puts the app at pos into dock place slot, and the app that was there where the chosen one was; then saves. */
-    private void swapIntoDock(int slot, int pos) {
-        String slotKey = grid.adapter().keyAt(slot);
-        if (pos != slot) {
-            grid.keepScroll(() -> {
-                grid.adapter().move(pos, slot);
-                grid.adapter().move(grid.adapter().positionOf(slotKey), pos);
-            });
-            if (pos >= state.columns) reorder.dockInSession().remove(slotKey);
-        }
-        // Outside the check: with no empty slots shown, the chosen app may already sit in the free place.
-        reorder.dockInSession().add(grid.adapter().keyAt(slot));
-        reorder.endReorder();
-        grid.refocusAfterLayout(slot);
     }
 
     @Override
