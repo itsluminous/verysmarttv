@@ -53,6 +53,16 @@ VerySmartTV setup 0.1.0
 Every step is re-runnable. `--yes` takes every default (so it never disables the stock launcher and never
 applies a clean-up list you did not name); `--dry-run` prints what the clean-up would send.
 
+**Factory and service-menu packages.** Some lists disable a package whose name holds `factory` or `hkcfac`
+(`com.duokan.factorytest`, `mediatek.factorymenu.ui`, `com.cvte.tv.hkcfac`): the TV maker's factory-test,
+service-menu and board self-test apps. One is sometimes disabled because it claims Home (the Mi TV 4A's list
+does). Nothing you use day to day needs them, but with them disabled the TV's factory or service menu, the one
+a repair shop opens with a key sequence, and some board self-tests stop working until they are enabled again.
+When a list holds such a package the tool prints a warning block naming each one before the question, and that
+question needs a typed yes even with `--yes`; `setup restore` re-enables them with the rest of the list. To
+apply a list without them, comment those lines out of a copy and pass it with `--list`. The tool never starts
+a factory package, not even to look.
+
 | Option | Does |
 |---|---|
 | `--host 192.168.1.50` | skip discovery; `ip:port` for a TV on another port. Remembered for the next run |

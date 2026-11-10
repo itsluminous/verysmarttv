@@ -118,18 +118,40 @@ def read_list_text(path):
     return text, lists.parse(text, str(path))
 
 
+def factory_warning(factory: list, log=None):
+    """Printed before the question when the list disables factory or service-menu packages."""
+    log = log or say
+    log("")
+    log("WARNING: this list disables factory and service-menu packages:")
+    for name in factory:
+        log(f"  {name}")
+    log("These are the TV maker's factory-test, service-menu and board self-test apps. With them disabled the")
+    log("TV's factory or service menu (the one a repair shop opens with a key sequence) and some board")
+    log("self-tests stop working until they are enabled again; nothing else on the TV uses them, and some")
+    log("lists disable one because it claims Home. `setup restore` re-enables them with the rest of the list.")
+    log("This needs a typed yes, even with --yes.")
+
+
 def confirm_list(path, text, names, yes=False, full=False, log=None) -> bool:
     """The one question every clean-up path asks before a list is applied: the list's header (the whole
     list with its notes when `full`), then yes/no, No by default. `--yes` answers it for a list the user
-    named on the command line."""
+    named on the command line, unless the list disables factory packages: that always needs a typed yes."""
     log = log or say
     if full:
         show_list(text, names, log)
     else:
         log(lists.header(text))
     log(f"{len(names)} packages from {path}")
-    return confirm(f"disable these {len(names)} packages for user 0 (nothing is uninstalled; `setup restore` "
-                   "undoes it)?", False, yes)
+    factory = lists.factory_packages(names)
+    if factory:
+        factory_warning(factory, log)
+        yes = False
+    answer = confirm(f"disable these {len(names)} packages for user 0 (nothing is uninstalled; `setup restore` "
+                     "undoes it)?", False, yes)
+    if factory and not answer and (not sys.stdin or not sys.stdin.isatty()):
+        log("not applied: a list with factory packages needs a typed yes, so run this in a terminal (without "
+            "--yes), or comment those lines out of a copy and pass it with --list")
+    return answer
 
 
 # -- commands ---------------------------------------------------------------------------------------------
@@ -233,6 +255,8 @@ def cmd_debloat(args) -> int:
         text, names = read_list_text(path)
         if args.dry_run:
             show_list(text, names)
+            if lists.factory_packages(names):
+                factory_warning(lists.factory_packages(names))
         elif not confirm_list(path, text, names, args.yes, full=args.show or not args.yes):
             say("nothing was changed on the TV")
             return 0

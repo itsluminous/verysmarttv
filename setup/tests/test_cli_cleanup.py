@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from fake_tv import FakeTv  # noqa: E402
-from verysmarttv_setup import cli, homeguard, install, presets  # noqa: E402
+from verysmarttv_setup import cli, homeguard, install, lists, presets  # noqa: E402
 
 STOCK = "com.google.android.tvlauncher"
 STOCK_HOME = STOCK + "/.MainActivity"
@@ -23,6 +23,8 @@ PROPS = {"ro.product.model": "FakeTV", "ro.product.device": "fake1", "ro.product
 VENDOR = ["com.vendor.ads", "com.vendor.promo", "com.vendor.telemetry"]
 HEADER = "# Fake TV (FakeTV, device fake1), Android TV 11, SDK 30"
 OTHER_HEADER = "# Fake TV Lite (FakeTV-L), Android TV 11, SDK 30"
+FACTORY_HEADER = "# Fake TV (FakeTV), with the factory-test HOME claimant"
+FACTORY = "com.vendor.factorytest"
 
 
 class CleanupCli(unittest.TestCase):
@@ -37,6 +39,7 @@ class CleanupCli(unittest.TestCase):
         self.write_preset("fake-tv", HEADER, VENDOR, body="# ---- Batch 1\ncom.vendor.ads\ncom.vendor.promo\n"
                                                            "# ---- Batch 2\ncom.vendor.telemetry   # usage upload\n")
         self.write_preset("fake-tv-lite", OTHER_HEADER, ["com.vendor.ads"])
+        self.write_preset("fake-factory", FACTORY_HEADER, ["com.vendor.ads", FACTORY])
         apks = Path(self.tmp.name) / "apks"
         apks.mkdir()
         for app in install.APPS:
@@ -53,7 +56,8 @@ class CleanupCli(unittest.TestCase):
         def restore():
             cli.open_device, cli.obtain_apks, cli.say, cli.ask, presets.load_index = saved
         self.addCleanup(restore)
-        self.dev = FakeTv(installed={STOCK, OURS, "com.android.tv.settings", *VENDOR}, claims=[STOCK_HOME, OURS_HOME],
+        self.dev = FakeTv(installed={STOCK, OURS, "com.android.tv.settings", FACTORY, *VENDOR},
+                          claims=[STOCK_HOME, OURS_HOME, FACTORY + "/.FactoryLauncher"],
                           home=STOCK_HOME, props=PROPS, wifi_owners=["android.uid.system"])
 
     def write_preset(self, slug, header, names, body=None):
@@ -66,7 +70,8 @@ class CleanupCli(unittest.TestCase):
         def entry(slug, header, tokens, count):
             return presets.Preset({"slug": slug, "tv": slug, "brand": "Fake", "header": header, "tokens": tokens,
                                    "sdk": 30, "packages": count, "path": f"presets/lists/{slug}/debloat.txt"}, self.root)
-        return [entry("fake-tv", HEADER, ["faketv", "fake1"], 3), entry("fake-tv-lite", OTHER_HEADER, ["faketv-l"], 1)]
+        return [entry("fake-tv", HEADER, ["faketv", "fake1"], 3), entry("fake-tv-lite", OTHER_HEADER, ["faketv-l"], 1),
+                entry("fake-factory", FACTORY_HEADER, ["faketv-f"], 2)]
 
     def scripted_ask(self, prompt, default="", yes=False):
         self.asked.append(prompt)
@@ -166,6 +171,50 @@ class GuidedFlowTest(CleanupCli):
         self.assertEqual(self.disabled(), [])
         self.assertEqual(self.guided("--preset", "none"), 0)
         self.assertIn("skipped (--preset none)", self.output())
+
+
+class FactoryPackagesTest(CleanupCli):
+    """A list may disable a factory or service-menu package (ADR-043), but the user is told what stops working
+    and must type the yes, `--yes` or not."""
+
+    def test_the_pattern(self):
+        for name in ("com.duokan.factorytest", "mediatek.factorymenu.ui", "com.cvte.tv.hkcfac", "com.tcl.FactoryMode",
+                     "com.mediatek.tv.factory", "com.nvidia.factorysyschecker"):
+            self.assertEqual(lists.factory_packages([name, "com.vendor.ads"]), [name], name)
+        self.assertEqual(lists.factory_packages(["com.vendor.ads", "com.google.android.tvlauncher"]), [])
+
+    def test_the_warning_names_the_impact_and_the_undo_before_the_question(self):
+        self.assertEqual(self.run_cli("debloat", "--host", "127.0.0.1", "--preset", "fake-factory", answers=["n"]), 0)
+        out = self.output()
+        self.assertIn("WARNING: this list disables factory and service-menu packages:", out)
+        self.assertIn(f"  {FACTORY}", out)
+        self.assertIn("service menu", out)
+        self.assertIn("self-tests", out)
+        self.assertIn("`setup restore` re-enables them", out)
+        self.assertLess(out.index("WARNING"), len(out), "printed before the question (nothing printed after a No)")
+        self.assertEqual(len(self.question()), 1)
+        self.assertEqual(self.disabled(), [])
+
+    def test_yes_on_the_command_line_does_not_answer_for_factory_packages(self):
+        self.assertEqual(self.run_cli("debloat", "--host", "127.0.0.1", "--preset", "fake-factory", "--yes",
+                                      "--no-screenshots", answers=["n"]), 0)
+        self.assertEqual(self.disabled(), [], "the question was asked despite --yes, and No was the answer")
+        self.assertIn("even with --yes", self.output())
+        self.assertEqual(self.run_cli("debloat", "--host", "127.0.0.1", "--preset", "fake-factory", "--yes",
+                                      "--no-screenshots", answers=["yes"]), 0)
+        self.assertEqual(self.disabled(), ["com.vendor.ads", FACTORY])
+        self.assertEqual(self.guided("--yes", "--preset", "fake-factory", "--no-screenshots", answers=["n"]), 0)
+        self.assertEqual(self.disabled(), ["com.vendor.ads", FACTORY], "the guided flow asked too; nothing new was sent")
+        self.assertEqual(len(self.question()), 3, "one question per run, --yes notwithstanding")
+
+    def test_a_list_without_factory_packages_prints_no_warning(self):
+        self.run_cli("debloat", "--host", "127.0.0.1", "--preset", "fake-tv", "--yes", "--no-screenshots")
+        self.assertNotIn("WARNING", self.output())
+
+    def test_dry_run_prints_the_warning_too(self):
+        self.run_cli("debloat", "--host", "127.0.0.1", "--preset", "fake-factory", "--dry-run")
+        self.assertIn("WARNING: this list disables factory", self.output())
+        self.assertEqual(self.asked, [])
 
 
 if __name__ == "__main__":

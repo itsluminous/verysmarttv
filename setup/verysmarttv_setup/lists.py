@@ -22,6 +22,11 @@ CORE_RE = re.compile(r"^(android|android\.ext\.(services|shared)|com\.android\.s
                      r"|com\.google\.android\.overlay\.modules.*|com\.android\.providers\..*"
                      r"|com\.cltv\.mal|com\.mediatek\.(tis|tv\.service|tv\.agent))$")
 CORE_OK = re.compile(r"^com\.android\.providers\.(calendar|contacts|userdictionary|blockednumber)$")
+# Factory, service-menu and board self-test packages (com.duokan.factorytest, mediatek.factorymenu.ui,
+# com.cvte.tv.hkcfac, com.tcl.FactoryMode ...). A list may disable one, and some must (the Mi TV 4A's
+# factorytest claims HOME), but the TV's service menu and the self-tests behind it then stop working until
+# `setup restore` re-enables them, so the plan says so and needs a typed yes (ADR-043). None is ever started.
+FACTORY_RE = re.compile(r"factory|hkcfac", re.I)
 BATCH_MARK = re.compile(r"^\s*#\s*-*\s*Batch\b", re.I)
 DEFAULT_BATCH = 8
 
@@ -33,6 +38,11 @@ class ListError(ValueError):
 def core_packages(names) -> list:
     """The names a list holds that must never be disabled, in list order."""
     return [n for n in names if CORE_RE.match(n) and not CORE_OK.match(n)]
+
+
+def factory_packages(names) -> list:
+    """The factory and service-menu packages a list holds, in list order."""
+    return [n for n in names if FACTORY_RE.search(n)]
 
 
 def parse(text: str, name: str = "list") -> list:

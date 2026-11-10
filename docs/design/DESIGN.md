@@ -1011,8 +1011,9 @@ Safety carried unchanged into `lists.py`, `homeguard.py` and `debloat.py` (ADR-0
 rule and the two guards carried on top): `CORE_RE`/`CORE_OK` refusal (`disable.sh:68-69`), one
 `pm disable-user --user 0` per shell call, the Home-owner skip until another launcher answers HOME
 (`disable.sh:127-139` `home_claims/launchers_in/home_launchers`), the setupwraith + `cname=` Wi-Fi check,
-never touching `*factory*`/`*hkcfac*` packages (listed or not: refusal with the reason), and the record
-written before the first change. Record key: `sha256(ro.serialno + ro.product.model)[:12]` instead of the
+never starting a `*factory*`/`*hkcfac*` package or handing Home to one (a list may disable one; the plan then
+prints what stops working and needs a typed yes, `--yes` included: ADR-043), and the record written before the
+first change. Record key: `sha256(ro.serialno + ro.product.model)[:12]` instead of the
 IP (`recovery.py` names records by address and warns on address change, `recovery.py:19-23`; DHCP moves
 the owner's TV, `work/README-mooq1.md` says so).
 
