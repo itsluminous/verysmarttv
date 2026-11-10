@@ -1189,8 +1189,9 @@ Where the shipped 0.1.0 differs from the sections above. Each has its ADR; the s
   (the free plan is 100 requests a day) and it may cost the user money past that plan. The follow picker gained
   three-state boxes. **Everything else is ESPN only**, as designed; the weekly CI fixture re-check §19 names
   was not built.
-- **Planned, not in 0.1.0**: a WebView-based scraper for a source behind a browser challenge (the way to
-  BWF's own data without a key), behind the same `ScoreSource` boundary. Nothing in the tree depends on it.
+- **After 0.1.0, experimental and off by default** (ADR-049): a WebView-based source for BWF's own Match Centre, the way to
+  BWF's data without a key, behind the same `ScoreSource` boundary and chosen in Settings → Badminton source; SportMicro
+  stays the default. Nothing in the launcher depends on it.
 - **Smaller departures**, each recorded where it happened: the §8 decomposition table (ADR-038), the
   companion's F1 line, fixture layout and memory figures (ADR-039), the Phase 3 bars and settings rows
   (ADR-040), the setup tool's factory-package warning and edited-list copies (ADR-043), the old `.backup`

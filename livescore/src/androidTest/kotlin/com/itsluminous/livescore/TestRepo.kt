@@ -81,9 +81,11 @@ object TestRepo {
         return repo
     }
 
-    /** The real repo back, and the badminton key out of the app's preferences, so no test inherits another's key. */
+    /** The real repo back, and the badminton key and source out of the app's preferences, so no test inherits another's. */
     fun reset() {
         ScoreRepo.set(null)
-        Prefs(InstrumentationRegistry.getInstrumentation().targetContext).badmintonKey = ""
+        val prefs = Prefs(InstrumentationRegistry.getInstrumentation().targetContext)
+        prefs.badmintonKey = ""
+        prefs.badmintonSource = BadmintonSource.SPORTMICRO
     }
 }

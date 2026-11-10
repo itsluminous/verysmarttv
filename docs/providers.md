@@ -123,7 +123,9 @@ restore, with one log line; the launcher's own sections are unaffected.
 What answers the provider is `ScoreProvider`, backed by `ScoreRepo`: the follow list (`files/follows.json`), the
 parsed events (`files/events.json`), the sources behind one `SourceRegistry` (`source/espn/EspnSource`, ESPN's public
 site feeds, ADR-012, for cricket, football, F1 and tennis; `source/sportmicro/SportMicroSource`, SportMicro's Badminton Micro
-API through RapidAPI with the user's own key, ADR-044) and the refresh decisions (`RefreshPolicy`, DESIGN.md §13.5, ADR-014).
+API through RapidAPI with the user's own key, ADR-044; `source/bwf/BwfWebViewSource`, BWF's own Match Centre through a hidden
+WebView, experimental and off by default, ADR-049; **Settings → Badminton source** picks which of the two answers badminton, or
+neither) and the refresh decisions (`RefreshPolicy`, DESIGN.md §13.5, ADR-014).
 
 - **Where the rows come from.** `/pill` is `PillChooser` over the followed events in the window (yesterday 00:00 to
   tomorrow 23:59 local): live, then break, then upcoming within 12 h, then final within 6 h; ties by follow reason
@@ -179,6 +181,26 @@ API through RapidAPI with the user's own key, ADR-044) and the refresh decisions
   today and tomorrow from the feed (fetched once when the column is first opened with a key; one row per discipline,
   `Kumamoto Masters Japan, WS, Qualifying`) and, under a tournament, its players and matches; "All Badminton" follows
   everything.
+- **Badminton from BWF's website (experimental).** **Settings → Badminton source → BWF website (experimental)** replaces
+  SportMicro with `BwfWebViewSource` (ADR-049): no key. On each badminton fetch the companion creates one hidden
+  `WebView` on the main thread, loads `https://match-centre.bwfbadminton.com/` (BWF's Match Centre; the plain
+  `HttpURLConnection` path meets a Cloudflare JavaScript challenge there, the TV's browser engine does not), waits for
+  the page (not Cloudflare's "Just a moment…" interstitial), and runs one script that calls the page's own `fetch` for
+  `extranet-lv.bwfbadminton.com/api/match-center/vue-current-live` (the tournaments live this week) and
+  `vue-live-matches?tmtId=<id>&tmtType=0` for up to four of them, handing the raw JSON to a `@JavascriptInterface`
+  bridge; 30 s timeout; then the WebView is destroyed, cookies and web storage deleted, and Chromium told to trim its
+  memory. The page lists the **matches on court**, not the day's order of play or results, so this source yields live,
+  break and just-finished matches and no upcoming ones. Badminton keeps its 5-minute live cadence under this source
+  (a Chromium page load a minute is too much for a 1 GB TV), the two days of a full refresh share one visit, and the
+  rest of the refresh policy is unchanged. Any failure (challenge not cleared, timeout, an HTTP error, a changed
+  shape) is logged, backed off and shown as **"BWF site unavailable"** with the reason on the companion's Home and in
+  the picker's Badminton column; the launcher's pill simply has no badminton line. Memory on `HikViewer_TV_1GB`
+  (2026-11-10, `dumpsys meminfo`, TOTAL PSS of the companion with its Home open): 48–68 MB before the visit, a peak
+  of 116 MB while the page loads, 97–99 MB once the WebView is destroyed, and that stays for the life of the process
+  (Chromium's code and browser-side allocations are not unloaded: Native Heap 16 MB, `.apk mmap` of the WebView
+  provider 12 MB private clean); the process is a background one the system may kill between fetches. **Off** stops
+  badminton being fetched or shown at all. Re-record the fixtures with `tools/dev/record_bwf_fixtures.sh` (an
+  emulator with internet).
 - **Follows** (`FollowStore`, §13.2): `{kind: sport|competition|team|event, sport, competition, team, event, label,
   expires}` rows under `{"version": 1, "follows": [...]}`, at most 100; the first run writes the defaults (India, IPL,
   ISL, Premier League, Champions League, F1; ADR-033). `/backup` returns that file verbatim; `restore` replaces it,

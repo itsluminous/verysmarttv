@@ -93,11 +93,13 @@ class FollowActivity : Activity() {
             .map { Competition(s, it.competitionId, it.competition) }
     }
 
-    /** Why the column is empty for a catalogue-less sport: no key, a fetch under way, or a feed with nothing this week. */
+    /** Why the column is empty for a catalogue-less sport: no key, the BWF website failing, a fetch under way, or a feed with nothing this week. */
     private fun dynamicHint(s: Sport) {
-        val needsKey = s == Sport.BADMINTON && repo.prefs.badmintonKey.isEmpty()
+        val needsKey = s == Sport.BADMINTON && BadmintonGate.needsKey(listOf(Follow.sport(s, "")), repo.prefs.badmintonKey, repo.prefs.badmintonSource)
+        val bwfError = if (s == Sport.BADMINTON && repo.prefs.badmintonSource == BadmintonSource.BWF_WEBVIEW) repo.lastError(FetchKey(s, null)) else null
         when {
             needsKey -> hint(competitions, R.string.badminton_needs_key)
+            fetching == s && bwfError != null -> hint(competitions, R.string.bwf_unavailable_column)
             fetching == s -> hint(competitions, R.string.badminton_none)
             else -> {
                 hint(competitions, R.string.badminton_loading)
@@ -207,7 +209,7 @@ class FollowActivity : Activity() {
      * "needs a key" is listed again; Cancel leaves the list, and the boxes, as they were.
      */
     private fun apply(change: PickerSelection.Change) {
-        if (BadmintonGate.needsKey(change.add, repo.prefs.badmintonKey)) {
+        if (BadmintonGate.needsKey(change.add, repo.prefs.badmintonKey, repo.prefs.badmintonSource)) {
             BadmintonKeyDialog.show(
                 this, repo.prefs, allowRemove = false,
                 onSaved = {

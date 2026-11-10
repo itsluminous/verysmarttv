@@ -6,6 +6,11 @@ and publishes all three.
 
 ## [Unreleased]
 
+### Scores companion
+- **Badminton source** row in Settings (ADR-049): *SportMicro (your RapidAPI key)*, the default and unchanged; *BWF website (experimental)*, which reads BWF's own Match Centre through a hidden WebView, no key, live matches only, more memory for a few seconds per refresh and liable to stop when the site changes; *Off*. The key row shows only under SportMicro and the key is asked for only then.
+- "BWF site unavailable" row on the companion's Home, and in the picker's Badminton column, with the reason, when the experimental source fails; the other sources and the launcher are untouched.
+- `StateNormaliser` reads the Match Centre's words (`Playing`, `Warm up`, `Completed`); `tools/dev/record_bwf_fixtures.sh` records the page's JSON through the emulator's WebView.
+
 ## [0.1.0] - 2026-11-10
 
 First release. `com.itsluminous.verysmarttv`, `com.itsluminous.traktshelf`, `com.itsluminous.livescore`,

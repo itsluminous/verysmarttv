@@ -9,7 +9,8 @@ import com.itsluminous.livescore.source.FeedStatus
  * as the Quaid-e-Azam Trophy showed on 2026-11-09). SportMicro's badminton feed (ADR-044) names its states in
  * words: `upcoming` / `notstarted`, `live` / `inprogress`, `finished` / `ended`, and the endings and pauses
  * as their own types (`walkover`, `retired`, `canceled`, `postponed`, `interrupted`, `suspended`, `delayed`),
- * which read the same way as the ESPN descriptions. Pure; the table test is `StateNormaliserTest`.
+ * which read the same way as the ESPN descriptions. BWF's Match Centre (ADR-049) adds `playing`, `completed` and the
+ * pre-match words `warm up`, `warming up`, `on court`, `coming up`. Pure; the table test is `StateNormaliserTest`.
  */
 object StateNormaliser {
     /** Descriptions ESPN uses while a started match is not being played. Matched case-insensitively, as a prefix. */
@@ -23,9 +24,9 @@ object StateNormaliser {
     private val ENDINGS = listOf("abandoned", "cancel", "no result", "walkover", "retired", "postponed")
 
     /** The words a feed may use for the three ESPN states, SportMicro's included. */
-    private val UPCOMING_WORDS = listOf("pre", "upcoming", "notstarted", "not started", "scheduled")
-    private val LIVE_WORDS = listOf("in", "live", "inprogress", "in progress")
-    private val FINAL_WORDS = listOf("post", "finished", "ended", "final")
+    private val UPCOMING_WORDS = listOf("pre", "upcoming", "notstarted", "not started", "scheduled", "warm up", "warm-up", "warming up", "on court", "coming up")
+    private val LIVE_WORDS = listOf("in", "live", "inprogress", "in progress", "playing")
+    private val FINAL_WORDS = listOf("post", "finished", "ended", "final", "completed", "complete")
 
     fun normalise(status: FeedStatus): State {
         val description = status.description.trim().lowercase()

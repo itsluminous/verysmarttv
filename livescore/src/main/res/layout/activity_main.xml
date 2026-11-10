@@ -18,13 +18,14 @@
     </LinearLayout>
     <TextView android:id="@+id/status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp"
         android:textSize="13sp" android:textColor="#80FFFFFF" />
-    <!-- Badminton follows with no key (ADR-044, BadmintonGate): a row in the rows' dress that opens the key dialog; GONE otherwise. -->
-    <LinearLayout android:id="@+id/needsKey" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp"
+    <!-- One notice row in the rows' dress, GONE unless badminton has something to say: follows with no key (ADR-044,
+         BadmintonGate; OK opens the key dialog), or the BWF website failing (ADR-049; OK opens Settings). MainActivity sets the texts. -->
+    <LinearLayout android:id="@+id/notice" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp"
         android:paddingStart="20dp" android:paddingEnd="20dp" android:paddingTop="12dp" android:paddingBottom="12dp" android:orientation="vertical"
         android:focusable="true" android:focusableInTouchMode="true" android:background="@drawable/row_bg" android:visibility="gone">
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/badminton_needs_key_row"
+        <TextView android:id="@+id/noticeTitle" android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:textSize="16sp" android:textColor="#FFFFFFFF" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/badminton_needs_key_row_hint"
+        <TextView android:id="@+id/noticeHint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp"
             android:textSize="13sp" android:textColor="#99FFFFFF" />
     </LinearLayout>
     <ScrollView android:id="@+id/scroll" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="18dp"

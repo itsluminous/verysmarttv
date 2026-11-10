@@ -9,12 +9,15 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.itsluminous.livescore.model.Event
+import com.itsluminous.livescore.model.Sport
+import com.itsluminous.livescore.source.bwf.BwfWebViewSource
 import com.itsluminous.verysmarttv.core.contract.ScoreContract
 
 /**
  * Home (§13.6): today's followed events as rows, live first, with Follow and Settings pills. An empty
  * list leads to Follow. Badminton follows with no key stored ([BadmintonGate], ADR-044) put a "needs a data key"
- * row above them that opens [BadmintonKeyDialog]. Also the module card's activity and the target of
+ * row above them that opens [BadmintonKeyDialog]; the experimental BWF website source failing (ADR-049) puts a
+ * "BWF site unavailable" row with the reason, which opens Settings. Also the module card's activity and the target of
  * [ScoreContract.ACTION_OPEN] without an event id; with one, it forwards to [ScoreboardActivity].
  */
 class MainActivity : Activity() {
@@ -22,7 +25,7 @@ class MainActivity : Activity() {
     private lateinit var repo: ScoreRepo
     private lateinit var rows: LinearLayout
     private lateinit var empty: View
-    private lateinit var needsKey: View
+    private lateinit var notice: View
     private lateinit var status: TextView
     private val onChange: () -> Unit = { render() }
     private val tick = object : Runnable {
@@ -40,13 +43,7 @@ class MainActivity : Activity() {
         repo = ScoreRepo.get(this)
         rows = findViewById(R.id.rows)
         empty = findViewById(R.id.empty)
-        needsKey = findViewById(R.id.needsKey)
-        needsKey.setOnClickListener {
-            BadmintonKeyDialog.show(this, repo.prefs, allowRemove = false, onSaved = {
-                render()
-                repo.refreshAll(null)
-            })
-        }
+        notice = findViewById(R.id.notice)
         status = findViewById(R.id.status)
         findViewById<View>(R.id.followPill).setOnClickListener { startActivity(Intent(this, FollowActivity::class.java)) }
         findViewById<View>(R.id.settingsPill).setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
@@ -102,11 +99,38 @@ class MainActivity : Activity() {
             if (e.id == focusedId) row.requestFocus()
         }
         val hasRows = followed.isNotEmpty()
-        needsKey.visibility = if (BadmintonGate.needsKey(repo.follows.all(), repo.prefs.badmintonKey)) View.VISIBLE else View.GONE
+        renderNotice()
         empty.visibility = if (hasRows) View.GONE else View.VISIBLE
         findViewById<View>(R.id.scroll).visibility = if (hasRows) View.VISIBLE else View.GONE
         status.text = Ui.updated(this, repo, null, now)
         if (!hasRows) findViewById<View>(R.id.followPill).requestFocus() else if (rows.focusedChild == null && currentFocus == null) rows.getChildAt(0).requestFocus()
+    }
+
+    /** The one notice row: the key (SportMicro, no key stored) or the BWF website's last failure; GONE otherwise. */
+    private fun renderNotice() {
+        val title = findViewById<TextView>(R.id.noticeTitle)
+        val hint = findViewById<TextView>(R.id.noticeHint)
+        val bwfError = if (repo.prefs.badmintonSource == BadmintonSource.BWF_WEBVIEW) repo.lastError(FetchKey(Sport.BADMINTON, null)) else null
+        when {
+            BadmintonGate.needsKey(repo.follows.all(), repo.prefs.badmintonKey, repo.prefs.badmintonSource) -> {
+                title.setText(R.string.badminton_needs_key_row)
+                hint.setText(R.string.badminton_needs_key_row_hint)
+                notice.setOnClickListener {
+                    BadmintonKeyDialog.show(this, repo.prefs, allowRemove = false, onSaved = {
+                        render()
+                        repo.refreshAll(null)
+                    })
+                }
+                notice.visibility = View.VISIBLE
+            }
+            bwfError != null && repo.follows.all().any { it.sport == Sport.BADMINTON } -> {
+                title.setText(R.string.bwf_unavailable_row)
+                hint.text = getString(R.string.bwf_unavailable_row_hint, bwfError.removePrefix(BwfWebViewSource.UNAVAILABLE).trimStart(':', ' '))
+                notice.setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
+                notice.visibility = View.VISIBLE
+            }
+            else -> notice.visibility = View.GONE
+        }
     }
 
     private fun meta(e: Event): String {

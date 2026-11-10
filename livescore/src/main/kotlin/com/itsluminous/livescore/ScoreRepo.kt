@@ -52,6 +52,7 @@ class ScoreRepo(
 
     @Volatile private var lastReadMs = 0L
     private val listeners = ArrayList<() -> Unit>()
+    private val errors = HashMap<FetchKey, String>()
 
     init {
         follows.addListener { onFollowsChanged() }
@@ -70,7 +71,8 @@ class ScoreRepo(
         follows.prune(nowMs)
         val window = window(nowMs)
         val shown = prefs.sportsShown
-        val events = cache.events().filter { it.sport in shown && inWindow(it, window) }
+        val claimed = source.sports()
+        val events = cache.events().filter { it.sport in shown && it.sport in claimed && inWindow(it, window) }
         return Follows.match(events, follows.all()).sortedWith(compareBy<Followed> { if (it.event.isLiveOrBreak) 0 else 1 }.thenBy { it.event.startMs })
     }
 
@@ -131,6 +133,9 @@ class ScoreRepo(
     /** When the cache was last written by any fetch, 0 when never. */
     fun lastFetchMs(): Long = cache.fetchedMs().values.maxOrNull() ?: 0L
 
+    /** Why [key]'s last fetch failed (the exception's message), or null when it succeeded or never ran; the Scores app shows BWF's (ADR-049). */
+    fun lastError(key: FetchKey): String? = synchronized(errors) { errors[key] }
+
     /** Fetches the fuller view of one event for the scoreboard; [onDone] gets the event on the main thread, null on failure. */
     fun fetchDetail(event: Event, onDone: (Event?) -> Unit) {
         executor.execute {
@@ -158,12 +163,15 @@ class ScoreRepo(
                     val events = fetchKey(key, liveOnly, now)
                     cache.merge(key, events, clock(), window(now).first)
                     rows += events.size
+                    synchronized(errors) { errors.remove(key) }
                 } catch (e: IOException) {
                     failed = true
                     Log.w(TAG, "fetch ${key.token}: ${e.message}")
+                    synchronized(errors) { errors[key] = e.message ?: e.javaClass.simpleName }
                 } catch (e: IllegalStateException) {
                     failed = true
                     Log.w(TAG, "fetch ${key.token}: feed shape changed: ${e.message}")
+                    synchronized(errors) { errors[key] = "feed shape changed: ${e.message}" }
                 }
             }
             if (failed) {

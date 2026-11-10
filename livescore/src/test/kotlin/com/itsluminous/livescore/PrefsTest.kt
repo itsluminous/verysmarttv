@@ -8,7 +8,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 
-/** The badminton data key lives in the app's preferences, trimmed, empty until entered (ADR-044); every sport is shown until one is unticked. */
+/** The badminton data key lives in the app's preferences, trimmed, empty until entered (ADR-044); the badminton source is SportMicro until picked (ADR-049); every sport is shown until one is unticked. */
 @RunWith(RobolectricTestRunner::class)
 class PrefsTest {
     private val prefs = Prefs(RuntimeEnvironment.getApplication())
@@ -21,6 +21,18 @@ class PrefsTest {
         assertEquals("abc123", Prefs(RuntimeEnvironment.getApplication()).badmintonKey)
         prefs.badmintonKey = ""
         assertEquals("", prefs.badmintonKey)
+    }
+
+    @Test
+    fun badmintonSourceIsSportMicroUntilPickedAndAnUnknownTokenFallsBackToIt() {
+        assertEquals(BadmintonSource.SPORTMICRO, prefs.badmintonSource)
+        prefs.badmintonSource = BadmintonSource.BWF_WEBVIEW
+        assertEquals(BadmintonSource.BWF_WEBVIEW, Prefs(RuntimeEnvironment.getApplication()).badmintonSource)
+        prefs.badmintonSource = BadmintonSource.NONE
+        assertEquals(BadmintonSource.NONE, prefs.badmintonSource)
+        assertEquals(BadmintonSource.SPORTMICRO, BadmintonSource.fromToken("something-else"))
+        assertEquals(BadmintonSource.SPORTMICRO, BadmintonSource.fromToken(null))
+        assertEquals(listOf("sportmicro", "bwf_webview", "none"), BadmintonSource.entries.map { it.token })
     }
 
     @Test

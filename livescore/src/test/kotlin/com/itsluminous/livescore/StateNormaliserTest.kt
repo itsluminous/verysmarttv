@@ -65,6 +65,16 @@ class StateNormaliserTest {
     }
 
     @Test
+    fun bwfMatchCentreWordsReadTheSameWay() {
+        // BWF's Match Centre (ADR-049): `Playing` while on court, `Warm up` and the like before, `Completed` after.
+        assertEquals(State.LIVE, normalise("Playing", ""))
+        for (t in listOf("Warm up", "warm-up", "Warming up", "On court", "Coming up")) assertEquals(t, State.UPCOMING, normalise(t, ""))
+        for (t in listOf("Completed", "complete", "Finished")) assertEquals(t, State.FINAL, normalise(t, ""))
+        assertEquals(State.FINAL, normalise("Playing", "Retired"))
+        assertEquals(State.BREAK, normalise("Suspended", ""))
+    }
+
+    @Test
     fun unknownStateFallsBackToUpcoming() {
         assertEquals(State.UPCOMING, normalise("", ""))
         assertEquals(State.FINAL, normalise("", "Abandoned"))

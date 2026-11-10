@@ -9,7 +9,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** When enabling or holding a badminton follow needs the user's key (ADR-044), and how much of the key is ever shown. */
+/** When enabling or holding a badminton follow needs the user's key (ADR-044; only under the SportMicro source, ADR-049), and how much of the key is ever shown. */
 class BadmintonGateTest {
     private val cricket = Follow.sport(Sport.CRICKET, "Cricket")
     private val badminton = Follow.sport(Sport.BADMINTON, "Badminton")
@@ -28,6 +28,13 @@ class BadmintonGateTest {
         assertFalse(BadmintonGate.needsKey(listOf(cricket), ""))
         assertFalse(BadmintonGate.needsKey(emptyList(), ""))
         assertFalse(BadmintonGate.needsKey(listOf(badminton, player), "abcd1234"))
+    }
+
+    @Test
+    fun theBwfWebsiteAndOffNeedNoKey() {
+        assertFalse(BadmintonGate.needsKey(listOf(badminton), "", BadmintonSource.BWF_WEBVIEW))
+        assertFalse(BadmintonGate.needsKey(listOf(tournament, player), "", BadmintonSource.NONE))
+        assertTrue(BadmintonGate.needsKey(listOf(badminton), "", BadmintonSource.SPORTMICRO))
     }
 
     @Test

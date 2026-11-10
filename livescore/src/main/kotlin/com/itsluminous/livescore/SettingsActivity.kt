@@ -8,7 +8,10 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.itsluminous.livescore.model.Sport
 
-/** Refresh now, Live refresh, Sports shown, Badminton data key, Restore default follows, Clear follows (§13.6, ADR-044). */
+/**
+ * Refresh now, Live refresh, Sports shown, Badminton source, Badminton data key (SportMicro only), Restore default
+ * follows, Clear follows (§13.6, ADR-044, ADR-049).
+ */
 class SettingsActivity : Activity() {
     private lateinit var repo: ScoreRepo
     private lateinit var list: LinearLayout
@@ -37,7 +40,8 @@ class SettingsActivity : Activity() {
             value.text = liveLabel()
         }
         row(getString(R.string.sports_shown), sportsLabel()) { value -> pickSports(value) }
-        row(getString(R.string.badminton_key), keyLabel()) { value -> editKey(value) }
+        row(getString(R.string.badminton_source), sourceLabel()) { _ -> pickSource() }
+        if (repo.prefs.badmintonSource == BadmintonSource.SPORTMICRO) row(getString(R.string.badminton_key), keyLabel()) { value -> editKey(value) }
         row(getString(R.string.restore_defaults), getString(R.string.restore_defaults_value)) { _ ->
             repo.follows.import(FollowStore.encode(FollowStore.defaults()))
             build()
@@ -68,6 +72,35 @@ class SettingsActivity : Activity() {
                 val chosen = all.filterIndexed { i, _ -> checked[i] }.toSet()
                 if (chosen.isNotEmpty()) repo.prefs.sportsShown = chosen
                 value.text = sportsLabel()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    /** The source in force and, for the experimental one, what it costs (a hidden browser, memory, fragility); the picker's rows say the same. */
+    private fun sourceLabel(): String =
+        getString(
+            when (repo.prefs.badmintonSource) {
+                BadmintonSource.SPORTMICRO -> R.string.badminton_source_sportmicro_value
+                BadmintonSource.BWF_WEBVIEW -> R.string.badminton_source_bwf_value
+                BadmintonSource.NONE -> R.string.badminton_source_none_value
+            },
+        )
+
+    /** One of the three sources (ADR-049): OK saves it, rebuilds the rows (the key row comes and goes) and refreshes under the new source. */
+    private fun pickSource() {
+        val choices = BadmintonSource.entries
+        val names = arrayOf(getString(R.string.badminton_source_sportmicro), getString(R.string.badminton_source_bwf), getString(R.string.badminton_source_none))
+        var picked = repo.prefs.badmintonSource
+        AlertDialog.Builder(this)
+            .setTitle(R.string.badminton_source)
+            .setSingleChoiceItems(names, choices.indexOf(picked)) { _, which -> picked = choices[which] }
+            .setPositiveButton(R.string.ok) { _, _ ->
+                if (picked != repo.prefs.badmintonSource) {
+                    repo.prefs.badmintonSource = picked
+                    build()
+                    repo.refreshAll(null)
+                }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
