@@ -169,9 +169,9 @@ public class SettingsPanelTest {
             if (ctx.getString(R.string.score_rows_label).contentEquals(texts.get(i).getText())) rows = i;
         }
         assertTrue("the rows row sits right after Live scores (title, value, title)", scores >= 0 && rows == scores + 2);
-        assertEquals("config.xml's score_rows is 3", "3", valueOf(ctx.getString(R.string.score_rows_label)));
-        assertEquals(3, Config.load(activity).scoreRows);
-        assertEquals(3, Config.load(activity).themeScoreRows);
+        assertEquals("config.xml's score_rows is 2", "2", valueOf(ctx.getString(R.string.score_rows_label)));
+        assertEquals(2, Config.load(activity).scoreRows);
+        assertEquals(2, Config.load(activity).themeScoreRows);
     }
 
     @Test
@@ -185,7 +185,7 @@ public class SettingsPanelTest {
         assertEquals("5", valueOf(ctx.getString(R.string.score_rows_label)));
         Config cfg = Config.load(activity);
         assertEquals(5, cfg.scoreRows);
-        assertEquals("the theme's own value is kept apart", 3, cfg.themeScoreRows);
+        assertEquals("the theme's own value is kept apart", 2, cfg.themeScoreRows);
         click(ctx.getString(R.string.score_rows_label));
         click("1");
         assertEquals(1, Config.load(activity).scoreRows);
@@ -194,7 +194,7 @@ public class SettingsPanelTest {
     @Test
     public void aSavedCountOutsideOneToFiveFallsBackToTheTheme() {
         choices.edit().putInt(SettingsChoices.SCORE_ROWS_KEY, 9).commit();
-        assertEquals(3, Config.load(activity).scoreRows);
+        assertEquals(2, Config.load(activity).scoreRows);
         assertEquals(5, SettingsChoices.chosenScoreRows(0, 7));
         assertEquals(1, SettingsChoices.chosenScoreRows(-1, 0));
         assertEquals(2, SettingsChoices.chosenScoreRows(2, 4));

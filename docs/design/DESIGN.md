@@ -401,7 +401,7 @@ launcher, and no companion for it).
 
 A `TextView`-based pill under the right end of `topButtons`, right-aligned with the last pill, 8 dp
 below the pill row, one line, 13 sp: a leading state glyph and kicker in the state colour, then the
-line in white. *Follow-up (ADR-041):* the pill stacks up to `score_rows` such lines (1 to 5, default 3), one per
+line in white. *Follow-up (ADR-041):* the pill stacks up to `score_rows` such lines (1 to 5, default 2 since rc2), one per
 followed event the companion ranks, right-aligned under one another, each on its own 10 % shade; the stack is one focus
 stop whose lines Up and Down walk (§9.3 rule 8). *Follow-up (ADR-042):* each line ends in its row's sport icon, 16 dp,
 white at 85 %, inside the shade after the text: one bundled vector per value of `ScoreContract.SPORTS`

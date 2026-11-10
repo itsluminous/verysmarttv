@@ -24,7 +24,7 @@ public final class TestTheme {
     private boolean heroFeed;
     private boolean settingsPanel;
     private boolean scorePill;
-    private int scoreRows = 3;
+    private int scoreRows = 2;
     private boolean widgets;
 
     public TestTheme columns(int n) {
@@ -62,7 +62,7 @@ public final class TestTheme {
         return this;
     }
 
-    /** score_rows: how many lines the score pill stacks, 1 to 5 (ADR-041); 3 unless set. */
+    /** score_rows: how many lines the score pill stacks, 1 to 5 (ADR-041); config.xml's 2 unless set. */
     public TestTheme scoreRows(int n) {
         scoreRows = n;
         return this;

@@ -22,6 +22,12 @@ publishes all three, and the tag's message quotes the section below.
   The owner wanted the Trakt-off look of the top-right column at all times; the backdrop's own top fade keeps the
   bar readable over it, and nothing new was added.
 
+### Changed
+
+- **Launcher: two score rows by default** (ADR-041 amended). `config.xml`'s `score_rows` and both shipped themes
+  (`default`, `frosted`) now say `2` instead of `3`; the **Live score rows** row in Launcher settings still picks 1 to
+  5 on the TV, and a saved choice is kept. Two lines sit under the pills without reaching the carousel's title.
+
 ## [0.1.0-rc1] - 2026-11-10
 
 The first public release candidate, numbered **0.1.0**: the owner chose a 0.x line for the first release, so

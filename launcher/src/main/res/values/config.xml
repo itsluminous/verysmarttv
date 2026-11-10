@@ -481,9 +481,9 @@
     <!-- score_rows: how many followed events the score pill stacks, one line each under the pills, 1 to 5 (DESIGN.md
          §9.2, ADR-041): the companion's rows in its order (live first, then a break, upcoming soonest, recent finals),
          cut to this many. The stack is one focus stop: Up from the first row lands on its bottom line, Up and Down move
-         a line at a time, Up from the top line goes to Inputs. A theme can set "score_rows": 1; the Live score rows row
-         in Launcher settings overrides it on the TV. -->
-    <integer name="score_rows">3</integer>
+         a line at a time, Up from the top line goes to Inputs. Two by default (the owner's choice, ADR-041 amended); a theme can set
+         "score_rows": 1 to 5, and the Live score rows row in Launcher settings overrides it on the TV. -->
+    <integer name="score_rows">2</integer>
 
     <!-- Apps pre-seeded into the App library's "added" set at startup (config.xml library_apps, or a theme's
          config.json). They show on Home as if the owner had added them in the App library UI, and stay

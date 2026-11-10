@@ -35,7 +35,7 @@ public class TopBarFocusTest {
     private static final TopBarFocus.Bar PILL_HIDDEN = bar(true, false, true, false, false, false, 0);
     private static final TopBarFocus.Bar NO_INPUTS_PILL_SHOWN = bar(false, false, true, false, false, false, 1);
     private static final TopBarFocus.Bar NO_INPUTS_PILL_HIDDEN = bar(false, false, true, false, false, false, 0);
-    /** The stack: three lines (score_rows' default) and five (its most). */
+    /** The stack: three lines (a theme's score_rows above the default two) and five (its most). */
     private static final TopBarFocus.Bar THREE_ROWS = bar(true, false, true, false, false, false, 3);
     private static final TopBarFocus.Bar FIVE_ROWS = bar(true, false, true, false, false, false, 5);
 
