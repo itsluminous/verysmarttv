@@ -12,6 +12,7 @@ import android.content.pm.ProviderInfo;
 import android.graphics.Rect;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -187,7 +188,8 @@ public class HomeFocusTest {
         home.tap(KeyEvent.KEYCODE_DPAD_CENTER);
         long end = System.currentTimeMillis() + HomeTestRule.WAIT_MS;
         while (intents.intents().isEmpty() && System.currentTimeMillis() < end) Thread.sleep(100);
-        Thread.sleep(300);   // a second intent, were a long press read too, would follow within the long-press timeout
+        // A second intent, were a long press read too, would follow within the long-press timeout.
+        Thread.sleep(ViewConfiguration.getLongPressTimeout() + 100);
         List<Intent> sent = intents.intents();
         assertEquals("OK on the pill starts exactly one activity: " + sent, 1, sent.size());
         assertEquals(ScoreContract.SCOREBOARD_ACTIVITY, sent.get(0).getComponent());

@@ -214,6 +214,18 @@ public class TopBarFocusTest {
         assertEquals("STAY", onScore(LEFT, PILL_SHOWN, false));
         assertEquals("STAY", onScore(RIGHT, PILL_SHOWN, false));
         assertEquals(pill(INPUTS), onScore(UP, PILL_SHOWN, false));
+        // The stack too (rule 8): the lines are one above the other, so a mirrored bar changes none of its verdicts.
+        assertEquals(score(2), fromGrid(THREE_ROWS, false, true));
+        assertEquals(score(4), fromGrid(FIVE_ROWS, false, false));
+        for (int row = 0; row < 5; row++) {
+            assertEquals("STAY", onScore(LEFT, row, FIVE_ROWS, false));
+            assertEquals("STAY", onScore(RIGHT, row, FIVE_ROWS, false));
+        }
+        assertEquals(score(1), onScore(UP, 2, THREE_ROWS, false));
+        assertEquals(pill(INPUTS), onScore(UP, 0, FIVE_ROWS, false));
+        assertEquals("GRID", onScore(DOWN, 4, FIVE_ROWS, false));
+        assertEquals("with Inputs hidden, the mirrored bar's first pill is the same pill", pill(NETWORK),
+                onScore(UP, 0, bar(false, false, true, false, false, false, 5), false));
     }
 
     // ---- rule 8: the stacked pill is one stop; Up and Down walk its lines (ADR-041) -----------------------

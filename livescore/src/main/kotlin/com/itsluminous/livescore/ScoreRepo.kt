@@ -77,10 +77,7 @@ class ScoreRepo(
     private fun inWindow(e: Event, window: LongRange): Boolean =
         e.startMs in window || (e.endMs ?: e.startMs) in window || e.startMs < window.first && e.state != State.FINAL
 
-    /** The pill's event, or null for `state=none`. */
-    fun pill(nowMs: Long = clock()): Followed? = PillChooser.choose(followed(nowMs), nowMs)
-
-    /** Every event the pill can show, [pill] first (PillChooser.ranked); empty for `state=none`. */
+    /** Every event the pill can show, the pill's own (PillChooser.choose) first; empty for `state=none`. */
     fun pillRows(nowMs: Long = clock()): List<Followed> = PillChooser.ranked(followed(nowMs), nowMs)
 
     fun event(id: String): Event? = cache.event(id)
