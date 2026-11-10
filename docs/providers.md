@@ -165,7 +165,10 @@ API through RapidAPI with the user's own key, ADR-044) and the refresh decisions
   as a stream (`android.util.JsonReader`); the raw text is never held.
 - **Badminton's key.** SportMicro's Badminton Micro API is listed on RapidAPI
   (`rapidapi.com/sportmicro-sportmicro-default/api/badminton-micro`): sign in to RapidAPI, subscribe to the API's free
-  plan, and copy the key the playground shows as `x-rapidapi-key` into the companion's Settings. **Enter your own key;
+  plan, and copy the key the playground shows as `x-rapidapi-key` into the companion: it asks for the key the moment
+  you follow anything badminton (Cancel leaves badminton unfollowed), and **Settings → Badminton data key** shows its
+  last four characters, changes or removes it (removing keeps your follows; they read "need a data key" until a key
+  is back). **Enter your own key;
   it may cost money beyond the free tier.** The free plan is 100 requests a day (`x-ratelimit-requests-limit: 100`,
   measured 2026-11-10); a live badminton match costs one request every 5 minutes while a screen shows it and a full
   refresh two (today and tomorrow), so a long match day fits. If the quota does run out the feed answers 429 and the

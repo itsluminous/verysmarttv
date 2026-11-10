@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The key field of BadmintonKeyDialog, built in code so the TV's keyboard gets a plain EditText; the id is what FollowFlowTest types into. -->
+    <item name="badmintonKeyField" type="id" />
+</resources>

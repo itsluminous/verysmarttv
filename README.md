@@ -26,7 +26,8 @@ Taken from the TV in Phase 6.
   launcher's top-shelf carousel.
 - **Live scores** (`com.itsluminous.livescore`): follow teams and competitions; a one-line score pill
   under the launcher's top-right buttons. Cricket, football, F1 and tennis from ESPN's public feeds with no
-  key; badminton from SportMicro's Badminton Micro API on RapidAPI with your own key, entered in its Settings
+  key; badminton from SportMicro's Badminton Micro API on RapidAPI with your own key, asked for when you first
+  follow badminton and changeable in its Settings
   (free plan 100 requests a day, polled every 5 min; it may cost money beyond the free tier;
   [docs/providers.md](docs/providers.md)).
 

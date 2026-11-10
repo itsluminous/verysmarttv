@@ -22,7 +22,9 @@ import com.itsluminous.livescore.model.Team
  * under it unless it is fully ticked, when it clears everything ([SelectionState.selectsAllOnOk]).
  *
  * A sport whose source has no static catalogue (badminton, ADR-044) lists the tournaments and players
- * found in the cached events instead, fetching the sport once when the cache holds none of it.
+ * found in the cached events instead, fetching the sport once when the cache holds none of it. Enabling any
+ * badminton follow with no key stored opens [BadmintonKeyDialog] first ([BadmintonGate]): OK saves the key and
+ * lets the follow through, Cancel leaves badminton unfollowed.
  */
 class FollowActivity : Activity() {
     private lateinit var repo: ScoreRepo
@@ -162,7 +164,10 @@ class FollowActivity : Activity() {
 
     /** A leaf row: ticked when its follow is in the list; OK toggles the follow. */
     private fun leaf(column: LinearLayout, label: String, follow: Follow, onFocus: (() -> Unit)?): View =
-        row(column, label, state = { sel -> sel.leaf(follow) }, onFocus = onFocus) { repo.follows.toggle(follow) }
+        row(column, label, state = { sel -> sel.leaf(follow) }, onFocus = onFocus) { sel ->
+            if (sel.leaf(follow) == SelectionState.ALL) PickerSelection.Change(remove = listOf(follow), add = emptyList())
+            else PickerSelection.Change(remove = emptyList(), add = listOf(follow))
+        }
 
     /** A section row: its box from [state]; OK applies [select] unless the box is fully ticked, then [clear]. */
     private fun section(
@@ -173,21 +178,21 @@ class FollowActivity : Activity() {
         clear: (PickerSelection) -> PickerSelection.Change,
         onFocus: (() -> Unit)?,
     ): View =
-        row(column, label, state, onFocus) {
-            val sel = selection()
-            val change = if (SelectionState.selectsAllOnOk(state(sel))) select(sel) else clear(sel)
-            repo.follows.replaceAll(change.remove, change.add)
-        }
+        row(column, label, state, onFocus) { sel -> if (SelectionState.selectsAllOnOk(state(sel))) select(sel) else clear(sel) }
 
-    private fun row(column: LinearLayout, label: String, state: (PickerSelection) -> SelectionState, onFocus: (() -> Unit)?, onOk: () -> Unit): View {
+    /** A row whose OK is the change [onOk] reads off the current follows; [apply] gates it on the badminton key. */
+    private fun row(
+        column: LinearLayout,
+        label: String,
+        state: (PickerSelection) -> SelectionState,
+        onFocus: (() -> Unit)?,
+        onOk: (PickerSelection) -> PickerSelection.Change,
+    ): View {
         val view = Ui.inflate(column, R.layout.pick_row)
         view.findViewById<TextView>(R.id.label).text = label
         val box = view.findViewById<TriStateCheckView>(R.id.tick)
         box.state = state(selection())
-        view.setOnClickListener {
-            onOk()
-            refreshBoxes()
-        }
+        view.setOnClickListener { apply(onOk(selection())) }
         if (onFocus != null) view.setOnFocusChangeListener { _, has -> if (has) onFocus() }
         column.addView(view)
         rows.getOrPut(column) { ArrayList() }.add(Row(box, state))
@@ -195,6 +200,30 @@ class FollowActivity : Activity() {
     }
 
     private fun selection() = PickerSelection(repo.follows.all())
+
+    /**
+     * One change to the follow list, saved once. A change that enables badminton with no key stored asks for the
+     * key first ([BadmintonGate.needsKey]): OK saves it and the change lands, and a badminton column that said
+     * "needs a key" is listed again; Cancel leaves the list, and the boxes, as they were.
+     */
+    private fun apply(change: PickerSelection.Change) {
+        if (BadmintonGate.needsKey(change.add, repo.prefs.badmintonKey)) {
+            BadmintonKeyDialog.show(
+                this, repo.prefs, allowRemove = false,
+                onSaved = {
+                    repo.follows.replaceAll(change.remove, change.add)
+                    refreshBoxes()
+                    if (sport == Sport.BADMINTON) {
+                        clearColumn(competitions)
+                        showCompetitions(Sport.BADMINTON)
+                    }
+                },
+            )
+            return
+        }
+        repo.follows.replaceAll(change.remove, change.add)
+        refreshBoxes()
+    }
 
     /** Every visible box reads the follow list again: a child's OK changes its parents, a section's OK its children. */
     private fun refreshBoxes() {

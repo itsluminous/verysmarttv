@@ -5,6 +5,10 @@ import androidx.test.espresso.Espresso.onView
 import android.view.View
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
+import androidx.test.espresso.action.ViewActions.pressImeActionButton
+import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
@@ -22,7 +26,12 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Follow the IPL in the picker, then read `/pill` through the ContentResolver (the test APK shares the debug key). */
+/**
+ * Follow the IPL in the picker, then read `/pill` through the ContentResolver (the test APK shares the debug key);
+ * badminton's key gate (ADR-044): enabling it with no key opens the dialog, Cancel leaves it unfollowed, OK with a
+ * key follows it, Settings shows the key's tail and Remove keeps the follows while Home and the picker say a key is
+ * needed.
+ */
 @RunWith(AndroidJUnit4::class)
 class FollowFlowTest {
     @After
@@ -62,6 +71,8 @@ class FollowFlowTest {
             onView(allOf(withId(R.id.label), withText("Badminton"))).perform(focusRow())
             onView(withText(R.string.badminton_needs_key)).check(matches(isDisplayed()))
         }
+        // A key, as a user whose fetch landed has one; without it the player's OK would open the key dialog (the case below).
+        repo.prefs.badmintonKey = "test-key-0001"
         awaitSport(repo)
         ActivityScenario.launch(FollowActivity::class.java).use {
             onView(allOf(withId(R.id.label), withText("Badminton"))).perform(focusRow())
@@ -79,6 +90,57 @@ class FollowFlowTest {
             assertEquals(ScoreContract.SPORT_BADMINTON, c.getString(c.getColumnIndexOrThrow(ScoreContract.SPORT)))
             assertEquals("Japan Masters · Sindhu 21-18 11-9 An", c.getString(c.getColumnIndexOrThrow(ScoreContract.LINE)))
             assertEquals("bwf-live", c.getString(c.getColumnIndexOrThrow(ScoreContract.EVENT_ID)))
+        }
+    }
+
+    @Test
+    fun enablingBadmintonWithNoKeyAsksForIt_cancelLeavesItUnfollowed_okFollows_settingsShowsTheTailAndRemoves() {
+        val repo = TestRepo.install(emptyList(), followsJson = "{\"version\":1,\"follows\":[]}")
+        repo.prefs.badmintonKey = ""
+        ActivityScenario.launch(FollowActivity::class.java).use {
+            onView(allOf(withId(R.id.label), withText("Badminton"))).perform(pressOk())
+            awaitDialog()
+            // The key dialog, with the field and the text that says whose key it is and what it may cost.
+            onView(withId(R.id.badmintonKeyField)).check(matches(isDisplayed()))
+            onView(withText(R.string.badminton_key_explain)).check(matches(isDisplayed()))
+            onView(withId(R.id.badmintonKeyField)).perform(closeSoftKeyboard())
+            onView(withText(R.string.cancel)).perform(click())
+            box("Badminton").check(matches(withContentDescription(R.string.check_none)))
+            assertTrue("Cancel leaves badminton unfollowed", repo.follows.all().none { it.sport == Sport.BADMINTON })
+            assertEquals("", repo.prefs.badmintonKey)
+            // OK with a key: the key is saved and the follow lands.
+            onView(allOf(withId(R.id.label), withText("Badminton"))).perform(pressOk())
+            awaitDialog()
+            // The keyboard's Done key is OK: the user never has to find the button under the keyboard.
+            onView(withId(R.id.badmintonKeyField)).perform(typeText("dummy-key-1234"), pressImeActionButton())
+            box("Badminton").check(matches(withContentDescription(R.string.check_all)))
+            assertEquals("dummy-key-1234", repo.prefs.badmintonKey)
+            assertTrue(repo.follows.all().any { it.sport == Sport.BADMINTON })
+            // With a key, a second badminton follow asks nothing.
+            onView(allOf(withId(R.id.label), withText("Badminton"))).perform(pressOk())
+            box("Badminton").check(matches(withContentDescription(R.string.check_none)))
+            onView(allOf(withId(R.id.label), withText("Badminton"))).perform(pressOk())
+            box("Badminton").check(matches(withContentDescription(R.string.check_all)))
+        }
+        val target = InstrumentationRegistry.getInstrumentation().targetContext
+        ActivityScenario.launch(SettingsActivity::class.java).use {
+            // The row shows the key's last four characters, never more; Remove clears it and keeps the follows.
+            onView(withText(target.getString(R.string.badminton_key_set, "1234"))).check(matches(isDisplayed()))
+            onView(withText(R.string.badminton_key)).perform(pressOk())
+            awaitDialog()
+            onView(withId(R.id.badmintonKeyField)).perform(closeSoftKeyboard())
+            onView(withText(R.string.badminton_key_remove)).perform(click())
+            onView(withText(R.string.badminton_key_unset)).check(matches(isDisplayed()))
+        }
+        assertEquals("", repo.prefs.badmintonKey)
+        assertTrue("the follows stay when the key goes", repo.follows.all().any { it.sport == Sport.BADMINTON })
+        // Home says the badminton rows need a key; the picker's column too.
+        ActivityScenario.launch(MainActivity::class.java).use {
+            onView(withText(R.string.badminton_needs_key_row)).check(matches(isDisplayed()))
+        }
+        ActivityScenario.launch(FollowActivity::class.java).use {
+            onView(allOf(withId(R.id.label), withText("Badminton"))).perform(focusRow())
+            onView(withText(R.string.badminton_needs_key)).check(matches(isDisplayed()))
         }
     }
 
@@ -158,6 +220,15 @@ class FollowFlowTest {
         }
     }
 
+    /**
+     * A dialog opened by the OK before this gets its window focus from the window manager a moment after it is shown;
+     * Espresso picks its root only once it has it, and otherwise waits on the activity's root, which never gets it back.
+     */
+    private fun awaitDialog() {
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        Thread.sleep(DIALOG_FOCUS_MS)
+    }
+
     /** Focus the row a label sits in, the way the D-pad would: the picker fills the next column on focus. */
     private fun focusRow() = object : ViewAction {
         override fun getConstraints() = isDisplayed()
@@ -174,6 +245,10 @@ class FollowFlowTest {
         val deadline = System.currentTimeMillis() + 10_000
         while (System.currentTimeMillis() < deadline && repo.event("bwf-live") == null) Thread.sleep(50)
         assertTrue("fetch did not land", repo.event("bwf-live") != null)
+    }
+
+    private companion object {
+        const val DIALOG_FOCUS_MS = 700L
     }
 
     /** The repo refreshes through its executor; wait until the scripted event is in the cache. */

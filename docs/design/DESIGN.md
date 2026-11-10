@@ -640,9 +640,10 @@ curl on 2026-11-10:
 **Decision: SportMicro's Badminton Micro API through RapidAPI, with the user's own key** (ADR-044). No keyless source is
 viable: BWF's site is behind a JavaScript challenge, Sofascore refuses non-browsers, and Flashscore, the one feed that
 answers, forbids automated access in its terms, which fails the "ToS allows personal use" criterion that ESPN's
-undocumented feeds pass. The key is entered on the TV (**Settings → Badminton data key**), stored in the companion's
-preferences, never in the APK, a backup or a log; without it badminton is listed but not fetched, and the picker says
-what is missing. The free plan is 100 requests a day, which does not fit a day of 60 s polling, so badminton is
+undocumented feeds pass. The key is entered on the TV: the picker asks for it the moment any badminton follow is enabled with none stored
+(`BadmintonGate`, `BadmintonKeyDialog`; Cancel leaves badminton unfollowed), and **Settings → Badminton data key** shows
+its last four characters and changes or removes it. It is stored in the companion's preferences, never in the APK, a
+backup or a log; without it badminton follows are kept but not fetched, and Home and the picker say a key is needed. The free plan is 100 requests a day, which does not fit a day of 60 s polling, so badminton is
 fetched at most every 5 minutes whatever screen reads it (`RefreshPolicy.BADMINTON_LIVE_MS`; `ScoreRepo.refreshOne`
 reads the cache inside that gap) and the Settings row says so, and that the key is the user's own and may cost
 money beyond the free tier; a full refresh is two requests (today and tomorrow). The key is only ever entered on

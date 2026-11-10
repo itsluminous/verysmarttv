@@ -13,14 +13,16 @@ import com.itsluminous.verysmarttv.core.contract.ScoreContract
 
 /**
  * Home (§13.6): today's followed events as rows, live first, with Follow and Settings pills. An empty
- * list leads to Follow. Also the module card's activity and the target of [ScoreContract.ACTION_OPEN]
- * without an event id; with one, it forwards to [ScoreboardActivity].
+ * list leads to Follow. Badminton follows with no key stored ([BadmintonGate], ADR-044) put a "needs a data key"
+ * row above them that opens [BadmintonKeyDialog]. Also the module card's activity and the target of
+ * [ScoreContract.ACTION_OPEN] without an event id; with one, it forwards to [ScoreboardActivity].
  */
 class MainActivity : Activity() {
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var repo: ScoreRepo
     private lateinit var rows: LinearLayout
     private lateinit var empty: View
+    private lateinit var needsKey: View
     private lateinit var status: TextView
     private val onChange: () -> Unit = { render() }
     private val tick = object : Runnable {
@@ -38,6 +40,13 @@ class MainActivity : Activity() {
         repo = ScoreRepo.get(this)
         rows = findViewById(R.id.rows)
         empty = findViewById(R.id.empty)
+        needsKey = findViewById(R.id.needsKey)
+        needsKey.setOnClickListener {
+            BadmintonKeyDialog.show(this, repo.prefs, allowRemove = false, onSaved = {
+                render()
+                repo.refreshAll(null)
+            })
+        }
         status = findViewById(R.id.status)
         findViewById<View>(R.id.followPill).setOnClickListener { startActivity(Intent(this, FollowActivity::class.java)) }
         findViewById<View>(R.id.settingsPill).setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
@@ -93,6 +102,7 @@ class MainActivity : Activity() {
             if (e.id == focusedId) row.requestFocus()
         }
         val hasRows = followed.isNotEmpty()
+        needsKey.visibility = if (BadmintonGate.needsKey(repo.follows.all(), repo.prefs.badmintonKey)) View.VISIBLE else View.GONE
         empty.visibility = if (hasRows) View.GONE else View.VISIBLE
         findViewById<View>(R.id.scroll).visibility = if (hasRows) View.VISIBLE else View.GONE
         status.text = Ui.updated(this, repo, null, now)
