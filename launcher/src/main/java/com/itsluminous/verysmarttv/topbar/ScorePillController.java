@@ -97,7 +97,7 @@ public final class ScorePillController {
     /** The feed's rows: the lines the stack shows, or GONE; focus follows a line that moves and leaves a pill that hides. */
     void onPill(@NonNull List<ScoreFeed.Row> fresh) {
         List<ScoreLine.Text> texts = new ArrayList<>(fresh.size());
-        for (ScoreFeed.Row r : fresh) texts.add(ScoreLine.of(r.state, r.eventId, r.kicker, r.line, r.color, r.stale));
+        for (ScoreFeed.Row r : fresh) texts.add(ScoreLine.of(r.state, r.eventId, r.sport, r.kicker, r.line, r.color, r.stale));
         List<ScoreLine.Text> next = ScoreLine.stack(shown, texts, rows);
         int focusedRow = pill.focusedRow();
         String focusedEvent = focusedRow >= 0 && focusedRow < shown.size() ? shown.get(focusedRow).eventId : null;

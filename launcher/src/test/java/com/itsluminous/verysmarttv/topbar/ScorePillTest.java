@@ -28,8 +28,9 @@ import org.robolectric.RuntimeEnvironment;
 /**
  * The score pill views (DESIGN.md §14.2 ScorePillTest, ADR-041): a line is GONE and unfocusable for none and for no
  * row, shows the kicker in the state colour before the white line, one line, a dot only for live and break, the pulse
- * only for live with animations on, and the stale dim; the stack shows one line per text, hides the rest and itself,
- * focuses a row clamped to the lines shown, and swaps every line's shade over art.
+ * only for live with animations on, the stale dim, and the sport icon at the line's end with the sport in the content
+ * description (ADR-042); the stack shows one line per text, hides the rest and itself, focuses a row clamped to the
+ * lines shown, and swaps every line's shade over art.
  */
 @RunWith(RobolectricTestRunner.class)
 public class ScorePillTest {
@@ -56,8 +57,18 @@ public class ScorePillTest {
         return ScoreLine.of(state, kicker, line, null, stale);
     }
 
+    /** The line's text child. */
+    private static android.widget.TextView textOf(ScoreLineView line) {
+        return line.findViewById(com.itsluminous.verysmarttv.R.id.scoreLineText);
+    }
+
+    /** The line's sport icon. */
+    private static android.widget.ImageView iconOf(ScoreLineView line) {
+        return line.findViewById(com.itsluminous.verysmarttv.R.id.scoreSportIcon);
+    }
+
     private static ScoreLine.Text row(String id, String state) {
-        return ScoreLine.of(state, id, "K", "line " + id, null, false);
+        return ScoreLine.of(state, id, ScoreContract.SPORT_FOOTBALL, "K", "line " + id, null, false);
     }
 
     // ---- the stack ------------------------------------------------------------------------------------
@@ -70,8 +81,8 @@ public class ScorePillTest {
         stack.show(Arrays.asList(row("a", ScoreContract.STATE_LIVE), row("b", ScoreContract.STATE_UPCOMING), row("c", ScoreContract.STATE_FINAL)), true);
         assertEquals(View.VISIBLE, stack.getVisibility());
         assertEquals(3, stack.rows());
-        assertEquals("K  line a", stack.line(0).getText().toString());
-        assertEquals("K  line c", stack.line(2).getText().toString());
+        assertEquals("K  line a", stack.line(0).text().toString());
+        assertEquals("K  line c", stack.line(2).text().toString());
         assertTrue("every line is a focus target", stack.line(1).isFocusable());
         assertEquals("the lines are stacked, right-aligned", android.widget.LinearLayout.VERTICAL, stack.getOrientation());
         assertEquals(View.VISIBLE, stack.line(2).getVisibility());
@@ -138,7 +149,7 @@ public class ScorePillTest {
         pill.show(text(ScoreContract.STATE_NONE, "", "", false), true);
         assertEquals(View.GONE, pill.getVisibility());
         assertFalse(pill.isFocusable());
-        assertEquals("", pill.getText().toString());
+        assertEquals("", pill.text().toString());
         pill.show(text(null, null, null, false), true);
         assertEquals(View.GONE, pill.getVisibility());
     }
@@ -148,17 +159,42 @@ public class ScorePillTest {
         pill.show(text(ScoreContract.STATE_LIVE, "LIVE", LINE, false), true);
         assertEquals(View.VISIBLE, pill.getVisibility());
         assertTrue(pill.isFocusable());
-        assertEquals("LIVE  " + LINE, pill.getText().toString());
-        Spanned s = (Spanned) pill.getText();
+        assertEquals("LIVE  " + LINE, pill.text().toString());
+        Spanned s = (Spanned) pill.text();
         ForegroundColorSpan[] spans = s.getSpans(0, s.length(), ForegroundColorSpan.class);
         assertEquals("one coloured span, the kicker", 1, spans.length);
         assertEquals(ScoreLine.LIVE_COLOR, spans[0].getForegroundColor());
         assertEquals(0, s.getSpanStart(spans[0]));
         assertEquals("LIVE".length(), s.getSpanEnd(spans[0]));
-        assertEquals("the line itself keeps the view's white", 0xFFFFFFFF, pill.getCurrentTextColor());
-        assertNotNull("a dot leads the kicker", pill.getCompoundDrawablesRelative()[0]);
-        assertEquals(1, pill.getMaxLines());
-        assertEquals("LIVE " + LINE, pill.getContentDescription().toString());
+        assertEquals("the line itself keeps the view's white", 0xFFFFFFFF, textOf(pill).getCurrentTextColor());
+        assertNotNull("a dot leads the kicker", textOf(pill).getCompoundDrawablesRelative()[0]);
+        assertEquals(1, textOf(pill).getMaxLines());
+        assertEquals("the sport closes the description; the row has none, so the generic name", "LIVE " + LINE + ". Sport", pill.getContentDescription().toString());
+        assertEquals("no sport given: the trophy", "ic_sport_other", iconOf(pill).getTag());
+    }
+
+    @Test
+    public void theSportIconSitsAtTheEndOfTheLineAndNamesTheSport() {
+        pill.show(ScoreLine.of(ScoreContract.STATE_LIVE, "ev", ScoreContract.SPORT_CRICKET, "LIVE", LINE, null, false), true);
+        android.widget.ImageView icon = iconOf(pill);
+        assertEquals(View.VISIBLE, icon.getVisibility());
+        assertNotNull(icon.getDrawable());
+        assertEquals("ic_sport_cricket", icon.getTag());
+        assertEquals("the icon is the last child, after the text", icon, pill.getChildAt(pill.getChildCount() - 1));
+        assertEquals("LIVE " + LINE + ". Cricket", pill.getContentDescription().toString());
+        assertEquals("the children leave accessibility to the row", View.IMPORTANT_FOR_ACCESSIBILITY_NO, icon.getImportantForAccessibility());
+        assertEquals(View.IMPORTANT_FOR_ACCESSIBILITY_NO, textOf(pill).getImportantForAccessibility());
+        int dp16 = Math.round(16 * pill.getResources().getDisplayMetrics().density);
+        assertEquals(dp16, icon.getLayoutParams().width);
+        assertEquals(dp16, icon.getLayoutParams().height);
+        pill.show(ScoreLine.of(ScoreContract.STATE_UPCOMING, "ev", ScoreContract.SPORT_TENNIS, "19:30", "ATP \u00b7 A v B", null, false), true);
+        assertEquals("ic_sport_tennis", icon.getTag());
+        assertEquals("19:30 ATP \u00b7 A v B. Tennis", pill.getContentDescription().toString());
+        pill.show(ScoreLine.of(ScoreContract.STATE_UPCOMING, "ev", "kabaddi", "19:30", "PKL \u00b7 A v B", null, false), true);
+        assertEquals("a sport the launcher has not learnt: the trophy", "ic_sport_other", icon.getTag());
+        pill.show(text(ScoreContract.STATE_NONE, "", "", false), true);
+        assertNull("hidden: no icon, no tag", icon.getDrawable());
+        assertNull(icon.getTag());
     }
 
     @Test
@@ -168,7 +204,7 @@ public class ScorePillTest {
         pill.show(text(ScoreContract.STATE_LIVE, "LIVE", LINE, false), false);
         assertFalse("animations off: a still dot", pill.pulsing());
         pill.show(text(ScoreContract.STATE_BREAK, "STUMPS", LINE, false), true);
-        assertNotNull("a break has its dot", pill.getCompoundDrawablesRelative()[0]);
+        assertNotNull("a break has its dot", textOf(pill).getCompoundDrawablesRelative()[0]);
         assertFalse("but it does not pulse", pill.pulsing());
         pill.show(text(ScoreContract.STATE_NONE, "", "", false), true);
         assertFalse(pill.pulsing());
@@ -177,19 +213,19 @@ public class ScorePillTest {
     @Test
     public void upcomingAndFinalHaveNoDotAndAGreyKicker() {
         pill.show(text(ScoreContract.STATE_UPCOMING, "19:30", "ISL \u00b7 Bengaluru v Mumbai City", false), true);
-        assertNull(pill.getCompoundDrawablesRelative()[0]);
-        Spanned s = (Spanned) pill.getText();
+        assertNull(textOf(pill).getCompoundDrawablesRelative()[0]);
+        Spanned s = (Spanned) pill.text();
         assertEquals(ScoreLine.GREY_COLOR, s.getSpans(0, s.length(), ForegroundColorSpan.class)[0].getForegroundColor());
         pill.show(text(ScoreContract.STATE_FINAL, "FT", "T20I \u00b7 AFG won by 23 runs", false), true);
-        assertNull(pill.getCompoundDrawablesRelative()[0]);
-        assertEquals("FT  T20I \u00b7 AFG won by 23 runs", pill.getText().toString());
+        assertNull(textOf(pill).getCompoundDrawablesRelative()[0]);
+        assertEquals("FT  T20I \u00b7 AFG won by 23 runs", pill.text().toString());
     }
 
     @Test
     public void anEmptyKickerShowsTheLineAlone() {
         pill.show(text(ScoreContract.STATE_UPCOMING, "", "ISL \u00b7 Bengaluru v Mumbai City", false), true);
-        assertEquals("ISL \u00b7 Bengaluru v Mumbai City", pill.getText().toString());
-        assertEquals("ISL \u00b7 Bengaluru v Mumbai City", pill.getContentDescription().toString());
+        assertEquals("ISL \u00b7 Bengaluru v Mumbai City", pill.text().toString());
+        assertEquals("ISL \u00b7 Bengaluru v Mumbai City. Sport", pill.getContentDescription().toString());
     }
 
     @Test

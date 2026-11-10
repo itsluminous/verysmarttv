@@ -1,0 +1,13 @@
+<!-- Hockey: a stick with its hooked end, and a ball. Drawn by hand for the score pill (ADR-042): a 24dp outline, white at 85 %. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M17,3 L10,15 C9,17 7.5,18 5.5,18 H4 M18,15.5 A2.5,2.5 0 1 1 18,20.5 A2.5,2.5 0 1 1 18,15.5 Z"
+        android:strokeColor="#D9FFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

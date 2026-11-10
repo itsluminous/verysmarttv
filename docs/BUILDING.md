@@ -100,6 +100,12 @@ emulator survive a run. The 24 tests take about 2 minutes on `HikViewer_TV_1080p
 `-no-window -no-audio -gpu swiftshader_indirect`), 115 s of it on the device, plus a minute of build on a cold
 Gradle daemon.
 
+When every test that starts Home fails with "waited 8000 ms for the grid to lay out a focused tile" (and
+`HomeSmokeTest` with "requestFocus on the Settings pill was refused"), the emulator is in touch mode: a click in
+its window, or an `adb shell input tap`, put it there, and in touch mode no view takes D-pad focus. Check with
+`adb shell dumpsys input | grep TouchMode` (`TouchMode: 1`) and leave it with one key,
+`adb shell input keyevent KEYCODE_DPAD_DOWN`; the suite then passes unchanged. A TV remote never enters it.
+
 ## Signing
 
 Release builds of all three apps are signed with **one** keystore, alias `verysmarttv`

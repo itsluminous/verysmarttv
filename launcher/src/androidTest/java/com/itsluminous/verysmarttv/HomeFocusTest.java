@@ -14,7 +14,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -26,6 +25,8 @@ import com.itsluminous.verysmarttv.support.IntentCapture;
 import com.itsluminous.verysmarttv.support.ScoreStandIn;
 import com.itsluminous.verysmarttv.support.TestTheme;
 import com.itsluminous.verysmarttv.testkit.ScoreFixture;
+import com.itsluminous.verysmarttv.topbar.ScoreLineView;
+import com.itsluminous.verysmarttv.topbar.SportIcons;
 
 import org.junit.After;
 import org.junit.Before;
@@ -45,7 +46,8 @@ import java.util.List;
  * hides the pill and Up skips to Inputs; OK sends the companion's scoreboard intent with the event id; and with the
  * carousel showing the order is tile, carousel, pill, Inputs and back. Rule 8 (ADR-041): with the stand-in's five-row
  * stack and score_rows 1, 3 and 5, the pill shows that many lines, Up from the grid lands on the bottom one, Up and Down
- * walk the lines, Up from the top line reaches Inputs, and OK on a line opens that line's event.
+ * walk the lines, Up from the top line reaches Inputs, and OK on a line opens that line's event; and every line ends in
+ * the icon of its row's sport, tagged with the drawable's name, and names the sport in its description (ADR-042).
  */
 @RunWith(AndroidJUnit4.class)
 public class HomeFocusTest {
@@ -81,7 +83,7 @@ public class HomeFocusTest {
     private static boolean topLineEndsWith(android.app.Activity a, String line) {
         ViewGroup pill = a.findViewById(R.id.scorePill);
         if (pill.getVisibility() != View.VISIBLE || pill.getChildCount() == 0) return false;
-        return String.valueOf(((TextView) pill.getChildAt(0)).getText()).endsWith(line);
+        return String.valueOf(((ScoreLineView) pill.getChildAt(0)).text()).endsWith(line);
     }
 
     /** The score pill's line {@code row} as {@link HomeTestRule#focus()} names it. */
@@ -266,6 +268,27 @@ public class HomeFocusTest {
             return out;
         });
         for (int i = 1; i <= 5; i++) assertEquals("line " + (i - 1) + " is right-aligned with the bar", edges[0], edges[i]);
+        // ADR-042: each line carries its row's sport icon at the end, inside the shade, tagged with the drawable's name.
+        List<String> icons = home.onHome(a -> {
+            ViewGroup pill = a.findViewById(R.id.scorePill);
+            List<String> out = new java.util.ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                ViewGroup l = (ViewGroup) pill.getChildAt(i);
+                View icon = l.findViewById(R.id.scoreSportIcon);
+                assertEquals("line " + i + " shows its icon", View.VISIBLE, icon.getVisibility());
+                assertTrue("line " + i + "'s icon is laid out", icon.getWidth() > 0 && icon.getHeight() > 0);
+                assertEquals("line " + i + "'s icon is the last child", icon, l.getChildAt(l.getChildCount() - 1));
+                assertTrue("line " + i + "'s icon ends inside the shade", icon.getRight() <= l.getWidth() - l.getPaddingRight());
+                String sport = a.getString(SportIcons.nameOf(ScoreFixture.STACK_SPORTS[i]));
+                assertTrue("line " + i + " names its sport: " + l.getContentDescription(), String.valueOf(l.getContentDescription()).endsWith(". " + sport));
+                out.add(String.valueOf(icon.getTag()));
+            }
+            return out;
+        });
+        List<String> expected = new java.util.ArrayList<>();
+        for (String sport : ScoreFixture.STACK_SPORTS) expected.add(home.target().getResources().getResourceEntryName(SportIcons.forSport(sport)));
+        assertEquals(java.util.Arrays.asList("ic_sport_cricket", "ic_sport_tennis", "ic_sport_cricket", "ic_sport_football", "ic_sport_cricket"), expected);
+        assertEquals("each line's icon is its row's sport", expected, icons);
     }
 
     @Test

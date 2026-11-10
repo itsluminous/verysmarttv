@@ -404,7 +404,11 @@ A `TextView`-based pill under the right end of `topButtons`, right-aligned with 
 below the pill row, one line, 13 sp: a leading state glyph and kicker in the state colour, then the
 line in white. *Follow-up (ADR-041):* the pill stacks up to `score_rows` such lines (1 to 5, default 3), one per
 followed event the companion ranks, right-aligned under one another, each on its own 10 % shade; the stack is one focus
-stop whose lines Up and Down walk (§9.3 rule 8).
+stop whose lines Up and Down walk (§9.3 rule 8). *Follow-up (ADR-042):* each line ends in its row's sport icon, 16 dp,
+white at 85 %, inside the shade after the text: one bundled vector per value of `ScoreContract.SPORTS`
+(`ic_sport_cricket`, `_football`, `_f1`, `_tennis`, `_badminton`, `_basketball`, `_hockey`) and `ic_sport_other` for a
+value the launcher does not know, chosen by the pure `topbar.SportIcons.forSport(sport)`; the line's content description
+ends in the sport's name (`SportIcons.nameOf`, string resources).
 
 | Provider `state` | Kicker | Example line |
 |---|---|---|
@@ -538,7 +542,7 @@ Authority `com.itsluminous.livescore.scores`; `readPermission` `com.itsluminous.
 
 | URI | Rows | Columns |
 |---|---|---|
-| `content://…scores/pill` | exactly one | `state` (`live`,`break`,`upcoming`,`final`,`none`), `kicker` (text, may be empty), `line` (text, ≤ 48 chars, already shortened for one line), `event_id` (text, nullable), `sport` (`cricket`,`football`,`f1`,`tennis`,`basketball`), `competition` (text), `updated_ms` (int64, when the data was fetched), `stale` (int, 1 when `updated_ms` is older than the refresh interval for that state), `color` (`#RRGGBB` for the kicker) |
+| `content://…scores/pill` | exactly one | `state` (`live`,`break`,`upcoming`,`final`,`none`), `kicker` (text, may be empty), `line` (text, ≤ 48 chars, already shortened for one line), `event_id` (text, nullable), `sport` (one of `ScoreContract.SPORTS`: `cricket`,`football`,`f1`,`tennis`,`badminton`,`basketball`,`hockey`; the companion publishes the four it has a source for, the launcher shows a generic icon for a value outside the set), `competition` (text), `updated_ms` (int64, when the data was fetched), `stale` (int, 1 when `updated_ms` is older than the refresh interval for that state), `color` (`#RRGGBB` for the kicker) |
 | `content://…scores/events` | followed events from yesterday 00:00 to tomorrow 23:59 local, live first then by start | `_id`, `event_id`, `sport`, `competition`, `format` (T20I/ODI/Test/…; empty for other sports), `state`, `status_detail` (feed's words: "Stumps", "Day 5", "Lunch", "HT", "Q3"), `start_ms`, `end_ms` (nullable), `home_name`, `home_abbr`, `home_score`, `away_name`, `away_abbr`, `away_score`, `summary` (feed's sentence: "Bangladesh require 320 runs"), `followed_reason` (`team`,`competition`,`event`), `updated_ms` |
 | `content://…scores/events/<event_id>` | one | same columns |
 | `content://…scores/backup` | exactly one | `json` (text): the companion's follow list as the JSON it stores on disk (§13.2), so the launcher's Backup file carries it under `companions.livescore` without parsing it |

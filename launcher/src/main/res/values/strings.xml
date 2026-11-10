@@ -56,6 +56,18 @@
     <string name="score_pill_label">Live scores</string>
     <string name="score_rows_label">Live score rows</string>
     <string name="score_pill_not_installed">Scores app not installed</string>
+    <!-- The sport names a score line's content description ends with, one per ScoreContract.SPORTS value and the
+         fallback (SportIcons.nameOf, ADR-042). -->
+    <string name="sport_cricket">Cricket</string>
+    <string name="sport_football">Football</string>
+    <string name="sport_f1">Formula 1</string>
+    <string name="sport_tennis">Tennis</string>
+    <string name="sport_badminton">Badminton</string>
+    <string name="sport_basketball">Basketball</string>
+    <string name="sport_hockey">Hockey</string>
+    <string name="sport_other">Sport</string>
+    <!-- A score line's content description: the kicker and line, a pause, then the sport. -->
+    <string name="score_line_description">%1$s. %2$s</string>
     <!-- settings_panel: the Wallpaper picker's row for the theme's rotating collection, what no saved pick gives. -->
     <string name="animations_state">Animations: %1$s</string>
     <string name="open_on_start_label">Open on start</string>

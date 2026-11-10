@@ -287,7 +287,7 @@ public final class HomeTestRule extends ExternalResource {
             if (pill.getVisibility() != View.VISIBLE) return out;
             for (int i = 0; i < pill.getChildCount(); i++) {
                 View line = pill.getChildAt(i);
-                if (line.getVisibility() == View.VISIBLE) out.add(String.valueOf(((TextView) line).getText()));
+                if (line.getVisibility() == View.VISIBLE) out.add(String.valueOf(((com.itsluminous.verysmarttv.topbar.ScoreLineView) line).text()));
             }
             return out;
         });

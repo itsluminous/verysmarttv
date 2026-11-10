@@ -1,0 +1,13 @@
+<!-- Any other sport: a trophy cup. Drawn by hand for the score pill (ADR-042): a 24dp outline, white at 85 %. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M7,4 H17 V9 A5,5 0 0 1 7,9 Z M7,5 H4 V7 Q4,10 7,10 M17,5 H20 V7 Q20,10 17,10 M12,14 V17 M9,17 H15 V20 H9 Z"
+        android:strokeColor="#D9FFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

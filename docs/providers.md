@@ -89,7 +89,7 @@ Columns of `/pill`, in cursor order (`ScoreContract.PILL_COLUMNS`):
 | `kicker` | text | The short text before the line, in the state colour: `LIVE`, the break's word (`STUMPS`, `HT`), a start time (`19:30`), `FT`. May be empty. |
 | `line` | text | The one-line text, at most 48 characters, already shortened by the companion: `T20I · AFG 19/4 (6) v ZIM`. |
 | `event_id` | text | The feed's event id, or null when `state` is `none`. |
-| `sport` | text | `cricket`, `football`, `f1`, `tennis`, `basketball`. |
+| `sport` | text | One of `ScoreContract.SPORTS`: `cricket`, `football`, `f1`, `tennis`, `badminton`, `basketball`, `hockey`. The companion publishes the four it has a source for (cricket, football, f1, tennis); the launcher picks each line's icon by this value and shows a generic one for anything outside the set, so a companion may add a sport before the launcher learns it. |
 | `competition` | text | Competition name as shown (`IPL`). |
 | `updated_ms` | long | Epoch milliseconds of the fetch the row comes from. |
 | `stale` | int | 1 when `updated_ms` is older than the refresh interval for the state. |
@@ -101,9 +101,11 @@ left out) are handed to the pill on it. While any row said `live` or `break` and
 re-queries every 60 seconds, which is how the companion knows a screen is watching; nothing is read while Home is
 paused, while the setting is off, or after a `SecurityException` (another signing key), which is logged once. The
 launcher renders each row as it comes (`topbar.ScoreLine`, `topbar.ScoreLineView`, ADR-015): it adds only the state
-dot, the colours, a cut at 48 characters with an ellipsis, and a dim while `stale` is 1; `ScoreLine.stack` cuts the
-list to `score_rows` and keeps the lines in place while the companion only turns its first row (ADR-041). A list of
-`none` rows, an absent provider and a refusal all hide the pill.
+dot, the colours, a cut at 48 characters with an ellipsis, a dim while `stale` is 1, and the row's sport icon at the
+end of the line (`topbar.SportIcons`, ADR-042: `ic_sport_<sport>` from `sport`, `ic_sport_other` for a value it does
+not know; the line's content description ends in the sport's name); `ScoreLine.stack` cuts the list to `score_rows`
+and keeps the lines in place while the companion only turns its first row (ADR-041). A list of `none` rows, an absent
+provider and a refusal all hide the pill.
 
 Opening the match: OK on a line starts `com.itsluminous.livescore/.ScoreboardActivity`
 (`ScoreContract.SCOREBOARD_ACTIVITY`) with that line's `event_id` (`ScoreContract.EXTRA_EVENT_ID`), or the app's

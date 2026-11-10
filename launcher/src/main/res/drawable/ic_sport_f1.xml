@@ -1,0 +1,16 @@
+<!-- Formula 1: a chequered flag on its pole, three rows of four squares. Drawn by hand for the score pill (ADR-042): a 24dp outline, white at 85 %. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M4,3 V21 M4,4 H20 V14 H4"
+        android:strokeColor="#D9FFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M8,4 H12 V7.33 H8 Z M16,4 H20 V7.33 H16 Z M4,7.33 H8 V10.67 H4 Z M12,7.33 H16 V10.67 H12 Z M8,10.67 H12 V14 H8 Z M16,10.67 H20 V14 H16 Z"
+        android:fillColor="#D9FFFFFF" />
+</vector>

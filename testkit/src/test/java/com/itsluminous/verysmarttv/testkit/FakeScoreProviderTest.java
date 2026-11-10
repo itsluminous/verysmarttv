@@ -99,13 +99,19 @@ public class FakeScoreProviderTest {
         try (Cursor c = resolver.query(ScoreContract.PILL, null, null, null, null)) {
             assertEquals(5, c.getCount());
             java.util.Set<String> ids = new java.util.HashSet<>();
+            java.util.Set<String> sports = new java.util.HashSet<>();
             String[] states = new String[5];
             for (int i = 0; c.moveToNext(); i++) {
                 ids.add(c.getString(c.getColumnIndexOrThrow(ScoreContract.EVENT_ID)));
                 states[i] = c.getString(c.getColumnIndexOrThrow(ScoreContract.STATE));
                 assertEquals(ScoreFixture.STACK_EVENT_IDS[i], c.getString(c.getColumnIndexOrThrow(ScoreContract.EVENT_ID)));
+                String sport = c.getString(c.getColumnIndexOrThrow(ScoreContract.SPORT));
+                assertEquals(ScoreFixture.STACK_SPORTS[i], sport);
+                assertTrue(sport, java.util.Arrays.asList(ScoreContract.SPORTS).contains(sport));
+                sports.add(sport);
             }
             assertEquals("five distinct events", 5, ids.size());
+            assertEquals("three sports, so every icon is told apart", 3, sports.size());
             assertArrayEquals(new String[] {"live", "live", "break", "upcoming", "final"}, states);
         }
         ScoreFixture.seed(ScoreFixture.LIVE);

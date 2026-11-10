@@ -84,6 +84,7 @@ public class ScoreFeedTest {
         assertEquals("LIVE", row.kicker);
         assertEquals("T20I \u00b7 AFG 19/4 (6) v ZIM", row.line);
         assertEquals("ev1", row.eventId);
+        assertEquals(ScoreContract.SPORT_CRICKET, row.sport);
         assertEquals("#E53935", row.color);
         assertFalse(row.stale);
         assertTrue(row.inPlay());

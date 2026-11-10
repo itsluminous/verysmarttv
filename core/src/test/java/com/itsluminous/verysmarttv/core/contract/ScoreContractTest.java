@@ -75,12 +75,21 @@ public class ScoreContractTest {
     public void statesSportsAndReasonsAreDistinctLowercaseTokens() {
         assertNoDuplicates(new String[] {ScoreContract.STATE_LIVE, ScoreContract.STATE_BREAK, ScoreContract.STATE_UPCOMING,
                 ScoreContract.STATE_FINAL, ScoreContract.STATE_NONE});
-        assertNoDuplicates(new String[] {ScoreContract.SPORT_CRICKET, ScoreContract.SPORT_FOOTBALL, ScoreContract.SPORT_F1,
-                ScoreContract.SPORT_TENNIS, ScoreContract.SPORT_BASKETBALL});
+        assertNoDuplicates(ScoreContract.SPORTS);
         assertNoDuplicates(new String[] {ScoreContract.REASON_TEAM, ScoreContract.REASON_COMPETITION, ScoreContract.REASON_EVENT});
         for (String s : new String[] {ScoreContract.STATE_LIVE, ScoreContract.SPORT_F1, ScoreContract.REASON_EVENT}) {
             assertTrue(s, s.equals(s.toLowerCase(java.util.Locale.ROOT)));
         }
+        for (String s : ScoreContract.SPORTS) assertTrue(s, s.equals(s.toLowerCase(java.util.Locale.ROOT)));
+    }
+
+    @Test
+    public void sportsAreTheSevenOfTheDesign() {
+        List<String> expected = Arrays.asList("cricket", "football", "f1", "tennis", "badminton", "basketball", "hockey");
+        assertEquals(expected, Arrays.asList(ScoreContract.SPORTS));
+        assertEquals(ScoreContract.SPORT_CRICKET, ScoreContract.SPORTS[0]);
+        assertEquals(ScoreContract.SPORT_BADMINTON, "badminton");
+        assertEquals(ScoreContract.SPORT_HOCKEY, "hockey");
     }
 
     @Test

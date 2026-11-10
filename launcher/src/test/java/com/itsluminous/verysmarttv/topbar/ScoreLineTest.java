@@ -25,7 +25,7 @@ public class ScoreLineTest {
     private static final String CRICKET = "T20I \u00b7 AFG 19/4 (6) v ZIM";
 
     private static ScoreLine.Text row(String id, String state) {
-        return ScoreLine.of(state, id, "K", "line " + id, null, false);
+        return ScoreLine.of(state, id, ScoreContract.SPORT_CRICKET, "K", "line " + id, null, false);
     }
 
     private static List<String> ids(List<ScoreLine.Text> texts) {
@@ -46,6 +46,15 @@ public class ScoreLineTest {
         assertEquals(Arrays.asList("live", "break", "up", "fin", "fin2"), ids(ScoreLine.stack(none, fresh, 5)));
         assertEquals("fewer rows than lines: all of them, in order", Arrays.asList("live", "break"), ids(ScoreLine.stack(none, fresh.subList(0, 2), 5)));
         assertEquals("no rows: no lines", none, ScoreLine.stack(none, none, 3));
+    }
+
+    @Test
+    public void theSportRidesAlongTrimmedAndEmptyWhenNotGiven() {
+        assertEquals(ScoreContract.SPORT_CRICKET, row("a", ScoreContract.STATE_LIVE).sport);
+        assertEquals("f1", ScoreLine.of(ScoreContract.STATE_LIVE, "a", " f1 ", "LIVE", "x", null, false).sport);
+        assertEquals("", ScoreLine.of(ScoreContract.STATE_LIVE, "a", null, "LIVE", "x", null, false).sport);
+        assertEquals("", ScoreLine.of(ScoreContract.STATE_LIVE, "LIVE", "x", null, false).sport);
+        assertEquals("", ScoreLine.Text.HIDDEN.sport);
     }
 
     @Test

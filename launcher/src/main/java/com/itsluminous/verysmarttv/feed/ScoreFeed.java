@@ -39,15 +39,19 @@ public final class ScoreFeed {
     public static final class Row {
         @NonNull
         public final String state, kicker, line, color;
+        /** The row's {@link ScoreContract#SPORT}, what the line's icon is chosen by; empty when the column is missing or null. */
+        @NonNull
+        public final String sport;
         @Nullable
         public final String eventId;
         public final boolean stale;
 
-        public Row(@NonNull String state, @NonNull String kicker, @NonNull String line, @Nullable String eventId, @NonNull String color, boolean stale) {
+        public Row(@NonNull String state, @NonNull String kicker, @NonNull String line, @Nullable String eventId, @NonNull String sport, @NonNull String color, boolean stale) {
             this.state = state;
             this.kicker = kicker;
             this.line = line;
             this.eventId = eventId;
+            this.sport = sport;
             this.color = color;
             this.stale = stale;
         }
@@ -170,14 +174,15 @@ public final class ScoreFeed {
             if (c == null || !c.moveToFirst()) return Collections.emptyList();
             int iState = c.getColumnIndex(ScoreContract.STATE), iKicker = c.getColumnIndex(ScoreContract.KICKER),
                     iLine = c.getColumnIndex(ScoreContract.LINE), iEvent = c.getColumnIndex(ScoreContract.EVENT_ID),
-                    iStale = c.getColumnIndex(ScoreContract.STALE), iColor = c.getColumnIndex(ScoreContract.COLOR);
+                    iSport = c.getColumnIndex(ScoreContract.SPORT), iStale = c.getColumnIndex(ScoreContract.STALE),
+                    iColor = c.getColumnIndex(ScoreContract.COLOR);
             if (iState < 0 || iLine < 0) return Collections.emptyList();
             List<Row> rows = new ArrayList<>(Math.min(c.getCount(), ScoreContract.MAX_ROWS));
             do {
                 String state = text(c, iState);
                 // none: nothing followed in the window; the same as no row to the pill, and nothing to re-read for.
                 if (state.isEmpty() || ScoreContract.STATE_NONE.equals(state)) continue;
-                rows.add(new Row(state, text(c, iKicker), text(c, iLine), nullable(c, iEvent), text(c, iColor), iStale >= 0 && !c.isNull(iStale) && c.getInt(iStale) == 1));
+                rows.add(new Row(state, text(c, iKicker), text(c, iLine), nullable(c, iEvent), text(c, iSport), text(c, iColor), iStale >= 0 && !c.isNull(iStale) && c.getInt(iStale) == 1));
             } while (rows.size() < ScoreContract.MAX_ROWS && c.moveToNext());
             return rows;
         } catch (SecurityException e) {

@@ -24,15 +24,21 @@ public final class ScoreFixture {
     public static final String METHOD_RESTORED = "restored";
 
     public static final String LIVE = "live", BREAK = "break", UPCOMING = "upcoming", FINAL = "final", EMPTY = "empty";
-    /** Five rows at once: {@link #LIVE}, a second live match, {@link #BREAK}, {@link #UPCOMING}, {@link #FINAL}; see {@link #STACK_EVENT_IDS}. */
+    /**
+     * Five rows at once: {@link #LIVE}, a second live match, {@link #BREAK}, {@link #UPCOMING}, {@link #FINAL}; see
+     * {@link #STACK_EVENT_IDS} and {@link #STACK_SPORTS} (three sports, so every line's icon can be told apart).
+     */
     public static final String STACK = "stack";
 
     /** The event id every one-row fixture carries: what OK on the pill must hand the scoreboard. */
     public static final String EVENT_ID = "fixture-event-1";
     /** The event ids of the {@link #STACK} rows, top first; the first is {@link #EVENT_ID}. */
     public static final String[] STACK_EVENT_IDS = {EVENT_ID, "fixture-event-2", "fixture-event-3", "fixture-event-4", "fixture-event-5"};
-    /** The second live match of the stack. */
-    public static final String LIVE2_KICKER = "LIVE", LIVE2_LINE = "ISL \u00b7 KBFC 1\u20130 BFC 63'";
+    /** The sport of each {@link #STACK} row, top first: cricket, tennis, cricket, football, cricket. */
+    public static final String[] STACK_SPORTS = {ScoreContract.SPORT_CRICKET, ScoreContract.SPORT_TENNIS, ScoreContract.SPORT_CRICKET,
+            ScoreContract.SPORT_FOOTBALL, ScoreContract.SPORT_CRICKET};
+    /** The second live match of the stack: a tennis match, the stack's third sport. */
+    public static final String LIVE2_KICKER = "LIVE", LIVE2_LINE = "ATP Finals \u00b7 Alcaraz 6\u20134 3\u20132 Sinner";
 
     public static final String LIVE_KICKER = "LIVE", LIVE_LINE = "T20I \u00b7 AFG 19/4 (6) v ZIM";
     public static final String BREAK_KICKER = "STUMPS", BREAK_LINE = "Test \u00b7 BAN 386 & 49/2 v WI";
@@ -66,7 +72,7 @@ public final class ScoreFixture {
         long now = System.currentTimeMillis();
         List<Object[]> rows = new ArrayList<>(Arrays.asList(
                 row(LIVE),
-                new Object[] {ScoreContract.STATE_LIVE, LIVE2_KICKER, LIVE2_LINE, STACK_EVENT_IDS[1], ScoreContract.SPORT_FOOTBALL, "ISL", now, 0, "#E53935"},
+                new Object[] {ScoreContract.STATE_LIVE, LIVE2_KICKER, LIVE2_LINE, STACK_EVENT_IDS[1], STACK_SPORTS[1], "ATP Finals", now, 0, "#E53935"},
                 row(BREAK), row(UPCOMING), row(FINAL)));
         for (int i = 2; i < rows.size(); i++) rows.get(i)[3] = STACK_EVENT_IDS[i];
         return rows;

@@ -1,0 +1,13 @@
+<!-- Tennis: an upright racket, and a ball. Drawn by hand for the score pill (ADR-042): a 24dp outline, white at 85 %. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M12,2 A5.5,6.5 0 1 1 12,15 A5.5,6.5 0 1 1 12,2 Z M12,15 V22 M9,8.5 H15 M12,3.5 V13.5 M19,16 A2,2 0 1 1 19,20 A2,2 0 1 1 19,16 Z"
+        android:strokeColor="#D9FFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

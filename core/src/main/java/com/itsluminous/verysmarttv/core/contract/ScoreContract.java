@@ -123,13 +123,22 @@ public final class ScoreContract {
     /** Pill only: nothing followed in the window; the launcher hides the pill. */
     public static final String STATE_NONE = "none";
 
-    // Sports (column SPORT).
+    // Sports (column SPORT): the whole value set is SPORTS. The companion publishes the ones it has a source for
+    // (cricket, football, f1 and tennis in v1); a launcher maps each to its icon and shows a generic one for any
+    // value outside the set, so a companion may add a sport before the launcher learns it.
 
     public static final String SPORT_CRICKET = "cricket";
     public static final String SPORT_FOOTBALL = "football";
     public static final String SPORT_F1 = "f1";
     public static final String SPORT_TENNIS = "tennis";
+    public static final String SPORT_BADMINTON = "badminton";
     public static final String SPORT_BASKETBALL = "basketball";
+    public static final String SPORT_HOCKEY = "hockey";
+
+    /** Every value {@link #SPORT} may carry, each with its own icon in the launcher. */
+    public static final String[] SPORTS = {
+        SPORT_CRICKET, SPORT_FOOTBALL, SPORT_F1, SPORT_TENNIS, SPORT_BADMINTON, SPORT_BASKETBALL, SPORT_HOCKEY,
+    };
 
     // Follow reasons (column FOLLOWED_REASON).
 
@@ -145,7 +154,7 @@ public final class ScoreContract {
     /** The feed's event id. Nullable on the pill when {@link #STATE} is {@link #STATE_NONE}. */
     public static final String EVENT_ID = "event_id";
 
-    /** One of the {@code SPORT_*} values. */
+    /** One of the {@code SPORT_*} values ({@link #SPORTS}); a launcher shows a generic icon for anything else. */
     public static final String SPORT = "sport";
 
     /** Competition name as shown ({@code "IPL"}, {@code "Premier League"}). */

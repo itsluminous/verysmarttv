@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The children of a ScoreLineView, merged into it: the state dot and the kicker in the state colour, then the
+     companion's line in white, 13sp, one line; then the row's sport icon at the end, 16dp, white at 85 % from the
+     vector itself (ic_sport_*, ADR-042). Neither child speaks for accessibility; the line's content description does. -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView
+        android:id="@+id/scoreLineText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxWidth="500dp"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textColor="#FFFFFFFF"
+        android:textSize="13sp"
+        android:fontFamily="@string/font_medium"
+        android:letterSpacing="0.02"
+        android:drawablePadding="7dp"
+        android:textIsSelectable="false"
+        android:importantForAccessibility="no" />
+    <ImageView
+        android:id="@+id/scoreSportIcon"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginStart="7dp"
+        android:scaleType="fitCenter"
+        android:importantForAccessibility="no" />
+</merge>

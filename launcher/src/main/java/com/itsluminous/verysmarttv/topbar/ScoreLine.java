@@ -12,8 +12,8 @@ import java.util.List;
  * What the score pill shows for the {@code /pill} rows (DESIGN.md §9.2, ADR-015, ADR-041): the launcher renders the
  * companion's kicker and line and decides only presentation: whether a line shows at all, the kicker's colour, whether
  * a state dot leads it and pulses, the line cut to {@link ScoreContract#LINE_MAX_CHARS} with an ellipsis, dimming
- * while the row is stale, and ({@link #stack}) how many of the companion's rows the pill shows and in which order.
- * Pure; {@code ScoreLineTest} is its table.
+ * while the row is stale, and ({@link #stack}) how many of the companion's rows the pill shows and in which order. The
+ * row's sport rides along for {@link SportIcons} (ADR-042). Pure; {@code ScoreLineTest} is its table.
  */
 public final class ScoreLine {
     private ScoreLine() {
@@ -37,6 +37,9 @@ public final class ScoreLine {
         /** The state as the companion gave it; empty when hidden. */
         @NonNull
         public final String state;
+        /** The sport as the companion gave it ({@code ScoreContract.SPORT}); empty when hidden or not given. */
+        @NonNull
+        public final String sport;
         /** The kicker as the companion gave it, possibly empty. */
         @NonNull
         public final String kicker;
@@ -52,10 +55,11 @@ public final class ScoreLine {
         /** The pill dims to STALE_ALPHA. */
         public final boolean dim;
 
-        Text(boolean shown, @Nullable String eventId, @NonNull String state, @NonNull String kicker, @NonNull String line, int color, boolean dot, boolean pulse, boolean dim) {
+        Text(boolean shown, @Nullable String eventId, @NonNull String state, @NonNull String sport, @NonNull String kicker, @NonNull String line, int color, boolean dot, boolean pulse, boolean dim) {
             this.shown = shown;
             this.eventId = eventId;
             this.state = state;
+            this.sport = sport;
             this.kicker = kicker;
             this.line = line;
             this.color = color;
@@ -64,7 +68,7 @@ public final class ScoreLine {
             this.dim = dim;
         }
 
-        static final Text HIDDEN = new Text(false, null, "", "", "", GREY_COLOR, false, false, false);
+        static final Text HIDDEN = new Text(false, null, "", "", "", "", GREY_COLOR, false, false, false);
 
         @Override
         @NonNull
@@ -80,17 +84,20 @@ public final class ScoreLine {
      */
     @NonNull
     public static Text of(@Nullable String state, @Nullable String kicker, @Nullable String line, @Nullable String color, boolean stale) {
-        return of(state, null, kicker, line, color, stale);
+        return of(state, null, null, kicker, line, color, stale);
     }
 
-    /** {@link #of} with the row's event id, what {@link #stack} keeps a line in place by. */
+    /**
+     * {@link #of} with the row's event id, what {@link #stack} keeps a line in place by, and its sport, what the line's
+     * icon is chosen by; null for either means not given.
+     */
     @NonNull
-    public static Text of(@Nullable String state, @Nullable String eventId, @Nullable String kicker, @Nullable String line, @Nullable String color, boolean stale) {
+    public static Text of(@Nullable String state, @Nullable String eventId, @Nullable String sport, @Nullable String kicker, @Nullable String line, @Nullable String color, boolean stale) {
         if (state == null || ScoreContract.STATE_NONE.equals(state) || line == null || line.trim().isEmpty()) return Text.HIDDEN;
         boolean live = ScoreContract.STATE_LIVE.equals(state);
         boolean brk = ScoreContract.STATE_BREAK.equals(state);
         int argb = parseColor(color, live ? LIVE_COLOR : brk ? BREAK_COLOR : GREY_COLOR);
-        return new Text(true, eventId == null || eventId.isEmpty() ? null : eventId, state, kicker == null ? "" : kicker.trim(), shorten(line.trim()), argb, live || brk, live, stale);
+        return new Text(true, eventId == null || eventId.isEmpty() ? null : eventId, state, sport == null ? "" : sport.trim(), kicker == null ? "" : kicker.trim(), shorten(line.trim()), argb, live || brk, live, stale);
     }
 
     /** {@code rows} held to MIN_ROWS..MAX_ROWS: a theme or choice outside it reads as the nearer end. */

@@ -1,0 +1,13 @@
+<!-- Badminton: a shuttlecock, the cork at the lower left, the feathers to the upper right. Drawn by hand for the score pill (ADR-042): a 24dp outline, white at 85 %. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M7,14.5 A2.5,2.5 0 1 1 7,19.5 A2.5,2.5 0 1 1 7,14.5 Z M8.6,15.1 L15.5,4.5 L20,11.3 L9.3,18.2 M9,16.6 L17.75,7.9"
+        android:strokeColor="#D9FFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>
