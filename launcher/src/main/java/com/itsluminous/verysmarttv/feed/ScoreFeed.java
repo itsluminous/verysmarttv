@@ -13,14 +13,20 @@ import androidx.annotation.Nullable;
 
 import com.itsluminous.verysmarttv.core.contract.ScoreContract;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
- * score_pill: the live-score companion's one {@code /pill} row ({@link ScoreContract#PILL}), read through its content
+ * score_pill: the live-score companion's {@code /pill} rows ({@link ScoreContract#PILL}), read through its content
  * provider the way {@code HeroFeed} reads the Trakt shelf (DESIGN.md §9.2, ADR-015). The launcher queries and renders;
- * no network, no sports logic. A {@link ContentObserver} re-reads on change, coalesced to {@link #COALESCE_MS}; while
- * the last row said live or break and Home is resumed it also re-reads every {@link #LIVE_PERIOD_MS}, which is what
- * tells the companion a screen is watching (§13.5). When the provider is missing, answers nothing or refuses
- * ({@code SecurityException}: another signing key) the listener gets {@code null} and the pill hides; a refusal is
- * logged once and ends the reads until the next {@link #start()}, so there is no retry loop.
+ * no network, no sports logic. The rows come in the companion's order, at most {@link ScoreContract#MAX_ROWS} of them,
+ * and the pill cuts them to its score_rows. A {@link ContentObserver} re-reads on change, coalesced to
+ * {@link #COALESCE_MS}; while any row said live or break and Home is resumed it also re-reads every
+ * {@link #LIVE_PERIOD_MS}, which is what tells the companion a screen is watching (§13.5). When the provider is
+ * missing, answers nothing or refuses ({@code SecurityException}: another signing key) the listener gets an empty list
+ * and the pill hides; a refusal is logged once and ends the reads until the next {@link #start()}, so there is no
+ * retry loop.
  */
 public final class ScoreFeed {
     private static final String TAG = "VerySmartTV.ScoreFeed";
@@ -59,8 +65,11 @@ public final class ScoreFeed {
     }
 
     public interface Listener {
-        /** The row, or null when there is none to show (state none, no provider, refused, or an unreadable cursor). */
-        void onPill(@Nullable Row row);
+        /**
+         * The rows in the companion's order, the one a single-line pill shows first; empty when there is none to show
+         * (state none, no provider, refused, or an unreadable cursor).
+         */
+        void onPill(@NonNull List<Row> rows);
     }
 
     private final Context context;
@@ -115,21 +124,21 @@ public final class ScoreFeed {
         }
     }
 
-    /** Queries off the main thread, hands the row to the listener on it, and re-arms the live timer when the row is in play. */
+    /** Queries off the main thread, hands the rows to the listener on it, and re-arms the live timer when one is in play. */
     void load() {
         if (!started || loading || denied) return;
         loading = true;
         new Thread(() -> {
-            Row row;
+            List<Row> rows;
             boolean refused = false;
             try {
-                row = query();
+                rows = query();
             } catch (SecurityException e) {
-                row = null;
+                rows = Collections.emptyList();
                 refused = true;
                 Log.w(TAG, "provider refused (another signing key?): " + e.getMessage());
             }
-            final Row result = row;
+            final List<Row> result = rows;
             final boolean deny = refused;
             main.post(() -> {
                 loading = false;
@@ -137,10 +146,15 @@ public final class ScoreFeed {
                 if (!started) return;
                 listener.onPill(result);
                 main.removeCallbacks(liveTick);
-                liveArmed = result != null && result.inPlay() && !denied;
+                liveArmed = !denied && anyInPlay(result);
                 if (liveArmed) main.postDelayed(liveTick, LIVE_PERIOD_MS);
             });
         }, "score-feed").start();
+    }
+
+    private static boolean anyInPlay(List<Row> rows) {
+        for (Row r : rows) if (r.inPlay()) return true;
+        return false;
     }
 
     /** Whether the 60 s re-read is armed: only while a live or break row was returned and Home is resumed. */
@@ -148,25 +162,30 @@ public final class ScoreFeed {
         return liveArmed;
     }
 
-    @Nullable
-    private Row query() {
+    /** The rows in cursor order, at most MAX_ROWS, none rows left out; empty for no provider or an unreadable cursor. */
+    @NonNull
+    private List<Row> query() {
         ContentResolver cr = context.getContentResolver();
         try (Cursor c = cr.query(PILL, null, null, null, null)) {
-            if (c == null || !c.moveToFirst()) return null;
+            if (c == null || !c.moveToFirst()) return Collections.emptyList();
             int iState = c.getColumnIndex(ScoreContract.STATE), iKicker = c.getColumnIndex(ScoreContract.KICKER),
                     iLine = c.getColumnIndex(ScoreContract.LINE), iEvent = c.getColumnIndex(ScoreContract.EVENT_ID),
                     iStale = c.getColumnIndex(ScoreContract.STALE), iColor = c.getColumnIndex(ScoreContract.COLOR);
-            if (iState < 0 || iLine < 0) return null;
-            String state = text(c, iState);
-            // none: nothing followed in the window; the same as no row to the pill, and nothing to re-read for.
-            if (state.isEmpty() || ScoreContract.STATE_NONE.equals(state)) return null;
-            return new Row(state, text(c, iKicker), text(c, iLine), nullable(c, iEvent), text(c, iColor), iStale >= 0 && !c.isNull(iStale) && c.getInt(iStale) == 1);
+            if (iState < 0 || iLine < 0) return Collections.emptyList();
+            List<Row> rows = new ArrayList<>(Math.min(c.getCount(), ScoreContract.MAX_ROWS));
+            do {
+                String state = text(c, iState);
+                // none: nothing followed in the window; the same as no row to the pill, and nothing to re-read for.
+                if (state.isEmpty() || ScoreContract.STATE_NONE.equals(state)) continue;
+                rows.add(new Row(state, text(c, iKicker), text(c, iLine), nullable(c, iEvent), text(c, iColor), iStale >= 0 && !c.isNull(iStale) && c.getInt(iStale) == 1));
+            } while (rows.size() < ScoreContract.MAX_ROWS && c.moveToNext());
+            return rows;
         } catch (SecurityException e) {
             throw e;
         } catch (RuntimeException e) {
             // No provider, or a cursor it could not build: the pill stays hidden.
             Log.w(TAG, "provider: " + e.getMessage());
-            return null;
+            return Collections.emptyList();
         }
     }
 

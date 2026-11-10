@@ -151,7 +151,7 @@ public final class LauncherSettingsActivity extends Activity {
             if (!hasOnTvChoices()) return;
             choices.edit().remove("columns").remove(SettingsChoices.ROWS_BELOW_DOCK_KEY).remove("animations")
                     .remove(SettingsChoices.DOCK_OPACITY_KEY).remove(SettingsChoices.CLOCK_FORMAT_KEY).remove(SettingsChoices.HERO_HEIGHT_KEY).remove(SettingsChoices.HERO_FEED_KEY)
-                    .remove(SettingsChoices.WIDGETS_KEY).remove(SettingsChoices.SCORE_PILL_KEY).remove(OpenOnStart.KEY).commit();
+                    .remove(SettingsChoices.WIDGETS_KEY).remove(SettingsChoices.SCORE_PILL_KEY).remove(SettingsChoices.SCORE_ROWS_KEY).remove(OpenOnStart.KEY).commit();
             Config current = Config.load(this);
             columns = current.columns;
             rowsBelowDock = current.rowsBelowDock;
@@ -277,7 +277,7 @@ public final class LauncherSettingsActivity extends Activity {
                 || choices.contains(SettingsChoices.DOCK_OPACITY_KEY)
                 || choices.contains(SettingsChoices.CLOCK_FORMAT_KEY) || choices.contains(SettingsChoices.HERO_HEIGHT_KEY)
                 || choices.contains(SettingsChoices.HERO_FEED_KEY) || choices.contains(SettingsChoices.WIDGETS_KEY)
-                || choices.contains(SettingsChoices.SCORE_PILL_KEY) || choices.contains(OpenOnStart.KEY);
+                || choices.contains(SettingsChoices.SCORE_PILL_KEY) || choices.contains(SettingsChoices.SCORE_ROWS_KEY) || choices.contains(OpenOnStart.KEY);
     }
 
     private void open(Intent intent) {

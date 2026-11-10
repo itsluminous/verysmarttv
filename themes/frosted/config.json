@@ -46,5 +46,6 @@
   "row_gap": 32,
   "date_two_lines": true,
   "widgets": true,
-  "score_pill": true
+  "score_pill": true,
+  "score_rows": 3
 }

@@ -325,29 +325,18 @@
         </FrameLayout>
     </LinearLayout>
 
-    <!-- score_pill: the live-score line under the right end of the pills, end-aligned with the last pill and 8dp below
-         the row (DESIGN.md §9.2). It sits in the root, not in the header, so showing or hiding it moves neither the
-         pills above nor the grid below; ScorePillController places it under topButtons after each layout. -->
+    <!-- score_pill: the live-score lines under the right end of the pills, end-aligned with the last pill and 8dp
+         below the row (DESIGN.md §9.2, ADR-041): one ScoreLineView per row, up to score_rows of them, each on its own
+         shade. It sits in the root, not in the header, so showing or hiding it moves neither the pills above nor the
+         grid below; ScorePillController places it under topButtons after each layout. -->
     <com.itsluminous.verysmarttv.topbar.ScorePill
         android:id="@+id/scorePill"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|end"
-        android:maxWidth="520dp"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:singleLine="true"
-        android:ellipsize="end"
-        android:textColor="#FFFFFFFF"
-        android:textSize="13sp"
-        android:fontFamily="@string/font_medium"
-        android:letterSpacing="0.02"
-        android:drawablePadding="7dp"
-        android:background="@drawable/score_pill_bg"
-        android:focusable="true"
-        android:clickable="true"
+        android:orientation="vertical"
+        android:gravity="end"
+        android:descendantFocusability="afterDescendants"
         android:visibility="gone" />
 
     <!-- The single floating glass highlight that springs between tiles. -->

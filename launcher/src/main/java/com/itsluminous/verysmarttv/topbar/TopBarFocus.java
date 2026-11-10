@@ -24,6 +24,9 @@ import java.util.List;
  *       lands on the score pill when shown, else Inputs; Down from the score pill lands on it while it shows.
  *   <li>Back on the score pill or a round pill: the grid.
  *   <li>RTL: bar order, not screen side; the score pill is alone on its row and needs no mirror.
+ *   <li>The score pill stacks {@link Bar#scoreRows} lines and is one stop (ADR-041): Up from the grid or the carousel
+ *       lands on its bottom line (row {@code scoreRows - 1}, nearest the grid); inside it Up and Down move a line at a
+ *       time; Up from the top line (row 0) is rule 2, Down from the bottom line is rule 3.
  * </ol>
  */
 public final class TopBarFocus {
@@ -50,26 +53,34 @@ public final class TopBarFocus {
         public final Stop stop;
         /** The pill's view id for {@link Stop#PILL}; 0 otherwise. */
         public final int pillId;
+        /** The line for {@link Stop#SCORE_PILL}, 0 the top one; 0 otherwise. */
+        public final int row;
 
-        private Verdict(Stop stop, int pillId) {
+        private Verdict(Stop stop, int pillId, int row) {
             this.stop = stop;
             this.pillId = pillId;
+            this.row = row;
         }
 
-        static final Verdict STAY = new Verdict(Stop.STAY, 0);
-        static final Verdict FRAMEWORK = new Verdict(Stop.FRAMEWORK, 0);
-        static final Verdict GRID = new Verdict(Stop.GRID, 0);
-        static final Verdict CAROUSEL = new Verdict(Stop.CAROUSEL, 0);
-        static final Verdict SCORE_PILL = new Verdict(Stop.SCORE_PILL, 0);
+        static final Verdict STAY = new Verdict(Stop.STAY, 0, 0);
+        static final Verdict FRAMEWORK = new Verdict(Stop.FRAMEWORK, 0, 0);
+        static final Verdict GRID = new Verdict(Stop.GRID, 0, 0);
+        static final Verdict CAROUSEL = new Verdict(Stop.CAROUSEL, 0, 0);
 
         static Verdict pill(int id) {
-            return new Verdict(Stop.PILL, id);
+            return new Verdict(Stop.PILL, id, 0);
+        }
+
+        static Verdict scorePill(int row) {
+            return new Verdict(Stop.SCORE_PILL, 0, row);
         }
 
         @Override
         @NonNull
         public String toString() {
-            return stop + (stop == Stop.PILL ? "(" + pillId + ")" : "");
+            if (stop == Stop.PILL) return stop + "(" + pillId + ")";
+            if (stop == Stop.SCORE_PILL) return stop + "(" + row + ")";
+            return stop.toString();
         }
     }
 
@@ -84,19 +95,22 @@ public final class TopBarFocus {
         }
     }
 
-    /** The bar: its pills in child (bar) order, which of them are Inputs and Settings, and whether the score pill shows. */
+    /** The bar: its pills in child (bar) order, which of them are Inputs and Settings, and how many score lines show. */
     public static final class Bar {
         public final List<Pill> pills;
         public final int inputsId;
         public final int settingsId;
-        /** The score pill is on screen (score_pill on, the companion answering a row worth showing). */
+        /** The lines the score pill shows (score_pill on, the companion answering rows worth showing); 0 while it is hidden. */
+        public final int scoreRows;
+        /** The score pill is on screen: {@link #scoreRows} is above 0. */
         public final boolean scorePillShown;
 
-        public Bar(@NonNull List<Pill> pills, int inputsId, int settingsId, boolean scorePillShown) {
+        public Bar(@NonNull List<Pill> pills, int inputsId, int settingsId, int scoreRows) {
             this.pills = pills;
             this.inputsId = inputsId;
             this.settingsId = settingsId;
-            this.scorePillShown = scorePillShown;
+            this.scoreRows = Math.max(0, scoreRows);
+            this.scorePillShown = this.scoreRows > 0;
         }
 
         boolean inputsShown() {
@@ -118,10 +132,10 @@ public final class TopBarFocus {
         return bar.inputsShown() ? bar.inputsId : firstTopButton(bar);
     }
 
-    /** The stop above the grid and the carousel: the score pill when shown, else Inputs (rules 1, 2 and 5). */
+    /** The stop above the grid and the carousel: the score pill's bottom line when shown, else Inputs (rules 1, 2, 5 and 8). */
     @NonNull
     static Verdict aboveGrid(@NonNull Bar bar) {
-        return bar.scorePillShown ? Verdict.SCORE_PILL : Verdict.pill(firstButton(bar));
+        return bar.scorePillShown ? Verdict.scorePill(bar.scoreRows - 1) : Verdict.pill(firstButton(bar));
     }
 
     /**
@@ -141,15 +155,19 @@ public final class TopBarFocus {
     }
 
     /**
-     * A D-pad or Back key down on the score pill (rules 2, 3, 4, 6): Up goes to Inputs, Down to the carousel while it
-     * shows else the grid, Left and Right stay (it is alone on its row), Back goes to the grid.
+     * A D-pad or Back key down on line {@code row} of the score pill (rules 2, 3, 4, 6, 8): Up goes a line up, or to
+     * Inputs from the top line; Down a line down, or from the bottom line to the carousel while it shows else the grid;
+     * Left and Right stay (the pill is alone on its rows); Back goes to the grid. A {@code row} outside the lines shown
+     * is read as the nearer end.
      */
     @NonNull
-    public static Verdict onScorePillKey(int keyCode, @NonNull Bar bar, boolean carouselShowing) {
+    public static Verdict onScorePillKey(int keyCode, int row, @NonNull Bar bar, boolean carouselShowing) {
+        int at = Math.max(0, Math.min(row, bar.scoreRows - 1));
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_UP:
-                return Verdict.pill(firstButton(bar));
+                return at > 0 ? Verdict.scorePill(at - 1) : Verdict.pill(firstButton(bar));
             case KeyEvent.KEYCODE_DPAD_DOWN:
+                if (at < bar.scoreRows - 1) return Verdict.scorePill(at + 1);
                 return carouselShowing ? Verdict.CAROUSEL : Verdict.GRID;
             case KeyEvent.KEYCODE_DPAD_LEFT:
             case KeyEvent.KEYCODE_DPAD_RIGHT:

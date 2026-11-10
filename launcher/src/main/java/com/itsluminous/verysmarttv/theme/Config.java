@@ -212,6 +212,13 @@ public final class Config {
     public final boolean scorePill;
     /** The theme's score_pill before the Launcher settings choice, what its row shows while no choice is saved. */
     public final boolean themeScorePill;
+    /**
+     * The most lines the score pill stacks (score_rows, 1 to 5, DESIGN.md §9.2, ADR-041), after the Live score rows
+     * choice in Launcher settings (SettingsChoices.SCORE_ROWS_KEY) over the theme's key.
+     */
+    public final int scoreRows;
+    /** The theme's score_rows before the Launcher settings choice, what its row shows while no choice is saved. */
+    public final int themeScoreRows;
     /** Icon on a card tinted from that icon, instead of the app's banner (config.xml uniform_tiles). */
     public final boolean uniformTiles;
     /** Background colour behind everything, #RRGGBB; black unless a theme says otherwise. */
@@ -309,7 +316,7 @@ public final class Config {
                    String sourcePanelExtra, boolean coocaaSources, String inputAction, List<String> inputSources,
                    String inputUriScheme, int columns, int rowsBelowDock, boolean animations, boolean advancedEffects,
                    String greetingName, boolean moduleCards, boolean reducedMotion, boolean bootToLiveTv, boolean openOnStartChoice, boolean dockTitle, boolean dockRow, boolean topMenu, boolean launcherSettingsButton, boolean reorderButton, boolean showNetworkPill, boolean showInputsPill, boolean iconOnlyButtons, boolean iconOnlyInputs, boolean libraryButton, boolean showLibraryPill, int wifiLabelWidth, boolean alwaysShowNames, boolean wallpaperTrueColor, boolean focusOvershoot, String vpnApp,
-                   boolean showHomeSettingsShortcut, boolean appLibrary, boolean appLibrarySelection, boolean libraryOkOpens, int libraryColumns, boolean pillLabelsOnFocus, boolean tvSettingsFirst, boolean settingsPanel, boolean shelfEveryRow, boolean uniformRows, boolean heroFeed, boolean themeHeroFeed, int heroFeedInterval, int rowGap, int heroHeight, int themeHeroHeight, boolean dateTwoLines, boolean widgets, boolean themeWidgets, boolean scorePill, boolean themeScorePill, boolean uniformTiles, int backgroundColor,
+                   boolean showHomeSettingsShortcut, boolean appLibrary, boolean appLibrarySelection, boolean libraryOkOpens, int libraryColumns, boolean pillLabelsOnFocus, boolean tvSettingsFirst, boolean settingsPanel, boolean shelfEveryRow, boolean uniformRows, boolean heroFeed, boolean themeHeroFeed, int heroFeedInterval, int rowGap, int heroHeight, int themeHeroHeight, boolean dateTwoLines, boolean widgets, boolean themeWidgets, boolean scorePill, boolean themeScorePill, int scoreRows, int themeScoreRows, boolean uniformTiles, int backgroundColor,
                    int[] settingsKeycodes, boolean settingsKeyPanel, boolean restoreKeyServices, File wallpaper,
                    int wallpaperDim, int dockOpacity, boolean overlayApplied,
                    int[] inputKeycodes, List<String> appKeys, String stockHomeRedirect,
@@ -394,6 +401,8 @@ public final class Config {
         this.themeWidgets = themeWidgets;
         this.scorePill = scorePill;
         this.themeScorePill = themeScorePill;
+        this.scoreRows = scoreRows;
+        this.themeScoreRows = themeScoreRows;
         this.uniformTiles = uniformTiles;
         this.backgroundColor = backgroundColor;
         this.settingsKeycodes = settingsKeycodes;
@@ -512,6 +521,7 @@ public final class Config {
         boolean dateTwoLines = res.getBoolean(R.bool.date_two_lines);
         boolean widgets = res.getBoolean(R.bool.widgets);
         boolean scorePill = res.getBoolean(R.bool.score_pill);
+        int scoreRows = res.getInteger(R.integer.score_rows);
         boolean uniformTiles = res.getBoolean(R.bool.uniform_tiles);
         int background = 0xFF000000;
         int[] settingsKeycodes = res.getIntArray(R.array.settings_key_keycodes);
@@ -632,6 +642,7 @@ public final class Config {
             dateTwoLines = ThemeKeys.bool(json, "date_two_lines", dateTwoLines);
             widgets = ThemeKeys.widgetsKey(json, widgets);
             scorePill = ThemeKeys.bool(json, "score_pill", scorePill);
+            scoreRows = ThemeKeys.integer(json, "score_rows", scoreRows, SettingsChoices.SCORE_ROWS_MIN, SettingsChoices.SCORE_ROWS_MAX);
             uniformTiles = ThemeKeys.bool(json, "uniform_tiles", uniformTiles);
             background = ThemeKeys.color(json, "background_color", background);
             settingsKeycodes = ThemeKeys.intArray(json, "settings_key_keycodes", settingsKeycodes);
@@ -710,6 +721,8 @@ public final class Config {
         // The Live scores toggle over the theme's score_pill, as the Trakt row over hero_feed.
         boolean themeScorePill = scorePill;
         scorePill = SettingsChoices.chosenScorePill(choices.getInt(SettingsChoices.SCORE_PILL_KEY, -1), themeScorePill);
+        int themeScoreRows = scoreRows;
+        scoreRows = SettingsChoices.chosenScoreRows(choices.getInt(SettingsChoices.SCORE_ROWS_KEY, -1), themeScoreRows);
         animations = choices.getBoolean("animations", animations);
         // advanced_effects is the theme's alone: the Animations setting gates it (readers test animations && advancedEffects).
         File wallpaper = dir != null ? new File(dir, WALLPAPER_NAME) : null;
@@ -726,7 +739,7 @@ public final class Config {
                 Math.max(0, rowsBelow), animations, advancedEffects, greetingName, moduleCards, reducedMotion, bootToLiveTv,
                 openOnStartChoice, dockTitle, dockRow, topMenu, launcherSettingsButton, reorderButton, showNetworkPill, showInputsPill,
                 iconOnlyButtons, iconOnlyInputs, libraryButton, showLibraryPill, wifiLabelWidth, alwaysShowNames, wallpaperTrueColor, focusOvershoot,
-                vpn, homeSettings, library, librarySelection, libraryOkOpens, libraryColumns, pillLabelsOnFocus, tvSettingsFirst, settingsPanel, shelfEveryRow, uniformRows, heroFeed, themeHeroFeed, heroFeedInterval, rowGap, heroHeight, themeHeroHeight, dateTwoLines, widgets, themeWidgets, scorePill, themeScorePill, uniformTiles, background,
+                vpn, homeSettings, library, librarySelection, libraryOkOpens, libraryColumns, pillLabelsOnFocus, tvSettingsFirst, settingsPanel, shelfEveryRow, uniformRows, heroFeed, themeHeroFeed, heroFeedInterval, rowGap, heroHeight, themeHeroHeight, dateTwoLines, widgets, themeWidgets, scorePill, themeScorePill, scoreRows, themeScoreRows, uniformTiles, background,
                 settingsKeycodes, settingsKeyPanel, restoreKeyServices, wallpaper,
                 wallpaperDim, dockOpacity, applied, inputKeycodes, appKeys, stockHomeRedirect,
                 cinematic, ambientGlow, appGlow, fadeRows,

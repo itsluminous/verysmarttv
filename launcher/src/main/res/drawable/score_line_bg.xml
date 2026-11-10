@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The score pill (DESIGN.md §9.2): plain text at rest, as the reference image has it; while focused the round
-     pills' frost with a white ring, the glass focus ring, the text staying white over it. -->
+<!-- One line of the score pill (DESIGN.md §9.2, ADR-041): at rest a 10% white shade with rounded ends, so the line
+     reads on the black background and on a wallpaper alike; while focused the round pills' frost with a white ring,
+     the glass focus ring, the text staying white over it. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true">
         <shape android:shape="rectangle">
@@ -11,7 +12,7 @@
     </item>
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#00000000" />
+            <solid android:color="#1AFFFFFF" />
             <corners android:radius="14dp" />
         </shape>
     </item>

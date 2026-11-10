@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One line of the score pill (DESIGN.md §9.2): a state dot and the kicker in the state colour, then the companion's
+     line in white, 13sp, on its own rounded shade (score_line_bg; the frosted ring while focused). ScorePill inflates
+     one per row it shows. -->
+<com.itsluminous.verysmarttv.topbar.ScoreLineView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="end"
+    android:maxWidth="520dp"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
+    android:singleLine="true"
+    android:ellipsize="end"
+    android:textColor="#FFFFFFFF"
+    android:textSize="13sp"
+    android:fontFamily="@string/font_medium"
+    android:letterSpacing="0.02"
+    android:drawablePadding="7dp"
+    android:background="@drawable/score_line_bg"
+    android:focusable="true"
+    android:clickable="true" />

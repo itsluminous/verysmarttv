@@ -120,5 +120,6 @@
   "dock_opacity": 100,
   "clock_format": "system",
   "widgets": false,
-  "score_pill": false
+  "score_pill": false,
+  "score_rows": 3
 }

@@ -28,14 +28,18 @@ import java.util.List;
 
 /**
  * The pill's reader against the companion stand-in (DESIGN.md §14.2 ScoreFeedTest): the row's columns arrive on the
- * main thread; a none row and an absent provider both arrive as null; the observer's change is coalesced; the 60 s
- * re-read is armed only after a live or break row and only while started.
+ * main thread; a none row and an absent provider both arrive as an empty list (read here as null); several rows
+ * arrive in the companion's order, cut at MAX_ROWS; the observer's change is coalesced; the 60 s re-read is armed
+ * only after a live or break row and only while started.
  */
 @RunWith(RobolectricTestRunner.class)
 public class ScoreFeedTest {
     private Context ctx;
     private Handler main;
+    /** The first row of each delivery, or null for an empty one. */
     private final List<ScoreFeed.Row> rows = new ArrayList<>();
+    /** Each delivery whole. */
+    private final List<List<ScoreFeed.Row>> deliveries = new ArrayList<>();
     private int calls;
     private ScoreFeed feed;
 
@@ -45,8 +49,9 @@ public class ScoreFeedTest {
         main = new Handler(Looper.getMainLooper());
         FakeScoreProvider.reset();
         Robolectric.setupContentProvider(FakeScoreProvider.class, ScoreContract.AUTHORITY);
-        feed = new ScoreFeed(ctx, main, row -> {
-            rows.add(row);
+        feed = new ScoreFeed(ctx, main, list -> {
+            rows.add(list.isEmpty() ? null : list.get(0));
+            deliveries.add(list);
             calls++;
         });
     }
@@ -84,6 +89,36 @@ public class ScoreFeedTest {
         assertTrue(row.inPlay());
         assertTrue("a live row arms the 60 s re-read", feed.liveReadArmed());
         assertEquals(1, FakeScoreProvider.pillQueryCount());
+    }
+
+    @Test
+    public void severalRowsArriveInOrderCutAtMaxRowsAndANoneRowAmongThemIsDropped() {
+        List<Object[]> seeded = new ArrayList<>();
+        for (int i = 1; i <= ScoreContract.MAX_ROWS + 2; i++) {
+            seeded.add(FakeScoreProvider.pill(i == 1 ? ScoreContract.STATE_FINAL : ScoreContract.STATE_UPCOMING, "FT", "line " + i, "ev" + i, ScoreContract.SPORT_CRICKET, 1_000L));
+        }
+        seeded.add(2, new Object[] {ScoreContract.STATE_NONE, "", "", null, "", "", 0L, 0, "#9E9E9E"});
+        FakeScoreProvider.seedPills(seeded);
+        feed.start();
+        settle();
+        assertEquals(1, calls);
+        List<ScoreFeed.Row> got = deliveries.get(0);
+        assertEquals(ScoreContract.MAX_ROWS, got.size());
+        assertEquals("ev1", got.get(0).eventId);
+        assertEquals("the none row is skipped, the order kept", "ev3", got.get(2).eventId);
+        assertEquals("ev5", got.get(got.size() - 1).eventId);
+        assertFalse("no row in play: nothing re-read", feed.liveReadArmed());
+    }
+
+    @Test
+    public void aLiveRowAnywhereInTheListArmsTheLiveRead() {
+        List<Object[]> seeded = new ArrayList<>();
+        seeded.add(FakeScoreProvider.pill(ScoreContract.STATE_UPCOMING, "19:30", "a", "ev1", ScoreContract.SPORT_FOOTBALL, 1_000L));
+        seeded.add(FakeScoreProvider.pill(ScoreContract.STATE_LIVE, "LIVE", "b", "ev2", ScoreContract.SPORT_CRICKET, 1_000L));
+        FakeScoreProvider.seedPills(seeded);
+        feed.start();
+        settle();
+        assertTrue(feed.liveReadArmed());
     }
 
     @Test

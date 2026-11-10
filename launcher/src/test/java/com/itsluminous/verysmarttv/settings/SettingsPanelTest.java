@@ -160,6 +160,54 @@ public class SettingsPanelTest {
     }
 
     @Test
+    public void liveScoreRowsFollowsTheLiveScoresRowAndReadsTheThemesCount() {
+        panel();
+        List<TextView> texts = texts();
+        int scores = -1, rows = -1;
+        for (int i = 0; i < texts.size(); i++) {
+            if (ctx.getString(R.string.score_pill_label).contentEquals(texts.get(i).getText())) scores = i;
+            if (ctx.getString(R.string.score_rows_label).contentEquals(texts.get(i).getText())) rows = i;
+        }
+        assertTrue("the rows row sits right after Live scores (title, value, title)", scores >= 0 && rows == scores + 2);
+        assertEquals("config.xml's score_rows is 3", "3", valueOf(ctx.getString(R.string.score_rows_label)));
+        assertEquals(3, Config.load(activity).scoreRows);
+        assertEquals(3, Config.load(activity).themeScoreRows);
+    }
+
+    @Test
+    public void pickingLiveScoreRowsSavesTheCountAndConfigAppliesIt() {
+        panel();
+        click(ctx.getString(R.string.score_rows_label));
+        // The picker lists 1 to 5; "5" is its last row.
+        click("5");
+        assertEquals(5, choices.getInt(SettingsChoices.SCORE_ROWS_KEY, -1));
+        assertEquals(1, changes);
+        assertEquals("5", valueOf(ctx.getString(R.string.score_rows_label)));
+        Config cfg = Config.load(activity);
+        assertEquals(5, cfg.scoreRows);
+        assertEquals("the theme's own value is kept apart", 3, cfg.themeScoreRows);
+        click(ctx.getString(R.string.score_rows_label));
+        click("1");
+        assertEquals(1, Config.load(activity).scoreRows);
+    }
+
+    @Test
+    public void aSavedCountOutsideOneToFiveFallsBackToTheTheme() {
+        choices.edit().putInt(SettingsChoices.SCORE_ROWS_KEY, 9).commit();
+        assertEquals(3, Config.load(activity).scoreRows);
+        assertEquals(5, SettingsChoices.chosenScoreRows(0, 7));
+        assertEquals(1, SettingsChoices.chosenScoreRows(-1, 0));
+        assertEquals(2, SettingsChoices.chosenScoreRows(2, 4));
+    }
+
+    @Test
+    public void aThemePushClearsTheRowsChoiceToo() {
+        choices.edit().putInt(SettingsChoices.SCORE_ROWS_KEY, 5).putString(SettingsChoices.THEME_SIGNATURE_KEY, "old").commit();
+        SettingsChoices.syncThemeChoices(choices, null, null);
+        assertFalse(choices.contains(SettingsChoices.SCORE_ROWS_KEY));
+    }
+
+    @Test
     public void aThemePushClearsTheChoice() {
         choices.edit().putInt(SettingsChoices.SCORE_PILL_KEY, 1).putString(SettingsChoices.THEME_SIGNATURE_KEY, "old").commit();
         SettingsChoices.syncThemeChoices(choices, null, null);

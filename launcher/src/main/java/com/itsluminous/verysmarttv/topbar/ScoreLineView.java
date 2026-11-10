@@ -15,13 +15,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.itsluminous.verysmarttv.R;
+
 /**
- * The live-score pill under the top-right pills (DESIGN.md §9.2): one line, a state dot and the kicker in the state
- * colour, then the companion's line in white. GONE while there is nothing to show; focusable only while visible, with
- * the glass focus ring of {@code score_pill_bg}. The dot pulses only while the row is live and animations are on.
- * {@link ScoreLine} decides what shows; this view only draws it.
+ * One line of the score pill under the top-right pills (DESIGN.md §9.2, ADR-041): a state dot and the kicker in the
+ * state colour, then the companion's line in white, on its own shade ({@code score_line_bg}, its over-art twin while a
+ * backdrop is up). GONE while there is nothing to show; focusable only while visible, with the glass focus ring. The
+ * dot pulses only while the row is live and animations are on. {@link ScoreLine} decides what shows; this view only
+ * draws it; {@link ScorePill} stacks the lines.
  */
-public final class ScorePill extends TextView {
+public final class ScoreLineView extends TextView {
     static final int DOT_DP = 8;
     static final long PULSE_MS = 900L;
     private final GradientDrawable dot = new GradientDrawable();
@@ -30,11 +33,11 @@ public final class ScorePill extends TextView {
     @Nullable
     private ScoreLine.Text current;
 
-    public ScorePill(@NonNull Context context) {
+    public ScoreLineView(@NonNull Context context) {
         this(context, null);
     }
 
-    public ScorePill(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public ScoreLineView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         int size = Math.round(DOT_DP * getResources().getDisplayMetrics().density);
         dot.setShape(GradientDrawable.OVAL);
@@ -80,10 +83,17 @@ public final class ScorePill extends TextView {
         else stopPulse();
     }
 
-    /** What the pill shows now; null before the first {@link #show}. */
+    /** What the line shows now; null before the first {@link #show}. */
     @Nullable
     public ScoreLine.Text current() {
         return current;
+    }
+
+    /** Over the carousel's backdrop: the shade over a dark base, as the round pills; the padding is kept across the swap. */
+    public void setOverArt(boolean on) {
+        int l = getPaddingLeft(), t = getPaddingTop(), r = getPaddingRight(), b = getPaddingBottom();
+        setBackgroundResource(on ? R.drawable.score_line_bg_over_art : R.drawable.score_line_bg);
+        setPadding(l, t, r, b);
     }
 
     /** The dot is pulsing (live, animations on, pill on screen). */

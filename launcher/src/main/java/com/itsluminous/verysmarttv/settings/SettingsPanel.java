@@ -211,6 +211,15 @@ public final class SettingsPanel {
             choose(activity.getString(R.string.score_pill_label), labels, scoresNow ? 0 : 1, which ->
                     save(e -> e.putInt(SettingsChoices.SCORE_PILL_KEY, which == 0 ? 1 : 0)));
         });
+        // Live score rows (score_rows): how many followed events the pill stacks, 1 to 5, over the theme's key; the row
+        // and its picker show the count in force (SettingsChoices.chosenScoreRows). ADR-041.
+        int rowsNow = SettingsChoices.chosenScoreRows(choices.getInt(SettingsChoices.SCORE_ROWS_KEY, -1), config.themeScoreRows);
+        row(R.drawable.ic_livetv, activity.getString(R.string.score_rows_label), String.valueOf(rowsNow), v -> {
+            String[] labels = new String[SettingsChoices.SCORE_ROWS_MAX - SettingsChoices.SCORE_ROWS_MIN + 1];
+            for (int i = 0; i < labels.length; i++) labels[i] = String.valueOf(SettingsChoices.SCORE_ROWS_MIN + i);
+            choose(activity.getString(R.string.score_rows_label), labels, rowsNow - SettingsChoices.SCORE_ROWS_MIN, which ->
+                    save(e -> e.putInt(SettingsChoices.SCORE_ROWS_KEY, SettingsChoices.SCORE_ROWS_MIN + which)));
+        });
 
         // Animations: one switch for all the motion. Off is still, with no zoom, lift or glow; On has the theme's
         // advanced_effects along with it (Config.advancedEffects gates on animations), so there is no Advanced

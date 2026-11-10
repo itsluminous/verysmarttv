@@ -60,6 +60,14 @@ public final class SettingsChoices {
     public static final String SCORE_PILL_KEY = "score_pill";
 
     /**
+     * The Live score rows choice in Launcher settings: how many lines the score pill stacks, 1 to 5; unset means the
+     * theme's score_rows decides (ADR-041).
+     */
+    public static final String SCORE_ROWS_KEY = "score_rows";
+
+    public static final int SCORE_ROWS_MIN = 1, SCORE_ROWS_MAX = 5;
+
+    /**
      * A choice older launchers saved from their Advanced effects row. Advanced effects now follow the Animations
      * setting and the theme's advanced_effects key, and this key is dropped wherever it turns up (load, restore):
      * both old Animations rows wrote it false on every toggle, which then outlived turning animations back on.
@@ -108,12 +116,12 @@ public final class SettingsChoices {
             SharedPreferences.Editor editor = choices.edit();
             if (!"absent".equals(token)) editor.remove("columns").remove("animations")
                     .remove(ROWS_BELOW_DOCK_KEY)
-                    .remove(DOCK_OPACITY_KEY).remove(CLOCK_FORMAT_KEY).remove(HERO_HEIGHT_KEY).remove(HERO_FEED_KEY).remove(WIDGETS_KEY).remove(SCORE_PILL_KEY);
+                    .remove(DOCK_OPACITY_KEY).remove(CLOCK_FORMAT_KEY).remove(HERO_HEIGHT_KEY).remove(HERO_FEED_KEY).remove(WIDGETS_KEY).remove(SCORE_PILL_KEY).remove(SCORE_ROWS_KEY);
             editor.putString(THEME_SIGNATURE_KEY, signature).commit();
         } else if (!seen.equals(signature)) {
             choices.edit().remove("columns").remove("animations")
                     .remove(ROWS_BELOW_DOCK_KEY).remove(DOCK_OPACITY_KEY)
-                    .remove(CLOCK_FORMAT_KEY).remove(HERO_HEIGHT_KEY).remove(HERO_FEED_KEY).remove(WIDGETS_KEY).remove(SCORE_PILL_KEY)
+                    .remove(CLOCK_FORMAT_KEY).remove(HERO_HEIGHT_KEY).remove(HERO_FEED_KEY).remove(WIDGETS_KEY).remove(SCORE_PILL_KEY).remove(SCORE_ROWS_KEY)
                     .putString(THEME_SIGNATURE_KEY, signature).commit();
         }
     }
@@ -170,5 +178,11 @@ public final class SettingsChoices {
     /** The Live scores toggle (SCORE_PILL_KEY): 1 is on, 0 off, anything else leaves the theme's score_pill. */
     public static boolean chosenScorePill(int chosen, boolean theme) {
         return chosen == 1 || (chosen != 0 && theme);
+    }
+
+    /** The Live score rows choice (SCORE_ROWS_KEY) when one in 1..5 is saved, else the theme's score_rows held to that range. */
+    public static int chosenScoreRows(int chosen, int theme) {
+        if (chosen >= SCORE_ROWS_MIN && chosen <= SCORE_ROWS_MAX) return chosen;
+        return Math.max(SCORE_ROWS_MIN, Math.min(SCORE_ROWS_MAX, theme));
     }
 }

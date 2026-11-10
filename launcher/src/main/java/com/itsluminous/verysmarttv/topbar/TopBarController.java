@@ -211,6 +211,7 @@ public final class TopBarController {
         if (host.state().pillsOverArt == on) return;
         host.state().pillsOverArt = on;
         if (bars != null) bars.setOverArt(on);
+        if (scorePill != null) scorePill.setOverArt(on);
         int bg = on ? R.drawable.pill_bg_over_art : R.drawable.pill_bg;
         for (View pill : new View[]{btnInputs, btnWifi, btnReorder, btnLibraryTop, host.findViewById(R.id.btnSettings)}) {
             if (pill == null) continue;
@@ -331,7 +332,7 @@ public final class TopBarController {
             View button = topButtons.getChildAt(k);
             pills.add(new TopBarFocus.Pill(button.getId(), button.getVisibility() == View.VISIBLE));
         }
-        return new TopBarFocus.Bar(pills, R.id.btnInputs, R.id.btnSettings, scorePill != null && scorePill.shown());
+        return new TopBarFocus.Bar(pills, R.id.btnInputs, R.id.btnSettings, scorePill == null ? 0 : scorePill.rowsShown());
     }
 
     /** Focus the pill with this id (a TopBarFocus verdict). */
@@ -340,9 +341,9 @@ public final class TopBarController {
         if (pill != null) pill.requestFocus();
     }
 
-    /** Execute an Up verdict from the grid or the carousel (TopBarFocus.fromGridUp, fromCarouselUp): the score pill or a round pill. */
+    /** Execute an Up verdict from the grid or the carousel (TopBarFocus.fromGridUp, fromCarouselUp): a score line or a round pill. */
     public void focusAbove(@NonNull TopBarFocus.Verdict verdict) {
-        if (verdict.stop == TopBarFocus.Stop.SCORE_PILL && scorePill != null) scorePill.focus();
+        if (verdict.stop == TopBarFocus.Stop.SCORE_PILL && scorePill != null) scorePill.focus(verdict.row);
         else if (verdict.stop == TopBarFocus.Stop.PILL) focusPill(verdict.pillId);
         else if (verdict.stop != TopBarFocus.Stop.CAROUSEL) focusPill(TopBarFocus.firstButton(bar()));
     }
@@ -889,8 +890,9 @@ public final class TopBarController {
             labelOnFocus((TextView) btnLibraryTop);
         }
         // score_pill (Config.scorePill, after the Live scores row): the pill under the bar and its reader (DESIGN.md
-        // §9.2). Off, there is no reader: the companion's provider is never queried.
-        if (cfg.scorePill) scorePill = new ScorePillController(host, root);
+        // §9.2), stacking up to score_rows lines (Config.scoreRows, after the Live score rows row; ADR-041). Off, there
+        // is no reader: the companion's provider is never queried.
+        if (cfg.scorePill) scorePill = new ScorePillController(host, root, cfg.scoreRows);
     }
 
     /** onCreate, last: the network, VPN and TV-input callbacks, for the activity's whole life. */
