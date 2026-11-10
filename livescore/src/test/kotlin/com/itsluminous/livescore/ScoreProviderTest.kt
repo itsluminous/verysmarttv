@@ -165,6 +165,12 @@ class ScoreProviderTest {
         waitForFetch()
         assertEquals(listOf(Sport.CRICKET to null), source.fetched)
         assertEquals("fresh", repo.event("ipl1")!!.summary)
+        // The cache is written before the fetch thread notifies: wait for the notification as well as the event.
+        val deadline = System.currentTimeMillis() + 5_000
+        while (notified.isEmpty() && System.currentTimeMillis() < deadline) {
+            Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+            Thread.sleep(20)
+        }
         assertTrue(Shadows.shadowOf(resolver).notifiedUris.any { it.uri == ScoreContract.PILL })
         assertTrue(notified.isNotEmpty())
         // A second read right after: the cache is fresh, nothing fetched.
