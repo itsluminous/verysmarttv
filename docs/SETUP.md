@@ -40,7 +40,9 @@ VerySmartTV setup 1.0.0-rc2
 2  Connect                 accept "Allow USB debugging?" on the TV (tick "Always allow")
 3  Get the apps            the latest GitHub release: three APKs + SHA256SUMS, checksums verified
 4  Install                 companions first, then the launcher; Home = VerySmartTV; the stock launcher is
-                           left enabled unless you say yes to disabling it (it stays installed either way)
+                           left enabled unless you say yes to disabling it (it stays installed either way).
+                           A stock that keeps Home ahead of ours (a HOME priority, PatchWall) is disabled
+                           first when you say yes, and Home handed over again
 5  Theme                   frosted (the owner's), default, or skip
 6  Clean up (optional)     the community list that matches your TV exactly, if there is one; apply it, show
                            it first, pick another slug, or skip. Whichever list you pick, its header is
@@ -78,14 +80,14 @@ a factory package, not even to look.
 | `--theme frosted`, `--theme skip` | the theme without asking |
 | `--preset <slug>`, `--preset none` | a list from `presets/lists/` by folder name, or no clean-up |
 | `--stock-launcher <package>` / `none` | when the TV's Home is a launcher the tool does not know |
-| `--disable-stock` | disable the stock launcher once VerySmartTV answers HOME, without asking |
+| `--disable-stock` | disable the stock launcher once VerySmartTV answers HOME, without asking; and first, when it keeps Home ahead of ours (below) |
 
 ## The commands one by one
 
 | Command | Does |
 |---|---|
 | `setup discover` | TVs answering `_adb._tcp` / `_adb-tls-connect._tcp` over mDNS, then every host on your /24 with port 5555 open (`--subnet 192.168.1.0/24`) |
-| `setup probe --host <ip>` | model, Android version, firmware, who owns Home, and the preset that matches |
+| `setup probe --host <ip>` | model, Android version, firmware, who owns Home and its HOME intent-filter priority, and the preset that matches |
 | `setup install --host <ip> [--apk-dir d] [--disable-stock]` | the three APKs, Home handover with the Home guard (below) |
 | `setup theme --host <ip> frosted` / `--reset` | push a theme folder through the launcher's provider and restart Home; `--reset` removes it |
 | `setup debloat --host <ip> [--preset s \| --list f] [--dry-run] [--show]` | match, show the list (its header, or the whole list with its notes: `--show`, or whenever you did not pass `--yes`), ask, record, apply in batches with a screenshot each (`~/.verysmarttv/shots/`). A list for another brand that happens to share your TV's model or device name is listed last among the candidates and never pre-selected |
@@ -105,6 +107,13 @@ The install never leaves a TV without something to start when Home is pressed:
   once VerySmartTV answers HOME; if Home then moves away, it is re-enabled at once. Only the four known stock
   launchers (`com.google.android.tvlauncher`, `com.google.android.apps.tv.launcherx`,
   `com.google.android.leanbacklauncher`, `com.mitv.tvhome`) or a package you name are ever disabled.
+- **A stock that keeps Home.** Some stock launchers give their HOME activity an intent-filter priority above 0
+  (`setup probe` prints `home priority = 2` for Google's TV launcher, and the Mi TV 4A's PatchWall keeps Home the
+  same way), so `set-home-activity` says Success and Home still resolves to them. Without your say-so the install
+  rolls back as above and says to run again with `--disable-stock`. With `--disable-stock`, or a yes to the
+  question the guided flow asks at that point, that same recognised stock (or the package you named) is disabled
+  **first**, Home is handed over again and checked; if VerySmartTV still does not answer, the stock is re-enabled
+  and put back on Home like any other rollback. Nothing else is ever disabled this way.
 - A clean-up list that names the app owning Home is applied without it while nothing else can answer Home,
   or while Google TV's setup wizard (`setupwraith`) still answers it ahead of the other launchers; the wizard
   itself is never disabled while it owns the saved Wi-Fi network.
@@ -146,6 +155,10 @@ port is closed (a timeout proves nothing). The launcher keeps working without de
 - **Home resolves to the setup wizard** on Google TV: its RecoveryActivity claims HOME ahead of an installed
   launcher. Apply a list that disables `com.google.android.tungsten.setupwraith` (after forgetting and
   re-joining the Wi-Fi network in Settings if the wizard owns it), then install again.
+- **"Home did not move to VerySmartTV … run again with --disable-stock"**: the stock launcher answers Home
+  ahead of ours (its HOME priority, see `setup probe`); run `setup install --disable-stock` (or say yes in the
+  guided flow) and it is disabled first, then Home handed over. `setup restore`, or `pm enable --user 0 <package>`
+  over adb, brings it back.
 - **A TV refuses `pm disable-user` for every package**: that firmware does not allow it; stop there. The
   launcher half still works.
 - **A CVTE board** (the TV lists `com.cvte.*` packages; many Haier, JVC, Artel and store-brand sets): leave its

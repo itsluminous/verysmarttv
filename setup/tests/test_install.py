@@ -100,9 +100,10 @@ class InstallTest(unittest.TestCase):
         original = dev._answer
         dev._answer = lambda c: "Error\n" if c.startswith("cmd package set-home-activity") and OURS in c else original(c)
         with self.assertRaises(install.InstallError):
-            install.run(dev, self.apks, PROPS, disable_stock=True, log=quiet)
+            install.run(dev, self.apks, PROPS, log=quiet)
         self.assertNotIn(STOCK, dev.disabled)
         self.assertEqual(dev.home, STOCK_HOME)
+        self.assertFalse(any(c.startswith("pm disable-user") for c in dev.commands), "nothing disabled without the request")
 
     def test_disabling_the_stock_that_takes_home_away_is_undone(self):
         dev = self.fresh_tv(fallback_wins=True)
@@ -127,6 +128,92 @@ class InstallTest(unittest.TestCase):
             install.run(dev, self.apks, dict(PROPS, **{"ro.build.version.sdk": "25"}), log=quiet)
         self.assertIn("INSTALL_FAILED_OLDER_SDK", str(caught.exception))
         self.assertEqual(dev.files, {})
+
+    # -- a stock that answers Home ahead of ours (a HOME priority above 0, PatchWall on the Mi TV 4A) ----------
+
+    def test_a_sticky_stock_is_disabled_first_only_when_asked(self):
+        """With --disable-stock the recognised stock goes first, Home is handed over again and lands on ours."""
+        dev = self.fresh_tv(sticky_home=True)
+        logged = []
+        result = install.run(dev, self.apks, PROPS, disable_stock=True, log=logged.append)
+        self.assertEqual(result["home"], OURS_HOME)
+        self.assertTrue(result["stock_disabled"])
+        self.assertIn(STOCK, dev.disabled)
+        self.assertEqual(dev.home, OURS_HOME)
+        sethomes = [i for i, c in enumerate(dev.commands) if c.startswith("cmd package set-home-activity")]
+        disable = next(i for i, c in enumerate(dev.commands) if c.startswith(f"pm disable-user --user 0 {STOCK}"))
+        self.assertEqual(len(sethomes), 2, "handed over once before and once after the disable")
+        self.assertLess(sethomes[0], disable)
+        self.assertLess(disable, sethomes[1])
+        self.assertEqual(sum(1 for c in dev.commands if c.startswith("pm disable-user")), 1, "disabled once, not again afterwards")
+        self.assertTrue(any("ahead of VerySmartTV" in line for line in logged))
+
+    def test_a_sticky_stock_without_the_request_rolls_back_with_a_hint(self):
+        """Without --disable-stock (or a yes) nothing is disabled: the rollback of today, and the hint to ask for it."""
+        dev = self.fresh_tv(sticky_home=True)
+        with self.assertRaises(install.InstallError) as caught:
+            install.run(dev, self.apks, PROPS, log=quiet)
+        self.assertIn("--disable-stock", str(caught.exception))
+        self.assertNotIn(STOCK, dev.disabled)
+        self.assertEqual(dev.home, STOCK_HOME)
+        self.assertFalse(any(c.startswith("pm disable-user") for c in dev.commands))
+        # The question's No is the same as not asking.
+        dev = self.fresh_tv(sticky_home=True)
+        asked = []
+        with self.assertRaises(install.InstallError):
+            install.run(dev, self.apks, PROPS, log=quiet, ask_disable=lambda home: asked.append(home) or False)
+        self.assertEqual(asked, [STOCK_HOME])
+        self.assertNotIn(STOCK, dev.disabled)
+        self.assertEqual(dev.home, STOCK_HOME)
+
+    def test_a_typed_yes_disables_the_sticky_stock_first(self):
+        dev = self.fresh_tv(sticky_home=True)
+        result = install.run(dev, self.apks, PROPS, log=quiet, ask_disable=lambda home: True)
+        self.assertEqual(result["home"], OURS_HOME)
+        self.assertTrue(result["stock_disabled"])
+        self.assertIn(STOCK, dev.disabled)
+
+    def test_the_question_is_not_asked_when_home_moves_on_its_own(self):
+        dev = self.fresh_tv()
+        asked = []
+        result = install.run(dev, self.apks, PROPS, log=quiet, ask_disable=lambda home: asked.append(home) or True)
+        self.assertEqual(asked, [])
+        self.assertFalse(result["stock_disabled"])
+        self.assertNotIn(STOCK, dev.disabled)
+
+    def test_disabling_the_sticky_stock_first_is_undone_when_ours_still_does_not_answer(self):
+        """The stock goes, Home lands on a FallbackHome instead of ours: the stock is re-enabled and owns Home again."""
+        dev = self.fresh_tv(sticky_home=True, fallback_wins=True)
+        original = dev._answer
+        dev._answer = lambda c: "Error\n" if c.startswith("cmd package set-home-activity") and OURS in c else original(c)
+        logged = []
+        with self.assertRaises(install.InstallError) as caught:
+            install.run(dev, self.apks, PROPS, disable_stock=True, log=logged.append)
+        self.assertIn("re-enabled", str(caught.exception))
+        self.assertNotIn(STOCK, dev.disabled, "re-enabled")
+        self.assertEqual(dev.home, STOCK_HOME)
+        enable = next(i for i, c in enumerate(dev.commands) if c.startswith(f"pm enable --user 0 {STOCK}"))
+        disable = next(i for i, c in enumerate(dev.commands) if c.startswith(f"pm disable-user --user 0 {STOCK}"))
+        self.assertLess(disable, enable)
+        self.assertTrue(any(f"{STOCK} owns Home again" in line for line in logged))
+
+    def test_probe_reads_the_home_owners_priority(self):
+        from verysmarttv_setup import probe
+        dump = (f"  Non-Data Actions:\n      android.intent.action.MAIN:\n        4eb569c {STOCK_HOME} filter 53f98a5\n"
+                '          Action: "android.intent.action.MAIN"\n          Category: "android.intent.category.HOME"\n'
+                '          Category: "android.intent.category.DEFAULT"\n'
+                "          mPriority=2, mOrder=0, mHasStaticPartialTypes=false, mHasDynamicPartialTypes=false\n"
+                f"        987e4f6 {STOCK}/.Other filter 2e3a0f7\n"
+                '          Action: "android.intent.action.MAIN"\n          Category: "android.intent.category.LAUNCHER"\n'
+                "          mPriority=9, mOrder=0\n\nDomain verification status:\n")
+        ours = (f"      android.intent.action.MAIN:\n        443dc45 {OURS_HOME} filter 5fff9a\n"
+                '          Action: "android.intent.action.MAIN"\n          Category: "android.intent.category.HOME"\n'
+                '          Category: "android.intent.category.DEFAULT"\n\nReceiver Resolver Table:\n')
+        dev = self.fresh_tv(dumps={STOCK: dump, OURS: ours})
+        self.assertEqual(probe.home_priority(dev, STOCK_HOME), 2)
+        self.assertEqual(probe.home_priority(dev, OURS_HOME), 0, "no mPriority line means 0")
+        self.assertIsNone(probe.home_priority(dev, "com.android.tv.settings/.system.FallbackHome"), "no HOME filter in the dump")
+        self.assertIsNone(probe.home_priority(dev, None))
 
     def guided(self, dev, *argv):
         """`setup setup <argv>` against the fake TV: the device and the APK folder are given, nothing is asked."""
@@ -153,6 +240,19 @@ class InstallTest(unittest.TestCase):
         disabled_at = next(i for i, c in enumerate(dev.commands) if c.startswith(f"pm disable-user --user 0 {STOCK}"))
         home_set_at = next(i for i, c in enumerate(dev.commands) if c.startswith("cmd package set-home-activity"))
         self.assertGreater(disabled_at, home_set_at, "the stock goes only after ours is Home")
+
+    def test_the_guided_flow_disables_a_sticky_stock_first_only_with_the_flag(self):
+        """`--yes` answers the early question with its default, No, so the install stops with the hint; with
+        --disable-stock the stock goes first and the later question is not asked again."""
+        dev = self.fresh_tv(sticky_home=True)
+        self.assertNotEqual(self.guided(dev), 0)
+        self.assertNotIn(STOCK, dev.disabled)
+        self.assertEqual(dev.home, STOCK_HOME)
+        dev = self.fresh_tv(sticky_home=True)
+        self.assertEqual(self.guided(dev, "--disable-stock"), 0)
+        self.assertEqual(dev.home, OURS_HOME)
+        self.assertIn(STOCK, dev.disabled)
+        self.assertEqual(sum(1 for c in dev.commands if c.startswith("pm disable-user")), 1)
 
 
 if __name__ == "__main__":

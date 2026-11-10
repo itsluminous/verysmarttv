@@ -217,7 +217,13 @@ def cmd_probe(args) -> int:
         for key in probe.PROPS:
             if key != "ro.serialno":
                 say(f"{key} = {props[key]}")
-        say(f"home = {probe.query_home(dev) or 'nothing'}")
+        home = probe.query_home(dev)
+        say(f"home = {home or 'nothing'}")
+        if home and not homeguard.is_chooser(home):
+            priority = probe.home_priority(dev, home)
+            say(f"home priority = {priority if priority is not None else 'unknown'}"
+                + (" (above VerySmartTV's 0: it answers Home whatever the default; install --disable-stock disables it first)"
+                   if priority and homeguard.package_of(home) != homeguard.LAUNCHER else ""))
         say(f"home claimants = {', '.join(probe.home_claims(dev)) or 'none'}")
         matches = presets.match(props, presets.load_index())
         best = presets.suggestion(matches)
@@ -247,13 +253,19 @@ def cmd_install(args) -> int:
         raise Quit(str(e), 2) from e
     dev, props = open_device(args)
     try:
-        result = install.run(dev, apks, props, args.stock_launcher, args.disable_stock, say, progress_line)
+        result = install.run(dev, apks, props, args.stock_launcher, args.disable_stock, say, progress_line,
+                             ask_disable=lambda home: confirm(ask_disable_text(home), False))
     except install.InstallError as e:
         raise Quit(str(e), 1) from e
     finally:
         dev.close()
     say(f"installed. Press Home on the remote to see it. (Home = {result['home']})")
     return 0
+
+
+def ask_disable_text(home: str) -> str:
+    return (f"Home still resolves to {home}, which answers Home ahead of VerySmartTV. Disable it now so Home can "
+            "move (it stays installed; setup restore or `pm enable` brings it back)?")
 
 
 def progress_line(i, n):
@@ -422,12 +434,15 @@ def cmd_setup(args) -> int:
         # 4 Install
         say("4  Install")
         try:
-            result = install.run(dev, apks, props, args.stock_launcher, False, lambda t: say("   " + t), progress_line)
+            # The same question, asked early, when the stock answers Home ahead of ours (install.run's exception);
+            # `--yes` takes its default, No, so only --disable-stock or a typed yes disables the stock first.
+            result = install.run(dev, apks, props, args.stock_launcher, args.disable_stock, lambda t: say("   " + t), progress_line,
+                                 ask_disable=lambda home: not yes and confirm("   " + ask_disable_text(home), False))
         except install.InstallError as e:
             raise Quit(str(e), 1) from e
         # `--yes` takes the question's default, which is No (§16.2 step 4): only `--disable-stock` or a typed yes
         # disables the stock launcher.
-        if result["stock"] and (args.disable_stock or (not yes and confirm(
+        if result["stock"] and not result["stock_disabled"] and (args.disable_stock or (not yes and confirm(
                 f"   disable the stock launcher {result['stock']} now (it stays installed; restore brings it back)?",
                 False))):
             try:

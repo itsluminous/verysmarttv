@@ -6,6 +6,13 @@ left enabled unless asked, and then disabled only once VerySmartTV answers HOME,
 the four known stock launchers (or the package the user named). If Home does not land on VerySmartTV the
 stock launcher is put back, and the commands that finish the rollback are also written to a file, in case
 the connection is what broke.
+
+One exception, only when the user asked for the stock to go (`--disable-stock`, or a typed yes to the question
+the guided flow asks at that point): when `set-home-activity` leaves Home on that same recognised stock
+launcher, as a stock with a HOME intent-filter priority above ours does (PatchWall on the Mi TV 4A; `probe`
+prints the priority), the stock is disabled first, Home is handed over again and re-checked, and if
+VerySmartTV still does not answer the stock is re-enabled and put back on Home as in every other rollback.
+Without the request the behaviour is unchanged: the rollback, and a hint to run again with `--disable-stock`.
 """
 import time
 from pathlib import Path
@@ -98,9 +105,17 @@ def rollback(dev, stock: str, log=print):
     log(f"recovery is incomplete; Home still resolves to {back or 'nothing'}. The commands that finish it are in {note}")
 
 
-def run(dev, apks: dict, props: dict, stock_choice: str = None, disable_stock=False, log=print, progress=None) -> dict:
-    """Install, hand Home over, optionally disable the stock launcher. Returns {"home": ..., "stock": ...}.
-    Raises InstallError (nothing further changed) or AdbError."""
+def set_home(dev):
+    dev.shell(f"cmd package set-home-activity --user 0 {homeguard.HOME_ACTIVITY}", 60)
+    return probe.query_home(dev)
+
+
+def run(dev, apks: dict, props: dict, stock_choice: str = None, disable_stock=False, log=print, progress=None,
+        ask_disable=None) -> dict:
+    """Install, hand Home over, optionally disable the stock launcher. Returns {"home": ..., "stock": ...,
+    "stock_disabled": bool}. `ask_disable(home)` is asked once, only when Home stays on the recognised stock after
+    the handover and `disable_stock` is not set; True means disable it first. Raises InstallError (nothing further
+    changed) or AdbError."""
     check_sdk(props)
     home_before = probe.query_home(dev)
     try:
@@ -116,16 +131,37 @@ def run(dev, apks: dict, props: dict, stock_choice: str = None, disable_stock=Fa
         raise InstallError(f"the launcher did not start ({out.strip().splitlines()[-1] if out.strip() else 'no output'}); "
                            f"{stock or 'the stock launcher'} was left as it was.")
     dev.shell(f"cmd package compile -m speed -f {homeguard.LAUNCHER}", 300)
-    dev.shell(f"cmd package set-home-activity --user 0 {homeguard.HOME_ACTIVITY}", 60)
-    home = probe.query_home(dev)
+    home = set_home(dev)
+    disabled = False
     if homeguard.package_of(home) != homeguard.LAUNCHER:
         log(f"Home resolves to {home or 'nothing'}, not to VerySmartTV.")
-        rollback(dev, stock, log)
-        if home and homeguard.package_of(home) == homeguard.SETUPWRAITH:
-            log(f"{homeguard.SETUPWRAITH} claims Home on this TV: see docs/SETUP.md, Troubleshooting.")
-        raise InstallError("Home did not move to VerySmartTV; the stock launcher was put back.")
+        stock_holds = stock is not None and homeguard.package_of(home) == stock
+        wanted = stock_holds and (disable_stock or (ask_disable is not None and bool(ask_disable(home))))
+        if wanted:
+            # The stock answers HOME ahead of ours whatever the default says (a HOME filter priority above 0,
+            # as PatchWall's on the Mi TV 4A): with the user's say-so, disable it first and hand Home over again.
+            log(f"{stock} answers Home ahead of VerySmartTV: disabling it first, then handing Home over again.")
+            dev.shell(f"pm disable-user --user 0 {stock}", 60)
+            time.sleep(1)
+            home = set_home(dev)
+            if homeguard.package_of(home) == homeguard.LAUNCHER:
+                disabled = True
+            else:
+                log(f"with {stock} disabled Home resolves to {home or 'nothing'}, still not VerySmartTV: putting it back.")
+                rollback(dev, stock, log)
+                raise InstallError(f"Home did not move to VerySmartTV even with {stock} disabled; it was re-enabled and "
+                                   "put back on Home.")
+        else:
+            rollback(dev, stock, log)
+            if home and homeguard.package_of(home) == homeguard.SETUPWRAITH:
+                log(f"{homeguard.SETUPWRAITH} claims Home on this TV: see docs/SETUP.md, Troubleshooting.")
+            hint = (f" {stock} answers Home ahead of VerySmartTV (a HOME priority above ours; `setup probe` shows it); "
+                    "run again with --disable-stock to disable it first." if stock_holds else "")
+            raise InstallError("Home did not move to VerySmartTV; the stock launcher was put back." + hint)
     log(f"Home = {home}")
-    if disable_stock and stock:
+    if disabled:
+        log(f"{stock} disabled for user 0 (setup restore, or `pm enable {stock}`, brings it back)")
+    elif disable_stock and stock:
         dev.shell(f"pm disable-user --user 0 {stock}", 60)
         time.sleep(1)
         home = probe.query_home(dev)
@@ -133,7 +169,8 @@ def run(dev, apks: dict, props: dict, stock_choice: str = None, disable_stock=Fa
             log(f"after disabling {stock}, Home resolves to {home or 'nothing'}: putting it back.")
             rollback(dev, stock, log)
             raise InstallError(f"disabling {stock} moved Home away from VerySmartTV; it was re-enabled.")
+        disabled = True
         log(f"{stock} disabled for user 0 (setup restore, or `pm enable {stock}`, brings it back)")
     elif stock:
         log(f"{stock} left enabled (disable it later with: setup install --disable-stock)")
-    return {"home": home, "stock": stock}
+    return {"home": home, "stock": stock, "stock_disabled": disabled}

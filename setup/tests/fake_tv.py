@@ -15,7 +15,8 @@ RC = "; echo __VST_RC__$?"
 class FakeTv:
     def __init__(self, installed=(), disabled=(), claims=(), home=None, props=None, wifi_owners=None,
                  dumps=None, input_handlers=(), settings_handlers=("com.android.tv.settings",), settings=None,
-                 no_cmd=False, home_process=None, start_fails=False, refuse_disable=(), fallback_wins=False):
+                 no_cmd=False, home_process=None, start_fails=False, refuse_disable=(), fallback_wins=False,
+                 sticky_home=False):
         self.installed = set(installed)
         self.disabled = set(disabled)
         self.claims = list(claims)             # package/activity in the TV's priority order
@@ -32,6 +33,9 @@ class FakeTv:
         self.start_fails = start_fails
         self.refuse_disable = set(refuse_disable)
         self.fallback_wins = fallback_wins          # a firmware that hands Home to its FallbackHome placeholder
+        self.sticky_home = sticky_home              # the Home owner at start has a HOME priority above ours (PatchWall):
+        self.sticky_owner = home if sticky_home else None  # set-home-activity says Success but Home stays with it until
+        self.preferred = None                       # it is disabled, and it takes Home back when re-enabled
         self.commands = []
         self.files = {}
         self.installed_apks = []
@@ -50,6 +54,12 @@ class FakeTv:
         """What Android does when the set of HOME apps changes: keep a still-enabled default, or with
         `fallback_wins` drop the preference and land on the placeholder."""
         if self.home and self.enabled(self.home.split("/")[0]) and not self.fallback_wins:
+            return
+        if self.sticky_owner and self.enabled(self.sticky_owner.split("/")[0]):
+            self.home = self.sticky_owner
+            return
+        if self.sticky_home and self.preferred and self.enabled(self.preferred.split("/")[0]) and not self.fallback_wins:
+            self.home = self.preferred
             return
         claims = self.enabled_claims()
         real = [c for c in claims if not c.endswith("FallbackHome")]
@@ -135,6 +145,8 @@ class FakeTv:
         m = re.fullmatch(r"pm enable (?:--user 0 )?(\S+)", command.strip())
         if m:
             self.disabled.discard(m.group(1))
+            if self.sticky_owner and self.sticky_owner.split("/")[0] == m.group(1):
+                self.home = self.sticky_owner  # a higher priority answers again the moment it is enabled
             return f"Package {m.group(1)} new state: enabled\n"
         if command.startswith("cmd ") and self.no_cmd:
             return "/system/bin/sh: cmd: not found\n"
@@ -158,6 +170,10 @@ class FakeTv:
             else:
                 comp = command.split()[-1]
             if comp and comp in self.enabled_claims():
+                self.preferred = comp
+                if self.sticky_owner and self.enabled(self.sticky_owner.split("/")[0]) and self.sticky_owner != comp:
+                    self.home = self.sticky_owner
+                    return "Success\n"  # the default is recorded, and the higher-priority owner keeps answering
                 self.home = comp
                 return "Success\n"
             return "Error: Could not set home\n"

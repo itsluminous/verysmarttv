@@ -82,3 +82,52 @@ def home_claims(dev) -> list:
         if m and m.group(1) not in found:
             found.append(m.group(1))
     return found
+
+
+def home_priority(dev, component):
+    """The HOME intent filter's priority of `component` (`package/.Activity`), from `dumpsys package <pkg>`:
+    the `mPriority=` line of the filter block that carries `Category: "android.intent.category.HOME"`, 0 when
+    the block has none (Android prints the line only for a priority other than 0), the highest when the
+    activity has several such filters, None when the dump names no HOME filter for it. A stock launcher with a
+    priority above ours answers HOME whatever default `set-home-activity` sets (PatchWall on the Mi TV 4A), which
+    is what `install --disable-stock` disables first."""
+    if not component or "/" not in component:
+        return None
+    package, activity = component.split("/", 1)
+    if activity.startswith("."):
+        activity = package + activity
+    out = dev.shell(f"dumpsys package {package}", 120)
+    best = None
+    block = None
+    indent = 0
+
+    def flush(current):
+        nonlocal best
+        if current is not None and current["home"]:
+            best = current["priority"] if best is None else max(best, current["priority"])
+
+    for line in out.splitlines():
+        head = re.match(r"^(\s*)[0-9a-f]+ (\S+) filter [0-9a-f]+", line)
+        if head:
+            flush(block)
+            name = head.group(2)
+            if name.startswith("."):
+                name = package + name
+            short = name.replace(package + "/" + package + ".", package + "/.")
+            mine = name in (component, package + "/" + activity) or short == component
+            block = {"home": False, "priority": 0} if mine else None
+            indent = len(head.group(1))
+            continue
+        if block is None:
+            continue
+        if line.strip() and len(line) - len(line.lstrip()) <= indent:
+            flush(block)
+            block = None
+            continue
+        if 'Category: "android.intent.category.HOME"' in line:
+            block["home"] = True
+        m = re.search(r"mPriority=(-?\d+)", line)
+        if m:
+            block["priority"] = int(m.group(1))
+    flush(block)
+    return best
