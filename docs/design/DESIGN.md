@@ -930,8 +930,13 @@ nightly (ADR-022). Concurrency group per ref with cancel-in-progress keeps queue
 ### 15.4 Versioning
 
 One version for the three apps (requirement 5), derived from the tag: `versionName = X.Y.Z`,
-`versionCode = X·10000 + Y·100 + Z` (HikViewer's `AppVersion`, `app/build.gradle.kts:163-189`); a build
-without `-PversionName` is `0.0.0-dev` with code 1 so a dev build never outranks an install. Every tag
+`versionCode = 1000000 + X·10000 + Y·100 + Z` (`build-logic/src/main/kotlin/AppVersion.kt`, after HikViewer's
+`AppVersion`); a build without `-PversionName` is `0.0.0-dev` with code 1 so a dev build never outranks an install.
+The 1000000 is an epoch (ADR-047): the first three candidates were published as `1.0.0-rc1..rc3` with code 10000
+before the owner numbered the first release 0.1.0, and every code since must exceed 10000 for those TVs to upgrade;
+within the epoch the order of versions is the order of codes, with a candidate sharing its final's code.
+The first public release line is **0.x**: `1.0.0` is the point where the provider contracts and theme keys are
+promised stable. Every tag
 rebuilds and publishes all three even when only one changed: the setup script and the user install a
 matching set, and the provider contracts are versioned by the one number. Semver meaning: **major** =
 a provider contract or theme-key break (migration note in CHANGELOG), **minor** = features, **patch** =

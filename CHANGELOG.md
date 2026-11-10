@@ -8,12 +8,40 @@ publishes all three, and the tag's message quotes the section below.
 
 ## [Unreleased]
 
-## [1.0.0-rc3] - 2026-11-10
+## [0.1.0-rc1] - 2026-11-10
 
-The third release candidate: badminton's provider is named for what it is and polled for its quota, the
-setup tool can take Home from a stock launcher that keeps it, and the setup tool reports 1.0.0-rc3.
+The first public release candidate, numbered **0.1.0**: the owner chose a 0.x line for the first release, so
+`1.0.0` is reserved for the point where the provider contracts and theme keys are promised stable. Everything
+below is what the three apps and the setup tool do at this tag.
 
-### Changed
+**Renumbering note.** Three candidates were published before this one as `v1.0.0-rc1`, `v1.0.0-rc2` and
+`v1.0.0-rc3` (all on 2026-11-10, all with Android `versionCode` 10000); their release pages stay as they are,
+and their contents are the sections marked *(was 1.0.0-rcN)* below. So that a TV with one of them installed
+upgrades to this and every later release, the `versionCode` scheme gained an epoch (ADR-047): `versionCode =
+1000000 + X·10000 + Y·100 + Z`, so `0.1.0-rc1` is 1000100 (> 10000) and the order of versions is the order of
+codes from here on. A release candidate shares its final version's code and the final is installed over it.
+
+### Added
+
+- **Scores: the badminton key is asked for the moment badminton is enabled** (ADR-044 amended). Ticking the
+  Badminton sport, a tournament, a player or a match in the Follow picker with no key stored opens the key
+  dialog first: a text field for the TV keyboard, and the words that it is your own RapidAPI key for
+  SportMicro's Badminton Micro API, kept on this TV, 100 requests a day on the free plan and possibly billed
+  beyond it. OK (or the keyboard's Done key) saves the key and the follow lands; Cancel leaves badminton
+  unfollowed. Scores → Settings → **Badminton data key** shows "Not set" or the key's last four characters and
+  changes or removes it; removing it keeps your follows, and the Scores home and the picker then say
+  "Badminton scores need a data key" (OK on that row opens the dialog) while nothing is fetched.
+
+### Fixed
+
+- **Launcher: the score stack never moves or overlaps the top shelf** (ADR-046). The stacked score lines and
+  the shelf are independent layers: the shelf is placed from the dock line whatever the stack shows (its top is
+  the same with 0, 1, 3 and 5 rows), and where the two would cross, the shelf's title, meta line and synopsis
+  end 16dp before the stack's left edge and ellipsize instead of running under it. The Trakt carousel's
+  backdrop fades out under the stack (a soft veil, no edge), so the lines read over any sky. One row above the
+  shelf costs the title nothing.
+
+### Changed *(was 1.0.0-rc3)*
 
 - **Scores: badminton comes from SportMicro's "Badminton Micro" API on RapidAPI** (`badminton-micro.p.rapidapi.com`;
   ADR-044 amended). rc2 named the same listing "SportDevs' Badminton Devs"; the source, its settings and the
@@ -43,9 +71,7 @@ setup tool can take Home from a stock launcher that keeps it, and the setup tool
   answer, the stock is re-enabled and put back on Home. Without the request nothing changes: the rollback, and a
   hint to run again with `--disable-stock`. Verified on the Android TV 14 emulator with the stock re-enabled.
 
-## [1.0.0-rc2] - 2026-11-10
-
-### Added
+### Added *(was 1.0.0-rc2)*
 
 - **Scores: badminton** (ADR-044). ESPN has no badminton feed, so badminton comes from SportDevs' Badminton
   API on RapidAPI with **your own key**: create a free RapidAPI account, subscribe to the API's free plan and
@@ -60,17 +86,12 @@ setup tool can take Home from a stock launcher that keeps it, and the setup tool
   under it is. OK on a section selects everything under it; on a fully ticked one it clears everything (for a
   sport, every follow of that sport).
 
-### Changed
+### Changed *(was 1.0.0-rc2)*
 
 - **Scores**: a break's kicker is the pause itself (`SUSPENDED`, not the round name) when the feed's detail
   carries both.
 
-## [1.0.0-rc1] - 2026-11-10
-
-The first release candidate: everything Phases 0 to 5 of the build plan delivered, signed with the release
-key for the first time so the release pipeline can be proved before `1.0.0`.
-
-### Added
+### Added *(was 1.0.0-rc1)*
 
 - **Launcher** (`com.itsluminous.verysmarttv`): the home screen carried from the upstream project (credited in the README and `THIRD_PARTY_NOTICES.md`) and renamed.
   A dock and a grid of your apps, a top shelf that names the focused app or shows the Trakt carousel, three
@@ -108,7 +129,7 @@ key for the first time so the release pipeline can be proved before `1.0.0`.
   and never pre-selected; `e` at the question deselects packages by number and keeps your copy of the list
   for `check` and `restore`.
 
-### Build and release
+### Build and release *(was 1.0.0-rc1)*
 
 - One Gradle project, one version from the tag, one release key for the three apps (`release.yml` refuses
   to publish anything not signed with it). `./gradlew ci` runs the unit tests, lint, the file-length gate
@@ -117,6 +138,5 @@ key for the first time so the release pipeline can be proved before `1.0.0`.
 - Signer certificate SHA-256: `15d5085a0400d720d4aea65edab4df72c6e5a5313844715c3e56859cec99c21d` (verified with
   `apksigner verify --print-certs` on every APK of v1.0.0-rc1, v1.0.0-rc2 and v1.0.0-rc3).
 
-[Unreleased]: https://github.com/itsluminous/verysmarttv/compare/v1.0.0-rc2...HEAD
-[1.0.0-rc2]: https://github.com/itsluminous/verysmarttv/releases/tag/v1.0.0-rc2
-[1.0.0-rc1]: https://github.com/itsluminous/verysmarttv/releases/tag/v1.0.0-rc1
+[Unreleased]: https://github.com/itsluminous/verysmarttv/compare/v0.1.0-rc1...HEAD
+[0.1.0-rc1]: https://github.com/itsluminous/verysmarttv/releases/tag/v0.1.0-rc1

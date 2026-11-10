@@ -5,7 +5,6 @@ import androidx.test.espresso.Espresso.onView
 import android.view.View
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
-import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
 import androidx.test.espresso.action.ViewActions.pressImeActionButton
 import androidx.test.espresso.action.ViewActions.typeText
@@ -104,7 +103,7 @@ class FollowFlowTest {
             onView(withId(R.id.badmintonKeyField)).check(matches(isDisplayed()))
             onView(withText(R.string.badminton_key_explain)).check(matches(isDisplayed()))
             onView(withId(R.id.badmintonKeyField)).perform(closeSoftKeyboard())
-            onView(withText(R.string.cancel)).perform(click())
+            onView(withText(R.string.cancel)).perform(pressButton())
             box("Badminton").check(matches(withContentDescription(R.string.check_none)))
             assertTrue("Cancel leaves badminton unfollowed", repo.follows.all().none { it.sport == Sport.BADMINTON })
             assertEquals("", repo.prefs.badmintonKey)
@@ -129,7 +128,7 @@ class FollowFlowTest {
             onView(withText(R.string.badminton_key)).perform(pressOk())
             awaitDialog()
             onView(withId(R.id.badmintonKeyField)).perform(closeSoftKeyboard())
-            onView(withText(R.string.badminton_key_remove)).perform(click())
+            onView(withText(R.string.badminton_key_remove)).perform(pressButton())
             onView(withText(R.string.badminton_key_unset)).check(matches(isDisplayed()))
         }
         assertEquals("", repo.prefs.badmintonKey)
@@ -227,6 +226,20 @@ class FollowFlowTest {
     private fun awaitDialog() {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         Thread.sleep(DIALOG_FOCUS_MS)
+    }
+
+    /**
+     * OK on a dialog button: focus and click it without a tap, since a tap puts the emulator in touch mode, where no
+     * view takes D-pad focus and the launcher's suite, run after this one, fails (docs/BUILDING.md).
+     */
+    private fun pressButton() = object : ViewAction {
+        override fun getConstraints() = isDisplayed()
+        override fun getDescription() = "focus the button and press OK"
+        override fun perform(uiController: UiController, view: View) {
+            view.requestFocus()
+            view.performClick()
+            uiController.loopMainThreadUntilIdle()
+        }
     }
 
     /** Focus the row a label sits in, the way the D-pad would: the picker fills the next column on focus. */
