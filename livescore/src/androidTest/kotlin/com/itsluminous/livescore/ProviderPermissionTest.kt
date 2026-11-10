@@ -26,7 +26,8 @@ class ProviderPermissionTest {
         val restore = shell("content call --uri ${ScoreContract.PILL} --method ${ScoreContract.METHOD_RESTORE} --extra ${ScoreContract.EXTRA_JSON}:s:x")
         assertTrue(restore, restore.contains("SecurityException") || restore.contains("Permission Denial"))
         val resolver = InstrumentationRegistry.getInstrumentation().targetContext.contentResolver
-        resolver.query(ScoreContract.PILL, null, null, null, null)!!.use { assertEquals(1, it.count) }
+        // One row per event the pill can show, or the one none row (ADR-041): never empty, never refused.
+        resolver.query(ScoreContract.PILL, null, null, null, null)!!.use { assertTrue("rows: ${it.count}", it.count >= 1) }
         assertEquals(ScoreContract.TYPE_PILL, resolver.getType(ScoreContract.PILL))
     }
 

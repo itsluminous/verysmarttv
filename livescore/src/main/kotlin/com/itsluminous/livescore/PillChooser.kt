@@ -3,24 +3,37 @@ package com.itsluminous.livescore
 import com.itsluminous.livescore.model.State
 
 /**
- * Which followed event is the pill (§12.2): live > break > upcoming within 12 h > final within 6 h; ties
- * by follow reason (`event` > `team` > `competition`), then earliest start. Several live with the same
- * reason alternate every 20 s, so two simultaneous matches both get shown. Pure; `PillChooserTest`.
+ * Which followed events the pill shows, in order (§12.2): live > break > upcoming within 12 h > final within
+ * 6 h; ties by follow reason (`event` > `team` > `competition`), then earliest start. The first row is
+ * [choose]: several live with the same reason alternate every 20 s there, so a launcher showing one line
+ * gets both matches in turn; [ranked] follows it with every other eligible event in that order, for a
+ * launcher that stacks several lines (it cuts the list to its own row count). Pure; `PillChooserTest`.
  */
 object PillChooser {
     const val UPCOMING_WINDOW_MS = 12L * 3600_000L
     const val FINAL_WINDOW_MS = 6L * 3600_000L
     const val ALTERNATE_MS = 20_000L
 
+    private val ORDER = compareBy<Followed> { rank(it.event.state) }.thenBy { it.reason.ordinal }.thenBy { it.event.startMs }
+
     fun choose(candidates: List<Followed>, nowMs: Long): Followed? {
         val eligible = candidates.filter { eligible(it, nowMs) }
         if (eligible.isEmpty()) return null
-        val best = eligible.minWith(compareBy<Followed> { rank(it.event.state) }.thenBy { it.reason.ordinal }.thenBy { it.event.startMs })
+        val best = eligible.minWith(ORDER)
         if (best.event.state != State.LIVE) return best
         // Every live event followed for the same reason as the best one takes a 20 s turn, earliest start first.
         val turns = eligible.filter { it.event.state == State.LIVE && it.reason == best.reason }.sortedBy { it.event.startMs }
         if (turns.size < 2) return best
         return turns[((nowMs / ALTERNATE_MS) % turns.size).toInt()]
+    }
+
+    /**
+     * Every eligible event, the pill's own ([choose]) first and the rest in rank order (live, break, upcoming
+     * soonest, recent finals; reason, then start within a state). Empty when nothing is eligible.
+     */
+    fun ranked(candidates: List<Followed>, nowMs: Long): List<Followed> {
+        val first = choose(candidates, nowMs) ?: return emptyList()
+        return listOf(first) + candidates.filter { it !== first && eligible(it, nowMs) }.sortedWith(ORDER)
     }
 
     /** Whether the companion should notify observers on a 20 s cadence: two or more live events share the pill. */

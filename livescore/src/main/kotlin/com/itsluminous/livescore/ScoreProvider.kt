@@ -14,9 +14,10 @@ import com.itsluminous.verysmarttv.core.contract.ScoreContract
 /**
  * What the launcher's score pill reads (§12.2), speaking [ScoreContract]:
  *
- * - `/pill`: one row, computed from the cache by [PillChooser] and [LineFormatter]; `state=none` when
- *   nothing followed is in the window. Never blocks on a fetch; the query is the signal that a screen is
- *   looking, and [ScoreRepo.onRead] decides whether that starts one (§13.5).
+ * - `/pill`: one row per event the pill can show, computed from the cache by [PillChooser] and
+ *   [LineFormatter], the pill's own first; exactly one row, `state=none`, when nothing followed is in the
+ *   window. The launcher cuts the list to its own row count. Never blocks on a fetch; the query is the
+ *   signal that a screen is looking, and [ScoreRepo.onRead] decides whether that starts one (§13.5).
  * - `/events`, `/events/<id>`: the followed events in the window, live first then by start.
  * - `/backup`: the follow list as its JSON; `call("restore", json)` replaces it (ADR-032).
  *
@@ -47,19 +48,21 @@ class ScoreProvider : ContentProvider() {
     private fun pill(repo: ScoreRepo): MatrixCursor {
         val cursor = MatrixCursor(ScoreContract.PILL_COLUMNS)
         val now = repo.now()
-        val chosen = repo.pill(now)
-        if (chosen == null) {
+        val rows = repo.pillRows(now)
+        if (rows.isEmpty()) {
             cursor.addRow(arrayOf<Any?>(ScoreContract.STATE_NONE, "", "", null, "", "", 0L, 0, LineFormatter.COLOR_GREY))
             return cursor
         }
-        val e = chosen.event
-        val (kicker, color) = repo.formatter.kicker(e, now)
-        cursor.addRow(
-            arrayOf<Any?>(
-                e.state.token, kicker, repo.formatter.line(e), e.id, e.sport.token, e.competition, e.updatedMs,
-                if (repo.isStale(e, now)) 1 else 0, color,
-            ),
-        )
+        for (f in rows) {
+            val e = f.event
+            val (kicker, color) = repo.formatter.kicker(e, now)
+            cursor.addRow(
+                arrayOf<Any?>(
+                    e.state.token, kicker, repo.formatter.line(e), e.id, e.sport.token, e.competition, e.updatedMs,
+                    if (repo.isStale(e, now)) 1 else 0, color,
+                ),
+            )
+        }
         return cursor
     }
 

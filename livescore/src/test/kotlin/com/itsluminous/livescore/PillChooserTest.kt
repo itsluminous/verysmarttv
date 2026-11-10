@@ -68,6 +68,32 @@ class PillChooserTest {
         assertEquals(a, PillChooser.choose(listOf(c, a), t0 + PillChooser.ALTERNATE_MS))
     }
 
+    @Test
+    fun rankedPutsThePillsOwnFirstThenEveryOtherEligibleEventInRankOrder() {
+        val live = f("live", State.LIVE, FollowReason.TEAM, start = now - hour)
+        val liveLater = f("live2", State.LIVE, FollowReason.COMPETITION, start = now - hour / 2)
+        val brk = f("break", State.BREAK)
+        val soon = f("soon", State.UPCOMING, start = now + hour)
+        val later = f("later", State.UPCOMING, start = now + 3 * hour)
+        val tooLate = f("tooLate", State.UPCOMING, start = now + 13 * hour)
+        val fin = f("fin", State.FINAL, end = now - hour)
+        val old = f("old", State.FINAL, end = now - 7 * hour)
+        val ranked = PillChooser.ranked(listOf(old, later, fin, tooLate, soon, brk, liveLater, live), now)
+        assertEquals(listOf(live, liveLater, brk, soon, later, fin), ranked)
+        assertEquals("the first row is what choose() picks", PillChooser.choose(listOf(liveLater, live), now), ranked[0])
+        assertEquals(emptyList<Followed>(), PillChooser.ranked(listOf(old, tooLate), now))
+    }
+
+    @Test
+    fun rankedKeepsTheAlternatingFirstRowAndTheRestStill() {
+        val a = f("a", State.LIVE, FollowReason.TEAM, start = now - 2 * hour)
+        val b = f("b", State.LIVE, FollowReason.TEAM, start = now - hour)
+        val c = f("c", State.UPCOMING, start = now + hour)
+        val t0 = now - now % PillChooser.ALTERNATE_MS
+        assertEquals(listOf(a, b, c), PillChooser.ranked(listOf(c, b, a), t0))
+        assertEquals("b's turn: it leads, a follows, c stays last", listOf(b, a, c), PillChooser.ranked(listOf(c, b, a), t0 + PillChooser.ALTERNATE_MS))
+    }
+
     private fun f(id: String, state: State, reason: FollowReason = FollowReason.COMPETITION, start: Long = now - 3_600_000L, end: Long? = null) =
         Followed(Event(id, Sport.CRICKET, "c", "C", "T20I", state, "", start, end, Side("1", "A", "A"), Side("2", "B", "B"), "", now), reason)
 }

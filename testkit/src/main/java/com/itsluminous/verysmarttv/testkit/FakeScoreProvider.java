@@ -14,20 +14,21 @@ import androidx.annotation.Nullable;
 import com.itsluminous.verysmarttv.core.contract.ScoreContract;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * An in-process stand-in for the live-score companion's provider, speaking {@link ScoreContract}.
  *
  * <p>Tests script it through the static setters, then register it under
- * {@link ScoreContract#AUTHORITY}. Until seeded, {@code /pill} answers {@link ScoreContract#STATE_NONE},
+ * {@link ScoreContract#AUTHORITY}. Until seeded, {@code /pill} answers one {@link ScoreContract#STATE_NONE} row,
  * {@code /events} is empty and {@code /backup} holds {@code {}}: the state of a fresh companion with
  * nothing followed in the window. {@link #METHOD_RESTORE restore} stores the JSON it is given and
  * notifies {@code /pill}, as the real provider does. Call {@link #reset()} in {@code @After}. Open for the on-device
  * stand-in ({@code :testkit:score}), which seeds it on create and adds the fixture-switching calls.
  */
 public class FakeScoreProvider extends ContentProvider {
-    private static Object[] pill = none();
+    private static final List<Object[]> PILL = new ArrayList<>(Collections.singletonList(none()));
     private static final List<Object[]> EVENTS = new ArrayList<>();
     private static String backupJson = "{}";
     private static final List<String> RESTORED = new ArrayList<>();
@@ -35,10 +36,18 @@ public class FakeScoreProvider extends ContentProvider {
 
     /** The one {@code /pill} row, following {@link ScoreContract#PILL_COLUMNS}. */
     public static void seedPill(@NonNull Object[] row) {
-        if (row.length != ScoreContract.PILL_COLUMNS.length) {
-            throw new IllegalArgumentException("row has " + row.length + " values, contract has " + ScoreContract.PILL_COLUMNS.length);
+        seedPills(Collections.singletonList(row));
+    }
+
+    /** The {@code /pill} rows in cursor order, each following {@link ScoreContract#PILL_COLUMNS}; the companion's stacked answer. */
+    public static void seedPills(@NonNull List<Object[]> rows) {
+        for (Object[] row : rows) {
+            if (row.length != ScoreContract.PILL_COLUMNS.length) {
+                throw new IllegalArgumentException("row has " + row.length + " values, contract has " + ScoreContract.PILL_COLUMNS.length);
+            }
         }
-        pill = row;
+        PILL.clear();
+        PILL.addAll(rows);
     }
 
     /** A {@code /pill} row in the given state with the given kicker and line, {@code event_id} and sport filled in, fresh. */
@@ -77,7 +86,8 @@ public class FakeScoreProvider extends ContentProvider {
 
     /** Back to the fresh-companion state. */
     public static void reset() {
-        pill = none();
+        PILL.clear();
+        PILL.add(none());
         EVENTS.clear();
         backupJson = "{}";
         RESTORED.clear();
@@ -101,7 +111,7 @@ public class FakeScoreProvider extends ContentProvider {
         if (ScoreContract.PILL.equals(uri)) {
             pillQueries++;
             cursor = new MatrixCursor(ScoreContract.PILL_COLUMNS);
-            cursor.addRow(pill);
+            for (Object[] row : PILL) cursor.addRow(row);
         } else if (ScoreContract.EVENTS.equals(uri)) {
             cursor = new MatrixCursor(ScoreContract.EVENT_COLUMNS);
             for (Object[] row : EVENTS) cursor.addRow(row);

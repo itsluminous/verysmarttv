@@ -87,6 +87,25 @@ class ScoreProviderTest {
     }
 
     @Test
+    fun pillHasOneRowPerEventThePillCanShowTheChosenFirst() {
+        val upcoming = iplEvent().copy(
+            id = "ipl2", state = State.UPCOMING, statusDetail = "Scheduled", startMs = now + 3_600_000L,
+            home = Side("3", "Royal Challengers Bengaluru", "RCB", "Bengaluru"), away = Side("4", "Rajasthan Royals", "RR", "Rajasthan"),
+        )
+        repo.cache.merge(FetchKey(Sport.CRICKET, null), listOf(upcoming, iplEvent()), now - 30_000L, repo.window(now).first)
+        resolver.query(ScoreContract.PILL, null, null, null, null)!!.use { c ->
+            assertEquals(2, c.count)
+            c.moveToFirst()
+            assertEquals("ipl1", c.getString(c.getColumnIndexOrThrow(ScoreContract.EVENT_ID)))
+            assertEquals("live", c.getString(c.getColumnIndexOrThrow(ScoreContract.STATE)))
+            c.moveToNext()
+            assertEquals("ipl2", c.getString(c.getColumnIndexOrThrow(ScoreContract.EVENT_ID)))
+            assertEquals("upcoming", c.getString(c.getColumnIndexOrThrow(ScoreContract.STATE)))
+            assertEquals("T20 \u00b7 RCB v RR", c.getString(c.getColumnIndexOrThrow(ScoreContract.LINE)))
+        }
+    }
+
+    @Test
     fun eventsRowsCarryTheEighteenColumnsAndOneById() {
         seedIplLive()
         resolver.query(ScoreContract.EVENTS, null, null, null, null)!!.use { c ->

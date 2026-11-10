@@ -80,6 +80,9 @@ class ScoreRepo(
     /** The pill's event, or null for `state=none`. */
     fun pill(nowMs: Long = clock()): Followed? = PillChooser.choose(followed(nowMs), nowMs)
 
+    /** Every event the pill can show, [pill] first (PillChooser.ranked); empty for `state=none`. */
+    fun pillRows(nowMs: Long = clock()): List<Followed> = PillChooser.ranked(followed(nowMs), nowMs)
+
     fun event(id: String): Event? = cache.event(id)
 
     fun isStale(event: Event, nowMs: Long = clock()): Boolean = policy.isStale(event, nowMs)

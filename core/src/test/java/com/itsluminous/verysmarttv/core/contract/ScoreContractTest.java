@@ -88,6 +88,11 @@ public class ScoreContractTest {
         assertEquals(48, ScoreContract.LINE_MAX_CHARS);
     }
 
+    @Test
+    public void aLauncherShowsAtMostFivePillRows() {
+        assertEquals(5, ScoreContract.MAX_ROWS);
+    }
+
     private static void assertNoDuplicates(String[] values) {
         assertEquals(Arrays.toString(values), values.length, new HashSet<>(Arrays.asList(values)).size());
     }

@@ -78,6 +78,43 @@ public class FakeScoreProviderTest {
     }
 
     @Test
+    public void seededPillsComeBackAsOneRowEachInOrder() {
+        FakeScoreProvider.seedPills(Arrays.asList(
+                FakeScoreProvider.pill(ScoreContract.STATE_LIVE, "LIVE", "a", "401", ScoreContract.SPORT_CRICKET, 1L),
+                FakeScoreProvider.pill(ScoreContract.STATE_UPCOMING, "19:30", "b", "402", ScoreContract.SPORT_FOOTBALL, 1L)));
+        try (Cursor c = resolver.query(ScoreContract.PILL, null, null, null, null)) {
+            assertEquals(2, c.getCount());
+            c.moveToLast();
+            assertEquals("402", c.getString(c.getColumnIndexOrThrow(ScoreContract.EVENT_ID)));
+        }
+        FakeScoreProvider.reset();
+        try (Cursor c = resolver.query(ScoreContract.PILL, null, null, null, null)) {
+            assertEquals("back to the one none row", 1, c.getCount());
+        }
+    }
+
+    @Test
+    public void theStackFixtureSeedsFiveRowsWithDistinctEventIdsLiveFirst() {
+        ScoreFixture.seed(ScoreFixture.STACK);
+        try (Cursor c = resolver.query(ScoreContract.PILL, null, null, null, null)) {
+            assertEquals(5, c.getCount());
+            java.util.Set<String> ids = new java.util.HashSet<>();
+            String[] states = new String[5];
+            for (int i = 0; c.moveToNext(); i++) {
+                ids.add(c.getString(c.getColumnIndexOrThrow(ScoreContract.EVENT_ID)));
+                states[i] = c.getString(c.getColumnIndexOrThrow(ScoreContract.STATE));
+                assertEquals(ScoreFixture.STACK_EVENT_IDS[i], c.getString(c.getColumnIndexOrThrow(ScoreContract.EVENT_ID)));
+            }
+            assertEquals("five distinct events", 5, ids.size());
+            assertArrayEquals(new String[] {"live", "live", "break", "upcoming", "final"}, states);
+        }
+        ScoreFixture.seed(ScoreFixture.LIVE);
+        try (Cursor c = resolver.query(ScoreContract.PILL, null, null, null, null)) {
+            assertEquals("a one-row fixture replaces the stack", 1, c.getCount());
+        }
+    }
+
+    @Test
     public void eventsAndSingleEventLookup() {
         Object[] a = event("401", "IPL", "CSK", "MI");
         Object[] b = event("402", "ISL", "BFC", "MCFC");

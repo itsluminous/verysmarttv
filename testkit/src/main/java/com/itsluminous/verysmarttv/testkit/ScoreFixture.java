@@ -4,11 +4,16 @@ import androidx.annotation.NonNull;
 
 import com.itsluminous.verysmarttv.core.contract.ScoreContract;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * The {@code /pill} rows the launcher's tests script into {@link FakeScoreProvider} (DESIGN.md §14.3), one per state
  * the pill renders, named so a test in another process can ask the stand-in for one by name through
- * {@code call(}{@link #METHOD_FIXTURE}{@code , name)}. {@link #BACKUP_JSON} is what {@code /backup} answers until a
- * restore replaces it.
+ * {@code call(}{@link #METHOD_FIXTURE}{@code , name)}; and {@link #STACK}, five events at once in the companion's
+ * order, for the stacked pill (ADR-041). {@link #BACKUP_JSON} is what {@code /backup} answers until a restore replaces
+ * it.
  */
 public final class ScoreFixture {
     private ScoreFixture() {}
@@ -19,9 +24,15 @@ public final class ScoreFixture {
     public static final String METHOD_RESTORED = "restored";
 
     public static final String LIVE = "live", BREAK = "break", UPCOMING = "upcoming", FINAL = "final", EMPTY = "empty";
+    /** Five rows at once: {@link #LIVE}, a second live match, {@link #BREAK}, {@link #UPCOMING}, {@link #FINAL}; see {@link #STACK_EVENT_IDS}. */
+    public static final String STACK = "stack";
 
-    /** The event id every non-empty fixture carries: what OK on the pill must hand the scoreboard. */
+    /** The event id every one-row fixture carries: what OK on the pill must hand the scoreboard. */
     public static final String EVENT_ID = "fixture-event-1";
+    /** The event ids of the {@link #STACK} rows, top first; the first is {@link #EVENT_ID}. */
+    public static final String[] STACK_EVENT_IDS = {EVENT_ID, "fixture-event-2", "fixture-event-3", "fixture-event-4", "fixture-event-5"};
+    /** The second live match of the stack. */
+    public static final String LIVE2_KICKER = "LIVE", LIVE2_LINE = "ISL \u00b7 KBFC 1\u20130 BFC 63'";
 
     public static final String LIVE_KICKER = "LIVE", LIVE_LINE = "T20I \u00b7 AFG 19/4 (6) v ZIM";
     public static final String BREAK_KICKER = "STUMPS", BREAK_LINE = "Test \u00b7 BAN 386 & 49/2 v WI";
@@ -49,9 +60,22 @@ public final class ScoreFixture {
         }
     }
 
-    /** Seeds the fake's pill with the named row; the backup row is left as it is, so a switch keeps a restored list. */
+    /** The five {@link #STACK} rows, in the order the companion would rank them: live, live, break, upcoming, final. */
+    @NonNull
+    public static List<Object[]> stack() {
+        long now = System.currentTimeMillis();
+        List<Object[]> rows = new ArrayList<>(Arrays.asList(
+                row(LIVE),
+                new Object[] {ScoreContract.STATE_LIVE, LIVE2_KICKER, LIVE2_LINE, STACK_EVENT_IDS[1], ScoreContract.SPORT_FOOTBALL, "ISL", now, 0, "#E53935"},
+                row(BREAK), row(UPCOMING), row(FINAL)));
+        for (int i = 2; i < rows.size(); i++) rows.get(i)[3] = STACK_EVENT_IDS[i];
+        return rows;
+    }
+
+    /** Seeds the fake's pill with the named row, or the five {@link #STACK} rows; the backup row is left as it is, so a switch keeps a restored list. */
     public static void seed(@NonNull String name) {
-        FakeScoreProvider.seedPill(row(name));
+        if (STACK.equals(name)) FakeScoreProvider.seedPills(stack());
+        else FakeScoreProvider.seedPill(row(name));
     }
 
     /** The fresh stand-in: the live row and {@link #BACKUP_JSON}. */

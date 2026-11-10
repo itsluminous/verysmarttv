@@ -13,10 +13,14 @@ import androidx.annotation.NonNull;
  * {@link #PERMISSION_WRITE} for the one {@code call()} method, {@link #METHOD_RESTORE}. It answers:
  *
  * <ul>
- *   <li>{@link #PILL}: exactly one row, {@link #PILL_COLUMNS}, the text the launcher renders under the
- *       pills. Always answerable from the on-disk cache, never blocks on a fetch; {@link #STATE_NONE}
- *       when nothing followed is in the window. A query is also the companion's signal that a screen is
- *       looking (§13.5). Observers are notified after every refresh and after the follow list changes.
+ *   <li>{@link #PILL}: one row per event the pill can show, {@link #PILL_COLUMNS}, the text the launcher
+ *       renders under the pills, in the order the companion ranks them (live, then a break, then upcoming
+ *       soonest, then recent finals; the first row is what a one-line pill shows). The launcher cuts the
+ *       list to its own row count ({@code score_rows}, at most {@link #MAX_ROWS}); the companion never
+ *       needs to know that count. Always answerable from the on-disk cache, never blocks on a fetch;
+ *       exactly one row with {@link #STATE_NONE} when nothing followed is in the window. A query is also
+ *       the companion's signal that a screen is looking (§13.5). Observers are notified after every
+ *       refresh and after the follow list changes.
  *   <li>{@link #EVENTS}: the followed events from yesterday 00:00 to tomorrow 23:59 local, live first
  *       then by start, {@link #EVENT_COLUMNS}; {@code events/<event_id>} returns one.
  *   <li>{@link #BACKUP}: exactly one row, {@link #BACKUP_COLUMNS}: the follow list as the JSON the
@@ -44,7 +48,7 @@ public final class ScoreContract {
     /** Write permission on the provider, needed for {@link #METHOD_RESTORE}; {@code protectionLevel="signature"}. */
     public static final String PERMISSION_WRITE = PACKAGE + ".permission.WRITE_SCORES";
 
-    /** Path of the one-row pill. */
+    /** Path of the pill rows. */
     public static final String PATH_PILL = "pill";
 
     /** Path of the followed events in the window. */
@@ -166,6 +170,9 @@ public final class ScoreContract {
 
     /** Longest {@link #LINE} the pill accepts. */
     public static final int LINE_MAX_CHARS = 48;
+
+    /** The most {@link #PILL} rows a launcher shows at once; a longer answer is cut, never an error. */
+    public static final int MAX_ROWS = 5;
 
     // Event-only columns.
 
