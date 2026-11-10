@@ -102,7 +102,8 @@ class HandshakeTest(HomeDir):
             words = connect_error(e, "127.0.0.1", port)
         else:
             self.fail("connected to a closed port")
-        self.assertIn("refused", words)
+        # Windows can report a closed loopback port as a timeout rather than a refusal; both wordings say what to do.
+        self.assertTrue("refused" in words or "did not finish" in words, words)
         self.assertIn("USB debugging", words)
 
 
