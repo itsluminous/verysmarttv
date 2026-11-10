@@ -20,6 +20,7 @@ internal object Ui {
                 Sport.FOOTBALL -> R.string.sport_football
                 Sport.F1 -> R.string.sport_f1
                 Sport.TENNIS -> R.string.sport_tennis
+                Sport.BADMINTON -> R.string.sport_badminton
             },
         )
 

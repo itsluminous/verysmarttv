@@ -1,0 +1,56 @@
+[
+ {
+  "date": "2026-11-10",
+  "_note": "Hand-made edge case (ADR-044): retired: Tunjung retires at 5-3 in the second game; the home side leads 1-0 in games and wins.",
+  "matches": [
+   {
+    "id": 900102,
+    "name": "Yamaguchi A. vs Tunjung G. M.",
+    "tournament_id": 7001,
+    "tournament_name": "BWF World Tour, Japan Masters, Women Singles",
+    "tournament_importance": 50,
+    "season_id": 2026,
+    "season_name": "2026",
+    "status": {
+     "type": "finished",
+     "reason": "Retired"
+    },
+    "status_type": "finished",
+    "arena_id": 9,
+    "arena_name": "Kumamoto Prefectural Gymnasium",
+    "home_team_id": 5011,
+    "home_team_name": "Yamaguchi A.",
+    "home_team_hash_image": "00000000",
+    "away_team_id": 5012,
+    "away_team_name": "Tunjung G. M.",
+    "away_team_hash_image": "00000000",
+    "home_team_score": {
+     "current": 1,
+     "display": 1,
+     "period_1": 21,
+     "period_2": 5
+    },
+    "away_team_score": {
+     "current": 0,
+     "display": 0,
+     "period_1": 18,
+     "period_2": 3
+    },
+    "times": {
+     "specific_start_time": "2026-11-10T05:30:00+00:00"
+    },
+    "start_time": "2026-11-10T05:30:00+00:00",
+    "duration": null,
+    "league_id": 1,
+    "league_name": "BWF World Tour",
+    "league_hash_image": "00000000",
+    "class_id": 1,
+    "class_name": "International",
+    "round": {
+     "round": 4,
+     "name": "Round of 16"
+    }
+   }
+  ]
+ }
+]

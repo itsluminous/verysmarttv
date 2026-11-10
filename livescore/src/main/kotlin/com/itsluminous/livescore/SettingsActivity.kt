@@ -3,12 +3,14 @@ package com.itsluminous.livescore
 import android.app.Activity
 import android.app.AlertDialog
 import android.os.Bundle
+import android.text.InputType
 import android.view.View
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.itsluminous.livescore.model.Sport
 
-/** Refresh now, Live refresh, Sports shown, Restore default follows, Clear follows (§13.6). */
+/** Refresh now, Live refresh, Sports shown, Badminton data key, Restore default follows, Clear follows (§13.6, ADR-044). */
 class SettingsActivity : Activity() {
     private lateinit var repo: ScoreRepo
     private lateinit var list: LinearLayout
@@ -37,6 +39,7 @@ class SettingsActivity : Activity() {
             value.text = liveLabel()
         }
         row(getString(R.string.sports_shown), sportsLabel()) { value -> pickSports(value) }
+        row(getString(R.string.badminton_key), keyLabel()) { value -> editKey(value) }
         row(getString(R.string.restore_defaults), getString(R.string.restore_defaults_value)) { _ ->
             repo.follows.import(FollowStore.encode(FollowStore.defaults()))
             build()
@@ -72,6 +75,35 @@ class SettingsActivity : Activity() {
             .show()
     }
 
+    /** Never the key itself: "Not set", or its last four characters so the user can tell which key is in. */
+    private fun keyLabel(): String {
+        val key = repo.prefs.badmintonKey
+        return if (key.isEmpty()) getString(R.string.badminton_key_unset) else getString(R.string.badminton_key_set, key.takeLast(KEY_TAIL))
+    }
+
+    /** A text field for the RapidAPI key (the TV's keyboard); OK saves it, Remove clears it, Cancel leaves it. */
+    private fun editKey(value: TextView) {
+        val field = EditText(this)
+        field.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        field.hint = getString(R.string.badminton_key_hint)
+        field.setText(repo.prefs.badmintonKey)
+        field.setSingleLine()
+        AlertDialog.Builder(this)
+            .setTitle(R.string.badminton_key)
+            .setView(field)
+            .setPositiveButton(R.string.ok) { _, _ ->
+                repo.prefs.badmintonKey = field.text.toString()
+                value.text = keyLabel()
+                repo.refreshAll(null)
+            }
+            .setNeutralButton(R.string.badminton_key_remove) { _, _ ->
+                repo.prefs.badmintonKey = ""
+                value.text = keyLabel()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
     private fun row(name: String, value: String, onClick: (TextView) -> Unit): View {
         val row = Ui.inflate(list, R.layout.settings_row)
         row.findViewById<TextView>(R.id.rowName).text = name
@@ -80,5 +112,9 @@ class SettingsActivity : Activity() {
         row.setOnClickListener { onClick(valueView) }
         list.addView(row)
         return row
+    }
+
+    companion object {
+        private const val KEY_TAIL = 4
     }
 }

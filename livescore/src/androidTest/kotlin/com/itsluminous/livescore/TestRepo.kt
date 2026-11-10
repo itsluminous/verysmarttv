@@ -39,6 +39,15 @@ object TestRepo {
             "Bangladesh require 320 runs", now, session = "2nd Test", period = 4, international = true,
         )
 
+    /** A live badminton match in the second game, Sindhu a game up on An, from a tournament the catalogue does not list (ADR-044). */
+    fun badmintonLive(): Event =
+        Event(
+            "bwf-live", Sport.BADMINTON, "7001", "Japan Masters", "", State.LIVE, "Round of 16 · Game 2", now - 1_800_000L, null,
+            Side("5001", "Sindhu P. V.", "SIN", "Sindhu", "21 11"),
+            Side("5002", "An S. Y.", "AN", "An", "18 9"),
+            "", now, period = 2,
+        )
+
     class Source(private val events: List<Event>) : ScoreSource {
         override val id = "test"
         override fun sports() = Sport.entries
@@ -51,6 +60,7 @@ object TestRepo {
                 Sport.FOOTBALL -> listOf(Competition(Sport.FOOTBALL, "eng.1", "Premier League"))
                 Sport.F1 -> listOf(Competition(Sport.F1, "f1", "Formula 1", "F1"))
                 Sport.TENNIS -> listOf(Competition(Sport.TENNIS, "atp", "ATP Tour", "ATP"))
+                Sport.BADMINTON -> emptyList()
             }
         override fun teams(competition: Competition): List<Team> =
             if (competition.id == Competition.INTERNATIONAL) listOf(Team(Sport.CRICKET, "6", "India", "IND"), Team(Sport.CRICKET, "7", "Pakistan", "PAK")) else emptyList()

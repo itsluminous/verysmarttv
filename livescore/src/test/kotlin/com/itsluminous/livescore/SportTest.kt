@@ -22,6 +22,12 @@ class SportTest {
     }
 
     @Test
+    fun theDayWideFeedsAreCricketAndBadminton() {
+        assertEquals(listOf(Sport.CRICKET, Sport.BADMINTON), Sport.entries.filter { it.oneFetchPerDay })
+        assertEquals(Sport.BADMINTON, Sport.fromToken(ScoreContract.SPORT_BADMINTON))
+    }
+
+    @Test
     fun fromTokenRoundTripsAndRefusesTheRest() {
         for (sport in Sport.entries) assertEquals(sport, Sport.fromToken(sport.token))
         assertNull(Sport.fromToken(ScoreContract.SPORT_HOCKEY))

@@ -1,0 +1,60 @@
+[
+ {
+  "date": "2026-11-10",
+  "_note": "Hand-made edge case (ADR-044): deciding-game: 19-19 in the third with a game each.",
+  "matches": [
+   {
+    "id": 900103,
+    "name": "Shi Y. Q. vs Vitidsarn K.",
+    "tournament_id": 7003,
+    "tournament_name": "BWF World Tour, Japan Masters, Men Singles",
+    "tournament_importance": 50,
+    "season_id": 2026,
+    "season_name": "2026",
+    "status": {
+     "type": "live",
+     "reason": "3rd game"
+    },
+    "status_type": "live",
+    "arena_id": 9,
+    "arena_name": "Kumamoto Prefectural Gymnasium",
+    "home_team_id": 5013,
+    "home_team_name": "Shi Y. Q.",
+    "home_team_hash_image": "00000000",
+    "away_team_id": 5014,
+    "away_team_name": "Vitidsarn K.",
+    "away_team_hash_image": "00000000",
+    "home_team_score": {
+     "current": 1,
+     "display": 1,
+     "period_1": 21,
+     "period_2": 17,
+     "period_3": 19,
+     "point": "19"
+    },
+    "away_team_score": {
+     "current": 1,
+     "display": 1,
+     "period_1": 19,
+     "period_2": 21,
+     "period_3": 19,
+     "point": "19"
+    },
+    "times": {
+     "specific_start_time": "2026-11-10T07:00:00+00:00"
+    },
+    "start_time": "2026-11-10T07:00:00+00:00",
+    "duration": null,
+    "league_id": 1,
+    "league_name": "BWF World Tour",
+    "league_hash_image": "00000000",
+    "class_id": 1,
+    "class_name": "International",
+    "round": {
+     "round": 4,
+     "name": "Round of 16"
+    }
+   }
+  ]
+ }
+]

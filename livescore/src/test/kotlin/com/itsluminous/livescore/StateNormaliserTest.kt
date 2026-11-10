@@ -50,6 +50,21 @@ class StateNormaliserTest {
     }
 
     @Test
+    fun sportDevsTypesReadLikeEspnStates() {
+        // SportDevs (badminton, ADR-044) names states in words and gives the endings and pauses as their own types.
+        for (t in listOf("upcoming", "notstarted", "Not started", "scheduled")) assertEquals(t, State.UPCOMING, normalise(t, "Not started"))
+        for (t in listOf("live", "inprogress", "In progress")) assertEquals(t, State.LIVE, normalise(t, "2nd game"))
+        assertEquals(State.LIVE, normalise("live", ""))
+        for (t in listOf("finished", "ended", "final")) assertEquals(t, State.FINAL, normalise(t, "Ended"))
+        assertEquals(State.FINAL, normalise("finished", "Walkover"))
+        assertEquals(State.FINAL, normalise("live", "Walkover"))
+        assertEquals(State.FINAL, normalise("live", "Retired"))
+        for (t in listOf("walkover", "retired", "canceled", "cancelled", "postponed")) assertEquals(t, State.FINAL, normalise(t, ""))
+        for (t in listOf("interrupted", "suspended", "delayed", "pause")) assertEquals(t, State.BREAK, normalise(t, ""))
+        for (d in listOf("Interval", "Pause", "Break")) assertEquals(d, State.BREAK, normalise("live", d))
+    }
+
+    @Test
     fun unknownStateFallsBackToUpcoming() {
         assertEquals(State.UPCOMING, normalise("", ""))
         assertEquals(State.FINAL, normalise("", "Abandoned"))

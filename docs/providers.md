@@ -89,7 +89,7 @@ Columns of `/pill`, in cursor order (`ScoreContract.PILL_COLUMNS`):
 | `kicker` | text | The short text before the line, in the state colour: `LIVE`, the break's word (`STUMPS`, `HT`), a start time (`19:30`), `FT`. May be empty. |
 | `line` | text | The one-line text, at most 48 characters, already shortened by the companion: `T20I · AFG 19/4 (6) v ZIM`. |
 | `event_id` | text | The feed's event id, or null when `state` is `none`. |
-| `sport` | text | One of `ScoreContract.SPORTS`: `cricket`, `football`, `f1`, `tennis`, `badminton`, `basketball`, `hockey`. The companion publishes the four it has a source for (cricket, football, f1, tennis); the launcher picks each line's icon by this value and shows a generic one for anything outside the set, so a companion may add a sport before the launcher learns it. |
+| `sport` | text | One of `ScoreContract.SPORTS`: `cricket`, `football`, `f1`, `tennis`, `badminton`, `basketball`, `hockey`. The companion publishes the five it has a source for (cricket, football, f1, tennis from ESPN; badminton from SportDevs, ADR-044); the launcher picks each line's icon by this value and shows a generic one for anything outside the set, so a companion may add a sport before the launcher learns it. |
 | `competition` | text | Competition name as shown (`IPL`). |
 | `updated_ms` | long | Epoch milliseconds of the fetch the row comes from. |
 | `stale` | int | 1 when `updated_ms` is older than the refresh interval for the state. |
@@ -121,8 +121,9 @@ restore, with one log line; the launcher's own sections are unaffected.
 ### The companion's side (`:livescore`, Phase 4)
 
 What answers the provider is `ScoreProvider`, backed by `ScoreRepo`: the follow list (`files/follows.json`), the
-parsed events (`files/events.json`), the one source (`source/espn/EspnSource`, ESPN's public site feeds, ADR-012) and
-the refresh decisions (`RefreshPolicy`, DESIGN.md §13.5, ADR-014).
+parsed events (`files/events.json`), the sources behind one `SourceRegistry` (`source/espn/EspnSource`, ESPN's public
+site feeds, ADR-012, for cricket, football, F1 and tennis; `source/sportdevs/SportDevsSource`, SportDevs' badminton API
+through RapidAPI with the user's own key, ADR-044) and the refresh decisions (`RefreshPolicy`, DESIGN.md §13.5, ADR-014).
 
 - **Where the rows come from.** `/pill` is `PillChooser` over the followed events in the window (yesterday 00:00 to
   tomorrow 23:59 local): live, then break, then upcoming within 12 h, then final within 6 h; ties by follow reason
@@ -131,8 +132,10 @@ the refresh decisions (`RefreshPolicy`, DESIGN.md §13.5, ADR-014).
   and `kicker` are `LineFormatter`'s: cricket `T20I · AFG 19/4 (6) v ZIM` / `Test · BAN 386 & 49/2 v WI` /
   `T20I · AFG won by 23 runs`; football `Premier League · ARS 2–1 CHE 67'`, upcoming `ISL · Bengaluru v Mumbai City`;
   F1 `F1 · São Paulo GP · Lap 32 · VER leads`, `F1 · São Paulo GP · Race · Norris wins`; tennis
-  `Stockholm Open · Gojo 7-5 4-6 7-6 Brunold`. Kickers: `LIVE` (`#E53935`), the feed's break word in capitals
-  (`STUMPS`, `RAIN`, `HT`, `RED FLAG`, `#FFB300`), the local start time (`19:30`, `TOMORROW 19:30`, `SAT 19:30`),
+  `Stockholm Open · Gojo 7-5 4-6 7-6 Brunold`; badminton `Japan Masters · Sindhu 21-18 11-9 Axelsen` (a pair by
+  surnames, `Chang / Yang`, or by abbreviations, `CHA/YAN`, when the surnames would not fit; a walkover
+  `… Antonsen w/o Christie`, a retirement `… Christie 21-18 5-3 Antonsen ret.`). Kickers: `LIVE` (`#E53935`), the feed's break word in capitals
+  (`STUMPS`, `RAIN`, `HT`, `RED FLAG`, badminton's `INTERVAL` between games, `#FFB300`), the local start time (`19:30`, `TOMORROW 19:30`, `SAT 19:30`),
   `FT` / `RESULT` / `FINAL` (`#9E9E9E`). `stale` is 1 when the row is older than twice its refresh interval
   (60 s live or break, 15 min for an upcoming event within a day, 6 h otherwise).
 - **`/events` columns** come straight from the source-neutral `Event`: `home_score`/`away_score` are the feed's own
@@ -143,7 +146,8 @@ the refresh decisions (`RefreshPolicy`, DESIGN.md §13.5, ADR-014).
 - **What a read triggers.** The query is answered from the cache at once. Then, if Live refresh is on, the companion
   fetches every competition with a live or break followed event whose last fetch is older than 55 s, and every
   competition with a followed event starting within 15 min (or started up to 3 h ago while the cache still says
-  upcoming) whose fetch is older than 15 min; one fetch per competition, cricket's scorepanel once for all. Nothing is
+  upcoming) whose fetch is older than 15 min; one fetch per competition, cricket's scorepanel and badminton's day list
+  once for all. Nothing is
   fetched offline, while a fetch runs, or inside a failure's backoff (1, 2, 4, 8 min). With no screen reading, a
   one-off JobScheduler job runs 2 min before the next followed start and 3 min after it, and a periodic job every 6 h
   refreshes the fixture list; both need a network.
@@ -151,8 +155,20 @@ the refresh decisions (`RefreshPolicy`, DESIGN.md §13.5, ADR-014).
   Football: `site.api.espn.com/apis/site/v2/sports/soccer/<league>/scoreboard?dates=yyyyMMdd`, today on a live refresh,
   today and tomorrow on a full one (the bare URL answers ESPN's own current day, a range is refused). F1
   `…/racing/f1/scoreboard?dates=<yesterday>-<tomorrow>`, tennis `…/tennis/<atp|wta>/scoreboard?dates=…`, tennis
-  only while a tennis follow exists. The open scoreboard also reads the cricket `summary` endpoint for the active
-  batters and bowlers. Every body is parsed as a stream (`android.util.JsonReader`); the raw text is never held.
+  only while a tennis follow exists. Badminton: `badminton-devs.p.rapidapi.com/matches-by-date?date=eq.yyyy-MM-dd`
+  (today on a live refresh, today and tomorrow on a full one), with the headers `x-rapidapi-key` (the key from
+  **Settings → Badminton data key**, stored in the app's preferences, never in the APK or a backup) and
+  `x-rapidapi-host`; without a key badminton is not fetched at all, and the picker's Badminton column says so. The
+  open scoreboard also reads the cricket `summary` endpoint for the active batters and bowlers. Every body is parsed
+  as a stream (`android.util.JsonReader`); the raw text is never held.
+- **Badminton's key.** SportDevs' Badminton API is listed on RapidAPI (`rapidapi.com/sportdevs-sportdevs-default/api/badminton-devs`):
+  sign in to RapidAPI, subscribe to the API's free Basic plan, and copy the key the playground shows as
+  `x-rapidapi-key` into the companion's Settings. The free plan has a daily request quota (the pricing tab states it);
+  a live badminton match costs one request a minute while a screen shows it, a full refresh two, so a day of heavy
+  watching can run it out, after which the feed answers 429 and the companion backs off (1, 2, 4, 8 min) with the last
+  scores marked stale. Badminton has no static catalogue: the picker's Badminton column lists the tournaments of
+  today and tomorrow from the feed (fetched once when the column is first opened with a key) and, under a tournament,
+  its players and matches; "All Badminton" follows everything.
 - **Follows** (`FollowStore`, §13.2): `{kind: sport|competition|team|event, sport, competition, team, event, label,
   expires}` rows under `{"version": 1, "follows": [...]}`, at most 100; the first run writes the defaults (India, IPL,
   ISL, Premier League, Champions League, F1; ADR-033). `/backup` returns that file verbatim; `restore` replaces it,

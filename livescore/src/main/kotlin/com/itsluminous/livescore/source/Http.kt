@@ -7,9 +7,12 @@ import java.net.URL
 
 /** How a source reaches the network: one function, so tests hand the parsers a fixture instead. */
 fun interface HttpClient {
-    /** Opens [url] and returns its body stream; the caller closes it. Fails with [IOException] on anything but 200. */
+    /**
+     * Opens [url] with the extra request [headers] (a keyed source's key, §13.1) and returns its body stream;
+     * the caller closes it. Fails with [IOException] on anything but 200.
+     */
     @Throws(IOException::class)
-    fun stream(url: String): InputStream
+    fun stream(url: String, headers: Map<String, String>): InputStream
 }
 
 /**
@@ -21,12 +24,13 @@ object Http : HttpClient {
     private const val READ_TIMEOUT_MS = 20_000
 
     @Throws(IOException::class)
-    override fun stream(url: String): InputStream {
+    override fun stream(url: String, headers: Map<String, String>): InputStream {
         val connection = URL(url).openConnection() as HttpURLConnection
         connection.connectTimeout = CONNECT_TIMEOUT_MS
         connection.readTimeout = READ_TIMEOUT_MS
         connection.setRequestProperty("Accept", "application/json")
         connection.setRequestProperty("User-Agent", "VerySmartTV-livescore")
+        for ((name, value) in headers) connection.setRequestProperty(name, value)
         val code = connection.responseCode
         if (code != HttpURLConnection.HTTP_OK) {
             connection.disconnect()

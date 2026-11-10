@@ -100,6 +100,14 @@ class RefreshPolicyTest {
         assertEquals(listOf(pl), team)
         val sport = RefreshPolicy.fullPlan(listOf(Follow.sport(Sport.FOOTBALL, "Football")), source)
         assertEquals(listOf(FetchKey(Sport.FOOTBALL, "ind.1"), pl), sport)
+        // Badminton is a day-wide feed like the cricket scorepanel: one key whatever is followed, and never a competition in it (ADR-044).
+        val badminton = RefreshPolicy.fullPlan(
+            listOf(Follow.sport(Sport.BADMINTON, "Badminton"), Follow.competition(Competition(Sport.BADMINTON, "7001", "Japan Masters")), Follow.team(Team(Sport.BADMINTON, "5001", "Sindhu P. V.", "SIN"))),
+            source,
+        )
+        assertEquals(listOf(FetchKey(Sport.BADMINTON, null)), badminton)
+        assertEquals(FetchKey(Sport.BADMINTON, null), FetchKey.of(live("b1", Sport.BADMINTON, "7001").event))
+        assertEquals(FetchKey(Sport.TENNIS, "atp"), FetchKey.of(live("t1", Sport.TENNIS, "atp").event))
     }
 
     private val source = object : ScoreSource {
@@ -109,7 +117,7 @@ class RefreshPolicyTest {
             Sport.FOOTBALL -> listOf(Competition(Sport.FOOTBALL, "ind.1", "ISL"), Competition(Sport.FOOTBALL, "eng.1", "PL"))
             Sport.F1 -> listOf(Competition(Sport.F1, "f1", "F1"))
             Sport.TENNIS -> listOf(Competition(Sport.TENNIS, "atp", "ATP"), Competition(Sport.TENNIS, "wta", "WTA"))
-            Sport.CRICKET -> emptyList()
+            Sport.CRICKET, Sport.BADMINTON -> emptyList()
         }
         override fun teams(competition: Competition) = if (competition.id == "eng.1") listOf(Team(Sport.FOOTBALL, "359", "Arsenal", "ARS")) else emptyList()
         override fun scoreboard(sport: Sport, competition: Competition?, day: String) = emptyList<Event>()

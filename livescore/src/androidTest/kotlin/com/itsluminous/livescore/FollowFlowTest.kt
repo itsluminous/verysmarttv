@@ -12,6 +12,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.itsluminous.livescore.model.Sport
 import com.itsluminous.verysmarttv.core.contract.ScoreContract
 import org.hamcrest.Matchers.allOf
 import org.junit.After
@@ -52,6 +53,35 @@ class FollowFlowTest {
     }
 
     @Test
+    fun badmintonListsTheCachedTournamentAndItsPlayersAndAPlayerFollowReachesThePill() {
+        val repo = TestRepo.install(listOf(TestRepo.badmintonLive()), followsJson = "{\"version\":1,\"follows\":[]}")
+        repo.prefs.badmintonKey = ""
+        ActivityScenario.launch(FollowActivity::class.java).use {
+            // No key and nothing cached: the competitions column says what badminton needs instead of listing tournaments.
+            onView(allOf(withId(R.id.label), withText("Badminton"))).perform(focusRow())
+            onView(withText(R.string.badminton_needs_key)).check(matches(isDisplayed()))
+        }
+        awaitSport(repo)
+        ActivityScenario.launch(FollowActivity::class.java).use {
+            onView(allOf(withId(R.id.label), withText("Badminton"))).perform(focusRow())
+            onView(allOf(withId(R.id.label), withText("Japan Masters"))).check(matches(isDisplayed())).perform(focusRow())
+            onView(allOf(withId(R.id.label), withText("Sindhu P. V."))).check(matches(isDisplayed()))
+            onView(allOf(withId(R.id.label), withText("An S. Y."))).check(matches(isDisplayed()))
+            onView(allOf(withId(R.id.label), withText("Match · SIN 21 11 · AN 18 9"))).check(matches(isDisplayed()))
+            onView(allOf(withId(R.id.label), withText("Sindhu P. V."))).perform(pressOk())
+        }
+        assertTrue(repo.follows.all().any { it.teamId == "5001" && it.sport == Sport.BADMINTON })
+        val resolver = InstrumentationRegistry.getInstrumentation().targetContext.contentResolver
+        resolver.query(ScoreContract.PILL, null, null, null, null)!!.use { c ->
+            c.moveToFirst()
+            assertEquals(ScoreContract.STATE_LIVE, c.getString(c.getColumnIndexOrThrow(ScoreContract.STATE)))
+            assertEquals(ScoreContract.SPORT_BADMINTON, c.getString(c.getColumnIndexOrThrow(ScoreContract.SPORT)))
+            assertEquals("Japan Masters · Sindhu 21-18 11-9 An", c.getString(c.getColumnIndexOrThrow(ScoreContract.LINE)))
+            assertEquals("bwf-live", c.getString(c.getColumnIndexOrThrow(ScoreContract.EVENT_ID)))
+        }
+    }
+
+    @Test
     fun homeShowsTheFollowedRowAndTheEmptyStateLeadsToFollow() {
         val repo = TestRepo.install(listOf(TestRepo.iplLive()))
         awaitFetch(repo)
@@ -78,6 +108,24 @@ class FollowFlowTest {
             row.performClick()
             uiController.loopMainThreadUntilIdle()
         }
+    }
+
+    /** Focus the row a label sits in, the way the D-pad would: the picker fills the next column on focus. */
+    private fun focusRow() = object : ViewAction {
+        override fun getConstraints() = isDisplayed()
+        override fun getDescription() = "focus the row"
+        override fun perform(uiController: UiController, view: View) {
+            (view.parent as View).requestFocus()
+            uiController.loopMainThreadUntilIdle()
+        }
+    }
+
+    /** The one-sport fetch the picker uses for a sport without a catalogue; wait until the badminton match is cached. */
+    private fun awaitSport(repo: ScoreRepo) {
+        repo.refreshSport(Sport.BADMINTON, null)
+        val deadline = System.currentTimeMillis() + 10_000
+        while (System.currentTimeMillis() < deadline && repo.event("bwf-live") == null) Thread.sleep(50)
+        assertTrue("fetch did not land", repo.event("bwf-live") != null)
     }
 
     /** The repo refreshes through its executor; wait until the scripted event is in the cache. */

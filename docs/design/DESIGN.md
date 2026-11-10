@@ -613,6 +613,33 @@ that meets all four sports without a key and without a daily cap, and they are w
 launcher proved in production. The adapter boundary (13.3) is where a keyed source goes if ESPN closes
 the feed; the README's Disclaimer says so in the same words tv-town uses.
 
+**Badminton (added 2026-11-10, ADR-044).** ESPN has no badminton feed (`…/sports/badminton/scoreboard` is 404), so the
+owner asked for a second source, evaluated the same way (coverage: BWF World Tour, the Olympics, national leagues such
+as India's PBL; live granularity: match state, game scores, points; the 60 s cadence; terms; stability). Checked with
+curl on 2026-11-10:
+
+| Source | Key | BWF World Tour / Olympics / national leagues | Live granularity | Rate limit vs 60 s polling | ToS for personal use | Stability (as found) | Verdict |
+|---|---|---|---|---|---|---|---|
+| BWF's own site, `bwfbadminton.com/live/` and its JSON (`extranet-lv.bwfbadminton.com/api/vue-live-scores`, `…/vue-tournaments`) | none | World Tour, World Championships, Olympics: everything BWF scores | match state, games, points | unknown | site terms, no API terms | **Cloudflare JS challenge on every URL, the home page included** (HTTP 403, `cf-mitigated: challenge`, "Just a moment…"): `HttpURLConnection` on a TV cannot pass it | Rejected |
+| BWF Tournament Software, `bwf.tournamentsoftware.com` (and `www.tournamentsoftware.com`) | account | every BWF-sanctioned draw | games (HTML, polled pages) | unknown | **Terms forbid "excessive or automated use" and circumventing authentication**; a public scraper of it was IP-banned (oscarlaaaa/badminton-api) | every path 302s to a login wall (`/user/login?ReturnUrl=…`); the public host has a cookie wall with an ASP.NET session, then HTML only | Rejected |
+| Sofascore hidden JSON, `api.sofascore.com/api/v1/sport/badminton/scheduled-events/<date>` | none | World Tour, Olympics, some national leagues | match state, games, points | unknown | unofficial | **HTTP 403 for any non-browser client**, with or without browser headers | Rejected |
+| LiveScore.com hidden JSON, `prod-public-api.livescore.com/v1/api/app/date/badminton/…` | none | – | – | – | – | **HTTP 410: no badminton** | Rejected |
+| Flashscore hidden feed, `global.flashscore.ninja/2/x/feed/f_21_0_3_en_1` with the `x-fsign` header from its page | none (a token) | World Tour (men's and women's events as groups), Olympics, national leagues | match state, current game, games, points (a 77 KB `¬`/`÷`-separated text, not JSON) | unknown | **Terms forbid automated requests to its servers and scraping**, in those words | HTTP 200 and complete; the format is obfuscated and the token is read from the site's JavaScript | Rejected: the one keyless feed that has the data, and the terms refuse it |
+| TheSportsDB v1 (key `123`) | free key | `eventsday.php?s=Badminton` lists the **tournament** as one event per day (`Japan Masters 2026`), no matches; leagues `BWF World Tour`, `Olympics Badminton` | **none**: livescores are Premium only | 30 req/min | allowed with key | stable | Rejected (no match data) |
+| API-Sports (api-sports.io) | free key | **no badminton product** | – | 100 req/day | – | – | Rejected |
+| AllSportsAPI | free key | **no badminton** (`/badminton/` endpoint 404; the sports list is football, basketball, tennis, cricket, hockey, baseball) | – | – | – | – | Rejected |
+| **SportDevs "Badminton Devs" on RapidAPI**, `badminton-devs.p.rapidapi.com` (`matches-by-date?date=eq.yyyy-MM-dd`, `matches-live`, `leagues`, `tournaments`) | **free RapidAPI key** (Basic plan) | World Tour, World Championships, Olympics, team events, national leagues (the vendor's badminton coverage) | match status (`upcoming`/`live`/`finished`/`walkover`/`retired`…), games won, points per game (`period_n`), round, tournament | **a daily quota on the free plan** (stated on the pricing tab; a live match at 60 s costs 60 requests an hour) | RapidAPI's terms, personal use allowed with a key | the vendor's own domain `sportdevs.com` did not resolve on 2026-11-10 (no DNS answer); the RapidAPI listing answers (`{"message":"You are not subscribed to this API."}` without a subscription) | **Chosen**, as the only keyed option with badminton match data; the key is the user's |
+| Olympics-only feeds (olympics.com results JSON) | none | Olympics only, and only while the Games run | games | – | – | nothing to read until LA 2028 | Not viable |
+
+**Decision: SportDevs' badminton API through RapidAPI, with the user's own key** (ADR-044). No keyless source is
+viable: BWF's site is behind a JavaScript challenge, Sofascore refuses non-browsers, and Flashscore, the one feed that
+answers, forbids automated access in its terms, which fails the "ToS allows personal use" criterion that ESPN's
+undocumented feeds pass. The key is entered on the TV (**Settings → Badminton data key**), stored in the companion's
+preferences, never in the APK, a backup or a log; without it badminton is listed but not fetched, and the picker says
+what is missing. The free plan's daily quota does not fit a day of 60 s polling, so the Settings row and
+`docs/providers.md` say so; the refresh policy is the same as the other sports' (one request per live minute while
+a screen shows a badminton match, two per full refresh: today and tomorrow).
+
 Payload-size handling for a 1 GB TV: parse with `android.util.JsonReader` streaming, skipping
 sub-trees we do not read (`odds`, `broadcasts`, `highlights`, `venue`, athletes' headshots); never hold
 the raw text (`Http.stream()` returns the `InputStream`). Tennis is fetched only when a tennis follow
@@ -654,8 +681,9 @@ interface ScoreSource {
 
 `Event` is the source-neutral model the provider and the UI read (`Event(id, sport, competition,
 format, state, statusDetail, startMs, endMs, home: Side, away: Side, summary, updatedMs)`; `Side(id,
-name, abbr, score, innings: List<Innings>?, isBatting)`). `EspnSource` is the one implementation; its
-parsers are pure functions `parseScorepanel(JsonReader): List<Event>`, `parseScoreboard(sport,
+name, abbr, score, innings: List<Innings>?, isBatting)`). `EspnSource` carries cricket, football, F1 and tennis and
+`SportDevsSource` badminton (ADR-044), registered in `SourceRegistry`, which routes each sport to the first source that
+claims it; the parsers are pure functions `parseScorepanel(JsonReader): List<Event>`, `parseScoreboard(sport,
 JsonReader)`, each tested against recorded fixtures in `livescore/src/test/resources/espn/*.json`
 (captured 2026-11-09 and re-captured by a script when the feed changes). A `FakeSource` in `:testkit`
 returns scripted events for the launcher's and the provider's tests. Adding a source is: implement the
@@ -673,6 +701,14 @@ Normalisation (pure, fixture-tested):
 | `in` and `type.description` ∈ {Live, In Progress, 1st/2nd Half, Q1–4, Set n, Lap n} | `live` |
 | `in` and `type.description` ∈ {Stumps, Lunch, Tea, Dinner, Drinks, Innings Break, Delayed, Rain, Halftime, Suspended, Bad light, Wet outfield} (tv-town's `NOT_PLAYING` list) | `break` |
 | `post` | `final` |
+
+SportDevs' badminton feed (ADR-044) names its states in words, read by the same normaliser: `upcoming`/`notstarted`
+→ `upcoming`; `live`/`inprogress` → `live`, unless the reason is a pause (`Interval`, `Pause`, `Break`, `Suspended`)
+or the parser finds the last game over with no next one started (the interval between games, reason `Interval`) →
+`break`; `finished`/`ended` → `final`; `walkover`, `retired`, `canceled`, `postponed`, as a type or as the reason of
+a live or finished match → `final`, with the word kept in `status_detail` so the line reads `Antonsen w/o Christie`
+or `… Antonsen ret.`; `interrupted`/`suspended`/`delayed` as a type → `break`. A live match's `status_detail` is
+`<round> · Game <n>`, `n` the games started.
 
 ### 13.5 Refresh policy (1 GB TV)
 
@@ -697,7 +733,9 @@ background, < 25 MB with the scoreboard open (measured in Phase 5 on `HikViewer_
   a "Follow" pill, a "Settings" pill (refresh now, defaults, clear follows).
 - `FollowActivity`: three-column drill-down, sport → competition → team, each a vertical list; OK toggles
   a tick; the current day's events appear as "Follow this match" entries under their competition. Search
-  is not needed (lists are < 40 items).
+  is not needed (lists are < 40 items). A sport whose source has no static catalogue (badminton, ADR-044) lists
+  the tournaments of the cached window and, under one, its players and matches; without the data key the column
+  says what is missing.
 - `ScoreboardActivity(event_id)`: cricket: innings table, current batters/bowler when the feed has them
   (`summary` endpoint, carried idea from tv-town `Scores.java:354`); football: scorers from `details`;
   F1: session results; tennis: set table. Refreshes every 30 s while resumed.

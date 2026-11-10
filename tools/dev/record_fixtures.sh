@@ -5,6 +5,9 @@
 #   tools/dev/record_fixtures.sh                 # today's scoreboards into livescore/src/test/resources/fixtures/<sport>/
 #   tools/dev/record_fixtures.sh 20261109        # a given day (cricket takes the date; the others are "today" at ESPN)
 #   tools/dev/record_fixtures.sh --catalogue     # livescore/src/main/res/raw/espn_catalogue.json from the teams endpoints
+#   RAPIDAPI_KEY=… tools/dev/record_fixtures.sh --badminton [YYYYMMDD]
+#                                                # SportDevs' badminton day list (ADR-044) into fixtures/badminton/matches-<day>.json;
+#                                                # the key is sent as a header and never lands in the file
 #
 # Event arrays are kept whole when a day has 3 events or fewer; otherwise the recording keeps the first 3
 # events of every list (and the first 3 matches of a tennis grouping) so the fixtures stay small; the
@@ -47,6 +50,31 @@ record() { # $1 sport dir, $2 name, $3 url
   trim "$FIX/$1/$2.json"
   echo "$FIX/$1/$2.json $(wc -c < "$FIX/$1/$2.json") bytes"
 }
+
+if [ "${1:-}" = "--badminton" ]; then
+  [ -n "${RAPIDAPI_KEY:-}" ] || { echo "RAPIDAPI_KEY is not set: a free RapidAPI key subscribed to SportDevs' Badminton API (docs/providers.md)" >&2; exit 2; }
+  DAY="${2:-$(date -u +%Y%m%d)}"
+  ISO="${DAY:0:4}-${DAY:4:2}-${DAY:6:2}"
+  mkdir -p "$FIX/badminton"
+  OUT="$FIX/badminton/matches-$DAY.json"
+  curl -fsS -H 'Accept: application/json' -H "x-rapidapi-key: $RAPIDAPI_KEY" -H 'x-rapidapi-host: badminton-devs.p.rapidapi.com' \
+    "https://badminton-devs.p.rapidapi.com/matches-by-date?date=eq.$ISO" -o "$OUT"
+  python3 - "$OUT" "$MAX_EVENTS" <<'PYB'
+import json, sys
+path, keep = sys.argv[1], int(sys.argv[2])
+d = json.load(open(path))
+cut = 0
+groups = d if isinstance(d, list) else [d]
+for g in groups:
+    if isinstance(g, dict) and isinstance(g.get("matches"), list) and len(g["matches"]) > keep:
+        cut += len(g["matches"]) - keep; g["matches"] = g["matches"][:keep]
+if cut and groups and isinstance(groups[0], dict):
+    groups[0]["_note"] = f"Recorded by tools/dev/record_fixtures.sh --badminton; matches[] truncated to their first {keep} entries per day ({cut} dropped)."
+json.dump(d, open(path, "w"), separators=(",", ":"), ensure_ascii=False)
+PYB
+  echo "$OUT $(wc -c < "$OUT") bytes"
+  exit 0
+fi
 
 if [ "${1:-}" = "--catalogue" ]; then
   OUT=livescore/src/main/res/raw/espn_catalogue.json

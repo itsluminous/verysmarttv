@@ -287,7 +287,7 @@ public class HomeFocusTest {
         });
         List<String> expected = new java.util.ArrayList<>();
         for (String sport : ScoreFixture.STACK_SPORTS) expected.add(home.target().getResources().getResourceEntryName(SportIcons.forSport(sport)));
-        assertEquals(java.util.Arrays.asList("ic_sport_cricket", "ic_sport_tennis", "ic_sport_cricket", "ic_sport_football", "ic_sport_cricket"), expected);
+        assertEquals(java.util.Arrays.asList("ic_sport_cricket", "ic_sport_tennis", "ic_sport_cricket", "ic_sport_badminton", "ic_sport_cricket"), expected);
         assertEquals("each line's icon is its row's sport", expected, icons);
     }
 

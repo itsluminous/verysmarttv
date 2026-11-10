@@ -123,6 +123,40 @@ class LineFormatterTest {
     }
 
     @Test
+    fun badmintonLinesMirrorTennisWithGames() {
+        val a = Side("5001", "Sindhu P. V.", "SIN", shortName = "Sindhu", score = "21 11")
+        val b = Side("5002", "Axelsen V.", "AXE", shortName = "Axelsen", score = "18 9")
+        val live = Event("1", Sport.BADMINTON, "7001", "Japan Masters", "", State.LIVE, "Round of 16 · Game 2", now, null, a, b, "", now, period = 2)
+        assertEquals("Japan Masters · Sindhu 21-18 11-9 Axelsen", f.line(live))
+        assertEquals("LIVE" to LineFormatter.COLOR_LIVE, f.kicker(live, now))
+        val up = live.copy(state = State.UPCOMING, home = a.copy(score = ""), away = b.copy(score = ""), startMs = now + 30 * 60_000L)
+        assertEquals("Japan Masters · Sindhu v Axelsen", f.line(up))
+        assertEquals("19:30", f.kicker(up, now).first)
+        val interval = live.copy(state = State.BREAK, statusDetail = "Round of 16 · Interval", home = a.copy(score = "21"), away = b.copy(score = "15"))
+        assertEquals("Japan Masters · Sindhu 21-15 Axelsen", f.line(interval))
+        assertEquals("INTERVAL" to LineFormatter.COLOR_BREAK, f.kicker(interval, now))
+        val done = live.copy(state = State.FINAL, statusDetail = "Round of 16 · Ended", home = a.copy(score = "21 21", winner = true), away = b.copy(score = "18 19"))
+        assertEquals("Japan Masters · Sindhu 21-18 21-19 Axelsen", f.line(done))
+        assertEquals("FINAL" to LineFormatter.COLOR_GREY, f.kicker(done, now))
+    }
+
+    @Test
+    fun badmintonWalkoverRetirementAndLongPairs() {
+        val a = Side("5009", "Christie J.", "CHR", shortName = "Christie", score = "")
+        val b = Side("5010", "Antonsen A.", "ANT", shortName = "Antonsen", score = "", winner = true)
+        val wo = Event("1", Sport.BADMINTON, "7003", "Japan Masters", "", State.FINAL, "Round of 16 · Walkover", now, now, a, b, "", now)
+        assertEquals("Japan Masters · Antonsen w/o Christie", f.line(wo))
+        val ret = wo.copy(statusDetail = "Round of 16 · Retired", home = a.copy(score = "21 5", winner = true), away = b.copy(score = "18 3", winner = false))
+        assertEquals("Japan Masters · Christie 21-18 5-3 Antonsen ret.", f.line(ret))
+        val pairA = Side("5003", "Chang C. H./Yang C. T.", "CHA/YAN", shortName = "Chang / Yang", score = "17")
+        val pairB = Side("5004", "Kusuma F. D./Puspitasari M. T.", "KUS/PUS", shortName = "Kusuma / Puspitasari", score = "15")
+        val doubles = wo.copy(state = State.LIVE, competition = "BWF World Tour Finals", statusDetail = "Game 1", home = pairA, away = pairB)
+        assertEquals("BWF W… · Chang / Yang 17-15 Kusuma / Puspitasari", f.line(doubles)) // the tournament is cut first
+        val longer = doubles.copy(home = pairA.copy(shortName = "Rankireddy / Shetty", score = "21 17 19"), away = pairB.copy(shortName = "Alfian / Ardianto", score = "19 21 19"))
+        assertEquals("BWF World T… · RAN/SHE 21-19 17-21 19-19 ALF/ARD", f.line(longer.copy(home = longer.home.copy(abbr = "RAN/SHE"), away = longer.away.copy(abbr = "ALF/ARD"))))
+    }
+
+    @Test
     fun linesNeverExceedFortyEightCharacters() {
         val e = cricket(
             "First-class", State.FINAL,

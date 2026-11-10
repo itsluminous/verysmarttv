@@ -7,12 +7,12 @@ import com.itsluminous.livescore.model.Sport
 import com.itsluminous.livescore.model.State
 import com.itsluminous.livescore.source.ScoreSource
 
-/** One fetch: a sport and, for the per-competition feeds, the competition; cricket's scorepanel has none. */
+/** One fetch: a sport and, for the per-competition feeds, the competition; a day-wide feed ([Sport.oneFetchPerDay]) has none. */
 data class FetchKey(val sport: Sport, val competitionId: String?) {
     val token: String get() = "${sport.token}:${competitionId ?: "*"}"
 
     companion object {
-        fun of(event: Event): FetchKey = if (event.sport == Sport.CRICKET) FetchKey(Sport.CRICKET, null) else FetchKey(event.sport, event.competitionId)
+        fun of(event: Event): FetchKey = if (event.sport.oneFetchPerDay) FetchKey(event.sport, null) else FetchKey(event.sport, event.competitionId)
     }
 }
 
@@ -100,12 +100,12 @@ class RefreshPolicy {
         const val START_LAG_MS = 3L * 60_000L
         private const val DAY_MS = 24L * 3600_000L
 
-        /** Every fetch a full refresh needs for [follows]: one per followed competition, cricket's scorepanel once, tennis only when followed. */
+        /** Every fetch a full refresh needs for [follows]: one per followed competition, a day-wide feed (cricket, badminton) once, tennis only when followed. */
         fun fullPlan(follows: List<Follow>, source: ScoreSource): List<FetchKey> {
             val keys = LinkedHashSet<FetchKey>()
             for (f in follows) {
                 when (f.sport) {
-                    Sport.CRICKET -> keys.add(FetchKey(Sport.CRICKET, null))
+                    Sport.CRICKET, Sport.BADMINTON -> keys.add(FetchKey(f.sport, null))
                     Sport.F1 -> keys.add(FetchKey(Sport.F1, source.competitions(Sport.F1).firstOrNull()?.id ?: "f1"))
                     Sport.FOOTBALL, Sport.TENNIS -> when (f.kind) {
                         FollowKind.SPORT -> source.competitions(f.sport).forEach { keys.add(FetchKey(f.sport, it.id)) }

@@ -31,6 +31,10 @@
     <string name="sport_football">Football</string>
     <string name="sport_f1">Formula 1</string>
     <string name="sport_tennis">Tennis</string>
+    <string name="sport_badminton">Badminton</string>
+    <string name="badminton_needs_key">Badminton scores need a data key: Settings → Badminton data key.</string>
+    <string name="badminton_loading">Looking up this week’s tournaments…</string>
+    <string name="badminton_none">No tournament in the feed for yesterday, today or tomorrow.</string>
 
     <!-- Scoreboard -->
     <string name="innings_line">%1$d/%2$d (%3$s ov)</string>
@@ -57,5 +61,10 @@
     <string name="clear_follows_confirm">Remove every follow? The pill goes empty until you follow something again.</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
-    <string name="about_source">Scores come from ESPN’s public site feeds, which need no account. ESPN is not affiliated with this app and the feeds may change or stop without notice. Nothing is fetched while no screen shows a score.</string>
+    <string name="badminton_key">Badminton data key</string>
+    <string name="badminton_key_unset">Not set: badminton is not fetched. A free RapidAPI key for SportDevs’ Badminton API, see docs/providers.md</string>
+    <string name="badminton_key_set">Set (ends in %1$s) · fetched while a badminton follow is live</string>
+    <string name="badminton_key_hint">Paste your RapidAPI key</string>
+    <string name="badminton_key_remove">Remove</string>
+    <string name="about_source">Scores come from ESPN’s public site feeds, which need no account, and badminton from SportDevs’ API with your own key. Neither is affiliated with this app and the feeds may change or stop without notice. Nothing is fetched while no screen shows a score.</string>
 </resources>

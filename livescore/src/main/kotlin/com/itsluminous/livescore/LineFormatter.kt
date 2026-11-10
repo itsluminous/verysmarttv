@@ -18,6 +18,9 @@ import java.util.Locale
  * - football: `Premier League · ARS 2–1 CHE 67'`; upcoming `ISL · Bengaluru v Mumbai City`
  * - F1: `F1 · São Paulo GP · Race`; live `F1 · São Paulo GP · Lap 32 · NOR leads`
  * - tennis: `Stockholm Open · Gojo 7-5 4-6 7-6 Brunold`
+ * - badminton: `Japan Masters · Sindhu 21-18 11-9 Axelsen`; a pair by surnames, `Kusuma / Puspitasari`, or
+ *   by abbreviations (`KUS/PUS 21-17 8-5 CHA/YAN`) when the surnames alone would not fit; a walkover
+ *   `Japan Masters · Sindhu w/o Axelsen`, a retirement `… Sindhu 21-18 5-3 Axelsen ret.`
  *
  * Every line is at most [ScoreContract.LINE_MAX_CHARS] characters; a longer one ends in an ellipsis.
  */
@@ -38,6 +41,7 @@ class LineFormatter(private val zone: ZoneId, private val locale: Locale = Local
                 Sport.FOOTBALL -> football(event)
                 Sport.F1 -> f1(event)
                 Sport.TENNIS -> tennis(event)
+                Sport.BADMINTON -> badminton(event)
             },
         )
 
@@ -90,10 +94,31 @@ class LineFormatter(private val zone: ZoneId, private val locale: Locale = Local
     private fun tennis(e: Event): String {
         val sets = sets(e.home, e.away)
         val tail = if (sets.isEmpty()) "${e.home.shortName} v ${e.away.shortName}" else "${e.home.shortName} $sets ${e.away.shortName}"
-        val full = "${e.competition} · $tail"
+        return withCompetition(e.competition, tail)
+    }
+
+    /** The tennis shape with games for sets, the winner first on a walkover and `ret.` after a retirement. */
+    private fun badminton(e: Event): String {
+        val detail = e.statusDetail.lowercase()
+        val games = sets(e.home, e.away)
+        val tail = { a: String, b: String ->
+            when {
+                e.state == State.FINAL && detail.contains("walkover") -> "${if (e.away.winner && !e.home.winner) b else a} w/o ${if (e.away.winner && !e.home.winner) a else b}"
+                games.isEmpty() -> "$a v $b"
+                e.state == State.FINAL && detail.contains("retired") -> "$a $games $b ret."
+                else -> "$a $games $b"
+            }
+        }
+        val byName = tail(e.home.shortName, e.away.shortName)
+        return withCompetition(e.competition, if (byName.length <= ScoreContract.LINE_MAX_CHARS) byName else tail(e.home.abbr, e.away.abbr))
+    }
+
+    /** `<competition> · <tail>`, the competition cut first (with an ellipsis) and dropped when even four characters of it would not fit. */
+    private fun withCompetition(competition: String, tail: String): String {
+        val full = "$competition · $tail"
         if (full.length <= ScoreContract.LINE_MAX_CHARS) return full
         val room = ScoreContract.LINE_MAX_CHARS - tail.length - 3
-        return if (room >= 4) "${e.competition.take(room - 1).trimEnd()}… · $tail" else tail
+        return if (room >= 4) "${competition.take(room - 1).trimEnd()}… · $tail" else tail
     }
 
     /** `7 4 7(9)` and `5 6 6(7)` → `7-5 4-6 7-6`; a tiebreak's points are left to the detail view. */
@@ -103,8 +128,9 @@ class LineFormatter(private val zone: ZoneId, private val locale: Locale = Local
         return sa.indices.map { i -> "${sa[i].substringBefore('(')}-${sb.getOrElse(i) { "" }.substringBefore('(')}".trimEnd('-') }.joinToString(" ")
     }
 
+    /** The pause itself, the last ` · ` part of the detail (`Round of 16 · Interval` → `INTERVAL`), at most [KICKER_MAX] characters. */
     private fun breakWord(e: Event): String {
-        val word = e.statusDetail.trim()
+        val word = e.statusDetail.substringAfterLast(" · ").trim()
         return when {
             word.equals("halftime", true) || word.equals("half-time", true) || word.equals("half time", true) -> "HT"
             word.isEmpty() -> "BREAK"
@@ -117,7 +143,7 @@ class LineFormatter(private val zone: ZoneId, private val locale: Locale = Local
         when (sport) {
             Sport.FOOTBALL -> "FT"
             Sport.CRICKET -> "RESULT"
-            Sport.F1, Sport.TENNIS -> "FINAL"
+            Sport.F1, Sport.TENNIS, Sport.BADMINTON -> "FINAL"
         }
 
     /** `19:30` today, `TOMORROW 19:30`, else the weekday `SAT 19:30`, in the TV's zone. */

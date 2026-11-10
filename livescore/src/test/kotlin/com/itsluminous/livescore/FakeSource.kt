@@ -23,6 +23,7 @@ class FakeSource : ScoreSource {
             Sport.FOOTBALL -> listOf(Competition(Sport.FOOTBALL, "ind.1", "ISL"), Competition(Sport.FOOTBALL, "eng.1", "Premier League"), Competition(Sport.FOOTBALL, "uefa.champions", "UCL"))
             Sport.F1 -> listOf(Competition(Sport.F1, "f1", "Formula 1", "F1"))
             Sport.TENNIS -> listOf(Competition(Sport.TENNIS, "atp", "ATP"))
+            Sport.BADMINTON -> emptyList()
         }
 
     override fun teams(competition: Competition): List<Team> = emptyList()

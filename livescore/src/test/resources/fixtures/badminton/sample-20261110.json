@@ -1,0 +1,194 @@
+[
+ {
+  "date": "2026-11-10",
+  "_note": "Hand-made on 2026-11-10 in the shape of SportDevs' badminton matches-by-date answer (an array of {date, matches[]} groups; the parser also takes a bare array of matches). No RapidAPI key was available when badminton landed, so no payload could be recorded; `tools/dev/record_fixtures.sh --badminton` with RAPIDAPI_KEY set records a real day beside this file, and the parser test then says which field moved (ADR-044).",
+  "matches": [
+   {
+    "id": 900001,
+    "name": "Sindhu P. V. vs An S. Y.",
+    "tournament_id": 7001,
+    "tournament_name": "BWF World Tour, Japan Masters, Women Singles",
+    "tournament_importance": 50,
+    "season_id": 2026,
+    "season_name": "2026",
+    "status": {
+     "type": "live",
+     "reason": "2nd game"
+    },
+    "status_type": "live",
+    "arena_id": 9,
+    "arena_name": "Kumamoto Prefectural Gymnasium",
+    "home_team_id": 5001,
+    "home_team_name": "Sindhu P. V.",
+    "home_team_hash_image": "00000000",
+    "away_team_id": 5002,
+    "away_team_name": "An S. Y.",
+    "away_team_hash_image": "00000000",
+    "home_team_score": {
+     "current": 1,
+     "display": 1,
+     "period_1": 21,
+     "period_2": 11
+    },
+    "away_team_score": {
+     "current": 0,
+     "display": 0,
+     "period_1": 18,
+     "period_2": 9
+    },
+    "times": {
+     "specific_start_time": "2026-11-10T03:40:00+00:00"
+    },
+    "start_time": "2026-11-10T03:40:00+00:00",
+    "duration": null,
+    "league_id": 1,
+    "league_name": "BWF World Tour",
+    "league_hash_image": "00000000",
+    "class_id": 1,
+    "class_name": "International",
+    "round": {
+     "round": 4,
+     "name": "Round of 16"
+    }
+   },
+   {
+    "id": 900002,
+    "name": "Chang C. H./Yang C. T. vs Kusuma F. D./Puspitasari M. T.",
+    "tournament_id": 7002,
+    "tournament_name": "BWF World Tour, Japan Masters, Men Doubles",
+    "tournament_importance": 50,
+    "season_id": 2026,
+    "season_name": "2026",
+    "status": {
+     "type": "live",
+     "reason": "1st game"
+    },
+    "status_type": "live",
+    "arena_id": 9,
+    "arena_name": "Kumamoto Prefectural Gymnasium",
+    "home_team_id": 5003,
+    "home_team_name": "Chang C. H./Yang C. T.",
+    "home_team_hash_image": "00000000",
+    "away_team_id": 5004,
+    "away_team_name": "Kusuma F. D./Puspitasari M. T.",
+    "away_team_hash_image": "00000000",
+    "home_team_score": {
+     "current": 0,
+     "display": 0,
+     "period_1": 17
+    },
+    "away_team_score": {
+     "current": 0,
+     "display": 0,
+     "period_1": 15
+    },
+    "times": {
+     "specific_start_time": "2026-11-10T04:10:00+00:00"
+    },
+    "start_time": "2026-11-10T04:10:00+00:00",
+    "duration": null,
+    "league_id": 1,
+    "league_name": "BWF World Tour",
+    "league_hash_image": "00000000",
+    "class_id": 1,
+    "class_name": "International",
+    "round": {
+     "round": 4,
+     "name": "Round of 16"
+    }
+   },
+   {
+    "id": 900003,
+    "name": "Axelsen V. vs Sen L.",
+    "tournament_id": 7003,
+    "tournament_name": "BWF World Tour, Japan Masters, Men Singles",
+    "tournament_importance": 50,
+    "season_id": 2026,
+    "season_name": "2026",
+    "status": {
+     "type": "upcoming",
+     "reason": "Not started"
+    },
+    "status_type": "upcoming",
+    "arena_id": 9,
+    "arena_name": "Kumamoto Prefectural Gymnasium",
+    "home_team_id": 5005,
+    "home_team_name": "Axelsen V.",
+    "home_team_hash_image": "00000000",
+    "away_team_id": 5006,
+    "away_team_name": "Sen L.",
+    "away_team_hash_image": "00000000",
+    "home_team_score": {
+     "current": 0,
+     "display": 0
+    },
+    "away_team_score": {
+     "current": 0,
+     "display": 0
+    },
+    "times": {
+     "specific_start_time": "2026-11-10T06:00:00+00:00"
+    },
+    "start_time": "2026-11-10T06:00:00+00:00",
+    "duration": null,
+    "league_id": 1,
+    "league_name": "BWF World Tour",
+    "league_hash_image": "00000000",
+    "class_id": 1,
+    "class_name": "International",
+    "round": {
+     "round": 4,
+     "name": "Round of 16"
+    }
+   },
+   {
+    "id": 900004,
+    "name": "Chen Q. C./Jia Y. F. vs Matsuyama N./Shida C.",
+    "tournament_id": 7004,
+    "tournament_name": "BWF World Tour, Japan Masters, Women Doubles",
+    "tournament_importance": 50,
+    "season_id": 2026,
+    "season_name": "2026",
+    "status": {
+     "type": "finished",
+     "reason": "Ended"
+    },
+    "status_type": "finished",
+    "arena_id": 9,
+    "arena_name": "Kumamoto Prefectural Gymnasium",
+    "home_team_id": 5007,
+    "home_team_name": "Chen Q. C./Jia Y. F.",
+    "home_team_hash_image": "00000000",
+    "away_team_id": 5008,
+    "away_team_name": "Matsuyama N./Shida C.",
+    "away_team_hash_image": "00000000",
+    "home_team_score": {
+     "current": 2,
+     "display": 2,
+     "period_1": 21,
+     "period_2": 21
+    },
+    "away_team_score": {
+     "current": 0,
+     "display": 0,
+     "period_1": 15,
+     "period_2": 19
+    },
+    "times": {
+     "specific_start_time": "2026-11-10T02:00:00+00:00"
+    },
+    "start_time": "2026-11-10T02:00:00+00:00",
+    "duration": null,
+    "league_id": 1,
+    "league_name": "BWF World Tour",
+    "league_hash_image": "00000000",
+    "class_id": 1,
+    "class_name": "International",
+    "round": {
+     "round": 4,
+     "name": "Round of 32"
+    }
+   }
+  ]
+ }
+]

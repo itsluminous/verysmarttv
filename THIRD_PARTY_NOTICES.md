@@ -78,6 +78,19 @@ scores stay, marked stale, and the status line shows when they were last updated
 `source/ScoreSource` is where a replacement goes (DESIGN.md §13.1, ADR-012). Nothing is fetched while no
 screen shows a score.
 
+### SportDevs badminton API, through RapidAPI
+
+The live-score companion reads badminton scores from SportDevs' Badminton API as listed on RapidAPI
+(`badminton-devs.p.rapidapi.com`), only with a key the TV's owner creates in their own RapidAPI account and enters in
+the companion's Settings; no key ships in the APK or the repository, and nothing is fetched without one. **VerySmartTV
+is not affiliated with, endorsed by or sponsored by SportDevs or RapidAPI (Nokia)**; the data, the tournament and
+player names are the property of their owners and of the Badminton World Federation, shown for the personal,
+non-commercial display of scores on the owner's own TV under the plan the owner subscribed to. The free plan has a
+daily request quota the companion can exhaust on a long match day, after which it backs off and marks the last scores
+stale; the vendor may change or stop the API, and the adapter boundary `source/ScoreSource` is where a replacement goes
+(DESIGN.md §13.1, ADR-044). The fixtures under `livescore/src/test/resources/fixtures/badminton/` are hand-made
+examples in the API's shape, not recorded data.
+
 ## Libraries
 
 ### Kotlin standard library

@@ -16,6 +16,9 @@ object Fixtures {
         return JsonReader(InputStreamReader(stream, Charsets.UTF_8))
     }
 
+    /** A reader over a JSON literal, for the small shapes a test writes inline. */
+    fun readerOf(json: String): JsonReader = JsonReader(java.io.StringReader(json))
+
     fun text(path: String): String =
         Fixtures::class.java.classLoader!!.getResourceAsStream("fixtures/$path")!!.bufferedReader().use { it.readText() }
 }

@@ -11,7 +11,7 @@ import java.io.IOException
 import java.io.InputStreamReader
 
 /**
- * ESPN's public site feeds (§13.1, ADR-012), the one [ScoreSource] of v1. Four URL shapes:
+ * ESPN's public site feeds (§13.1, ADR-012), the [ScoreSource] of the four sports it carries. Four URL shapes:
  *
  * - cricket: `site.web.api.espn.com/apis/site/v2/sports/cricket/scorepanel?dates=yyyyMMdd` (every league of the day)
  * - football: `site.api.espn.com/apis/site/v2/sports/soccer/<league>/scoreboard?dates=yyyyMMdd` (one day only; a range is refused)
@@ -31,7 +31,7 @@ class EspnSource(
 ) : ScoreSource {
     override val id: String = ID
 
-    override fun sports(): List<Sport> = Sport.entries
+    override fun sports(): List<Sport> = SPORTS
 
     override fun competitions(sport: Sport): List<Competition> = catalogue.competitions(sport)
 
@@ -41,13 +41,14 @@ class EspnSource(
     override fun scoreboard(sport: Sport, competition: Competition?, day: String): List<Event> {
         val now = clock()
         val url = url(sport, competition, day) ?: return emptyList()
-        return http.stream(url).use { stream ->
+        return http.stream(url, emptyMap()).use { stream ->
             JsonReader(InputStreamReader(stream, Charsets.UTF_8)).use { reader ->
                 when (sport) {
                     Sport.CRICKET -> CricketParser.parse(reader, now)
                     Sport.FOOTBALL -> SoccerParser.parse(reader, competition ?: return emptyList(), now)
                     Sport.F1 -> F1Parser.parse(reader, competition ?: catalogue.competitions(sport).first(), now, now)
                     Sport.TENNIS -> TennisParser.parse(reader, competition ?: return emptyList(), now)
+                    Sport.BADMINTON -> emptyList()
                 }
             }
         }
@@ -57,7 +58,7 @@ class EspnSource(
     override fun event(event: Event): Event? {
         if (event.sport != Sport.CRICKET || event.competitionId.isEmpty()) return null
         val url = summaryUrl(event.competitionId, event.id)
-        val lines = http.stream(url).use { stream ->
+        val lines = http.stream(url, emptyMap()).use { stream ->
             JsonReader(InputStreamReader(stream, Charsets.UTF_8)).use { CricketSummaryParser.parse(it) }
         }
         return event.copy(details = lines, updatedMs = clock())
@@ -65,6 +66,9 @@ class EspnSource(
 
     companion object {
         const val ID = "espn"
+
+        /** The four sports ESPN's feeds carry; badminton has no feed there (404, checked 2026-11-10), see `SportDevsSource`. */
+        val SPORTS: List<Sport> = listOf(Sport.CRICKET, Sport.FOOTBALL, Sport.F1, Sport.TENNIS)
         private const val SITE = "https://site.api.espn.com/apis/site/v2/sports"
         private const val WEB = "https://site.web.api.espn.com/apis/site/v2/sports"
 
@@ -75,6 +79,7 @@ class EspnSource(
                 Sport.FOOTBALL -> competition?.let { "$SITE/soccer/${it.id}/scoreboard?dates=$day" }
                 Sport.F1 -> "$SITE/racing/f1/scoreboard?dates=$day"
                 Sport.TENNIS -> competition?.let { "$SITE/tennis/${it.id}/scoreboard?dates=$day" }
+                Sport.BADMINTON -> null
             }
 
         /** The cricket `summary` endpoint for one match: the league id and the event id. */

@@ -100,6 +100,18 @@ class ScoreRepo(
         fetch(RefreshPolicy.fullPlan(follows.all().filter { it.sport in prefs.sportsShown }, source), liveOnly = false, onDone = onDone)
     }
 
+    /**
+     * One day-wide sport, fetched whole (the picker, when a sport without a static catalogue has nothing cached to
+     * offer yet); [onDone] runs on the main thread. Nothing for a sport whose feed is per competition.
+     */
+    fun refreshSport(sport: Sport, onDone: (() -> Unit)?) {
+        if (!sport.oneFetchPerDay) {
+            if (onDone != null) handler.post(onDone)
+            return
+        }
+        fetch(listOf(FetchKey(sport, null)), liveOnly = false, onDone = onDone)
+    }
+
     /** The open scoreboard's 30 s refresh: the event's competition, then its fuller view; [onDone] on the main thread. */
     fun refreshOne(event: Event, onDone: (Event?) -> Unit) {
         fetch(listOf(FetchKey.of(event)), liveOnly = true) {
@@ -162,7 +174,7 @@ class ScoreRepo(
         }
     }
 
-    /** The day expressions one key needs: today for cricket; today (and tomorrow on a full refresh) for football; the window for F1 and tennis. */
+    /** The day expressions one key needs: today for cricket; today (and tomorrow on a full refresh) for football and badminton, one request per day; the window for F1 and tennis. */
     @Throws(IOException::class)
     private fun fetchKey(key: FetchKey, liveOnly: Boolean, nowMs: Long): List<Event> {
         val today = Instant.ofEpochMilli(nowMs).atZone(zone).toLocalDate()
@@ -171,6 +183,7 @@ class ScoreRepo(
         val days = when (key.sport) {
             Sport.CRICKET -> listOf(day(0))
             Sport.FOOTBALL -> if (liveOnly) listOf(day(0)) else listOf(day(0), day(1))
+            Sport.BADMINTON -> if (liveOnly) listOf(day(0)) else listOf(day(0), day(1))
             Sport.F1, Sport.TENNIS -> listOf("${day(-1)}-${day(1)}")
         }
         return days.flatMap { source.scoreboard(key.sport, competition, it) }.distinctBy { it.id }
@@ -261,7 +274,7 @@ class ScoreRepo(
         @Suppress("StaticFieldLeak")
         @Volatile private var instance: ScoreRepo? = null
 
-        /** The process's repo, built on first use from the ESPN source and the app's files dir. */
+        /** The process's repo, built on first use from the registered sources and the app's files dir. */
         fun get(context: Context): ScoreRepo =
             instance ?: synchronized(this) {
                 instance ?: create(context).also { instance = it }
@@ -282,12 +295,13 @@ class ScoreRepo(
 
         private fun create(context: Context): ScoreRepo {
             val app = context.applicationContext
+            val prefs = Prefs(app)
             return ScoreRepo(
                 app,
-                Sources.create(app),
+                Sources.create(app, prefs),
                 FollowStore(File(app.filesDir, FollowStore.FILE_NAME)),
                 EventCache(File(app.filesDir, EventCache.FILE_NAME)),
-                Prefs(app),
+                prefs,
             )
         }
     }
