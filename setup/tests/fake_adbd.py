@@ -20,8 +20,7 @@ def public_key_from_payload(payload: bytes):
     """The RSAPublicKey struct adb sends (base64, then ' name\\0') back into a cryptography public key."""
     blob = base64.b64decode(payload.split(b" ", 1)[0])
     words = struct.unpack("<II64I64II", blob)
-    length, _n0inv = words[0], words[1]
-    assert length == 64
+    assert words[0] == 64, "the modulus length in words"
     n_words, exponent = words[2:66], words[130]
     n = sum(w << (32 * i) for i, w in enumerate(n_words))
     return rsa.RSAPublicNumbers(exponent, n).public_key()

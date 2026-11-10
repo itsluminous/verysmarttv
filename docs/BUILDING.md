@@ -61,8 +61,8 @@ so every component the TV or the setup tool names by class carries its package s
 | Notification listener (`cmd notification allow_listener`) | `com.itsluminous.verysmarttv/.keys.GuardRevival` |
 | Theme and backup providers | `content://com.itsluminous.verysmarttv.theme/`, `content://com.itsluminous.verysmarttv.backup/` (authorities, unchanged) |
 
-A TV that had the fork's helpers enabled under the old flat names keeps a stale entry in those secure settings until the
-setup tool (Phase 5) or `adb shell settings put secure …` names the new components.
+A TV that had the fork's helpers enabled under the old flat names keeps a stale entry in those secure settings until
+`adb shell settings put secure …` names the new components.
 
 ## Emulators
 
@@ -179,10 +179,40 @@ git grep -niE 'leantv|gathin|itsluminous\.tvhome|cleanyourtv' -- ':!LICENSE' ':!
 ```
 
 `ci.yml` runs the same command in its `verify` job (the workflow file is left out because it holds the
-pattern). Phase 5 turns it into `tests/test_no_old_identifiers.py`.
+pattern), and `setup/tests/test_bootstrap_and_identifiers.py` runs it as a test.
 
 ## Local API keys for the Trakt companion (Phase 1)
 
 `:traktshelf` reads `TRAKT_CLIENT_ID`, `TMDB_API_KEY` and `OMDB_API_KEY` from the environment, then
 from `secrets.env` at the repo root (git-ignored, `KEY=value` lines). Without them it builds with empty
 keys and its sign-in screen says so. How to get the keys is in the companion's README once it lands.
+
+## The setup tool (`setup/`)
+
+The computer-side tool of [docs/SETUP.md](SETUP.md) is a plain Python package, `setup/verysmarttv_setup`, with
+one dependency (`setup/requirements.txt`: `cryptography`, for the RSA key ADB authenticates with). It speaks the ADB
+wire protocol itself (`adb/`), so no `adb` binary or server is involved; everything it runs on a TV is a shell
+command through that link.
+
+```bash
+python3 -m venv setup/.venv && setup/.venv/bin/pip install -r setup/requirements.txt   # dev venv, git-ignored
+cd setup && .venv/bin/python -m unittest discover -s tests -t .                        # the Python suite
+.venv/bin/python -m verysmarttv_setup --help
+python3 tools/dev/build_presets_index.py --check                                      # presets/index.json is fresh
+```
+
+The tests run against two fakes: `tests/fake_tv.py` answers the shell commands the tool sends from a small state
+(packages, HOME claimants, Wi-Fi owner, `dumpsys package` text) and records what was sent, and `tests/fake_adbd.py`
+is an in-process adbd on a real socket for the protocol itself (the token/signature/public-key handshake, `shell:`,
+`sync:`, `reboot:`). CI runs the suite on Ubuntu and Windows with Python 3.9 and 3.12 (`setup-tests` in `ci.yml`).
+
+Against the emulator: it exposes adbd on the host at the console port + 1, so `HikViewer_TV_1GB` (console 5556) is
+`--host 127.0.0.1:5557`, with no `adb tcpip` needed. The debug APKs of a build go in one folder for `--apk-dir`:
+
+```bash
+mkdir -p /tmp/apks && cp */build/outputs/apk/debug/*-debug.apk /tmp/apks/
+setup/setup.sh --host 127.0.0.1:5557 --apk-dir /tmp/apks --theme frosted --preset none --yes
+```
+
+`VERYSMARTTV_HOME` moves the tool's folder (`~/.verysmarttv/`: the ADB key, records, releases, screenshots); the
+tests set it to a temp dir. Never point the tool at the owner's TV from an agent session.

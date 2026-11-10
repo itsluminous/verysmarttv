@@ -12,7 +12,11 @@ https://github.com/Gathin23/cleanyourtv, MIT License, Copyright (c) 2026 Gathin.
 
 VerySmartTV is a derived work: the launcher, the Trakt companion, the computer-side setup tooling
 and the debloat presets started as this repository's code and community TV lists, renamed and
-reworked here. The lists' headers name the people who tested each TV. CleanYourTV's licence text is
+reworked here. The 434 lists under `presets/lists/` are those community lists carried verbatim (only the
+Apply/Undo command lines in their headers name this tool; `presets/index.json` records the source commit),
+and the lists' headers name the people who tested each TV. The setup tool's ADB client, Home guard, core
+package deny-list, recovery record, drift check and base64 transfer follow that repository's `tools/`,
+rewritten here in one Python package. CleanYourTV's licence text is
 reproduced in full in [LICENSE](LICENSE); its permission notice applies to the portions derived from it.
 
 ### tv-town-launcher, by Naresh Jagriya
@@ -92,6 +96,13 @@ and both companions ship it in `res/font/outfit.ttf`. https://fonts.google.com/s
 `androidx.annotation:annotation`, Apache License 2.0, Copyright The Android Open Source Project.
 Used by `:core` for `@NonNull` / `@Nullable` on its public API; compile-time only.
 https://www.apache.org/licenses/LICENSE-2.0
+
+### cryptography
+
+`cryptography` (https://cryptography.io), Apache License 2.0 or BSD-3-Clause, Copyright The cryptography
+developers. The one third-party package of the setup tool (`setup/requirements.txt`): the RSA key pair ADB
+authenticates this computer with, and the PKCS#1 v1.5 signature of adbd's token. Installed into the user's
+venv by the bootstraps; not in the tree. https://github.com/pyca/cryptography/blob/main/LICENSE
 
 ### Gradle wrapper
 

@@ -12,7 +12,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from fake_adbd import FakeAdbd  # noqa: E402
-from verysmarttv_setup import paths  # noqa: E402
 from verysmarttv_setup.adb import (AdbDevice, AdbError, AdbRefused, address_problem, auth, connect_error,  # noqa: E402
                                    parse_address, strip_png_prefix)
 from verysmarttv_setup.adb.protocol import AdbConnectionLost  # noqa: E402

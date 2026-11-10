@@ -36,8 +36,16 @@ Contracts: [`core/.../HeroContract.java`](core/src/main/java/com/itsluminous/ver
 
 ## Install
 
-Phase 5 brings `setup/setup.sh` and `setup/setup.ps1`; Phase 6 the first release. Until then, build
-from source ([docs/BUILDING.md](docs/BUILDING.md)).
+```bash
+git clone https://github.com/itsluminous/verysmarttv && cd verysmarttv
+setup/setup.sh                                                   # macOS, Linux
+powershell -ExecutionPolicy Bypass -File setup\setup.ps1         # Windows
+```
+
+The guided flow finds the TV, installs the three apps from the latest release (checksums verified), makes
+the launcher Home, pushes a theme and offers the community clean-up list for your model, undoable with
+`setup/setup.sh restore`. Everything it asks and every subcommand: [docs/SETUP.md](docs/SETUP.md). The first
+release is Phase 6; until it exists, build from source and pass `--apk-dir` ([docs/BUILDING.md](docs/BUILDING.md)).
 
 ## Usage tips
 

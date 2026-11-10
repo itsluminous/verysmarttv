@@ -12,9 +12,9 @@ Two themes ship:
 | [`themes/default/`](../themes/default/) | The launcher's built-in values as a `config.json`: every key the launcher reads, with the value `config.xml` gives it (generated from `Config`'s reads; black background, a four-app dock row, the full-screen settings page). Pushing it is a reset in all but name; deleting the theme folder on the TV is the other. |
 | [`themes/frosted/`](../themes/frosted/) | The owner's Mi TV 4A look: six uniform rows over a pre-blurred slate wallpaper, the settings side panel, the Trakt carousel, the All apps grid, the two-line date and the system bars on. `screenshot.jpg` is the fork's and is retaken in Phase 6. |
 
-Push a theme with `tools/dev/push_theme.py themes/<name>` (plain `adb`, a Phase 1 stand-in) until the setup tool
-replaces it in Phase 5: it writes the files through `content://com.itsluminous.verysmarttv.theme/<file>`, bumps
-`theme_revision` and restarts Home. The provider accepts exactly three names, `config.json`, `wallpaper.jpg` and
+Push a theme with `setup/setup.sh theme --host <tv ip> <name>` ([docs/SETUP.md](SETUP.md)): it writes the files
+through `content://com.itsluminous.verysmarttv.theme/<file>`, bumps `theme_revision` and restarts Home; `--reset`
+removes it. The provider accepts exactly three names, `config.json`, `wallpaper.jpg` and
 `theme_revision`; the fork's `wallpapers/` collection went with the rotation (ADR-008).
 
 ## Keys

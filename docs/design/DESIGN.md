@@ -891,6 +891,11 @@ fixes. `CHANGELOG.md` is kept by hand (Keep a Changelog); the tag message quotes
 
 ### 16.1 Architecture
 
+As built in Phase 5, with the departures ADR-043 records: `cryptography` is the one dependency (the ADB wire
+protocol and the mDNS query are written in the package, `adb-shell`/`rsa`/`zeroconf` are not used), the install
+grants nothing and leaves the stock launcher enabled unless asked, and the subcommands are `setup`, `discover`,
+`probe`, `install`, `theme`, `debloat`, `restore`, `check`, `screenshot`, `adb-closed`.
+
 One Python package, `setup/verysmarttv_setup`, run through two thin bootstraps:
 
 - `setup.sh` (macOS/Linux): finds `python3` ≥ 3.9 (Homebrew, Xcode CLT, or `python3` on PATH), creates
@@ -1001,7 +1006,8 @@ Ties in a tier are broken by SDK distance, then by newest `source` commit. The s
 is shown in full before anything is sent; the user can open the list, deselect lines (writes a local copy
 to `~/.verysmarttv/lists/<slug>-edited.txt`, which `check` uses afterwards), or go Manual.
 
-Safety carried unchanged into `presets.py`: `CORE_RE`/`CORE_OK` refusal (`disable.sh:68-69`), one
+Safety carried unchanged into `lists.py`, `homeguard.py` and `debloat.py` (ADR-043 for the reading of the factory
+rule and the two guards carried on top): `CORE_RE`/`CORE_OK` refusal (`disable.sh:68-69`), one
 `pm disable-user --user 0` per shell call, the Home-owner skip until another launcher answers HOME
 (`disable.sh:127-139` `home_claims/launchers_in/home_launchers`), the setupwraith + `cname=` Wi-Fi check,
 never touching `*factory*`/`*hkcfac*` packages (listed or not: refusal with the reason), and the record

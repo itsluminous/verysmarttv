@@ -1,0 +1,130 @@
+# Setting up a TV
+
+`setup/` is the computer-side tool: it finds your Android TV on the Wi-Fi, installs the three VerySmartTV
+apps over ADB, makes the launcher Home, pushes a theme and, if you want, turns off the TV maker's
+preloaded apps from a community list. Pure Python, no `adb` binary needed; it runs on macOS, Linux and
+Windows with Python 3.9 or newer.
+
+Nothing is uninstalled, rooted or flashed. Everything the clean-up does is undone by `setup restore`.
+
+## One-liners
+
+```bash
+git clone https://github.com/itsluminous/verysmarttv && cd verysmarttv
+setup/setup.sh                       # macOS, Linux
+```
+
+```powershell
+git clone https://github.com/itsluminous/verysmarttv; cd verysmarttv
+powershell -ExecutionPolicy Bypass -File setup\setup.ps1     # Windows
+```
+
+The bootstrap finds a Python 3.9+, makes a venv under `~/.verysmarttv/venv` with the one package the tool
+needs (`cryptography`, for the ADB key), and runs the guided flow. Without Python it says where to get it.
+Any subcommand after the script name runs that command instead: `setup/setup.sh install --apk-dir dist/`.
+
+## Before you start: debugging on the TV
+
+Settings → Device Preferences (or System) → About → press OK on **Build** seven times → back → Developer
+options → **USB debugging** on. If there is a **Network debugging** or **ADB debugging** switch, turn that on
+too. Keep the TV on. The flow prints the steps for your brand when nothing answers (`--brand xiaomi`).
+
+A Chromecast with Google TV or a Google TV Streamer has only Wireless debugging, which this tool does not
+speak: pair it once with Google's adb (`adb pair`, `adb connect`), run `adb tcpip 5555`, then use the IP.
+
+## What the flow asks
+
+```
+VerySmartTV setup 0.1.0
+1  Find your TV            mDNS, then a scan of port 5555 on your network; pick one or type an IP
+2  Connect                 accept "Allow USB debugging?" on the TV (tick "Always allow")
+3  Get the apps            the latest GitHub release: three APKs + SHA256SUMS, checksums verified
+4  Install                 companions first, then the launcher; Home = VerySmartTV; the stock launcher is
+                           left enabled unless you say yes to disabling it (it stays installed either way)
+5  Theme                   frosted (the owner's), default, or skip
+6  Clean up (optional)     the community list that matches your TV exactly, if there is one; show it, apply
+                           it, pick another slug, or skip. The record is written before the first change
+7  Companions              open Trakt on the TV and sign in at trakt.tv/activate; open Scores and follow
+8  Close ADB?              what to switch off, and `setup adb-closed` to confirm
+```
+
+Every step is re-runnable. `--yes` takes every default; `--dry-run` prints what the clean-up would send.
+
+| Option | Does |
+|---|---|
+| `--host 192.168.1.50` | skip discovery; `ip:port` for a TV on another port. Remembered for the next run |
+| `--apk-dir dist/` | install local APKs (a build's `*-debug.apk`, or release names) instead of the GitHub release |
+| `--tag v1.2.3`, `--prerelease` | a particular release, or the newest even when it is a prerelease |
+| `--theme frosted`, `--theme skip` | the theme without asking |
+| `--preset <slug>`, `--preset none` | a list from `presets/lists/` by folder name, or no clean-up |
+| `--stock-launcher <package>` / `none` | when the TV's Home is a launcher the tool does not know |
+| `--disable-stock` | disable the stock launcher once VerySmartTV answers HOME, without asking |
+
+## The commands one by one
+
+| Command | Does |
+|---|---|
+| `setup discover` | TVs answering `_adb._tcp` / `_adb-tls-connect._tcp` over mDNS, then every host on your /24 with port 5555 open (`--subnet 192.168.1.0/24`) |
+| `setup probe --host <ip>` | model, Android version, firmware, who owns Home, and the preset that matches |
+| `setup install --host <ip> [--apk-dir d] [--disable-stock]` | the three APKs, Home handover with the Home guard (below) |
+| `setup theme --host <ip> frosted` / `--reset` | push a theme folder through the launcher's provider and restart Home; `--reset` removes it |
+| `setup debloat --host <ip> [--preset s \| --list f] [--dry-run] [--show]` | match, show the list with its notes, record, apply in batches with a screenshot each (`~/.verysmarttv/shots/`) |
+| `setup restore --host <ip> [--preset s \| --list f] [--stock p]` | replay the record: what was disabled before stays disabled, Home goes back to its owner |
+| `setup check --host <ip> --preset s [--fix]` | what a firmware update undid (exit 1 on drift); `--fix` re-applies it with the same safety checks |
+| `setup screenshot --host <ip> out.png [HOME DPAD_DOWN] [--wait 2]` | press keys, capture, clean the PNG |
+| `setup adb-closed --host <ip>` | exit 0 only when the TV refuses the connection |
+
+## The Home guard
+
+The install never leaves a TV without something to start when Home is pressed:
+
+- The launcher is pushed, installed and **started** (`am start -W`, "Status: ok") before Home is handed
+  over, and `set-home-activity` is checked afterwards: if Home does not resolve to VerySmartTV the stock
+  launcher is put back and the finishing commands are also written to `~/.verysmarttv/handover-unfinished.txt`.
+- The stock launcher is **left enabled** by default. Say yes (or `--disable-stock`) and it is disabled only
+  once VerySmartTV answers HOME; if Home then moves away, it is re-enabled at once. Only the four known stock
+  launchers (`com.google.android.tvlauncher`, `com.google.android.apps.tv.launcherx`,
+  `com.google.android.leanbacklauncher`, `com.mitv.tvhome`) or a package you name are ever disabled.
+- A clean-up list that names the app owning Home is applied without it while nothing else can answer Home,
+  or while Google TV's setup wizard (`setupwraith`) still answers it ahead of the other launchers; the wizard
+  itself is never disabled while it owns the saved Wi-Fi network.
+- Core Android packages are refused outright; the software under the HDMI inputs and the apps that open
+  the inputs and Settings are kept unless asked for. The full list: [presets/README.md](../presets/README.md).
+
+## Undo
+
+```bash
+setup/setup.sh restore --host <ip>            # one record for this TV: replayed
+setup/setup.sh restore --host <ip> --preset <slug>
+```
+
+The record (`~/.verysmarttv/records/recovery-<tv>-<list>.json`) is written before the first change and
+never overwritten by a retry, so a half-applied run still restores to the state from before the first one.
+Without a record, restore enables every listed package and says so. The launcher stays installed either
+way; remove it from the TV's Settings → Apps if you want it gone, after making another launcher Home.
+
+## After a firmware update
+
+An update re-enables packages, hands Home back to the stock launcher and adds preloads. `setup check
+--preset <slug>` reports it (exit 1); `--fix` puts the list back and Home on VerySmartTV, with the same
+checks as the first run. It never writes a record of the cleaned TV, so undo still means undo.
+
+## Closing ADB
+
+Port 5555 is plaintext, and on some firmware any device on the LAN gets a shell through it. When you are
+done: on the TV turn **USB debugging**, **Network/ADB debugging** and **Wireless debugging** off (whichever it
+has) and revoke the USB debugging authorisations; reboot; then `setup adb-closed --host <ip>` must say the
+port is closed (a timeout proves nothing). The launcher keeps working without debugging.
+
+## Troubleshooting
+
+- **"refused the connection"**: debugging is off or on another port; see the steps above.
+- **"took the connection but did not finish the handshake"**: accept "Allow USB debugging?" on the TV.
+- **"is a Wireless debugging port"**: pair once with Google's adb and `adb tcpip 5555`.
+- **macOS "could not reach"** while the TV is on: Local Network privacy; allow Terminal (or your editor)
+  under System Settings → Privacy & Security → Local Network and reopen it.
+- **Home resolves to the setup wizard** on Google TV: its RecoveryActivity claims HOME ahead of an installed
+  launcher. Apply a list that disables `com.google.android.tungsten.setupwraith` (after forgetting and
+  re-joining the Wi-Fi network in Settings if the wizard owns it), then install again.
+- **A TV refuses `pm disable-user` for every package**: that firmware does not allow it; stop there. The
+  launcher half still works.
