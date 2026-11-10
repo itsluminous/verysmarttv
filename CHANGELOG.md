@@ -18,7 +18,7 @@ versionCode 1000100, one release key for all three (signer SHA-256
 - RAM and Storage bars under the clock (one toggle).
 - Live-score lines under the top-right pills: up to **Live score rows** (1–5, default 2), sport icon per line, Up from the grid lands on them, Up again on Inputs, OK opens the match; hidden when the Scores app is absent.
 - Settings panel: TV system settings, Reorder apps, Apps per row, Hero banner height, Trakt recommendations, Clock, System bars, Live scores, Live score rows, Animations, Choose default home, Backup & restore.
-- Backup & restore to a JSON file (includes Scores follows; restores a CleanYourTV-launcher backup).
+- Backup & restore to a JSON file (includes Scores follows; restores a backup made by the upstream launcher this one derives from).
 - Themes pushed over ADB without a rebuild: `default`, `frosted`.
 - 31 UI languages.
 
@@ -37,7 +37,7 @@ versionCode 1000100, one release key for all three (signer SHA-256
 
 ### Setup tool
 - `setup.sh` / `setup.ps1` (Python 3.9+, pure-Python ADB): find the TV, install the latest release with verified checksums, set Home behind a Home guard, push a theme.
-- Debloat from 434 community CleanYourTV lists matched to the TV; record written before any change; `restore` replays it; core Android packages refused; factory/service-menu packages need a typed yes.
+- Debloat from 434 community lists (credited in `THIRD_PARTY_NOTICES.md`) matched to the TV; record written before any change; `restore` replays it; core Android packages refused; factory/service-menu packages need a typed yes.
 - Subcommands: `discover`, `probe`, `install`, `theme`, `debloat`, `restore`, `check`, `screenshot`, `adb-closed`.
 
 ### Build
