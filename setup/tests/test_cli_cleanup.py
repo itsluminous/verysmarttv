@@ -217,5 +217,75 @@ class FactoryPackagesTest(CleanupCli):
         self.assertEqual(self.asked, [])
 
 
+class DeselectTest(CleanupCli):
+    """`e` at the question toggles packages off by number, keeps the result as
+    `~/.verysmarttv/lists/<slug>-edited.txt`, and that copy is what debloat, check and restore read for the slug."""
+
+    def edited(self):
+        return Path(os.environ["VERYSMARTTV_HOME"]) / "lists" / "fake-tv-edited.txt"
+
+    def test_entries_toggle_and_header(self):
+        text = "# Fake\n# ---- Batch 1\ncom.a   # one\ncom.b\n# ---- Batch 2\ncom.c\n"
+        self.assertEqual([(n, a) for _, n, a in lists.entries(text)], [("com.a", True), ("com.b", True), ("com.c", True)])
+        off = lists.toggle(text, [2])
+        self.assertIn("\n# off: com.b\n", off)
+        self.assertEqual(lists.parse(off), ["com.a", "com.c"])
+        self.assertEqual([(n, a) for _, n, a in lists.entries(off)], [("com.a", True), ("com.b", False), ("com.c", True)])
+        self.assertEqual(lists.batches(off, lists.parse(off)), [["com.a"], ["com.c"]])
+        self.assertEqual(lists.toggle(off, [2]), text, "toggling again puts the line back as it was")
+        self.assertEqual(lists.notes(lists.toggle(text, [1])), {"com.b": "", "com.c": ""}, "an off line keeps no active note")
+        with self.assertRaises(lists.ListError):
+            lists.toggle(text, [4])
+        # A deselected line right under the header is not read as part of it.
+        self.assertEqual(lists.header(lists.toggle("# Fake\ncom.a\ncom.b\n", [1])), "Fake")
+
+    def test_e_deselects_by_number_writes_the_copy_and_applies_the_rest(self):
+        self.assertEqual(self.run_cli("debloat", "--host", "127.0.0.1", "--preset", "fake-tv", "--no-screenshots",
+                                      answers=["e", "2", "y"]), 0)
+        self.assertEqual(self.disabled(), ["com.vendor.ads", "com.vendor.telemetry"])
+        self.assertTrue(self.edited().is_file())
+        self.assertIn("# off: com.vendor.promo", self.edited().read_text(encoding="utf-8"))
+        out = self.output()
+        self.assertIn("    2  off  com.vendor.promo", out, "the list is shown again with the package marked off")
+        self.assertIn("2 packages from", out)
+        self.assertIn("your copy of the list is", out)
+        self.assertEqual(len(self.question()), 2, "asked again after the edit")
+        # The next run of the same slug starts from the copy, and `e` can turn the package back on.
+        self.dev.disabled.clear()
+        self.assertEqual(self.run_cli("debloat", "--host", "127.0.0.1", "--preset", "fake-tv", "--no-screenshots",
+                                      answers=["e", "2", "y"]), 0)
+        self.assertEqual(self.disabled()[-3:], VENDOR)
+        self.assertNotIn("# off:", self.edited().read_text(encoding="utf-8"))
+
+    def test_restore_and_check_read_the_edited_copy(self):
+        self.run_cli("debloat", "--host", "127.0.0.1", "--preset", "fake-tv", "--no-screenshots", answers=["e", "2", "y"])
+        self.assertEqual(self.dev.disabled, {"com.vendor.ads", "com.vendor.telemetry"})
+        self.dev.home = OURS_HOME
+        self.assertEqual(self.run_cli("check", "--host", "127.0.0.1", "--preset", "fake-tv"), 0, "no drift against the copy")
+        self.assertEqual(self.run_cli("restore", "--host", "127.0.0.1", "--preset", "fake-tv"), 0)
+        self.assertEqual(self.dev.disabled, set(), "the record replayed: the two were enabled, the deselected one never went")
+        self.assertIn("restoring the state recorded", self.output())
+
+    def test_nothing_typed_or_everything_off_leaves_the_list_as_it_was(self):
+        self.assertEqual(self.run_cli("debloat", "--host", "127.0.0.1", "--preset", "fake-tv", "--no-screenshots",
+                                      answers=["e", "", "e", "1 2 3", "e", "9", "n"]), 0)
+        self.assertFalse(self.edited().exists())
+        self.assertIn("every package would be off", self.output())
+        self.assertIn("no package number 9", self.output())
+        self.assertEqual(self.disabled(), [])
+
+    def test_e_is_not_offered_for_a_list_file(self):
+        own = Path(self.tmp.name) / "own.txt"
+        own.write_text("# mine\ncom.vendor.ads\n", encoding="utf-8")
+        self.assertEqual(self.run_cli("debloat", "--host", "127.0.0.1", "--list", str(own), "--no-screenshots", answers=["e"]), 0)
+        self.assertNotIn("e to deselect", self.question()[0])
+        self.assertEqual(self.disabled(), [], "e is read as a No")
+
+    def test_the_guided_flow_offers_e_too(self):
+        self.assertEqual(self.guided(answers=["apply", "e", "1", "y"]), 0)
+        self.assertEqual(self.disabled(), ["com.vendor.promo", "com.vendor.telemetry"])
+        self.assertTrue(self.edited().is_file())
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -2,7 +2,9 @@
 
 A list is one package name per line, `#` comments allowed, a trailing `# note` allowed. Every name ends up
 inside a command run by the TV's shell, so anything that is not a bare package name stops the run before the
-TV is touched.
+TV is touched. A package the user deselected before applying is kept in the list's local copy
+(`~/.verysmarttv/lists/<slug>-edited.txt`, DESIGN.md §17.3) as `# off: <name>`, so the line can be toggled
+back on and the copy still reads as the community list it came from.
 """
 import re
 from pathlib import Path
@@ -28,6 +30,7 @@ CORE_OK = re.compile(r"^com\.android\.providers\.(calendar|contacts|userdictiona
 # `setup restore` re-enables them, so the plan says so and needs a typed yes (ADR-043). None is ever started.
 FACTORY_RE = re.compile(r"factory|hkcfac", re.I)
 BATCH_MARK = re.compile(r"^\s*#\s*-*\s*Batch\b", re.I)
+OFF_MARK = "# off: "
 DEFAULT_BATCH = 8
 
 
@@ -72,11 +75,39 @@ def read_list(path) -> list:
     return parse(text, str(path))
 
 
+def entries(text: str) -> list:
+    """Every package line, active or deselected, as (line number, name, active), in order. The numbers are
+    the ones the user toggles with."""
+    found = []
+    for number, line in enumerate(text.lstrip("\ufeff").splitlines(), 1):
+        active = True
+        if line.startswith(OFF_MARK):
+            line, active = line[len(OFF_MARK):], False
+        body = line.split("#", 1)[0].strip()
+        if body and PACKAGE_RE.fullmatch(body.split()[0]):
+            found.append((number, body.split()[0], active))
+    return found
+
+
+def toggle(text: str, positions) -> str:
+    """The text with the entries at the given 1-based positions (as `entries` numbers them) flipped between
+    active and `# off: `. Raises ListError for a position the list does not have."""
+    all_entries = entries(text)
+    lines = text.lstrip("\ufeff").split("\n")
+    for position in positions:
+        if not 1 <= position <= len(all_entries):
+            raise ListError(f"no package number {position}: the list has {len(all_entries)}")
+        number, _, active = all_entries[position - 1]
+        line = lines[number - 1]
+        lines[number - 1] = OFF_MARK + line if active else line[len(OFF_MARK):]
+    return "\n".join(lines)
+
+
 def header(text: str) -> str:
     """The comment block at the top of a list, as plain text without the `#`."""
     lines = []
     for line in text.lstrip("\ufeff").splitlines():
-        if BATCH_MARK.match(line):
+        if BATCH_MARK.match(line) or line.startswith(OFF_MARK):
             break
         if line.startswith("#"):
             lines.append(line[1:].strip())

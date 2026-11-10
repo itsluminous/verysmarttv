@@ -44,14 +44,21 @@ VerySmartTV setup 0.1.0
 5  Theme                   frosted (the owner's), default, or skip
 6  Clean up (optional)     the community list that matches your TV exactly, if there is one; apply it, show
                            it first, pick another slug, or skip. Whichever list you pick, its header is
-                           printed and the same question is asked: disable these N packages? [y/N]. The
-                           record is written before the first change
+                           printed and the same question is asked: disable these N packages? [y/N, e to
+                           deselect packages]. The record is written before the first change
 7  Companions              open Trakt on the TV and sign in at trakt.tv/activate; open Scores and follow
 8  Close ADB?              what to switch off, and `setup adb-closed` to confirm
 ```
 
 Every step is re-runnable. `--yes` takes every default (so it never disables the stock launcher and never
 applies a clean-up list you did not name); `--dry-run` prints what the clean-up would send.
+
+**Keeping some of a list.** Answer `e` at the question and the list is printed numbered; type the numbers of
+the packages to keep and they are turned off (or back on, the next time). The result is your copy of the list,
+`~/.verysmarttv/lists/<slug>-edited.txt`, with each kept line as `# off: <package>`; from then on `setup
+debloat`, `setup check` and `setup restore --preset <slug>` all read that copy for the slug, so the record and
+the undo follow what you applied. Delete the file to go back to the community list as published. With your own
+`--list` file there is no `e`: edit the file.
 
 **Factory and service-menu packages.** Some lists disable a package whose name holds `factory` or `hkcfac`
 (`com.duokan.factorytest`, `mediatek.factorymenu.ui`, `com.cvte.tv.hkcfac`): the TV maker's factory-test,
@@ -82,7 +89,7 @@ a factory package, not even to look.
 | `setup install --host <ip> [--apk-dir d] [--disable-stock]` | the three APKs, Home handover with the Home guard (below) |
 | `setup theme --host <ip> frosted` / `--reset` | push a theme folder through the launcher's provider and restart Home; `--reset` removes it |
 | `setup debloat --host <ip> [--preset s \| --list f] [--dry-run] [--show]` | match, show the list (its header, or the whole list with its notes: `--show`, or whenever you did not pass `--yes`), ask, record, apply in batches with a screenshot each (`~/.verysmarttv/shots/`). A list for another brand that happens to share your TV's model or device name is listed last among the candidates and never pre-selected |
-| `setup restore --host <ip> [--preset s \| --list f] [--stock p]` | replay the record: what was disabled before stays disabled, Home goes back to its owner |
+| `setup restore --host <ip> [--preset s \| --list f] [--stock p]` | replay the record: what was disabled before stays disabled, Home goes back to its owner. `--preset` reads your edited copy of the list when there is one |
 | `setup check --host <ip> --preset s [--fix]` | what a firmware update undid (exit 1 on drift); `--fix` re-applies it with the same safety checks |
 | `setup screenshot --host <ip> out.png [HOME DPAD_DOWN] [--wait 2]` | press keys, capture, clean the PNG |
 | `setup adb-closed --host <ip>` | exit 0 only when the TV refuses the connection |

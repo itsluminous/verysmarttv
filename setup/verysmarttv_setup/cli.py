@@ -2,6 +2,7 @@
 import argparse
 import errno
 import os
+import re
 import socket
 import sys
 import time
@@ -99,14 +100,15 @@ def debloat_options(args) -> debloat.Options:
                            screenshots=not getattr(args, "no_screenshots", False))
 
 
-def show_list(preset_text: str, names: list, log=None):
+def show_list(text: str, log=None):
+    """The header, then every package numbered, with its note; a deselected one is marked off."""
     log = log or say
-    notes = lists.notes(preset_text)
-    log(lists.header(preset_text))
+    notes = lists.notes(text)
+    log(lists.header(text))
     log("")
-    for name in names:
+    for i, (_, name, active) in enumerate(lists.entries(text), 1):
         note = notes.get(name, "")
-        log(f"  {name}" + (f"   # {note}" if note else ""))
+        log(f"  {i:3d}  {'' if active else 'off  '}{name}" + (f"   # {note}" if note else ""))
 
 
 def read_list_text(path):
@@ -132,26 +134,60 @@ def factory_warning(factory: list, log=None):
     log("This needs a typed yes, even with --yes.")
 
 
-def confirm_list(path, text, names, yes=False, full=False, log=None) -> bool:
+def confirm_list(path, text, names, yes=False, full=False, log=None, slug=None):
     """The one question every clean-up path asks before a list is applied: the list's header (the whole
     list with its notes when `full`), then yes/no, No by default. `--yes` answers it for a list the user
-    named on the command line, unless the list disables factory packages: that always needs a typed yes."""
+    named on the command line, unless the list disables factory packages: that always needs a typed yes.
+    For a preset (`slug`), `e` deselects packages by number first (`deselect`). Returns the path to apply,
+    which is the edited copy after an `e`, or None."""
     log = log or say
-    if full:
-        show_list(text, names, log)
-    else:
-        log(lists.header(text))
-    log(f"{len(names)} packages from {path}")
-    factory = lists.factory_packages(names)
-    if factory:
-        factory_warning(factory, log)
-        yes = False
-    answer = confirm(f"disable these {len(names)} packages for user 0 (nothing is uninstalled; `setup restore` "
-                     "undoes it)?", False, yes)
-    if factory and not answer and (not sys.stdin or not sys.stdin.isatty()):
-        log("not applied: a list with factory packages needs a typed yes, so run this in a terminal (without "
-            "--yes), or comment those lines out of a copy and pass it with --list")
-    return answer
+    while True:
+        if full:
+            show_list(text, log)
+        else:
+            log(lists.header(text))
+        log(f"{len(names)} packages from {path}")
+        factory = lists.factory_packages(names)
+        if factory:
+            factory_warning(factory, log)
+        if yes and not factory:
+            return path
+        hint = ", e to deselect packages" if slug else ""
+        answer = ask(f"disable these {len(names)} packages for user 0 (nothing is uninstalled; `setup restore` "
+                     f"undoes it)? [y/N{hint}]", "", False).lower()
+        if answer.startswith("e") and slug:
+            path, text, names = deselect(slug, path, text, names, log)
+            full = True
+            continue
+        if answer.startswith("y"):
+            return path
+        if factory and (not sys.stdin or not sys.stdin.isatty()):
+            log("not applied: a list with factory packages needs a typed yes, so run this in a terminal (without "
+                "--yes), or deselect those packages with e")
+        return None
+
+
+def deselect(slug, path, text, names, log):
+    """Toggle packages off (or back on) by their numbers in `show_list`, and keep the result as the local copy
+    `~/.verysmarttv/lists/<slug>-edited.txt`, which `debloat`, `check` and `restore` all read for that slug
+    from then on. Returns the (path, text, names) to go on with; unchanged when nothing was toggled."""
+    show_list(text, log)
+    raw = ask("numbers of the packages to turn off, or back on (space-separated; Enter for none):", "", False)
+    positions = [int(x) for x in re.findall(r"\d+", raw)]
+    if not positions:
+        return path, text, names
+    try:
+        new_text = lists.toggle(text, positions)
+    except lists.ListError as e:
+        log(str(e))
+        return path, text, names
+    if not any(active for _, _, active in lists.entries(new_text)):
+        log("every package would be off; nothing to apply, so the list is left as it was")
+        return path, text, names
+    edited = paths.lists_dir() / f"{slug}-edited.txt"
+    edited.write_text(new_text, encoding="utf-8")
+    log(f"your copy of the list is {edited}; `setup check` and `setup restore --preset {slug}` use it too")
+    return edited, new_text, lists.parse(new_text, str(edited))
 
 
 # -- commands ---------------------------------------------------------------------------------------------
@@ -254,12 +290,14 @@ def cmd_debloat(args) -> int:
         path = list_path_for(args, all_presets)
         text, names = read_list_text(path)
         if args.dry_run:
-            show_list(text, names)
+            show_list(text)
             if lists.factory_packages(names):
                 factory_warning(lists.factory_packages(names))
-        elif not confirm_list(path, text, names, args.yes, full=args.show or not args.yes):
-            say("nothing was changed on the TV")
-            return 0
+        else:
+            path = confirm_list(path, text, names, args.yes, full=args.show or not args.yes, slug=args.preset)
+            if not path:
+                say("nothing was changed on the TV")
+                return 0
         return debloat.apply(dev, path, props, debloat_options(args), say)
     except lists.ListError as e:
         raise Quit(str(e), 2) from e
@@ -445,7 +483,8 @@ def cleanup_step(dev, props, args, yes, log):
     try:
         path = list_path_for(args, all_presets)
         text, names = read_list_text(path)
-        if not confirm_list(path, text, names, yes, full, log):
+        path = confirm_list(path, text, names, yes, full, log, slug=slug)
+        if not path:
             log("nothing was changed on the TV")
             return
         debloat.apply(dev, path, props, debloat_options(args), log)

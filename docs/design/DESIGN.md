@@ -775,16 +775,16 @@ decomposition lands), `:traktshelf` 40 %. No Mockito: inject interfaces and use 
 - `EspnSourceUrlTest`: URL per sport/competition/day; tennis fetched only when followed.
 - `ScoreProviderTest` (Robolectric): `/pill` columns, `getType`, notify on refresh, `SecurityException` for a caller without the permission (`ShadowContextWrapper.grantPermissions` toggled).
 
-Python `tests/` (carried pattern: a fake `tv.py` answering from a JSON state file, `tests/test_recovery_record.py:1-80`)
-- `test_discover.py`: parses mDNS answers and scan results; manual IP validation (`address_problem` carried from `tv.py:144`).
-- `test_release.py`: picks the three assets by name from a recorded Releases JSON; SHA256SUMS mismatch aborts; prerelease skipped unless asked.
-- `test_install.py`: Home guard (never disable the Home owner before the launcher answers HOME; the four `KNOWN_STOCK_LAUNCHERS`; setupwraith/Wi-Fi rule) — carried rules from `tests/test_home_guard.py`, `test_setupwraith_guard.py`, `test_launcher_handover.py`.
-- `test_presets_format.py`: every `presets/lists/*/debloat.txt` parses; `tv.json` has `tv, os, brand, notes`; no core package listed (carried `CORE_RE`/`CORE_OK` from `disable.sh:68-69` via `test_core_packages.py`); commented-out-but-active rule (`test_examples.py:141-156`).
-- `test_presets_match.py`: `getprop` samples (Mi TV 4A MOOQ1, a TCL G08, a Sony BRAVIA_ATV3, an unknown) → expected ranking and confidence tiers.
-- `test_presets_apply.py`: record-before-change, batches, restore replays recorded states, retry does not overwrite the record (carried from `test_recovery_record.py`, `test_check_fix_record.py`).
-- `test_index_fresh.py`: `presets/index.json` equals what `build_index.py` generates.
-- `test_no_old_identifiers.py`: `grep` for `gathin|tvhome|cleanyourtv|TvHome` over the tree returns only `LICENSE`, `THIRD_PARTY_NOTICES.md`, `README.md` credits, `presets/**` (verbatim community headers), and this design folder.
-- `test_bootstrap.py`: `setup.sh`/`setup.ps1` parse (bash -n; PowerShell parsed with `pwsh -NoProfile -Command` when present, else skipped).
+Python `setup/tests/` (a fake TV, `fake_tv.py`, that answers the shell commands the tool sends from an in-memory
+state and records every command, and a fake adbd, `fake_adbd.py`, on a local socket for the wire protocol)
+- `test_adb_client.py`: the ADB protocol against the fake adbd: the RSA key created private and reused, Android's public-key struct, PKCS#1 over the raw token, the key offered on the first connection and trusted on the second, a refused prompt is an error, STLS worded as a Wireless debugging port, shell output over several frames, `sync:` push and pull with the base64 fallback, remote paths checked before anything is sent, `address_problem`.
+- `test_bootstrap_and_identifiers.py`: `setup.sh`/`setup.ps1` parse (bash -n; PowerShell when `pwsh` is present, else skipped), `setup.sh` makes the venv and runs the package, `requirements.txt` is minimal and pinned; the identifier grep over the tree returns only the allowed files.
+- `test_debloat.py`: the Home guard (never disable the Home owner before another launcher answers HOME; the four `KNOWN_STOCK_LAUNCHERS`; setupwraith and the Wi-Fi `cname=` rule; the chooser; firmware without `cmd`), `CORE_RE`/`CORE_OK` refusal with no override, the input-driver and handler checks, record-before-change, the list's own batches with a screenshot each, a retry keeps the first record and an edited list extends it, the stop when Home lands on no launcher, restore replays the record, `check` and `--fix`.
+- `test_cli_cleanup.py`: the clean-up step as `cli.main` runs it, with scripted answers and a fake preset index: the header and the one yes/no on every path (the suggestion, `show`, another slug, `--preset`, `setup debloat`), `--yes` only for a named list, the factory-package warning and its typed yes, `e` deselection writing `<slug>-edited.txt` and `check`/`restore` reading it.
+- `test_discover_lists_theme.py`: mDNS answer parsing (compression, garbage), the query asks for both services, the hints by brand, the last-TV memory; list parsing, headers, notes, batches, refusals, `commented_out_but_listed`; the theme push through the provider with the copy fallback and the Home restart.
+- `test_github.py`: picks the three assets by name from a recorded Releases JSON; SHA256SUMS mismatch aborts; prerelease skipped unless asked; `--tag`.
+- `test_install.py`: companions before the launcher, Home handover with the guard, rollback when Home does not move, the stock launcher left enabled under `--yes`, SDK refusal before anything is pushed.
+- `test_presets.py`: every `presets/lists/*/debloat.txt` parses with a `tv.json` (`tv, os, brand, notes`), no core package, no commented-out-but-active line, no address or e-mail; Apply/Undo lines name this tool; `presets/index.json` equals what `tools/dev/build_presets_index.py` writes; the matching of §17.3 for a Mi TV 4A, a TCL G08, a Sony BRAVIA, a Grundig on a MediaTek reference board and an unknown TV.
 
 ### 14.3 Instrumentation (androidTest on the TV emulator)
 
@@ -1004,8 +1004,10 @@ From `getprop`: `model = ro.product.model`, `device = ro.product.device`, `board
 | none | – | "no community list for this TV: Manual" |
 
 Ties in a tier are broken by SDK distance, then by newest `source` commit. The suggested preset's header
-is shown in full before anything is sent; the user can open the list, deselect lines (writes a local copy
-to `~/.verysmarttv/lists/<slug>-edited.txt`, which `check` uses afterwards), or go Manual.
+is shown in full before anything is sent; the user can open the list, deselect packages by number (`e` at
+the question; the result is a local copy at `~/.verysmarttv/lists/<slug>-edited.txt` with each kept line as
+`# off: <package>`, which `debloat`, `check` and `restore --preset <slug>` all read afterwards, so the record
+is keyed to what was applied), or skip.
 
 Safety carried unchanged into `lists.py`, `homeguard.py` and `debloat.py` (ADR-043 for the reading of the factory
 rule and the two guards carried on top): `CORE_RE`/`CORE_OK` refusal (`disable.sh:68-69`), one
