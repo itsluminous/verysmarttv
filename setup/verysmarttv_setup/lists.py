@@ -1,0 +1,132 @@
+"""Debloat lists: the format, the names it must never hold, and the batches a list is applied in.
+
+A list is one package name per line, `#` comments allowed, a trailing `# note` allowed. Every name ends up
+inside a command run by the TV's shell, so anything that is not a bare package name stops the run before the
+TV is touched.
+"""
+import re
+from pathlib import Path
+
+from .probe import PACKAGE_RE
+
+# Core Android packages: with one of these disabled, Android itself can stop booting. A Mi TV Stick never
+# came back after a list took the permission controller, package installer, ext services, module metadata
+# and the mainline overlays. No switch overrides this. The content providers in CORE_OK are the exception:
+# tested lists turn them off and no TV feature uses them. The TV middleware is guarded the same way
+# (MediaTek's MAL, TV service, agent and input service: a Haier set restarted in a loop with com.cltv.mal
+# off), the SDK sandbox, and com.android.location.fused (a TCL boot-looped into recovery with only it off).
+CORE_RE = re.compile(r"^(android|android\.ext\.(services|shared)|com\.android\.sdksandbox|com\.android\.location\.fused"
+                     r"|com\.android\.systemui|com\.android\.shell|com\.android\.phone|com\.android\.settings"
+                     r"|com\.android\.tv\.settings"
+                     r"|com\.(google\.)?android\.(permissioncontroller|packageinstaller|ext\.services|ext\.shared|modulemetadata)"
+                     r"|com\.google\.android\.overlay\.modules.*|com\.android\.providers\..*"
+                     r"|com\.cltv\.mal|com\.mediatek\.(tis|tv\.service|tv\.agent))$")
+CORE_OK = re.compile(r"^com\.android\.providers\.(calendar|contacts|userdictionary|blockednumber)$")
+BATCH_MARK = re.compile(r"^\s*#\s*-*\s*Batch\b", re.I)
+DEFAULT_BATCH = 8
+
+
+class ListError(ValueError):
+    """The list cannot be used; the message names the line."""
+
+
+def core_packages(names) -> list:
+    """The names a list holds that must never be disabled, in list order."""
+    return [n for n in names if CORE_RE.match(n) and not CORE_OK.match(n)]
+
+
+def parse(text: str, name: str = "list") -> list:
+    """Package names from a list's text, in order; a BOM and CRLF are dropped. Raises ListError."""
+    if text.startswith("\ufeff"):
+        text = text[1:]
+    names = []
+    for number, line in enumerate(text.splitlines(), 1):
+        body = line.split("#", 1)[0].strip()
+        if not body:
+            continue
+        word = body.split()[0]
+        if not PACKAGE_RE.fullmatch(word):
+            raise ListError(f"{name}:{number}: not a package name: {word!r}")
+        if word not in names:
+            names.append(word)
+    if not names:
+        raise ListError(f"{name}: no package names in it (every line is a comment or blank)")
+    return names
+
+
+def read_list(path) -> list:
+    try:
+        text = Path(path).read_text(encoding="utf-8-sig", errors="replace")
+    except OSError as e:
+        raise ListError(f"could not read {path} ({e.strerror or e})") from e
+    return parse(text, str(path))
+
+
+def header(text: str) -> str:
+    """The comment block at the top of a list, as plain text without the `#`."""
+    lines = []
+    for line in text.lstrip("\ufeff").splitlines():
+        if BATCH_MARK.match(line):
+            break
+        if line.startswith("#"):
+            lines.append(line[1:].strip())
+        elif line.strip():
+            break
+        elif lines:
+            lines.append("")
+    return "\n".join(lines).strip()
+
+
+def notes(text: str) -> dict:
+    """The trailing `# note` of each package line, by package."""
+    found = {}
+    for line in text.lstrip("\ufeff").splitlines():
+        body, _, note = line.partition("#")
+        body = body.strip()
+        if body and PACKAGE_RE.fullmatch(body.split()[0]):
+            found[body.split()[0]] = note.strip()
+    return found
+
+
+def batches(text: str, names: list, size: int = DEFAULT_BATCH) -> list:
+    """The list's packages in the batches they are applied in: the list's own `# ---- Batch` sections when it
+    has them, else groups of `size` in order. Only names in `names` (the ones a guard let through) appear."""
+    wanted = set(names)
+    if any(BATCH_MARK.match(line) for line in text.splitlines()):
+        groups, current = [], []
+        for line in text.lstrip("\ufeff").splitlines():
+            if BATCH_MARK.match(line):
+                if current:
+                    groups.append(current)
+                current = []
+                continue
+            body = line.split("#", 1)[0].strip()
+            if body and body.split()[0] in wanted:
+                current.append(body.split()[0])
+        if current:
+            groups.append(current)
+        groups = [g for g in groups if g]
+        if groups:
+            return groups
+    ordered = [n for n in names]
+    return [ordered[i:i + size] for i in range(0, len(ordered), size)]
+
+
+def commented_out_but_listed(lines) -> list:
+    """(line number, package) for each package commented out below the first package line that an active
+    line still names: the active line wins, so the comment's intent is lost."""
+    comment_entry = re.compile(r"^\s*#\s*([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z0-9_]+)+)\s*(?:#.*)?$")
+    active, first = set(), None
+    for n, line in enumerate(lines, 1):
+        body = line.split("#", 1)[0].strip()
+        if body:
+            active.add(body.split()[0])
+            first = first or n
+    if first is None:
+        return []
+    found = []
+    for n, line in enumerate(lines[first:], first + 1):
+        m = comment_entry.match(line)
+        if m and m.group(1) in active:
+            found.append((n, m.group(1)))
+    return found

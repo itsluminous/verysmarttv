@@ -1,0 +1,3 @@
+# The one third-party package the setup tool needs: the RSA key ADB authenticates with (DESIGN.md §16.1).
+# Everything else is the standard library. Pinned; bump deliberately.
+cryptography==46.0.2
