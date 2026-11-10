@@ -3,6 +3,8 @@
 #   verify       - every gate behind `./gradlew ci`: unit tests, Android Lint, build-logic tests, fileLength.
 #   build        - debug + release APKs of every module (release is debug-signed here; real signing is
 #                  release.yml's job on tags) and the launcher APK size gate.
+#   setup-tests  - the Python setup tool's suite (setup/tests, a fake TV and a fake adbd) on Ubuntu and Windows
+#                  with Python 3.9 and 3.12, the bootstraps' syntax, and the presets index freshness check.
 #   changes      - whether a pull request touched code the emulator suites could catch.
 #   instrumented - Espresso on an Android TV emulator. Runs on pushes to main, on demand, and on pull
 #                  requests that changed code, Gradle files or these workflows (ADR-022).
@@ -49,8 +51,8 @@ jobs:
       # The old identifiers may live only in the licence, the notices, the README's credits, the design
       # and the preset headers (ADR-010). `tvhome` is matched only as our old applicationId, since Xiaomi's
       # stock launcher is com.mitv.tvhome and the Home guard must name it (ADR-010; the command is docs/BUILDING.md, "Identifier gate"). This file
-      # is left out because it holds the pattern. Phase 5 moves the check into tests/; until then the
-      # carry phases need it here.
+      # is left out because it holds the pattern. setup/tests/test_bootstrap_and_identifiers.py runs the same
+      # grep as a test; this step keeps the gate visible in the job log.
       - name: Identifier gate
         run: |
           set -uo pipefail
@@ -132,6 +134,33 @@ jobs:
             */build/outputs/apk/debug/*.apk
             */build/outputs/apk/release/*.apk
           if-no-files-found: ignore
+
+  setup-tests:
+    name: Setup tool (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install the one requirement
+        run: python -m pip install --disable-pip-version-check -r setup/requirements.txt
+
+      # The committed presets/index.json must be what the builder writes (DESIGN.md §17.2).
+      - name: Presets index is fresh
+        run: python tools/dev/build_presets_index.py --check
+
+      - name: Python tests
+        working-directory: setup
+        run: python -m unittest discover -s tests -t . -v
 
   changes:
     name: What changed
