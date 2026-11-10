@@ -25,7 +25,9 @@ Taken from the TV in Phase 6.
 - **Trakt companion** (`com.itsluminous.traktshelf`): your Trakt account as rows of posters, and the
   launcher's top-shelf carousel.
 - **Live scores** (`com.itsluminous.livescore`): follow teams and competitions; a one-line score pill
-  under the launcher's top-right buttons.
+  under the launcher's top-right buttons. Cricket, football, F1 and tennis from ESPN's public feeds with no
+  key; badminton from SportDevs' API with a free RapidAPI key you enter in its Settings
+  ([docs/providers.md](docs/providers.md)).
 
 ## How it works
 
@@ -70,7 +72,7 @@ IP addresses or Wi-Fi names. Coding agents: [AGENTS.md](AGENTS.md).
 
 ## Disclaimer
 
-Unofficial; not affiliated with ESPN, Trakt, TMDB or OMDb. Written with Phase 6.
+Unofficial; not affiliated with ESPN, SportDevs, RapidAPI, Trakt, TMDB or OMDb. Written with Phase 6.
 
 ## License
 

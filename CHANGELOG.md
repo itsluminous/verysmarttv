@@ -8,6 +8,28 @@ publishes all three, and the tag's message quotes the section below.
 
 ## [Unreleased]
 
+## [1.0.0-rc2] - 2026-11-10
+
+### Added
+
+- **Scores: badminton** (ADR-044). ESPN has no badminton feed, so badminton comes from SportDevs' Badminton
+  API on RapidAPI with **your own key**: create a free RapidAPI account, subscribe to the API's free plan and
+  enter the key under Scores → Settings → **Badminton data key** (kept in the app's preferences, never in the
+  APK or a backup; `docs/providers.md` has the steps). Without a key badminton is listed but not fetched, and
+  the Follow picker says so. The picker's Badminton column lists this week's tournaments and, under one, its
+  players and matches; "All Badminton" follows everything. The pill reads `Japan Masters · Sindhu 21-18 11-9
+  Axelsen`, `INTERVAL` between games, `… Antonsen w/o Christie` for a walkover, `… ret.` for a retirement. The
+  free plan has a daily request quota: a live match costs one request a minute while a screen shows it.
+- **Scores: three-state boxes in the Follow picker** (ADR-045). A sport or a competition shows an empty box, a
+  bar when some of what is under it is followed, or a tick when it is followed itself or every team and match
+  under it is. OK on a section selects everything under it; on a fully ticked one it clears everything (for a
+  sport, every follow of that sport).
+
+### Changed
+
+- **Scores**: a break's kicker is the pause itself (`SUSPENDED`, not the round name) when the feed's detail
+  carries both.
+
 ## [1.0.0-rc1] - 2026-11-10
 
 The first release candidate: everything Phases 0 to 5 of the build plan delivered, signed with the release
@@ -59,5 +81,6 @@ key for the first time so the release pipeline can be proved before `1.0.0`.
   emulator.
 - Signer certificate SHA-256: recorded here once the first signed release has been verified.
 
-[Unreleased]: https://github.com/itsluminous/verysmarttv/compare/v1.0.0-rc1...HEAD
+[Unreleased]: https://github.com/itsluminous/verysmarttv/compare/v1.0.0-rc2...HEAD
+[1.0.0-rc2]: https://github.com/itsluminous/verysmarttv/releases/tag/v1.0.0-rc2
 [1.0.0-rc1]: https://github.com/itsluminous/verysmarttv/releases/tag/v1.0.0-rc1
