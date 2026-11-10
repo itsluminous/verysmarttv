@@ -48,7 +48,8 @@ VerySmartTV setup 0.1.0
 8  Close ADB?              what to switch off, and `setup adb-closed` to confirm
 ```
 
-Every step is re-runnable. `--yes` takes every default; `--dry-run` prints what the clean-up would send.
+Every step is re-runnable. `--yes` takes every default (so it never disables the stock launcher and never
+applies a clean-up list you did not name); `--dry-run` prints what the clean-up would send.
 
 | Option | Does |
 |---|---|
@@ -128,3 +129,7 @@ port is closed (a timeout proves nothing). The launcher keeps working without de
   re-joining the Wi-Fi network in Settings if the wizard owns it), then install again.
 - **A TV refuses `pm disable-user` for every package**: that firmware does not allow it; stop there. The
   launcher half still works.
+- **A CVTE board** (the TV lists `com.cvte.*` packages; many Haier, JVC, Artel and store-brand sets): leave its
+  stock launcher (`com.cvte.tv.launcher.*`) enabled, which is what the install does unless you name it with
+  `--stock-launcher`. Reboot the TV once after the install and check that Home and ADB come back before any
+  clean-up: a JVC set hung on its boot animation when its launcher and a key helper were changed in one go.

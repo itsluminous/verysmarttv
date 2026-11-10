@@ -138,6 +138,42 @@ class StreamsTest(HomeDir):
                     dev.pull("/nowhere", Path(self.tmp.name) / "none.bin")
                 self.assertFalse((Path(self.tmp.name) / "none.bin").exists(), "a failed pull writes no file")
 
+    def test_a_sync_push_is_read_back_with_md5sum(self):
+        """push_file checks the copy on the TV against the local file; a damaged copy is removed and named, and
+        a shell without md5sum (no digest in the answer) is let through on the sync acknowledgements."""
+        import hashlib
+        import re
+        data = os.urandom(70 * 1024)
+        local = Path(self.tmp.name) / "a.apk"
+        local.write_bytes(data)
+        damage = {"on": False}
+        server_ref = {}
+
+        def shell(cmd):
+            m = re.match(r"md5sum '([^']+)'", cmd)
+            if m:
+                body = server_ref["s"].files.get(m.group(1), b"")
+                digest = hashlib.md5(body + (b"x" if damage["on"] else b"")).hexdigest()
+                return f"{digest}  {m.group(1)}\n".encode()
+            if cmd.startswith("rm -f"):
+                server_ref["s"].files.pop(re.findall(r"'([^']+)'", cmd)[0], None)
+                return b""
+            return b"/system/bin/sh: md5sum: not found\n"
+        with FakeAdbd(shell=shell) as server:
+            server_ref["s"] = server
+            with AdbDevice("127.0.0.1", server.port, timeout=5, auth_timeout=5) as dev:
+                dev.push_file(local, "/data/local/tmp/a.apk")
+                self.assertEqual(server.files["/data/local/tmp/a.apk"], data)
+                damage["on"] = True
+                with self.assertRaises(AdbError) as caught:
+                    dev.push_file(local, "/data/local/tmp/b.apk")
+                self.assertIn("arrived damaged", str(caught.exception))
+                self.assertNotIn("/data/local/tmp/b.apk", server.files, "the damaged copy is removed")
+        with FakeAdbd(shell=lambda cmd: b"/system/bin/sh: md5sum: not found\n") as server:
+            with AdbDevice("127.0.0.1", server.port, timeout=5, auth_timeout=5) as dev:
+                dev.push_file(local, "/data/local/tmp/c.apk")
+                self.assertEqual(server.files["/data/local/tmp/c.apk"], data)
+
     def test_push_falls_back_to_base64_when_sync_refuses(self):
         data = b"apk bytes " * 1000
         local = Path(self.tmp.name) / "a.apk"

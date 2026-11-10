@@ -50,6 +50,17 @@ class BootstrapTest(unittest.TestCase):
             again = subprocess.run(["bash", str(SETUP / "setup.sh"), "--version"], capture_output=True, text=True,
                                    env=env, timeout=120)
             self.assertNotIn("creating", again.stdout)
+            # Relative arguments are read from where the user typed them, not from setup/: with the three APKs
+            # in ./dist, `install --apk-dir dist` finds them and fails only at the TV it cannot reach.
+            dist = Path(tmp) / "work" / "dist"
+            dist.mkdir(parents=True)
+            for app in ("launcher", "traktshelf", "livescore"):
+                (dist / f"{app}-debug.apk").write_bytes(b"x")
+            relative = subprocess.run(["bash", str(SETUP / "setup.sh"), "install", "--host", "127.0.0.1:1",
+                                       "--apk-dir", "dist"], capture_output=True, text=True, env=env,
+                                      cwd=str(dist.parent), timeout=120)
+            self.assertNotIn("no APK for", relative.stderr, relative.stderr)
+            self.assertIn("127.0.0.1", relative.stderr, relative.stdout + relative.stderr)
 
     def test_requirements_are_minimal_and_pinned(self):
         lines = [line.strip() for line in (SETUP / "requirements.txt").read_text().splitlines()

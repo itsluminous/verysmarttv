@@ -128,6 +128,32 @@ class InstallTest(unittest.TestCase):
         self.assertIn("INSTALL_FAILED_OLDER_SDK", str(caught.exception))
         self.assertEqual(dev.files, {})
 
+    def guided(self, dev, *argv):
+        """`setup setup <argv>` against the fake TV: the device and the APK folder are given, nothing is asked."""
+        from verysmarttv_setup import cli
+        saved = cli.open_device, cli.obtain_apks, cli.say
+        cli.open_device = lambda args, wait_for_prompt=True: (dev, PROPS)
+        cli.obtain_apks = lambda args, log=None: self.apks
+        cli.say = quiet
+        try:
+            return cli.main(["setup", "--host", "127.0.0.1", "--theme", "skip", "--preset", "none", "--yes", *argv])
+        finally:
+            cli.open_device, cli.obtain_apks, cli.say = saved
+
+    def test_the_guided_flow_with_yes_leaves_the_stock_launcher_enabled(self):
+        """§16.2 step 4 defaults to No: `--yes` takes that default, and only --disable-stock disables the stock."""
+        dev = self.fresh_tv()
+        self.assertEqual(self.guided(dev), 0)
+        self.assertEqual(dev.home, OURS_HOME)
+        self.assertNotIn(STOCK, dev.disabled)
+        dev = self.fresh_tv()
+        self.assertEqual(self.guided(dev, "--disable-stock"), 0)
+        self.assertEqual(dev.home, OURS_HOME)
+        self.assertIn(STOCK, dev.disabled)
+        disabled_at = next(i for i, c in enumerate(dev.commands) if c.startswith(f"pm disable-user --user 0 {STOCK}"))
+        home_set_at = next(i for i, c in enumerate(dev.commands) if c.startswith("cmd package set-home-activity"))
+        self.assertGreater(disabled_at, home_set_at, "the stock goes only after ours is Home")
+
 
 if __name__ == "__main__":
     unittest.main()

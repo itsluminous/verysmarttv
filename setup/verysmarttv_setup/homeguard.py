@@ -48,10 +48,6 @@ def not_a_launcher(component) -> bool:
             or bool(FACTORY_RE.search(package)))
 
 
-def is_factory(package: str) -> bool:
-    return bool(FACTORY_RE.search(package or ""))
-
-
 def launchers_in(claims) -> list:
     """The packages among HOME claimants that are launchers, each once, in order."""
     out = []

@@ -56,5 +56,6 @@ case "${1:-}" in
   setup|discover|probe|install|theme|debloat|restore|check|screenshot|adb-closed|-h|--help|--version) ;;
   *) set -- setup "$@" ;;
 esac
-cd "$HERE"
-exec "$VENV/bin/python" -m verysmarttv_setup "$@"
+# The package is found through PYTHONPATH, not by changing directory: `--apk-dir dist/` and `--list my.txt` are
+# relative to where the user typed them.
+PYTHONPATH="$HERE${PYTHONPATH:+:$PYTHONPATH}" exec "$VENV/bin/python" -m verysmarttv_setup "$@"

@@ -25,6 +25,7 @@ PNG = b"\x89PNG\r\n\x1a\n"
 PNG_END = b"IEND\xaeB`\x82"
 SHOT_REMOTE = "/data/local/tmp/verysmarttv-shot.png"
 KEY_NAME = re.compile(r"^[A-Z0-9_]+$")
+MD5_RE = re.compile(r"[0-9a-fA-F]{32}")
 
 
 def split_host_port(endpoint: str):
@@ -405,11 +406,26 @@ class AdbDevice:
                 pass
 
     def push_file(self, local_path, remote: str, progress=None):
-        """Push with sync, falling back to base64 chunks when the TV's sync service refuses."""
+        """Push with sync, falling back to base64 chunks when the TV's sync service refuses. Either way the copy
+        on the TV is read back with md5sum before it counts as pushed (an APK that pm install then refuses would
+        otherwise read as a signing problem)."""
         try:
             self.push(local_path, remote)
         except AdbRefused:
             self.push_b64(local_path, remote, progress)
+            return  # push_b64 has checked the digest itself
+        self.verify_remote(local_path, remote)
+
+    def verify_remote(self, local_path, remote: str):
+        """md5sum the pushed copy against the local file; a TV whose shell has no md5sum (no digest in the
+        answer) is let through, since the sync service itself acknowledged every chunk."""
+        want = hashlib.md5(Path(local_path).read_bytes()).hexdigest()
+        out = self.shell(f"md5sum '{remote}' 2>/dev/null", 120)
+        got = next((w for w in out.split() if MD5_RE.fullmatch(w)), None)
+        if got is not None and got.lower() != want:
+            self.shell(f"rm -f '{remote}'", 30)
+            raise AdbError(f"{Path(local_path).name} arrived damaged: md5 on the TV {got}, local {want}; the copy "
+                           "was removed. Run again.")
 
     # -- screenshot ---------------------------------------------------------------------------------
 

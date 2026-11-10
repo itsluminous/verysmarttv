@@ -341,8 +341,11 @@ def cmd_setup(args) -> int:
             result = install.run(dev, apks, props, args.stock_launcher, False, lambda t: say("   " + t), progress_line)
         except install.InstallError as e:
             raise Quit(str(e), 1) from e
-        if result["stock"] and (args.disable_stock or confirm(f"   disable the stock launcher {result['stock']} now "
-                                                                "(it stays installed; restore brings it back)?", False, yes)):
+        # `--yes` takes the question's default, which is No (§16.2 step 4): only `--disable-stock` or a typed yes
+        # disables the stock launcher.
+        if result["stock"] and (args.disable_stock or (not yes and confirm(
+                f"   disable the stock launcher {result['stock']} now (it stays installed; restore brings it back)?",
+                False))):
             try:
                 disable_stock_now(dev, result["stock"])
             except install.InstallError as e:

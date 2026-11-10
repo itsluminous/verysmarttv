@@ -60,10 +60,8 @@ if (-not (Test-Path $Stamp) -or (Get-Content $Stamp -Raw).Trim() -ne $Hash) {
 $Commands = @("setup", "discover", "probe", "install", "theme", "debloat", "restore", "check", "screenshot", "adb-closed", "-h", "--help", "--version")
 $Argv = @($args)
 if ($Argv.Count -eq 0 -or $Commands -notcontains $Argv[0]) { $Argv = @("setup") + $Argv }
-Push-Location $Here
-try {
-    & $VenvPython -m verysmarttv_setup @Argv
-    exit $LASTEXITCODE
-} finally {
-    Pop-Location
-}
+# The package is found through PYTHONPATH, not by changing directory: `--apk-dir dist` and `--list my.txt` are
+# relative to where the user typed them.
+$env:PYTHONPATH = if ($env:PYTHONPATH) { "$Here;$env:PYTHONPATH" } else { $Here }
+& $VenvPython -m verysmarttv_setup @Argv
+exit $LASTEXITCODE
