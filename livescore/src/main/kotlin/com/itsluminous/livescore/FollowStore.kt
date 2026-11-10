@@ -48,6 +48,25 @@ class FollowStore(private val file: File) {
         return now
     }
 
+    /**
+     * One change of several follows (the picker's select-all and clear-all, ADR-045): [remove] go, then [add] join
+     * (those not already in), the list is saved once and listeners hear once. The oldest entries make room at [MAX].
+     */
+    fun replaceAll(remove: Collection<Follow>, add: Collection<Follow>) {
+        synchronized(lock) {
+            val list = load()
+            val gone = remove.map { it.key }.toSet()
+            list.removeAll { it.key in gone }
+            for (f in add) {
+                if (list.any { it.key == f.key }) continue
+                if (list.size >= MAX) list.removeAt(0)
+                list.add(f)
+            }
+            save(list)
+        }
+        notifyListeners()
+    }
+
     fun clear() {
         synchronized(lock) {
             follows = ArrayList()

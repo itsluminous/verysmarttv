@@ -19,6 +19,7 @@ import java.io.File
  */
 object TestRepo {
     const val IPL = "8048"
+    const val INTERNATIONAL = Competition.INTERNATIONAL
     val now: Long get() = System.currentTimeMillis()
 
     /** A live IPL T20 at 145/3 after 16.2 overs, CSK batting against MI. */

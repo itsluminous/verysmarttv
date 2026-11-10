@@ -15,7 +15,7 @@
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:background="@drawable/row_bg">
-    <TextView android:id="@+id/tick" android:layout_width="24dp" android:layout_height="wrap_content" android:textSize="16sp" android:textColor="#FFFFFFFF" />
+    <com.itsluminous.livescore.TriStateCheckView android:id="@+id/tick" android:layout_width="22dp" android:layout_height="22dp" />
     <TextView android:id="@+id/label" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="8dp"
         android:textSize="15sp" android:textColor="#FFFFFFFF" android:singleLine="true" android:ellipsize="end" />
 </LinearLayout>

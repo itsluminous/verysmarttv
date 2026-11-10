@@ -13,8 +13,13 @@ import com.itsluminous.livescore.model.Team
 
 /**
  * The follow picker (§13.6, ADR-034): sport → competition → team columns, each a vertical list; focus
- * on a sport fills the competitions, focus on a competition fills its teams and today's matches; OK
- * toggles the tick. Opened by the launcher on a long press of the pill (ScoreContract.FOLLOW_ACTIVITY).
+ * on a sport fills the competitions, focus on a competition fills its teams and today's matches. Opened by
+ * the launcher on a long press of the pill (ScoreContract.FOLLOW_ACTIVITY).
+ *
+ * Every row carries a [TriStateCheckView] (ADR-045): a leaf (a team, a match, "All cricket") is ticked or empty
+ * and OK toggles it; a section (a sport, a competition with teams or matches) is ticked when it is followed
+ * itself or every child is, barred when some of what is under it is, and OK on a section selects everything
+ * under it unless it is fully ticked, when it clears everything ([SelectionState.selectsAllOnOk]).
  *
  * A sport whose source has no static catalogue (badminton, ADR-044) lists the tournaments and players
  * found in the cached events instead, fetching the sport once when the cache holds none of it.
@@ -27,6 +32,10 @@ class FollowActivity : Activity() {
     private var sport: Sport? = null
     private var competition: Competition? = null
     private var fetching: Sport? = null
+    private val rows = HashMap<LinearLayout, MutableList<Row>>()
+
+    /** A visible row: its box and how its state is read from the follow list. */
+    private class Row(val box: TriStateCheckView, val state: (PickerSelection) -> SelectionState)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +47,13 @@ class FollowActivity : Activity() {
         val shown = repo.source.sports().filter { it in repo.prefs.sportsShown }
         for (s in shown) {
             val follow = Follow.sport(s, Ui.sportName(this, s))
-            val row = pick(sports, Ui.sportName(this, s), follow, onFocus = { showCompetitions(s) })
+            val row = section(
+                sports, Ui.sportName(this, s),
+                state = { sel -> sel.sport(s, competitionsOf(s).map { c -> sel.competition(c, childrenOf(c)) }) },
+                select = { sel -> sel.selectAll(follow) },
+                clear = { sel -> sel.clearSport(s) },
+                onFocus = { showCompetitions(s) },
+            )
             if (sport == null) {
                 sport = s
                 row.requestFocus()
@@ -51,10 +66,19 @@ class FollowActivity : Activity() {
         if (sport == s && competitions.childCount > 0) return
         sport = s
         competition = null
-        competitions.removeAllViews()
-        pick(competitions, getString(R.string.whole_sport, Ui.sportName(this, s)), Follow.sport(s, Ui.sportName(this, s)), onFocus = { showTeams(null) })
+        clearColumn(competitions)
+        leaf(competitions, getString(R.string.whole_sport, Ui.sportName(this, s)), Follow.sport(s, Ui.sportName(this, s)), onFocus = { showTeams(null) })
         val list = competitionsOf(s)
-        for (c in list) pick(competitions, c.name, Follow.competition(c), onFocus = { showTeams(c) })
+        for (c in list) {
+            val follow = Follow.competition(c)
+            section(
+                competitions, c.name,
+                state = { sel -> sel.competition(c, childrenOf(c)) },
+                select = { sel -> sel.selectAll(follow) },
+                clear = { sel -> sel.clearAll(follow, childrenOf(c)) },
+                onFocus = { showTeams(c) },
+            )
+        }
         if (list.isEmpty() && repo.source.competitions(s).isEmpty()) dynamicHint(s)
         showTeams(null)
     }
@@ -78,7 +102,7 @@ class FollowActivity : Activity() {
                 fetching = s
                 repo.refreshSport(s) {
                     if (sport == s && !isFinishing) {
-                        competitions.removeAllViews()
+                        clearColumn(competitions)
                         showCompetitions(s)
                     }
                 }
@@ -89,18 +113,23 @@ class FollowActivity : Activity() {
     private fun showTeams(c: Competition?) {
         if (c != null && competition == c && teams.childCount > 0) return
         competition = c
-        teams.removeAllViews()
+        clearColumn(teams)
         if (c == null) {
             hint(teams, R.string.no_teams)
             return
         }
         val events = eventsOf(c)
-        for (t in teamsOf(c, events)) pick(teams, t.name, Follow.team(t), onFocus = null)
-        for (e in events) {
-            val label = getString(R.string.follow_match, Ui.line(this, e))
-            pick(teams, label, Follow.event(e, (e.endMs ?: e.startMs + EVENT_LENGTH_MS) + PillChooser.FINAL_WINDOW_MS), onFocus = null)
-        }
+        for (t in teamsOf(c, events)) leaf(teams, t.name, Follow.team(t), onFocus = null)
+        for (e in events) leaf(teams, getString(R.string.follow_match, Ui.line(this, e)), eventFollow(e), onFocus = null)
     }
+
+    /** The team and match follows under [c]: what its box combines and what clearing it removes. */
+    private fun childrenOf(c: Competition): List<Follow> {
+        val events = eventsOf(c)
+        return teamsOf(c, events).map { Follow.team(it) } + events.map { eventFollow(it) }
+    }
+
+    private fun eventFollow(e: Event): Follow = Follow.event(e, (e.endMs ?: e.startMs + EVENT_LENGTH_MS) + PillChooser.FINAL_WINDOW_MS)
 
     /** The cached events of [c] in the window, as the "Match · …" rows. */
     private fun eventsOf(c: Competition): List<Event> {
@@ -126,15 +155,51 @@ class FollowActivity : Activity() {
         column.addView(view)
     }
 
-    private fun pick(column: LinearLayout, label: String, follow: Follow, onFocus: (() -> Unit)?): View {
-        val row = Ui.inflate(column, R.layout.pick_row)
-        row.findViewById<TextView>(R.id.label).text = label
-        val tick = row.findViewById<TextView>(R.id.tick)
-        tick.text = getString(if (repo.follows.isFollowed(follow)) R.string.tick_on else R.string.tick_off)
-        row.setOnClickListener { tick.text = getString(if (repo.follows.toggle(follow)) R.string.tick_on else R.string.tick_off) }
-        if (onFocus != null) row.setOnFocusChangeListener { _, has -> if (has) onFocus() }
-        column.addView(row)
-        return row
+    private fun clearColumn(column: LinearLayout) {
+        column.removeAllViews()
+        rows.remove(column)
+    }
+
+    /** A leaf row: ticked when its follow is in the list; OK toggles the follow. */
+    private fun leaf(column: LinearLayout, label: String, follow: Follow, onFocus: (() -> Unit)?): View =
+        row(column, label, state = { sel -> sel.leaf(follow) }, onFocus = onFocus) { repo.follows.toggle(follow) }
+
+    /** A section row: its box from [state]; OK applies [select] unless the box is fully ticked, then [clear]. */
+    private fun section(
+        column: LinearLayout,
+        label: String,
+        state: (PickerSelection) -> SelectionState,
+        select: (PickerSelection) -> PickerSelection.Change,
+        clear: (PickerSelection) -> PickerSelection.Change,
+        onFocus: (() -> Unit)?,
+    ): View =
+        row(column, label, state, onFocus) {
+            val sel = selection()
+            val change = if (SelectionState.selectsAllOnOk(state(sel))) select(sel) else clear(sel)
+            repo.follows.replaceAll(change.remove, change.add)
+        }
+
+    private fun row(column: LinearLayout, label: String, state: (PickerSelection) -> SelectionState, onFocus: (() -> Unit)?, onOk: () -> Unit): View {
+        val view = Ui.inflate(column, R.layout.pick_row)
+        view.findViewById<TextView>(R.id.label).text = label
+        val box = view.findViewById<TriStateCheckView>(R.id.tick)
+        box.state = state(selection())
+        view.setOnClickListener {
+            onOk()
+            refreshBoxes()
+        }
+        if (onFocus != null) view.setOnFocusChangeListener { _, has -> if (has) onFocus() }
+        column.addView(view)
+        rows.getOrPut(column) { ArrayList() }.add(Row(box, state))
+        return view
+    }
+
+    private fun selection() = PickerSelection(repo.follows.all())
+
+    /** Every visible box reads the follow list again: a child's OK changes its parents, a section's OK its children. */
+    private fun refreshBoxes() {
+        val sel = selection()
+        for (list in rows.values) for (r in list) r.box.state = r.state(sel)
     }
 
     companion object {

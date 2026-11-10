@@ -731,9 +731,13 @@ background, < 25 MB with the scoreboard open (measured in Phase 5 on `HikViewer_
 
 - `MainActivity` (LEANBACK_LAUNCHER + module card "Scores"): today's followed events as rows per sport,
   a "Follow" pill, a "Settings" pill (refresh now, defaults, clear follows).
-- `FollowActivity`: three-column drill-down, sport → competition → team, each a vertical list; OK toggles
-  a tick; the current day's events appear as "Follow this match" entries under their competition. Search
-  is not needed (lists are < 40 items). A sport whose source has no static catalogue (badminton, ADR-044) lists
+- `FollowActivity`: three-column drill-down, sport → competition → team, each a vertical list; the current
+  day's events appear as "Follow this match" entries under their competition. Search is not needed (lists are
+  < 40 items). Every row has a three-state box (`TriStateCheckView`, ADR-045): a leaf (a team, a match, "All
+  cricket") is empty or ticked and OK toggles it; a section (a sport, a competition with teams or matches) is
+  ticked when it is followed itself or every child is, shows a bar when some of what is under it is followed,
+  and OK on it selects everything under it unless it is fully ticked, when it clears everything
+  (`SelectionState.selectsAllOnOk`). A sport whose source has no static catalogue (badminton, ADR-044) lists
   the tournaments of the cached window and, under one, its players and matches; without the data key the column
   says what is missing.
 - `ScoreboardActivity(event_id)`: cricket: innings table, current batters/bowler when the feed has them

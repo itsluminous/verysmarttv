@@ -25,8 +25,9 @@
     <string name="whole_sport">All %1$s</string>
     <string name="follow_match">Match · %1$s</string>
     <string name="no_teams">Pick a competition to see its teams and today’s matches.</string>
-    <string name="tick_on">\u2611</string>
-    <string name="tick_off">\u2610</string>
+    <string name="check_none">Not followed</string>
+    <string name="check_partial">Partly followed</string>
+    <string name="check_all">Followed</string>
     <string name="sport_cricket">Cricket</string>
     <string name="sport_football">Football</string>
     <string name="sport_f1">Formula 1</string>

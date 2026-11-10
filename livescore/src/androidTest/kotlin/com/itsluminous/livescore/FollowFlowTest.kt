@@ -7,6 +7,7 @@ import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
+import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
@@ -38,7 +39,7 @@ class FollowFlowTest {
         ActivityScenario.launch(FollowActivity::class.java).use {
             onView(withText("Indian Premier League")).check(matches(isDisplayed()))
             onView(allOf(withId(R.id.label), withText("Indian Premier League"))).perform(pressOk())
-            onView(allOf(withId(R.id.tick), hasSiblingText("Indian Premier League"))).check(matches(withText("\u2611")))
+            onView(allOf(withId(R.id.tick), hasSiblingText("Indian Premier League"))).check(matches(withContentDescription(R.string.check_all)))
         }
         assertTrue(repo.follows.all().any { it.competitionId == TestRepo.IPL })
         awaitFetch(repo)
@@ -82,6 +83,50 @@ class FollowFlowTest {
     }
 
     @Test
+    fun aSectionBoxFollowsItsChildrenAndOkOnItSelectsThenClearsAll() {
+        val repo = TestRepo.install(emptyList(), followsJson = "{\"version\":1,\"follows\":[]}")
+        ActivityScenario.launch(FollowActivity::class.java).use {
+            onView(allOf(withId(R.id.label), withText("Cricket"))).perform(focusRow())
+            onView(allOf(withId(R.id.label), withText("International matches"))).perform(focusRow())
+            box("Cricket").check(matches(withContentDescription(R.string.check_none)))
+            box("International matches").check(matches(withContentDescription(R.string.check_none)))
+            // One child: the competition and the sport above it show the bar.
+            onView(allOf(withId(R.id.label), withText("India"))).perform(pressOk())
+            box("India").check(matches(withContentDescription(R.string.check_all)))
+            box("International matches").check(matches(withContentDescription(R.string.check_partial)))
+            box("Cricket").check(matches(withContentDescription(R.string.check_partial)))
+            // Every child: the competition is ticked; the sport stays barred (the IPL is not followed).
+            onView(allOf(withId(R.id.label), withText("Pakistan"))).perform(pressOk())
+            box("International matches").check(matches(withContentDescription(R.string.check_all)))
+            box("Cricket").check(matches(withContentDescription(R.string.check_partial)))
+            assertTrue(repo.follows.all().map { it.teamId }.containsAll(listOf("6", "7")))
+            // OK on the ticked competition clears it and its children.
+            onView(allOf(withId(R.id.label), withText("International matches"))).perform(pressOk())
+            box("International matches").check(matches(withContentDescription(R.string.check_none)))
+            box("India").check(matches(withContentDescription(R.string.check_none)))
+            box("Pakistan").check(matches(withContentDescription(R.string.check_none)))
+            box("Cricket").check(matches(withContentDescription(R.string.check_none)))
+            assertTrue(repo.follows.all().isEmpty())
+            // OK on the empty competition follows the whole competition; the children's own boxes stay empty.
+            onView(allOf(withId(R.id.label), withText("International matches"))).perform(pressOk())
+            box("International matches").check(matches(withContentDescription(R.string.check_all)))
+            box("India").check(matches(withContentDescription(R.string.check_none)))
+            box("Cricket").check(matches(withContentDescription(R.string.check_partial)))
+            assertTrue(repo.follows.all().single().competitionId == TestRepo.INTERNATIONAL)
+            // OK on the barred sport follows the whole sport; OK again clears every cricket follow.
+            onView(allOf(withId(R.id.label), withText("Cricket"))).perform(pressOk())
+            box("Cricket").check(matches(withContentDescription(R.string.check_all)))
+            box("All Cricket").check(matches(withContentDescription(R.string.check_all)))
+            assertEquals(2, repo.follows.all().size)
+            onView(allOf(withId(R.id.label), withText("Cricket"))).perform(pressOk())
+            box("Cricket").check(matches(withContentDescription(R.string.check_none)))
+            box("All Cricket").check(matches(withContentDescription(R.string.check_none)))
+            box("International matches").check(matches(withContentDescription(R.string.check_none)))
+            assertTrue(repo.follows.all().isEmpty())
+        }
+    }
+
+    @Test
     fun homeShowsTheFollowedRowAndTheEmptyStateLeadsToFollow() {
         val repo = TestRepo.install(listOf(TestRepo.iplLive()))
         awaitFetch(repo)
@@ -97,6 +142,9 @@ class FollowFlowTest {
     }
 
     private fun hasSiblingText(text: String) = androidx.test.espresso.matcher.ViewMatchers.hasSibling(withText(text))
+
+    /** The box of the row whose label is [text]. */
+    private fun box(text: String) = onView(allOf(withId(R.id.tick), hasSiblingText(text)))
 
     /** What OK on the remote does to the row a label sits in: focus it, then click it (a tap would only focus a focusableInTouchMode row). */
     private fun pressOk() = object : ViewAction {
