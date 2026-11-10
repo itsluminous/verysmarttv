@@ -3,6 +3,7 @@ package com.itsluminous.livescore
 import android.content.ContentProvider
 import android.content.ContentValues
 import android.content.UriMatcher
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
@@ -88,13 +89,21 @@ class ScoreProvider : ContentProvider() {
             else -> null
         }
 
+    /**
+     * The framework checks no permission on `call()` beyond the caller holding one of the provider's two
+     * permissions to reach it at all, so `WRITE_SCORES` is enforced here (§12.2: only the launcher restores).
+     */
     override fun call(method: String, arg: String?, extras: Bundle?): Bundle {
+        val ctx = context ?: return Bundle().fail("no context")
+        if (ctx.checkCallingOrSelfPermission(ScoreContract.PERMISSION_WRITE) != PackageManager.PERMISSION_GRANTED) {
+            throw SecurityException("call($method) requires ${ScoreContract.PERMISSION_WRITE}")
+        }
         val result = Bundle()
         if (method != ScoreContract.METHOD_RESTORE) {
             return result.fail("unknown method $method")
         }
         val json = extras?.getString(ScoreContract.EXTRA_JSON) ?: return result.fail("missing ${ScoreContract.EXTRA_JSON}")
-        val repo = ScoreRepo.get(context ?: return result.fail("no context"))
+        val repo = ScoreRepo.get(ctx)
         if (!repo.follows.import(json)) return result.fail("not a follow list")
         if (Log.isLoggable(TAG, Log.INFO)) Log.i(TAG, "follows restored: ${repo.follows.all().size}")
         result.putBoolean(ScoreContract.RESULT_OK, true)

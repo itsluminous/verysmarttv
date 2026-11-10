@@ -20,6 +20,7 @@ import com.itsluminous.verysmarttv.core.contract.HeroContract;
 import com.itsluminous.verysmarttv.support.DummyTiles;
 import com.itsluminous.verysmarttv.support.HomeTestRule;
 import com.itsluminous.verysmarttv.support.IntentCapture;
+import com.itsluminous.verysmarttv.support.Shell;
 import com.itsluminous.verysmarttv.support.TestTheme;
 import com.itsluminous.verysmarttv.testkit.HeroFixture;
 
@@ -57,6 +58,9 @@ public class CarouselFocusTest {
         assertEquals("the real companion answers " + HeroContract.AUTHORITY + ", not the stand-in; run ./gradlew :testkit:hero:installDebug",
                 STAND_IN_PROVIDER, provider.name);
         DummyTiles.enable(7);
+        // The stand-in starts cold every time: its first rows then land while the first tile takes focus, the moment
+        // the shelf's title swap must not be cancelled by the tile's own shelf update (seen on a 1 GB AVD).
+        Shell.run("am force-stop " + HeroContract.PACKAGE);
         home.pushTheme(new TestTheme().columns(4).rowsBelowDock(1).heroFeed());
         home.launchHome();
         home.focusTile(0);

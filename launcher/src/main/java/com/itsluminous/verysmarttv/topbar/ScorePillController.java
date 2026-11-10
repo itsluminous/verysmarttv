@@ -6,7 +6,6 @@ import android.graphics.Rect;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -113,17 +112,6 @@ public final class ScorePillController {
         if (shown()) pill.requestFocus();
     }
 
-    @NonNull
-    public View view() {
-        return pill;
-    }
-
-    /** The row the pill shows, or null. */
-    @Nullable
-    public ScoreFeed.Row row() {
-        return row;
-    }
-
     /** onResume: the reader observes and reads; the pill shows the last row until the new one lands. */
     public void onResume() {
         feed.start();
@@ -132,16 +120,5 @@ public final class ScorePillController {
     /** onPause: no reads while Home is off screen. */
     public void onPause() {
         feed.stop();
-    }
-
-    /** The 60 s live re-read is armed. */
-    public boolean liveReadArmed() {
-        return feed.liveReadArmed();
-    }
-
-    /** The pill's own LayoutParams type, for a test that checks its placement. */
-    @NonNull
-    public ViewGroup.MarginLayoutParams layoutParams() {
-        return (ViewGroup.MarginLayoutParams) pill.getLayoutParams();
     }
 }

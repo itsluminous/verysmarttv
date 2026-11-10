@@ -6,7 +6,6 @@ import com.itsluminous.livescore.model.Sport
 import com.itsluminous.livescore.model.State
 import com.itsluminous.verysmarttv.core.contract.ScoreContract
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -155,8 +154,5 @@ class LineFormatter(private val zone: ZoneId, private val locale: Locale = Local
         }
 
         fun lastName(name: String): String = name.trim().substringAfterLast(' ')
-
-        /** The local day of [ms] in [zone], for the window arithmetic. */
-        fun localDate(ms: Long, zone: ZoneId): LocalDate = Instant.ofEpochMilli(ms).atZone(zone).toLocalDate()
     }
 }

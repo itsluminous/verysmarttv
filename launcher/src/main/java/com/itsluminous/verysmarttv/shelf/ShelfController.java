@@ -211,8 +211,9 @@ public final class ShelfController {
             carousel.showCarousel(false);
         } else {
             carousel.placeCarouselShelf();
-            // A rebuild (refreshTiles) or hideHero took the shelf to 0 while the carousel was up: bring it back.
-            if (hero.getAlpha() < 1f) {
+            // A rebuild (refreshTiles) or hideHero took the shelf to 0 while the carousel was up: bring it back. Not
+            // while a title swap is fading it out: its end action fills the title and fades it back in.
+            if (hero.getAlpha() < 1f && !carousel.swapping()) {
                 hero.animate().cancel();
                 if (host.state().animations && !host.state().reducedMotion) hero.animate().alpha(1f).translationX(0f).setDuration(260).start();
                 else {

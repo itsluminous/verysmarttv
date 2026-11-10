@@ -347,12 +347,6 @@ public final class TopBarController {
         else if (verdict.stop != TopBarFocus.Stop.CAROUSEL) focusPill(TopBarFocus.firstButton(bar()));
     }
 
-    /** The score pill's controller, or null while score_pill is off. */
-    @Nullable
-    public ScorePillController scorePill() {
-        return scorePill;
-    }
-
     /** The Settings pill: the anchor of the gear's dropdowns and the Module cards list (§8 rule 1: the bar owns it). */
     @NonNull
     public View settingsPill() {

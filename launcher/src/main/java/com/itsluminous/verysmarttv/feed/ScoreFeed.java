@@ -115,10 +115,6 @@ public final class ScoreFeed {
         }
     }
 
-    public boolean started() {
-        return started;
-    }
-
     /** Queries off the main thread, hands the row to the listener on it, and re-arms the live timer when the row is in play. */
     void load() {
         if (!started || loading || denied) return;

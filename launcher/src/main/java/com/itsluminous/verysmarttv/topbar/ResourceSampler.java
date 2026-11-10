@@ -106,10 +106,6 @@ public final class ResourceSampler {
         main.removeCallbacks(tick);
     }
 
-    public boolean started() {
-        return started;
-    }
-
     private void read() {
         if (!started || reading) return;
         reading = true;

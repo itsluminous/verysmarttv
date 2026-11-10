@@ -36,8 +36,8 @@ Reports land in `<module>/build/reports/` (tests, `lint-results-debug.html`).
 | Module | Plugin | Language | What |
 |---|---|---|---|
 | `:core` | `verysmarttv.android.lib` | Java | The provider contracts (`HeroContract`, `ScoreContract`) and small shared helpers. |
-| `:testkit` | `verysmarttv.android.lib` | Java | `FakeHeroProvider`, `FakeScoreProvider`, `HeroFixture`: test-only stand-ins for the companions. |
-| `:testkit:hero`, `:testkit:tiles` | `verysmarttv.android.app` | Java | The two apps the launcher's connected tests install: the companion stand-in (package `com.itsluminous.traktshelf`, ADR-037) and the seventh TV app. Debug only, never released. |
+| `:testkit` | `verysmarttv.android.lib` | Java | `FakeHeroProvider`, `FakeScoreProvider`, `HeroFixture`, `ScoreFixture`: test-only stand-ins for the companions. |
+| `:testkit:hero`, `:testkit:score`, `:testkit:tiles` | `verysmarttv.android.app` | Java | The three apps the launcher's connected tests install: the two companion stand-ins (packages `com.itsluminous.traktshelf` and `com.itsluminous.livescore`, ADR-037) and the seventh TV app. Debug only, never released. |
 | `:launcher` | `verysmarttv.android.app` | Java | `com.itsluminous.verysmarttv`, the home screen (carried from the fork in Phase 1; decomposed into the §8 controllers in Phase 2, ADR-038). |
 | `:traktshelf` | `verysmarttv.android.app` | Java | `com.itsluminous.traktshelf`, the Trakt companion ([traktshelf/README.md](../traktshelf/README.md)). |
 | `:livescore` (Phase 4) | `verysmarttv.android.app` | Kotlin | `com.itsluminous.livescore`. |
@@ -86,11 +86,13 @@ the emulator you are also testing by hand. On a Google TV image (`google_atv`) `
 alone does not take Home from the stock launcher; `HomeSmokeTest` disables it for the test and enables it
 again afterwards, the way the setup tool's install flow does for good.
 
-The launcher's suite (`./gradlew :launcher:connectedDebugAndroidTest`) first installs two test apps
-(DESIGN.md §14.3, ADR-037): `:testkit:hero`, the companion stand-in, which takes the package
-`com.itsluminous.traktshelf` and so **replaces the traktshelf debug build on that emulator** until
-`./gradlew :traktshelf:installDebug` puts it back (its sign-in is kept); and `:testkit:tiles`, "Tile 7", the
-seventh TV app the focus tests enable and disable. Tiles 1 to 6 are entries of the launcher's test APK. With
+The launcher's suite (`./gradlew :launcher:connectedDebugAndroidTest`) first installs three test apps
+(DESIGN.md §14.3, ADR-037): `:testkit:hero` and `:testkit:score`, the companion stand-ins, which take the
+packages `com.itsluminous.traktshelf` and `com.itsluminous.livescore` and so **replace the traktshelf and
+livescore debug builds on that emulator** until `./gradlew :traktshelf:installDebug :livescore:installDebug`
+puts them back (their data is kept); and `:testkit:tiles`, "Tile 7", the seventh TV app the focus tests enable
+and disable. Run `:livescore:connectedDebugAndroidTest` before the launcher's suite on one emulator, since
+each install replaces the other's companion. Tiles 1 to 6 are entries of the launcher's test APK. With
 `leaveApksInstalledAfterRun` those tiles stay on Home; `adb uninstall com.itsluminous.verysmarttv.test` and
 `adb uninstall com.itsluminous.verysmarttv.testkit.tiles` remove them. Every test exports the launcher's
 settings before it runs and restores them after (`support/HomeTestRule`), so the theme and choices on the

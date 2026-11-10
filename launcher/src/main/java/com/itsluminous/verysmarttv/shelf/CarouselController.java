@@ -48,6 +48,8 @@ public final class CarouselController {
 
     /** The shelf shows a carousel item instead of the focused app's name. */
     private boolean carouselShowing;
+    /** A title swap is fading the shelf out; the fill and fade-in run in its end action. */
+    private boolean swapping;
 
     /**
      * The carousel shelf at its full height, in dp: 10dp of padding above and below, the 36sp title (46dp), the meta
@@ -167,7 +169,9 @@ public final class CarouselController {
         };
         if (animate && host.state().animations && !host.state().reducedMotion) {
             shelf.hero.animate().cancel();
+            swapping = true;
             shelf.hero.animate().alpha(0f).translationX(-12 * host.density()).setDuration(120).withEndAction(() -> {
+                swapping = false;
                 if (!carouselShowing) return;
                 fill.run();
                 shelf.hero.setTranslationX(12 * host.density());
@@ -175,6 +179,7 @@ public final class CarouselController {
             }).start();
         } else {
             shelf.hero.animate().cancel();
+            swapping = false;
             fill.run();
             shelf.hero.setTranslationX(0f);
             shelf.hero.setAlpha(1f);
@@ -279,6 +284,7 @@ public final class CarouselController {
         boolean hadFocus = shelf.hero.hasFocus();
         feedArtId = -1;
         shelf.hero.animate().cancel();
+        swapping = false;
         shelf.hero.setTranslationX(0f);
         shelf.hero.setAlpha(1f);
         shelf.hero.setFocusable(false);
@@ -357,6 +363,15 @@ public final class CarouselController {
             return true;
         }
         return false;
+    }
+
+    /**
+     * A title swap is mid-fade: the shelf is at alpha below 1 on purpose, and its fill runs in the fade's end action.
+     * ShelfController leaves the alpha alone then; cancelling the fade would drop the fill (a tile focused while the
+     * companion's first rows landed left the app's name on the shelf for good, seen on a 1 GB AVD).
+     */
+    public boolean swapping() {
+        return swapping;
     }
 
     /** Focus the carousel on the shelf (Up from a dock tile, Down from the score pill: TopBarFocus's CAROUSEL verdict). */

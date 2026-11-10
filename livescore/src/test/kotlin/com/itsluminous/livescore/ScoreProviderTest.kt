@@ -15,6 +15,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -47,6 +48,8 @@ class ScoreProviderTest {
         ScoreRepo.set(repo)
         Robolectric.setupContentProvider(ScoreProvider::class.java, ScoreContract.AUTHORITY)
         resolver = app.contentResolver
+        // In-process calls are checked against the app's own permissions: the launcher's WRITE_SCORES stands in.
+        Shadows.shadowOf(app).grantPermissions(ScoreContract.PERMISSION_WRITE)
     }
 
     @After
@@ -169,6 +172,22 @@ class ScoreProviderTest {
         Shadows.shadowOf(resolver).notifiedUris.clear()
         repo.follows.toggle(Follow.sport(Sport.TENNIS, "Tennis"))
         assertTrue(Shadows.shadowOf(resolver).notifiedUris.any { it.uri == ScoreContract.PILL })
+    }
+
+    @Test
+    fun restoreIsRefusedWithoutTheWritePermission() {
+        // The framework checks no permission on call() itself (§12.2): the provider must.
+        Shadows.shadowOf(RuntimeEnvironment.getApplication()).denyPermissions(ScoreContract.PERMISSION_WRITE)
+        val before = repo.follows.all().size
+        try {
+            resolver.call(ScoreContract.AUTHORITY, ScoreContract.METHOD_RESTORE, null, Bundle().apply { putString(ScoreContract.EXTRA_JSON, "[]") })
+            fail("call(restore) without WRITE_SCORES must throw")
+        } catch (expected: SecurityException) {
+            assertTrue(expected.message!!, expected.message!!.contains(ScoreContract.PERMISSION_WRITE))
+        }
+        assertEquals("nothing was replaced", before, repo.follows.all().size)
+        // Reads need only READ_SCORES, which the framework enforces before the query reaches the provider.
+        resolver.query(ScoreContract.PILL, null, null, null, null)!!.use { assertEquals(1, it.count) }
     }
 
     @Test
