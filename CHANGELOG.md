@@ -8,6 +8,12 @@ publishes all three, and the tag's message quotes the section below.
 
 ## [Unreleased]
 
+## [0.1.0-rc2] - 2026-11-10
+
+The owner's feedback after a day with rc1 on the Mi TV 4A: the top-right column is the same whatever the shelf
+shows, and two score lines by default. Android `versionCode` 1000100, the same as rc1 (a candidate shares its
+final's code, ADR-047), so the setup tool installs it over rc1 with `-r`.
+
 ### Fixed
 
 - **Launcher: no shade behind the top-right column; the hero text keeps its width** (ADR-046 amended). rc1 veiled
