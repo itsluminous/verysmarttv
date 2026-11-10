@@ -99,13 +99,37 @@ def debloat_options(args) -> debloat.Options:
                            screenshots=not getattr(args, "no_screenshots", False))
 
 
-def show_list(preset_text: str, names: list):
+def show_list(preset_text: str, names: list, log=None):
+    log = log or say
     notes = lists.notes(preset_text)
-    say(lists.header(preset_text))
-    say()
+    log(lists.header(preset_text))
+    log("")
     for name in names:
         note = notes.get(name, "")
-        say(f"  {name}" + (f"   # {note}" if note else ""))
+        log(f"  {name}" + (f"   # {note}" if note else ""))
+
+
+def read_list_text(path):
+    """(text, names) of a list file; raises lists.ListError."""
+    try:
+        text = Path(path).read_text(encoding="utf-8-sig", errors="replace")
+    except OSError as e:
+        raise lists.ListError(f"could not read {path} ({e.strerror or e})") from e
+    return text, lists.parse(text, str(path))
+
+
+def confirm_list(path, text, names, yes=False, full=False, log=None) -> bool:
+    """The one question every clean-up path asks before a list is applied: the list's header (the whole
+    list with its notes when `full`), then yes/no, No by default. `--yes` answers it for a list the user
+    named on the command line."""
+    log = log or say
+    if full:
+        show_list(text, names, log)
+    else:
+        log(lists.header(text))
+    log(f"{len(names)} packages from {path}")
+    return confirm(f"disable these {len(names)} packages for user 0 (nothing is uninstalled; `setup restore` "
+                   "undoes it)?", False, yes)
 
 
 # -- commands ---------------------------------------------------------------------------------------------
@@ -206,12 +230,10 @@ def cmd_debloat(args) -> int:
                 "community (MIT; presets/README.md names the source)")
             args.preset = best.preset.slug
         path = list_path_for(args, all_presets)
-        text = path.read_text(encoding="utf-8-sig", errors="replace")
-        names = lists.parse(text, str(path))
-        if args.show or not args.yes:
+        text, names = read_list_text(path)
+        if args.dry_run:
             show_list(text, names)
-        if not args.dry_run and not confirm(f"disable these {len(names)} packages for user 0 (nothing is uninstalled; "
-                                            "`setup restore` undoes it)?", False, args.yes):
+        elif not confirm_list(path, text, names, args.yes, full=args.show or not args.yes):
             say("nothing was changed on the TV")
             return 0
         return debloat.apply(dev, path, props, debloat_options(args), say)
@@ -358,30 +380,7 @@ def cmd_setup(args) -> int:
         # 6 Clean up
         say("6  Clean up (optional)")
         if args.preset != "none":
-            all_presets = presets.load_index()
-            matches = presets.match(props, all_presets)
-            best = presets.suggestion(matches)
-            slug = args.preset
-            if not slug and best:
-                say(f"   suggested preset: {best.preset.slug} ({best.text}, {best.preset.packages} packages) by the "
-                    "community (MIT; presets/README.md names the source)")
-                answer = ask("   apply it / show the list first / pick another slug / skip? [apply/show/<slug>/skip]", "skip", yes)
-                if answer == "show":
-                    show_list(best.preset.text(), lists.parse(best.preset.text()))
-                    answer = ask("   apply it? [apply/skip]", "skip", yes)
-                slug = best.preset.slug if answer == "apply" else (None if answer == "skip" else answer)
-            elif not slug:
-                nearest = ", ".join(m.preset.slug for m in matches[:5])
-                say("   no exact community list for this TV" + (f"; nearest by brand: {nearest}" if nearest else ""))
-                slug = ask("   a preset slug to apply, or skip:", "skip", yes)
-                slug = None if slug == "skip" else slug
-            if slug:
-                args.preset = slug
-                try:
-                    path = list_path_for(args, all_presets)
-                    debloat.apply(dev, path, props, debloat_options(args), lambda t: say("   " + t))
-                except lists.ListError as e:
-                    say(f"   {e}")
+            cleanup_step(dev, props, args, yes, lambda t: say("   " + t))
         else:
             say("   skipped (--preset none)")
         # 7 Companions
@@ -395,6 +394,39 @@ def cmd_setup(args) -> int:
     say("   Port 5555 gives a shell to any device on your network. When you are done: turn USB debugging, "
         "Network/ADB debugging and Wireless debugging off on the TV, reboot it, then run `setup adb-closed`.")
     return 0
+
+
+def cleanup_step(dev, props, args, yes, log):
+    """Step 6 of the guided flow. Whichever way a list is chosen (the suggestion, a slug typed at the prompt,
+    `--preset` on the command line) it goes through `confirm_list`: the header, then the same yes/no."""
+    all_presets = presets.load_index()
+    matches = presets.match(props, all_presets)
+    best = presets.suggestion(matches)
+    slug, full = args.preset, False
+    if not slug and best:
+        log(f"suggested preset: {best.preset.slug} ({best.text}, {best.preset.packages} packages) by the "
+            "community (MIT; presets/README.md names the source)")
+        answer = ask("   apply it / show the list first / pick another slug / skip? [apply/show/<slug>/skip]", "skip", yes)
+        if answer == "show":
+            answer, full = "apply", True
+        slug = best.preset.slug if answer == "apply" else (None if answer == "skip" else answer)
+    elif not slug:
+        nearest = ", ".join(f"{m.preset.slug} ({m.text})" for m in matches[:5])
+        log("no exact community list for this TV" + (f"; nearest: {nearest}" if nearest else ""))
+        slug = ask("   a preset slug to apply, or skip:", "skip", yes)
+        slug = None if slug == "skip" else slug
+    if not slug:
+        return
+    args.preset = slug
+    try:
+        path = list_path_for(args, all_presets)
+        text, names = read_list_text(path)
+        if not confirm_list(path, text, names, yes, full, log):
+            log("nothing was changed on the TV")
+            return
+        debloat.apply(dev, path, props, debloat_options(args), log)
+    except (lists.ListError, Quit) as e:
+        log(str(e))
 
 
 def disable_stock_now(dev, stock: str):
