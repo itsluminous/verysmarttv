@@ -402,7 +402,9 @@ launcher, and no companion for it).
 
 A `TextView`-based pill under the right end of `topButtons`, right-aligned with the last pill, 8 dp
 below the pill row, one line, 13 sp: a leading state glyph and kicker in the state colour, then the
-line in white.
+line in white. *Follow-up (ADR-041):* the pill stacks up to `score_rows` such lines (1 to 5, default 3), one per
+followed event the companion ranks, right-aligned under one another, each on its own 10 % shade; the stack is one focus
+stop whose lines Up and Down walk (§9.3 rule 8).
 
 | Provider `state` | Kicker | Example line |
 |---|---|---|
@@ -450,9 +452,14 @@ Inputs are the current focus, the key, and the bar model `(scorePillShown, pills
 7. **RTL**: bar order is mirrored by the framework (`supportsRtl`); the rules are expressed in bar order,
    not screen side, so they need no RTL branch.
 
+8. **The stacked pill is one stop** (ADR-041): Up from the grid or the carousel lands on its **bottom** line, the
+   one nearest the grid; inside it Up and Down move one line at a time; Up from the top line is rule 2 (Inputs), Down
+   from the bottom line is rule 3 (the carousel while it shows, else the grid); Left/Right, Back and OK are the same on
+   every line, OK opening that line's event.
+
 Every rule above is a JVM test case in `TopBarFocusTest`; the five that involve real views (Up from a
 dock tile with/without the pill, Up from the pill, Down back, Back) are also Espresso cases on the TV
-emulator (section 14.3).
+emulator (section 14.3), and rule 8 for 1, 3 and 5 lines against the stand-in's five-row fixture.
 
 ---
 
@@ -473,6 +480,7 @@ Restore clears the choices (fork README, "Settings" row). Rows and their stored 
 | Hero banner height | `hero_height` | 60/80/100/120 (+ theme's own) | `hero_height` |
 | **System bars** (was Widgets) | `widgets` | On/Off | `widgets` |
 | **Live scores** (new) | `score_pill` | On/Off; row subtitle "LiveScore app not installed" when `ScoreContract` resolves to nothing | `score_pill` |
+| **Live score rows** (ADR-041) | `score_rows` | 1–5 | `score_rows` |
 | Animations | `animations` | On/Off | `animations` (+ `advanced_effects`) |
 | Module cards | per-card decision prefs | Shown/Hidden | |
 | Backup & restore: Back up, Restore from file | files (`companions` section through each companion's `/backup`, §12.2) | | |

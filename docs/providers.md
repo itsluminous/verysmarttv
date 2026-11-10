@@ -77,7 +77,7 @@ it fetches, how often, the `/events` rows its scoreboard uses) is documented wit
 
 | URI | Returns |
 |---|---|
-| `content://com.itsluminous.livescore.scores/pill` | Exactly one row with the columns below: the text the launcher's score pill shows. MIME type `vnd.android.cursor.item/vnd.com.itsluminous.livescore.pill`. Always answerable from the companion's cache, never blocks on a fetch; `state` is `none` when nothing followed is in the window. A query is also the companion's signal that a screen is looking. Observers are notified after every refresh and after the follow list changes. |
+| `content://com.itsluminous.livescore.scores/pill` | One row per event the pill can show, the columns below, in the companion's order: the pill's own first (`PillChooser.choose`: live, then a break, then upcoming within 12 h, then final within 6 h; with two live matches of one follow reason it turns every 20 s), then every other eligible event in that same rank order (`PillChooser.ranked`). The launcher shows the first `score_rows` (1 to 5, `ScoreContract.MAX_ROWS`) of them, so the companion never needs to know how many lines a launcher has; a one-line launcher reads row 0 as before. MIME type `vnd.android.cursor.item/vnd.com.itsluminous.livescore.pill`. Always answerable from the companion's cache, never blocks on a fetch; exactly one row with `state` `none` when nothing followed is in the window. A query is also the companion's signal that a screen is looking. Observers are notified after every refresh and after the follow list changes. |
 | `content://com.itsluminous.livescore.scores/events`, `…/events/<event_id>` | The followed events in the window, one row each (`ScoreContract.EVENT_COLUMNS`); the launcher does not read them. |
 | `content://com.itsluminous.livescore.scores/backup` | Exactly one row, column `json`: the companion's follow list as the JSON it stores, opaque to the launcher. |
 
@@ -96,16 +96,17 @@ Columns of `/pill`, in cursor order (`ScoreContract.PILL_COLUMNS`):
 | `color` | text | `#RRGGBB` for the kicker. |
 
 How the launcher reads it (`feed.ScoreFeed`, with `score_pill` on): a `ContentObserver` on `/pill`, re-queried on
-change and coalesced to 800 ms; the query runs off the main thread and the row is handed to the pill on it. While the
-last row said `live` or `break` and Home is resumed the launcher also re-queries every 60 seconds, which is how the
-companion knows a screen is watching; nothing is read while Home is paused, while the setting is off, or after a
-`SecurityException` (another signing key), which is logged once. The launcher renders the row as it comes
-(`topbar.ScoreLine`, `topbar.ScorePill`, ADR-015): it adds only the state dot, the colours, a cut at 48 characters
-with an ellipsis, and a dim while `stale` is 1. A row with `state` `none`, an absent provider and a refusal all hide
-the pill.
+change and coalesced to 800 ms; the query runs off the main thread and the rows (at most `MAX_ROWS`, `none` rows
+left out) are handed to the pill on it. While any row said `live` or `break` and Home is resumed the launcher also
+re-queries every 60 seconds, which is how the companion knows a screen is watching; nothing is read while Home is
+paused, while the setting is off, or after a `SecurityException` (another signing key), which is logged once. The
+launcher renders each row as it comes (`topbar.ScoreLine`, `topbar.ScoreLineView`, ADR-015): it adds only the state
+dot, the colours, a cut at 48 characters with an ellipsis, and a dim while `stale` is 1; `ScoreLine.stack` cuts the
+list to `score_rows` and keeps the lines in place while the companion only turns its first row (ADR-041). A list of
+`none` rows, an absent provider and a refusal all hide the pill.
 
-Opening the match: OK on the pill starts `com.itsluminous.livescore/.ScoreboardActivity`
-(`ScoreContract.SCOREBOARD_ACTIVITY`) with the extra `event_id` (`ScoreContract.EXTRA_EVENT_ID`), or the app's
+Opening the match: OK on a line starts `com.itsluminous.livescore/.ScoreboardActivity`
+(`ScoreContract.SCOREBOARD_ACTIVITY`) with that line's `event_id` (`ScoreContract.EXTRA_EVENT_ID`), or the app's
 leanback launch intent when the row has no event; a long press starts `com.itsluminous.livescore/.FollowActivity`
 (`ScoreContract.FOLLOW_ACTIVITY`).
 

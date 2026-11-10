@@ -140,6 +140,28 @@ the job fails before building. A tag with a `-` (`v1.0.0-rc1`) is a pre-release.
 Verify a downloaded APK: `apksigner verify --print-certs verysmarttv-launcher-X.Y.Z.apk` and compare the
 SHA-256 digest with the one in the release notes.
 
+## Companion banners
+
+The two companions' TV banners (`android:banner`, 320×180 dp) show the app's icon above its name, in the
+launcher's look: dark slate, the icon 90 dp across, the name in Outfit at weight 500, 28 dp, centred. An
+Android drawable cannot draw text, so each banner is a layer-list, `res/drawable/banner.xml`: the slate and
+the icon as a vector (`banner_art.xml`) and the name as a bitmap, `res/mipmap-xhdpi/banner.png`, 320×180 px
+with a transparent background, which the layer-list stretches over the banner so one pixel is one dp.
+The PNG is committed and rendered by [`tools/dev/render_banner.py`](../tools/dev/render_banner.py) from the
+launcher's own `outfit.ttf` (Pillow: `pip install pillow`):
+
+```bash
+python3 tools/dev/render_banner.py --text Trakt     --out traktshelf/src/main/res/mipmap-xhdpi/banner.png
+python3 tools/dev/render_banner.py --text LiveScore --out livescore/src/main/res/mipmap-xhdpi/banner.png
+python3 tools/dev/render_banner.py --text Trakt     --out traktshelf/src/main/res/mipmap-xhdpi/banner.png --check   # exit 1 when stale
+```
+
+Rerun it after a change to the script or the font; the module-card labels (`xml/module_card.xml`,
+"Trakt" and "Scores") are strings and are not part of the picture. The launcher's tile rounds the banner's
+corners itself, so the artwork is full-bleed. [`tools/dev/screenshot.py`](../tools/dev/screenshot.py) takes a
+screenshot over adb (`exec-out screencap -p`, `ANDROID_SERIAL` or `-s`) and drops whatever a TV writes before
+the PNG signature, which the Mi TV 4A does; `--fix raw.png out.png` cleans a capture made another way.
+
 ## Identifier gate
 
 Every identifier was renamed from the upstream project and from the design's working title (DESIGN.md
