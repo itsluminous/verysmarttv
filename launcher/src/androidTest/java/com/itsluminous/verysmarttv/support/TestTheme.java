@@ -24,6 +24,7 @@ public final class TestTheme {
     private boolean heroFeed;
     private boolean settingsPanel;
     private boolean scorePill;
+    private int scoreRows = 3;
     private boolean widgets;
 
     public TestTheme columns(int n) {
@@ -61,6 +62,12 @@ public final class TestTheme {
         return this;
     }
 
+    /** score_rows: how many lines the score pill stacks, 1 to 5 (ADR-041); 3 unless set. */
+    public TestTheme scoreRows(int n) {
+        scoreRows = n;
+        return this;
+    }
+
     /** widgets: the RAM and Storage bars beside the date (DESIGN.md §9.1). */
     public TestTheme widgets() {
         widgets = true;
@@ -77,6 +84,7 @@ public final class TestTheme {
         json.put("hero_feed_interval", 120);
         json.put("settings_panel", settingsPanel);
         json.put("score_pill", scorePill);
+        json.put("score_rows", scoreRows);
         json.put("widgets", widgets);
         json.put("app_library", true);
         json.put("library_button", true);

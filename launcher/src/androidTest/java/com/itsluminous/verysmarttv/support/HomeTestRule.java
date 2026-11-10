@@ -72,7 +72,10 @@ public final class HomeTestRule extends ExternalResource {
     public static final String LIBRARY = "library";
     /** The top shelf while the carousel owns it. */
     public static final String CAROUSEL = "carousel";
-    /** The live-score pill under the bar (DESIGN.md §9.2). */
+    /**
+     * The live-score pill under the bar (DESIGN.md §9.2): this prefix and the focused line's row, 0 the top one
+     * ({@code "score pill 2"}). {@link #SCORE_PILL} alone matches any line.
+     */
     public static final String SCORE_PILL = "score pill";
     /** Longest wait for focus or a layout to settle, including a smooth scroll. */
     public static final long WAIT_MS = 8_000;
@@ -179,6 +182,21 @@ public final class HomeTestRule extends ExternalResource {
     }
 
     /**
+     * Taps a key: ACTION_DOWN and ACTION_UP dispatched to the activity in one main-thread turn, so no long press
+     * (ViewConfiguration's 500 ms, checked by a posted runnable) can slip in between them. Espresso's pressKey injects
+     * the two events separately and lets the main looper idle after each, which on a 1 GB emulator under load took
+     * long enough for OK on the score pill to read as a long press (its follow picker) now and then.
+     */
+    public void tap(int keyCode) {
+        onHome(a -> {
+            long t = android.os.SystemClock.uptimeMillis();
+            a.dispatchKeyEvent(new android.view.KeyEvent(t, t, android.view.KeyEvent.ACTION_DOWN, keyCode, 0));
+            a.dispatchKeyEvent(new android.view.KeyEvent(t, t, android.view.KeyEvent.ACTION_UP, keyCode, 0));
+            return null;
+        });
+    }
+
+    /**
      * Where focus is, read on the main thread: {@code "tile N"}, {@code "pill <id>"} for a top-bar button,
      * {@code "library"}, {@code "carousel"}, another view's id name, or {@code "none"}.
      */
@@ -190,7 +208,9 @@ public final class HomeTestRule extends ExternalResource {
             if (f.getId() == R.id.card && f.getParent() instanceof View) return TILE + grid.getChildAdapterPosition((View) f.getParent());
             if (f.getId() == R.id.btnLibrary) return LIBRARY;
             if (f.getId() == R.id.hero) return CAROUSEL;
-            if (f.getId() == R.id.scorePill) return SCORE_PILL;
+            if (f.getParent() instanceof View && ((View) f.getParent()).getId() == R.id.scorePill) {
+                return SCORE_PILL + " " + ((ViewGroup) f.getParent()).indexOfChild(f);
+            }
             ViewGroup bar = a.findViewById(R.id.topButtons);
             if (f.getParent() == bar) return PILL + " " + idName(a, f);
             return idName(a, f);
@@ -220,7 +240,8 @@ public final class HomeTestRule extends ExternalResource {
     }
 
     private static boolean matches(String expected, String seen) {
-        return expected.equals(seen) || (PILL.equals(expected) && seen.startsWith(PILL + " "));
+        return expected.equals(seen) || (PILL.equals(expected) && seen.startsWith(PILL + " "))
+                || (SCORE_PILL.equals(expected) && seen.startsWith(SCORE_PILL + " "));
     }
 
     // ---- reading Home -----------------------------------------------------------------------------
@@ -256,6 +277,20 @@ public final class HomeTestRule extends ExternalResource {
     /** The text of a TextView of Home. */
     public String text(int id) {
         return onHome(a -> String.valueOf(((TextView) a.findViewById(id)).getText()));
+    }
+
+    /** The score pill's lines that show, top first, each line's text. */
+    public java.util.List<String> scoreLines() {
+        return onHome(a -> {
+            ViewGroup pill = a.findViewById(R.id.scorePill);
+            java.util.List<String> out = new java.util.ArrayList<>();
+            if (pill.getVisibility() != View.VISIBLE) return out;
+            for (int i = 0; i < pill.getChildCount(); i++) {
+                View line = pill.getChildAt(i);
+                if (line.getVisibility() == View.VISIBLE) out.add(String.valueOf(((TextView) line).getText()));
+            }
+            return out;
+        });
     }
 
     /** The span count of the grid's layout manager: the columns Home laid out. */

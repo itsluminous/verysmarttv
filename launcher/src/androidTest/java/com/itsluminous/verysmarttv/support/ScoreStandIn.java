@@ -30,7 +30,7 @@ public final class ScoreStandIn {
                 PROVIDER, provider.name);
     }
 
-    /** Switches the stand-in's pill row to the named {@link ScoreFixture} (live, break, upcoming, final, empty); it notifies /pill. */
+    /** Switches the stand-in's pill rows to the named {@link ScoreFixture} (live, break, upcoming, final, empty, or the five-row stack); it notifies /pill. */
     public static void fixture(Context target, String name) {
         Bundle result = target.getContentResolver().call(ScoreContract.PILL, ScoreFixture.METHOD_FIXTURE, name, null);
         assertNotNull("the stand-in answered the fixture call", result);

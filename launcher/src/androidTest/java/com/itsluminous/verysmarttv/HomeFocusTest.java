@@ -32,6 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,7 +42,9 @@ import java.util.List;
  * without inputs), Up once more stays; Down returns to the dock tile in the column Up left; Left and Right on the pill
  * stay; Back on the pill or a round pill returns to the grid; the pill reads the row's kicker and line; an empty row
  * hides the pill and Up skips to Inputs; OK sends the companion's scoreboard intent with the event id; and with the
- * carousel showing the order is tile, carousel, pill, Inputs and back.
+ * carousel showing the order is tile, carousel, pill, Inputs and back. Rule 8 (ADR-041): with the stand-in's five-row
+ * stack and score_rows 1, 3 and 5, the pill shows that many lines, Up from the grid lands on the bottom one, Up and Down
+ * walk the lines, Up from the top line reaches Inputs, and OK on a line opens that line's event.
  */
 @RunWith(AndroidJUnit4.class)
 public class HomeFocusTest {
@@ -70,8 +73,19 @@ public class HomeFocusTest {
         home.pushTheme(theme.scorePill().widgets());
         home.launchHome();
         home.focusTile(0);
-        home.waitFor("the score pill to show the live fixture", a -> a.findViewById(R.id.scorePill).getVisibility() == View.VISIBLE
-                && String.valueOf(((TextView) a.findViewById(R.id.scorePill)).getText()).endsWith(ScoreFixture.LIVE_LINE));
+        home.waitFor("the score pill to show the live fixture", a -> topLineEndsWith(a, ScoreFixture.LIVE_LINE));
+    }
+
+    /** The pill shows and its top line ends in {@code line}. */
+    private static boolean topLineEndsWith(android.app.Activity a, String line) {
+        ViewGroup pill = a.findViewById(R.id.scorePill);
+        if (pill.getVisibility() != View.VISIBLE || pill.getChildCount() == 0) return false;
+        return String.valueOf(((TextView) pill.getChildAt(0)).getText()).endsWith(line);
+    }
+
+    /** The score pill's line {@code row} as {@link HomeTestRule#focus()} names it. */
+    private static String line(int row) {
+        return SCORE_PILL + " " + row;
     }
 
     /** Inputs when it shows (a TV with inputs), else the first shown pill: TopBarFocus.firstButton on this emulator. */
@@ -108,7 +122,7 @@ public class HomeFocusTest {
         path(UP, SCORE_PILL, UP, inputs, UP, inputs, DOWN, tile(0));
         home.focusTile(3);
         path(UP, SCORE_PILL, DOWN, tile(3));
-        assertTrue("the pill is a real focus stop", home.onHome(a -> a.findViewById(R.id.scorePill).isFocusable()));
+        assertTrue("the pill's line is a real focus stop", home.onHome(a -> ((ViewGroup) a.findViewById(R.id.scorePill)).getChildAt(0).isFocusable()));
     }
 
     @Test
@@ -133,15 +147,15 @@ public class HomeFocusTest {
     @Test
     public void thePillRendersEachFixtureAndHidesForAnEmptyRow() throws Exception {
         start(new TestTheme().columns(4));
-        assertEquals(ScoreFixture.LIVE_KICKER + "  " + ScoreFixture.LIVE_LINE, home.text(R.id.scorePill));
+        assertEquals(Collections.singletonList(ScoreFixture.LIVE_KICKER + "  " + ScoreFixture.LIVE_LINE), home.scoreLines());
         ScoreStandIn.fixture(home.target(), ScoreFixture.UPCOMING);
-        home.waitFor("the upcoming row", a -> String.valueOf(((TextView) a.findViewById(R.id.scorePill)).getText()).endsWith(ScoreFixture.UPCOMING_LINE));
-        assertEquals(ScoreFixture.UPCOMING_KICKER + "  " + ScoreFixture.UPCOMING_LINE, home.text(R.id.scorePill));
+        home.waitFor("the upcoming row", a -> topLineEndsWith(a, ScoreFixture.UPCOMING_LINE));
+        assertEquals(Collections.singletonList(ScoreFixture.UPCOMING_KICKER + "  " + ScoreFixture.UPCOMING_LINE), home.scoreLines());
         ScoreStandIn.fixture(home.target(), ScoreFixture.FINAL);
-        home.waitFor("the final row", a -> String.valueOf(((TextView) a.findViewById(R.id.scorePill)).getText()).endsWith(ScoreFixture.FINAL_LINE));
-        assertEquals(ScoreFixture.FINAL_KICKER + "  " + ScoreFixture.FINAL_LINE, home.text(R.id.scorePill));
+        home.waitFor("the final row", a -> topLineEndsWith(a, ScoreFixture.FINAL_LINE));
+        assertEquals(ScoreFixture.FINAL_KICKER + "  " + ScoreFixture.FINAL_LINE, home.scoreLines().get(0));
         ScoreStandIn.fixture(home.target(), ScoreFixture.BREAK);
-        home.waitFor("the break row", a -> String.valueOf(((TextView) a.findViewById(R.id.scorePill)).getText()).endsWith(ScoreFixture.BREAK_LINE));
+        home.waitFor("the break row", a -> topLineEndsWith(a, ScoreFixture.BREAK_LINE));
         // Empty: GONE, unfocusable, and Up from the dock skips straight to Inputs.
         ScoreStandIn.fixture(home.target(), ScoreFixture.EMPTY);
         home.waitFor("the pill to hide", a -> a.findViewById(R.id.scorePill).getVisibility() == View.GONE);
@@ -164,15 +178,92 @@ public class HomeFocusTest {
     public void okOnThePillOpensTheScoreboardWithTheEventId() throws Exception {
         start(new TestTheme().columns(4));
         path(UP, SCORE_PILL);
+        assertOkOpens(ScoreFixture.EVENT_ID);
+    }
+
+    /** OK (a bounded tap, never a long press) on the focused line starts the scoreboard for {@code eventId}, once, in its own task. */
+    private void assertOkOpens(String eventId) throws Exception {
         intents = IntentCapture.start();
-        home.press(KeyEvent.KEYCODE_DPAD_CENTER);
+        home.tap(KeyEvent.KEYCODE_DPAD_CENTER);
         long end = System.currentTimeMillis() + HomeTestRule.WAIT_MS;
         while (intents.intents().isEmpty() && System.currentTimeMillis() < end) Thread.sleep(100);
+        Thread.sleep(300);   // a second intent, were a long press read too, would follow within the long-press timeout
         List<Intent> sent = intents.intents();
         assertEquals("OK on the pill starts exactly one activity: " + sent, 1, sent.size());
         assertEquals(ScoreContract.SCOREBOARD_ACTIVITY, sent.get(0).getComponent());
-        assertEquals(ScoreFixture.EVENT_ID, sent.get(0).getStringExtra(ScoreContract.EXTRA_EVENT_ID));
+        assertEquals(eventId, sent.get(0).getStringExtra(ScoreContract.EXTRA_EVENT_ID));
         assertTrue("opened in its own task", (sent.get(0).getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0);
+        intents.stop();
+        intents = null;
+    }
+
+    // ---- rule 8: the stacked pill (ADR-041) ------------------------------------------------------------
+
+    /** Home with the five-row stack and score_rows {@code rows}; waits for that many lines. */
+    private void startStack(int rows) throws Exception {
+        ScoreStandIn.fixture(home.target(), ScoreFixture.STACK);
+        start(new TestTheme().columns(4).scoreRows(rows));
+        home.waitFor(rows + " lines", a -> ((ViewGroup) a.findViewById(R.id.scorePill)).getChildCount() >= Math.min(rows, 5)
+                && home.scoreLines().size() == Math.min(rows, 5));
+    }
+
+    @Test
+    public void rule8_threeRows_upLandsOnTheBottomLineAndWalksUpToInputs() throws Exception {
+        startStack(3);
+        List<String> lines = home.scoreLines();
+        assertEquals(3, lines.size());
+        assertEquals("the companion's order, top first", ScoreFixture.LIVE_KICKER + "  " + ScoreFixture.LIVE_LINE, lines.get(0));
+        assertEquals(ScoreFixture.LIVE2_KICKER + "  " + ScoreFixture.LIVE2_LINE, lines.get(1));
+        assertEquals(ScoreFixture.BREAK_KICKER + "  " + ScoreFixture.BREAK_LINE, lines.get(2));
+        String inputs = inputsOrFirst();
+        path(UP, line(2), UP, line(1), UP, line(0), UP, inputs, DOWN, tile(0));
+        path(UP, line(2), DOWN, tile(0));
+        home.focusTile(2);
+        path(UP, line(2), UP, line(1), DOWN, line(2), DOWN, tile(2), UP, line(2), LEFT, line(2), RIGHT, line(2), BACK, tile(2));
+        // OK on the middle line opens that line's event, not the top one's.
+        path(UP, line(2), UP, line(1));
+        assertOkOpens(ScoreFixture.STACK_EVENT_IDS[1]);
+        // The stack shrinks to one row while a line below it has focus: focus stays on the pill, on the line left.
+        path(DOWN, line(2));
+        ScoreStandIn.fixture(home.target(), ScoreFixture.LIVE);
+        home.waitFor("one line", a -> home.scoreLines().size() == 1);
+        home.expectFocus(line(0), "the lines below hid while focused");
+    }
+
+    @Test
+    public void rule8_oneRow_theStackShowsTheCompanionsFirstRowAlone() throws Exception {
+        startStack(1);
+        assertEquals(Collections.singletonList(ScoreFixture.LIVE_KICKER + "  " + ScoreFixture.LIVE_LINE), home.scoreLines());
+        String inputs = inputsOrFirst();
+        path(UP, line(0), UP, inputs, DOWN, tile(0), UP, line(0), DOWN, tile(0));
+    }
+
+    @Test
+    public void rule8_fiveRows_everyLineIsAStopOnTheWayUp() throws Exception {
+        startStack(5);
+        List<String> lines = home.scoreLines();
+        assertEquals(5, lines.size());
+        assertEquals(ScoreFixture.UPCOMING_KICKER + "  " + ScoreFixture.UPCOMING_LINE, lines.get(3));
+        assertEquals(ScoreFixture.FINAL_KICKER + "  " + ScoreFixture.FINAL_LINE, lines.get(4));
+        String inputs = inputsOrFirst();
+        path(UP, line(4), UP, line(3), UP, line(2), UP, line(1), UP, line(0), UP, inputs, UP, inputs, DOWN, tile(0));
+        path(UP, line(4), DOWN, tile(0));
+        int[] edges = home.onHome(a -> {
+            View root = a.findViewById(R.id.root), bar = a.findViewById(R.id.topButtons);
+            ViewGroup pill = a.findViewById(R.id.scorePill);
+            Rect b = new Rect(0, 0, bar.getWidth(), bar.getHeight());
+            ((ViewGroup) root).offsetDescendantRectToMyCoords(bar, b);
+            int[] out = new int[6];
+            out[0] = b.right;
+            for (int i = 0; i < 5; i++) {
+                View l = pill.getChildAt(i);
+                Rect r = new Rect(0, 0, l.getWidth(), l.getHeight());
+                ((ViewGroup) root).offsetDescendantRectToMyCoords(l, r);
+                out[i + 1] = r.right;
+            }
+            return out;
+        });
+        for (int i = 1; i <= 5; i++) assertEquals("line " + (i - 1) + " is right-aligned with the bar", edges[0], edges[i]);
     }
 
     @Test
