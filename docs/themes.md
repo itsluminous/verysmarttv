@@ -10,7 +10,7 @@ Two themes ship:
 | Folder | What |
 |---|---|
 | [`themes/default/`](../themes/default/) | The launcher's built-in values as a `config.json`: every key the launcher reads, with the value `config.xml` gives it (generated from `Config`'s reads; black background, a four-app dock row, the full-screen settings page). Pushing it is a reset in all but name; deleting the theme folder on the TV is the other. |
-| [`themes/frosted/`](../themes/frosted/) | The owner's Mi TV 4A look: six uniform rows over a pre-blurred slate wallpaper, the settings side panel, the Trakt carousel, the All apps grid, the two-line date and the system bars on. `screenshot.jpg` is the fork's and is retaken in Phase 6. |
+| [`themes/frosted/`](../themes/frosted/) | The owner's Mi TV 4A look: six uniform rows over a pre-blurred slate wallpaper, the settings side panel, the Trakt carousel, the All apps grid, the two-line date and the system bars on. `screenshot.jpg` is Home on the Mi TV 4A under this theme at 0.1.0, the README's own picture. |
 
 Push a theme with `setup/setup.sh theme --host <tv ip> <name>` ([docs/SETUP.md](SETUP.md)): it writes the files
 through `content://com.itsluminous.verysmarttv.theme/<file>`, bumps `theme_revision` and restarts Home; `--reset`
@@ -25,8 +25,6 @@ launcher dropped (`festival`, `seasonal_skin`, `festival_until`, `greeting`, `ac
 `race_calendar`, `sky_intensity`, `latitude`, `longitude`, `wallpaper_rotation_minutes`, `wallpaper_order`,
 `wallpaper_moods`, `wallpaper_captions`, `shamsi_date`, `lunar_date`, `lunar_utc_offset`, `show_stats`) is ignored
 with one `VerySmartTV.Config` log line each, so a theme written for the fork still loads (DESIGN.md §6, ADR-008).
-
-`ThemeKeysTest` (Phase 3, DESIGN.md §11) will hold this table and `Config` to each other.
 
 | Key | Type | Meaning |
 |---|---|---|

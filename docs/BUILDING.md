@@ -144,7 +144,8 @@ the keystore's), writes `SHA256SUMS`, and publishes a GitHub release. Without th
 the job fails before building. A tag with a `-` (`v1.0.0-rc1`) is a pre-release.
 
 Verify a downloaded APK: `apksigner verify --print-certs verysmarttv-launcher-X.Y.Z.apk` and compare the
-SHA-256 digest with the one in the release notes.
+SHA-256 digest with the one in the release notes: `15d5085a0400d720d4aea65edab4df72c6e5a5313844715c3e56859cec99c21d`
+for every release from 0.1.0 on ([SETUP.md](SETUP.md#verifying-a-download)).
 
 ## Companion banners
 

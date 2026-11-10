@@ -82,6 +82,26 @@ a factory package, not even to look.
 | `--stock-launcher <package>` / `none` | when the TV's Home is a launcher the tool does not know |
 | `--disable-stock` | disable the stock launcher once VerySmartTV answers HOME, without asking; and first, when it keeps Home ahead of ours (below) |
 
+## Verifying a download
+
+Step 3 of the flow downloads the release's three APKs and its `SHA256SUMS` and refuses an APK whose checksum
+does not match. To check a download yourself, or APKs you install by hand:
+
+```bash
+sha256sum -c SHA256SUMS                                        # macOS: shasum -a 256 -c SHA256SUMS
+apksigner verify --print-certs verysmarttv-launcher-<version>.apk   # from the Android SDK build-tools
+```
+
+Every APK of every release from 0.1.0 on is signed with the one release key, whose certificate SHA-256 digest is
+
+```
+15d5085a0400d720d4aea65edab4df72c6e5a5313844715c3e56859cec99c21d
+```
+
+`release.yml` checks each APK against it before publishing and prints it at the end of every release's notes. A
+different digest is not a build of this repository's release key; its companions will not talk to this launcher
+(their providers are signature-guarded), and Android refuses to install it over an existing release.
+
 ## The commands one by one
 
 | Command | Does |

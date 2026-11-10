@@ -1,10 +1,13 @@
 # VerySmartTV — decisions (ADR log)
 
 One entry per decision in [DESIGN.md](DESIGN.md). Format: context → decision → alternatives rejected →
-consequences. Every entry is **accepted** by the owner (2026-11-09) unless its heading says
-**rejected** (the decision was not taken; the entry records why) or **changed** (the decision as it now
-stands). The project was named VerySmartTV at the same time; the launcher's applicationId and namespace
-are `com.itsluminous.verysmarttv`, the Gradle module stays `:launcher`.
+consequences. Every entry is **accepted** by the owner (2026-11-09) and is what [v0.1.0](https://github.com/itsluminous/verysmarttv/releases/tag/v0.1.0)
+ships, unless its heading says **rejected** (the decision was not taken; the entry records why),
+**changed** or **amended** (the decision as it now stands, with the date and the reason in the entry; the
+amending ADR is named when it is another entry). No entry is superseded outright. ADR-038 to ADR-048 record
+where the build departed from DESIGN.md; §20.2 there is the summary. The project was named VerySmartTV on
+2026-11-09; the launcher's applicationId and namespace are `com.itsluminous.verysmarttv`, the Gradle module
+stays `:launcher`.
 
 ## ADR-001 One Gradle project with five modules
 - Context: three apps that share provider contracts, glass drawables and D-pad helpers, and must be signed with one key.
@@ -70,7 +73,7 @@ are `com.itsluminous.verysmarttv`, the Gradle module stays `:launcher`.
 - Owner's decision: **no `tvhome` authority anywhere** in the tree, and the import row is removed from the design. Backup / Restore from file is the only path.
 - Consequences: `Backup.KNOWN_PACKAGES` and the `<queries>` entries go in Phase 1; the migration is done by the setup tool over ADB (read the old `.backup/settings`, push the file, Restore from file), covered by `BackupCompatTest` and `OrderMagicTest`; the identifier grep allows `tvhome` only in `LICENSE`, `THIRD_PARTY_NOTICES.md`, README credits, preset headers and `docs/design/`.
 
-## ADR-012 ESPN site feeds as the single v1 score source
+## ADR-012 ESPN site feeds as the single v1 score source (**amended** by ADR-044: badminton from a keyed source; everything else stays ESPN only)
 - Context: §13.1 table; verified live on 2026-11-09; tv-town-launcher's production use since 2026 with 60 s polling while on screen.
 - Decision: `site.api.espn.com` scoreboards per league + `site.web.api.espn.com … cricket/scorepanel?dates=` for cricket; no key.
 - Rejected: CricAPI (100 hits/day, cricket only), TheSportsDB (livescores Premium only), football-data.org (football only, no ISL, 10/min), API-Football (100/day), Sofascore/Cricbuzz (unofficial, blocked at times), Jolpica (F1 results only).
@@ -128,7 +131,7 @@ are `com.itsluminous.verysmarttv`, the Gradle module stays `:launcher`.
 - Decision: run `instrumented` on push to `main`, `workflow_dispatch`, and PRs that touch code (`dorny/paths-filter`); ~30–40 min per run.
 - Rejected: nightly only (a broken focus rule would be found a day late).
 
-## ADR-023 Shared version from the tag; all three APKs rebuilt per tag
+## ADR-023 Shared version from the tag; all three APKs rebuilt per tag (**changed** by ADR-047: the code gained an epoch)
 - Context: requirement 5 "versioning scheme shared across the three apps".
 - Decision: `vX.Y.Z` → `versionName X.Y.Z`, `versionCode X·10000+Y·100+Z` (**changed** by ADR-047: an epoch of 1000000 is added); dev builds `0.0.0-dev`/1; every tag publishes all three plus `SHA256SUMS`.
 - Rejected: per-app versions (users would mix incompatible contract versions; the setup tool would need a compatibility table).
@@ -251,7 +254,7 @@ are `com.itsluminous.verysmarttv`, the Gradle module stays `:launcher`.
 - Rejected: a header-row pill that is `INVISIBLE` rather than `GONE` (keeps the grid still but leaves a 24 dp hole whenever there is no match, which is most of the time); "22 GB free" to satisfy the §9.1 words (loses the figure the image shows); moving `Gb` to `:core` mid-phase (a `:core` change while the companion's coder was building against it).
 - Consequences: `ScorePill`'s position is code, not XML (`ScorePillController.place`), and `HomeFocusTest` checks it end-aligns with the bar; `GbTest` is a launcher JVM test; the clock no longer opens from a focused pill with Back; a self-built companion signed with another key refuses the launcher's restore the same way it refuses its reads.
 
-## ADR-041 The score pill stacks up to `score_rows` events, and the companion publishes every candidate
+## ADR-041 The score pill stacks up to `score_rows` events, and the companion publishes every candidate (**amended** 2026-11-10: two rows by default)
 - Context: §9.2 gave the pill one line, the companion's `PillChooser.choose`, which turns two live matches every 20 s. The owner asked (2026-11-10) for up to a configurable number of followed events stacked under the top-right pills, each on its own shade, the stack one focus stop; and for the two companions' banners to carry their names.
 - Decisions:
   - **`/pill` returns one row per eligible event, ranked; the launcher cuts.** `PillChooser.ranked` is `choose()` first (so a one-line pill, and row 0 of any stack, behave exactly as before, alternation included) then every other eligible event by the existing rule (live > break > upcoming within 12 h > final within 6 h; follow reason, then earliest start). The contract gains `ScoreContract.MAX_ROWS` (5) and no `limit` parameter: the companion never needs to know a launcher's row count, and a launcher that reads one row reads row 0 (§12.2 "exactly one" becomes "one or more; exactly one `none` row when nothing is in the window"). The owner's "most recently changed first" among live events is not implemented: one fetch per competition gives every event of a competition one `updated_ms`, so the order would be fetch order, not change order; the existing reason-then-start rule stands.
@@ -290,7 +293,7 @@ are `com.itsluminous.verysmarttv`, the Gradle module stays `:launcher`.
 - Rejected: `adb-shell` (another three packages, its own TLS gap, and a 0.4.x API this tool uses a tenth of); `zeroconf` (a dependency for one two-second query); refusing factory packages in lists (breaks the owner's list); disabling the stock launcher without asking (the fork did; §16.2 asks); granting location at install (the owner said grant nothing).
 - Consequences: `tools/dev/push_theme.py` is removed (`setup theme` replaces it, `docs/themes.md` updated); 83 Python tests under `setup/tests/` with a fake TV and a fake adbd; `ci.yml` gains `setup-tests` (ubuntu + windows, Python 3.9 and 3.12, plus `build_presets_index.py --check`); `THIRD_PARTY_NOTICES.md` names `cryptography` and the carried tooling.
 
-## ADR-044 Badminton from SportMicro's "Badminton Micro" API through RapidAPI, with the user's own key
+## ADR-044 Badminton from SportMicro's "Badminton Micro" API through RapidAPI, with the user's own key (**amended** 2026-11-10: the key is asked for on the first badminton follow; fetched at most every 5 minutes)
 - Context: the owner asked (2026-11-10) for badminton in the Scores companion. ESPN has no badminton feed (`site.api.espn.com/apis/site/v2/sports/badminton/scoreboard` → 404), so a second `ScoreSource` was needed, and §13.1's criteria (no key or a free key the user makes; terms that allow personal use; live match state and game scores for the BWF World Tour at least; a cadence that fits 60 s polling; stability) were run over the candidates with curl the same day; the table is in §13.1.
 - Decisions:
   - **No keyless source is viable, so the source is keyed and the key is the user's.** BWF's own site and its JSON sit behind a Cloudflare JavaScript challenge on every URL (403, `cf-mitigated: challenge`), which a TV's `HttpURLConnection` cannot pass; BWF Tournament Software is a login wall whose terms forbid automated use; Sofascore answers 403 to any non-browser; LiveScore.com has no badminton (410); TheSportsDB lists a tournament as one event a day with no matches; API-Sports and AllSportsAPI have no badminton product. Flashscore's hidden feed answers in full (match state, games, points, 77 KB for the day) but its terms forbid automated requests and scraping in those words, and §13.1's "ToS allows personal use" criterion is what separates it from ESPN's undocumented feeds, so it is rejected even though it is the one keyless feed that has the data. SportMicro's "Badminton Micro" on RapidAPI (`badminton-micro.p.rapidapi.com`, `rapidapi.com/sportmicro-sportmicro-default/api/badminton-micro`; the listing this ADR first named "SportDevs' Badminton Devs" is the same vendor's API under its current name, renamed here on 2026-11-10 with the first recording) has the data (status, games won, points per game, tournament, league) under RapidAPI's terms with a free plan, so it is the source; the user creates the key and enters it in **Settings → Badminton data key (RapidAPI · Badminton Micro)**, where it is stored in the companion's `SharedPreferences`, trimmed, never in the APK, a backup (`/backup` carries follows only) or a log (the Settings row shows "Not set" or the key's last four characters). **The key is the user's own and only ever user-entered on the TV**: never a GitHub secret, a `BuildConfig` field, a Gradle property or a CI variable, and the row and `docs/providers.md` say that the key may cost the user money beyond the free tier.
@@ -315,7 +318,7 @@ are `com.itsluminous.verysmarttv`, the Gradle module stays `:launcher`.
 - Rejected: a parent follow that expands into child follows (a sport follow would become dozens of competition and team follows, the backup would carry them, and new competitions would not be covered); drawing a child ticked when its parent is followed (OK on it would then have to remove it from a parent that does not list it); Unicode glyphs for the three states (the TV's fallback font may lack the bar glyph, and the drawn square matches the rows' geometry); a drawable state list with a custom state attribute (more XML than the forty lines of drawing, and no place for the description).
 - Consequences: `SelectionStateTest` (the count rule, the section rule, the OK rule, the view's descriptions), `PickerSelectionTest` (leaves, competitions, sports, stray follows, the two moves), a `FollowStoreTest` case for `replaceAll`; `FollowFlowTest` on the emulator walks one child → bar, every child → tick, OK on the tick → everything cleared, OK again → the competition followed with the children's boxes still empty, OK on the barred sport → the sport followed, OK again → every cricket follow gone. `tick_on` / `tick_off` are removed; `pick_row.xml` carries the view under the same `tick` id.
 
-## ADR-046 The score stack and the top shelf are independent layers
+## ADR-046 The score stack and the top shelf are independent layers (**amended** 2026-11-10: no veil, the shelf's text keeps its full width)
 - Context: the stacked score lines (ADR-041) hang under the right end of the pill row, in the root, and the shelf is placed from the dock line, so neither moves the other; but with three or more lines the stack reaches down to where the carousel shelf's title box (560dp from the header's margin) ends, and the carousel's backdrop showed through the lines. Seen with the stand-ins on the 1080p emulator (2026-11-10): the title box `(112, 382)–(1232, 474)` crossed the five-row stack `(1205, 199)–(1808, 496)`. The owner asked that the stack never push or overlap the shelf.
 - Decisions:
   - **The shelf's place never depends on the stack.** `ShelfController.showHero`, `CarouselController.placeCarouselShelf` and `exitCarousel` keep placing the shelf from the dock line (and `CAROUSEL_FULL_DP` keeps placing the dock line); `ShelfLayoutTest` asserts the shelf's top is the same to the pixel with no stack and with one, three and five rows.

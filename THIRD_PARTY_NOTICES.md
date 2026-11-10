@@ -93,6 +93,17 @@ and the adapter boundary `source/ScoreSource` is where a replacement goes (DESIG
 under `livescore/src/test/resources/fixtures/badminton/` are five matches of one public day's list recorded on
 2026-11-10 with image hashes removed, plus hand-made edge cases in the same shape; nothing in them is personal.
 
+## Artwork
+
+### "Get it on GitHub" and "Get it on Obtainium" badges
+
+`docs/badges/get-it-on-github.png` is the badge from [Kunzisoft/Github-badge](https://github.com/Kunzisoft/Github-badge),
+created by @flocke as part of the [F-Droid artwork](https://gitlab.com/fdroid/artwork/-/tree/master/badge/src),
+CC-BY-SA 3.0. `docs/badges/get-it-on-obtainium.png` is `assets/graphics/badge_obtainium.png` from
+[Obtainium](https://github.com/ImranR98/Obtainium), GPL-3.0, vendored because Obtainium asks projects not to
+hot-link it. Both are linked from the README only and are in no APK; [docs/badges/README.md](docs/badges/README.md)
+repeats this beside the files.
+
 ## Libraries
 
 ### Kotlin standard library
