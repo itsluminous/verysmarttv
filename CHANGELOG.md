@@ -16,6 +16,11 @@ publishes all three, and the tag's message quotes the section below.
   not want the hero text narrowed: both are gone. Each score line keeps its own rounded shade and nothing is drawn
   behind the stack as a whole; the title's 560dp box, the synopsis's 440dp box and the plain name take their full
   designed width again. The shelf's top is still fixed by the dock line, so the stack never moves it.
+- **Launcher: the top bar looks the same with and without the Trakt carousel** (ADR-048). The round pills, the
+  RAM and Storage bars and the score lines no longer switch to a darker base while a carousel backdrop is up: the
+  pills are always `pill_bg`, the bars' track always the same 30% white, each score line always `score_line_bg`.
+  The owner wanted the Trakt-off look of the top-right column at all times; the backdrop's own top fade keeps the
+  bar readable over it, and nothing new was added.
 
 ## [0.1.0-rc1] - 2026-11-10
 

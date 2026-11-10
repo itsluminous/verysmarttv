@@ -19,20 +19,19 @@ import java.util.Locale;
  * The RAM and Storage block right of the date (DESIGN.md §9.1, ADR-018): one view, two rows. Each row is a 12sp
  * label at the left and a 12sp "N GB free" at the right on one baseline, with a 2dp track under them spanning the
  * block, the used part filled light and the rest dark. The block is {@link #WIDTH_DP} wide and two {@link #PITCH_DP}
- * rows tall; a row whose figure could not be read is left blank. Over the carousel's backdrop the track darkens,
- * as the pills do ({@link #setOverArt}). One view rather than six stock widgets: one measure and one draw a tick.
+ * rows tall; a row whose figure could not be read is left blank. One view rather than six stock widgets: one measure
+ * and one draw a tick.
  */
 public final class ResourceBars extends View {
     public static final int WIDTH_DP = 150, PITCH_DP = 22;
     static final int TRACK_DP = 2, TEXT_SP = 12;
-    static final int TRACK_COLOR = 0x4DFFFFFF, TRACK_OVER_ART = 0x66000000, FILL_COLOR = 0xD9FFFFFF;
+    static final int TRACK_COLOR = 0x4DFFFFFF, FILL_COLOR = 0xD9FFFFFF;
     static final int LABEL_COLOR = 0xA6FFFFFF, VALUE_COLOR = 0xF2FFFFFF;
 
     private final Paint text = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint bar = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF rect = new RectF();
     private final float density;
-    private boolean overArt;
     private boolean ramKnown, storageKnown;
     private long ramFree, ramTotal, storageFree, storageTotal;
 
@@ -63,17 +62,6 @@ public final class ResourceBars extends View {
 
     public void setValues(@NonNull ResourceSampler.Sample s) {
         setValues(s.ramKnown, s.ramFree, s.ramTotal, s.storageKnown, s.storageFree, s.storageTotal);
-    }
-
-    /** The carousel's backdrop is up behind the header: the track goes dark so the fill still reads over a bright sky. */
-    public void setOverArt(boolean on) {
-        if (overArt == on) return;
-        overArt = on;
-        invalidate();
-    }
-
-    public boolean isOverArt() {
-        return overArt;
     }
 
     /** "N GB free" for a row, from {@link Gb} and the unit strings. */
@@ -140,7 +128,7 @@ public final class ResourceBars extends View {
         text.setColor(VALUE_COLOR);
         text.setTextAlign(rtl ? Paint.Align.LEFT : Paint.Align.RIGHT);
         canvas.drawText(value, rtl ? 0 : w, baseline, text);
-        bar.setColor(overArt ? TRACK_OVER_ART : TRACK_COLOR);
+        bar.setColor(TRACK_COLOR);
         rect.set(0, trackTop, w, trackTop + track);
         canvas.drawRoundRect(rect, track / 2, track / 2, bar);
         if (used > 0f) {

@@ -188,7 +188,6 @@ public final class CarouselController {
         heroFeed.backdrop(e, 640, 360, bmp -> {
             if (!carouselShowing || feedArtId != e.id) return;
             heroFeedArt.animate().cancel();
-            host.topBar().setPillsOverArt(bmp != null);
             if (bmp == null) {
                 heroFeedArt.animate().alpha(0f).setDuration(200).start();
                 return;
@@ -281,7 +280,6 @@ public final class CarouselController {
         host.grid().applyTileNames(false);
         if (!carouselShowing) return;
         carouselShowing = false;
-        host.topBar().setPillsOverArt(false);
         boolean hadFocus = shelf.hero.hasFocus();
         feedArtId = -1;
         shelf.hero.animate().cancel();

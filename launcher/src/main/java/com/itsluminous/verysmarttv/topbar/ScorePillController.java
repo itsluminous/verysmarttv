@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.itsluminous.verysmarttv.R;
 import com.itsluminous.verysmarttv.core.contract.ScoreContract;
@@ -54,7 +53,6 @@ public final class ScorePillController {
         this.root = root;
         this.rows = ScoreLine.clampRows(rows);
         pill = host.findViewById(R.id.scorePill);
-        pill.setOverArt(host.state().pillsOverArt);
         feed = new ScoreFeed(host.activity(), host.handler(), this::onPill);
         View bar = host.findViewById(R.id.topButtons);
         bar.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> place(v));
@@ -154,11 +152,6 @@ public final class ScorePillController {
     /** Focus line {@code row} of the stack (a TopBarFocus verdict), clamped to the lines shown. */
     public void focus(int row) {
         if (shown()) pill.focusRow(row);
-    }
-
-    /** Over the carousel's backdrop the lines darken their shade with the round pills. */
-    public void setOverArt(boolean on) {
-        pill.setOverArt(on);
     }
 
     /** onResume: the reader observes and reads; the pill shows the last rows until the new ones land. */

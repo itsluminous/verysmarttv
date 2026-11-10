@@ -110,13 +110,6 @@ public final class ScoreLineView extends LinearLayout {
         return t == null ? "" : t;
     }
 
-    /** Over the carousel's backdrop: the shade over a dark base, as the round pills; the padding is kept across the swap. */
-    public void setOverArt(boolean on) {
-        int l = getPaddingLeft(), t = getPaddingTop(), r = getPaddingRight(), b = getPaddingBottom();
-        setBackgroundResource(on ? R.drawable.score_line_bg_over_art : R.drawable.score_line_bg);
-        setPadding(l, t, r, b);
-    }
-
     /** The dot is pulsing (live, animations on, pill on screen). */
     public boolean pulsing() {
         return pulse != null && (pulse.isStarted() || pulse.isRunning());

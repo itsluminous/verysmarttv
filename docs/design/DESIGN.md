@@ -330,14 +330,14 @@ wires them. Line numbers refer to the cleanyourtv file.
 |---|---|---|
 | `home.HomeActivity` (~400 lines) | `attachBaseContext` 102, `onCreate` 504 (wiring only), `onNewIntent` 1161, `onStart/onResume/onPause/onStop/onDestroy`, `onTrimMemory` 1476, `onWindowFocusChanged` 1494, `onActivityResult` 1276, `onBackPressed` 1891, `onUserInteraction` 1415 | No (Robolectric smoke) |
 | `home.HomeHost` (interface) | what controllers need from the activity: `findViewById`, `getConfig()`, `open(Intent)`, `post(Runnable)`, `density()`, `isRtl()` | – |
-| `home.HomeState` | the booleans/ints that today are activity fields read by many methods: `singleRow`, `uniformRows`, `shelfEveryRow`, `heroOwned`, `pillsOverArt`, `COLUMNS`, reorder/dock-edit mode | Yes |
+| `home.HomeState` | the booleans/ints that today are activity fields read by many methods: `singleRow`, `uniformRows`, `shelfEveryRow`, `heroOwned`, `COLUMNS`, reorder/dock-edit mode | Yes |
 | `keys.KeyDispatcher` | `dispatchKeyEvent` 1555, `handleSettingsKey` 1530, `holdOk/cancelHoldOk/fireHoldOk` 4642–4706, `isOkKey` 4636; delegates to the controller that owns focus | Yes (takes `KeyEvent` → verdict; Robolectric for `KeyEvent` construction) |
 | `grid.GridController` | `reloadApps*` 1303–1375, `restoreFocus` 1399, `focusTile` 3512, `cancelPendingFocusScroll` 3504, `refocusAfterLayout` 1873, `keepScroll` 1853, `onTileFocused` 1930, `onTileLongPress` 4706, `onTileVerticalKey` 3277, `packagesChangedSinceRebuild` 1360 | Partly: it calls `grid.FocusRules` for every decision |
 | `grid.FocusRules` (**new, pure**) | the arithmetic now inline in `onTileVerticalKey` 3277–3324 + `GridNavigation`: given (position, count, columns, dockFilled, rtl, singleRow, uniformRows, keyCode) → `Move{target}` / `LeaveUp` / `Swallow` / `FocusLibrary` | **Yes**: the heart of the Espresso-free tests |
 | `grid.ReorderSession` | `toggleReorder` 1629 … `moveBy` 1823 (reorder, pick up, drop, dim) | Yes for the order maths (uses `Order`) |
 | `grid.DockEditSession` | `startDockEdit` 1656 … `swapIntoDock` 1742 | Yes |
 | `shelf.ShelfController` | `showHero` 2042, `fillHero` 2120, `heroOwned/dockTileFocused/shelfTileFocused` 2168–2187, `applyTileNames` 2187, `showOwnedShelf` 2199, `shelfTitleStyle` 2391, `fitCarouselTitle/unfitCarouselTitle/oneLinePx/shelfTitleSp/shelfGapPx/gridTopInRoot` 2409–2474, `hideHero` 2866, `setUpCinematicShelf` 2628, `scrimDrawable` 2649, `showHeroArt/fadeHeroArt/updateHeroMeta/updateHeroDots/drawDots` 2668–2761 | Layout maths (`ShelfScale`) yes; views via Robolectric |
-| `shelf.CarouselController` | `setUpHeroFeed` 2130, `showCarousel/showCarouselItem/addFeedChip/placeCarouselShelf` 2253–2391, `fitFeedArt/setPillsOverArt/exitCarousel/handleCarouselKey/openFeedItem` 2474–2628, `topMargin/shelfMargin` | Rotation timer and item index: yes |
+| `shelf.CarouselController` | `setUpHeroFeed` 2130, `showCarousel/showCarouselItem/addFeedChip/placeCarouselShelf` 2253–2391, `fitFeedArt/exitCarousel/handleCarouselKey/openFeedItem` 2474–2628, `topMargin/shelfMargin` | Rotation timer and item index: yes |
 | `shelf.AmbientGlow` | `setAmbient/transitionAmbient/stopAmbientAnimation/showGlowOnly` 2761–2866, `refitGlass/hideGlass` 2019, 2884 | Colour maths yes |
 | `topbar.TopBarController` | `updateClockVisibility` 3559, `updateGreeting` 3570, `updatePanel` 3631, `showPager` 3684, `refreshPillsAfterNextDraw` 3753, `updateWifiLabel` 3773, `makeIconOnly/labelOnFocus/addFocusAction` 3897–3983, `openNetworkPill/vpnAppIntent/openVpnPill/updateVpnPill` 4018–4083, `updateInputsButton` 4088, `addTopBarApps` 3423, `firstTopButton` 3402, `dateOnTwoLines` 3101, `moveDateBelowClock/centerCompactHeader/alignDateBelowIconsWithClock` 3334–3402, `focusLibrary` 3466 | Pill order (`topbar.PillOrder`, pure) yes |
 | `topbar.ResourceBars` (**new view**) + `topbar.ResourceSampler` | replaces `setUpWidgets/widgetPercents/showWidgetValues` 3025–3100 and the stats loop 2899–3025; sampler reads `MemInfo` + `StatFs("/data")` every 5 s while Home is resumed | Formatting (`core.text.Gb`) yes; sampler with injected readers yes |
@@ -387,8 +387,7 @@ launcher, and no companion for it).
 
 - two rows, 12 sp label left, 12 sp value right (`core.text.Gb.free(bytes)` → "1.1 GB free", one decimal
   under 10 GB, none above, `MB` under 1 GB), 2 dp track at 30 % white, fill at 85 % white, rounded ends;
-  block width 150 dp, row pitch 22 dp; over the carousel's art the track darkens like the pills do
-  (`setOverArt`, carried behaviour from `GaugeView`).
+  block width 150 dp, row pitch 22 dp; the same track whether or not the carousel's art is behind it (ADR-048).
 - RAM = `MemInfo` (`/proc/meminfo` MemAvailable), Storage = `StatFs(Environment.getDataDirectory())`.
   No CPU. Sampled every 5 s by `ResourceSampler` only while Home is resumed (today's `startStats/stopStats`
   lifecycle), read on a background thread, applied on main.
@@ -806,7 +805,7 @@ decomposition lands), `:traktshelf` 40 %. No Mockito: inject interfaces and use 
 - new `FileLengthTest` (Gradle check task): no source file > 1,200 lines.
 
 `:launcher` (Robolectric)
-- `ResourceBarsTest`: measures 150 dp × 2 rows; draws two tracks; `setOverArt` changes track alpha; text equals `Gb.free`.
+- `ResourceBarsTest`: measures 150 dp × 2 rows; draws two tracks; text equals `Gb.free`.
 - `ScorePillTest`: GONE for `none`/null cursor/`SecurityException`; kicker colour per state; one line.
 - `SettingsPanelTest`: rows present/absent under `uniform_rows`, `shelf_every_row`; "Live scores" subtitle when the companion resolves to nothing; choice round-trip for every row of section 10.
 - `HomeActivityTest` (smoke): `onCreate` with the default and the frosted theme does not throw; controllers wired; `onTrimMemory` releases art.
@@ -850,6 +849,7 @@ the companions being installed, enforced by a Gradle `dependsOn(":traktshelf:ins
 - `HomeFocusNoPillTest`: `score_pill: false` → Up from dock → Inputs; Left/Right along the bar; last-focused pill not restored by a second Up.
 - `CarouselFocusTest` (companion fake installed): Up from dock → carousel; Up → score pill; Up → Inputs; Down → score pill; Down → carousel; Back → grid.
 - `ShelfLayoutTest` (both stand-ins, ADR-046): with the carousel up and no stack, then the five-row fixture at `score_rows` 1, 3 and 5, the shelf's top and the widths of its title and synopsis boxes are the same to the pixel; every line has its own shade and no other view with a background reaches into the stack's column.
+- `TopBarLookTest` (both stand-ins, ADR-048): with the carousel up and its backdrop decoded, then with `hero_feed` off, every round pill draws `pill_bg` and every score line `score_line_bg` (matched by the pixels drawn at the view's size), the same list in both runs.
 - `ResourceBarsVisibleTest`: bars present with the key, absent without; text matches `N GB free` regex.
 - `SettingsPersistTest`: open the panel, toggle Live scores off, press Home twice → pill gone; toggle on → back; survives `am force-stop` + relaunch.
 - `ProviderHandshakeTest`: with the real debug `livescore` installed and its `FakeSource` armed via a test-only broadcast, the pill shows the scripted `LIVE T20I · AFG 19/4 (6) v ZIM`; OK opens `ScoreboardActivity` with that `event_id` (Intents).

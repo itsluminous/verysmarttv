@@ -22,7 +22,6 @@ import java.util.List;
  */
 public final class ScorePill extends LinearLayout {
     static final int GAP_DP = 4;
-    private boolean overArt;
 
     public ScorePill(@NonNull Context context) {
         this(context, null);
@@ -49,7 +48,6 @@ public final class ScorePill extends LinearLayout {
         ScoreLineView line = (ScoreLineView) LayoutInflater.from(getContext()).inflate(R.layout.score_line, this, false);
         LayoutParams lp = (LayoutParams) line.getLayoutParams();
         if (getChildCount() > 0) lp.topMargin = Math.round(GAP_DP * getResources().getDisplayMetrics().density);
-        line.setOverArt(overArt);
         addView(line, lp);
     }
 
@@ -78,11 +76,5 @@ public final class ScorePill extends LinearLayout {
         if (n == 0) return false;
         View line = getChildAt(Math.max(0, Math.min(row, n - 1)));
         return line.requestFocus();
-    }
-
-    /** Over the carousel's backdrop every line darkens its shade, as the round pills do; back to the plain shade without it. */
-    public void setOverArt(boolean on) {
-        overArt = on;
-        for (int i = 0; i < getChildCount(); i++) ((ScoreLineView) getChildAt(i)).setOverArt(on);
     }
 }

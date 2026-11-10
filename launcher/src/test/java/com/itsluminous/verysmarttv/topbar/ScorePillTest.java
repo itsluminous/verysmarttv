@@ -30,7 +30,7 @@ import org.robolectric.RuntimeEnvironment;
  * row, shows the kicker in the state colour before the white line, one line, a dot only for live and break, the pulse
  * only for live with animations on, the stale dim, and the sport icon at the line's end with the sport in the content
  * description (ADR-042); the stack shows one line per text, hides the rest and itself, focuses a row clamped to the
- * lines shown, and swaps every line's shade over art.
+ * lines shown.
  */
 @RunWith(RobolectricTestRunner.class)
 public class ScorePillTest {
@@ -117,20 +117,6 @@ public class ScorePillTest {
         assertEquals("past the bottom: the bottom line", 2, stack.focusedRow());
         assertTrue(stack.focusRow(-1));
         assertEquals("above the top: the top line", 0, stack.focusedRow());
-    }
-
-    @Test
-    public void overArtSwapsEveryLinesShadeAndKeepsItsPadding() {
-        stack.show(Arrays.asList(row("a", ScoreContract.STATE_LIVE), row("b", ScoreContract.STATE_UPCOMING)), true);
-        int pad = stack.line(0).getPaddingStart();
-        assertTrue(pad > 0);
-        stack.setOverArt(true);
-        assertEquals(pad, stack.line(1).getPaddingStart());
-        assertNotNull(stack.line(1).getBackground());
-        stack.show(Arrays.asList(row("a", ScoreContract.STATE_LIVE), row("b", ScoreContract.STATE_UPCOMING), row("c", ScoreContract.STATE_FINAL)), true);
-        assertEquals("a line added over art gets the same padding", pad, stack.line(2).getPaddingStart());
-        stack.setOverArt(false);
-        assertEquals(pad, stack.line(0).getPaddingStart());
     }
 
     // ---- one line ---------------------------------------------------------------------------------------

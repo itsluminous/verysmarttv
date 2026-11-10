@@ -1,7 +1,6 @@
 package com.itsluminous.verysmarttv.topbar;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -21,8 +20,8 @@ import java.util.Locale;
 
 /**
  * The RAM and Storage block (DESIGN.md §14.2 ResourceBarsTest): it measures 150 dp by two 22 dp rows, its texts are
- * Gb's figure with the unit and "free", two tracks are drawn (one per known row), setOverArt darkens the track, and
- * a row whose figure is unknown is blank.
+ * Gb's figure with the unit and "free", two tracks are drawn (one per known row), and a row whose figure is unknown
+ * is blank.
  */
 @RunWith(RobolectricTestRunner.class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -112,25 +111,5 @@ public class ResourceBarsTest {
         int filled = b.getPixel(Math.round(bars.getWidth() * 0.5f), y) >>> 24;
         int empty = b.getPixel(Math.round(bars.getWidth() * 0.9f), y) >>> 24;
         assertTrue("the fill (85% white) is more opaque than the track (30% white): " + filled + " vs " + empty, filled > empty);
-    }
-
-    @Test
-    public void overArtDarkensTheTrack() {
-        assertFalse(bars.isOverArt());
-        bars.setValues(true, 2 * GB, 2 * GB, false, 0, 0);   // nothing used: the track alone shows
-        layout();
-        Bitmap plain = Bitmap.createBitmap(bars.getWidth(), bars.getHeight(), Bitmap.Config.ARGB_8888);
-        bars.draw(new Canvas(plain));
-        bars.setOverArt(true);
-        assertTrue(bars.isOverArt());
-        Bitmap over = Bitmap.createBitmap(bars.getWidth(), bars.getHeight(), Bitmap.Config.ARGB_8888);
-        bars.draw(new Canvas(over));
-        float pitch = ResourceBars.PITCH_DP * density;
-        float top = (bars.getHeight() - 2 * pitch) / 2f;
-        int y = Math.round(top + pitch - ResourceBars.TRACK_DP * density - 2 * density + ResourceBars.TRACK_DP * density / 2f);
-        int x = bars.getWidth() / 2;
-        int plainPixel = plain.getPixel(x, y), overPixel = over.getPixel(x, y);
-        assertNotEquals("the track colour changed", plainPixel, overPixel);
-        assertTrue("over art the track is dark, not white", (overPixel & 0xFF) < (plainPixel & 0xFF));
     }
 }

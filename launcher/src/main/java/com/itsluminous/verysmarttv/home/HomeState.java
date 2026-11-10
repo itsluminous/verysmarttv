@@ -38,9 +38,6 @@ public final class HomeState {
     public boolean moduleCards;
     /** config.xml top_menu: Inputs, Wi-Fi and Settings folded into one gear. */
     public boolean topMenu;
-    /** The top-bar pills on pill_bg_over_art, their frost over a dark base, while a carousel backdrop is up behind them. */
-    public boolean pillsOverArt;
-
     /** Between onStart and onStop: Home is (at least partly) on screen. */
     public boolean started;
     /** Between onStop and onStart: Home was fully covered by an app, not just by the translucent quick panel. */

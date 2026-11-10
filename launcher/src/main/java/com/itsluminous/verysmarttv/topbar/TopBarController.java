@@ -203,25 +203,6 @@ public final class TopBarController {
     };
 
     /**
-     * The top-bar pills over the carousel's backdrop: the same frost over a dark base (pill_bg_over_art), so their white
-     * icons read over a bright sky as well as over the wallpaper; back to pill_bg when no backdrop is behind them. The
-     * VPN pill is left alone, its own drawable is dark glass already. The padding is kept across the swap.
-     */
-    public void setPillsOverArt(boolean on) {
-        if (host.state().pillsOverArt == on) return;
-        host.state().pillsOverArt = on;
-        if (bars != null) bars.setOverArt(on);
-        if (scorePill != null) scorePill.setOverArt(on);
-        int bg = on ? R.drawable.pill_bg_over_art : R.drawable.pill_bg;
-        for (View pill : new View[]{btnInputs, btnWifi, btnReorder, btnLibraryTop, host.findViewById(R.id.btnSettings)}) {
-            if (pill == null) continue;
-            int l = pill.getPaddingLeft(), t = pill.getPaddingTop(), r = pill.getPaddingRight(), b = pill.getPaddingBottom();
-            pill.setBackgroundResource(bg);
-            pill.setPadding(l, t, r, b);
-        }
-    }
-
-    /**
      * date_two_lines: the day of the week over the day and month, each in the TV's language's own pattern
      * (DateFormat.getBestDateTimePattern, so "4 NOVEMBER" here and "NOVEMBER 4" in the US), in the date's caps and
      * tracking. The block is centred on the clock by translation, whatever the header's own alignment, so the
