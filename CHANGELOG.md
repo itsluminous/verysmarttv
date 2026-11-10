@@ -8,6 +8,55 @@ publishes all three, and the tag's message quotes the section below.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-10
+
+The first release: the three apps and the setup tool as `0.1.0-rc1` and `0.1.0-rc2` left them, the same code
+as rc2 (a0b14be) and the same Android `versionCode` scheme (ADR-047; this final is 1000100, the code the two
+candidates shared, so the setup tool installs it over either with `-r`). The owner chose a 0.x line for the
+first release, so `1.0.0` is reserved for the point where the provider contracts and theme keys are promised
+stable. The rc sections below have the detail; this is what the release contains.
+
+### Added
+
+- **Launcher** (`com.itsluminous.verysmarttv`): the home screen carried from the upstream project (credited in the
+  README and `THIRD_PARTY_NOTICES.md`) and renamed. A dock and a grid of your apps, a top shelf that names the
+  focused app or shows the Trakt carousel, three frosted buttons (Inputs, network, Settings), the clock, the date
+  and a greeting, the Clock screensaver, Backup & restore (a fork backup restores, including one made under the
+  old package name), themes pushed without a rebuild (`default` and `frosted`), and the settings panel. No
+  `INTERNET` permission, no background services; built for 1 GB TVs.
+- **System bars**: a RAM and a Storage bar under the clock, each with its free amount.
+- **Score lines**: up to `score_rows` live matches from the Scores companion stacked under the top-right buttons
+  (two by default; **Live score rows** in Launcher settings picks 1 to 5), each with a sport icon and its own
+  rounded shade; Up from the dock focuses them, OK opens the match in Scores. The stack and the top shelf are
+  independent layers: the shelf's top is fixed by the dock line and its text keeps its full width whatever the
+  stack shows. Hidden when the companion is not installed or shows nothing.
+- **Trakt companion** (`com.itsluminous.traktshelf`): sign in with a code at trakt.tv/activate; rows of posters
+  (Up next, recommendations, watchlists, trending, recently watched) with ratings from TMDB, OMDb and Trakt; Play
+  through Stremio, CloudStream or NetMirror, trailers through TizenTube or SmartTube; the launcher's carousel reads
+  it through a provider only an app signed with the same key may open.
+- **Scores companion** (`com.itsluminous.livescore`): cricket, football, F1 and tennis from ESPN's public site
+  feeds, no key; badminton from SportMicro's Badminton Micro API on RapidAPI with **your own key**, entered on the
+  TV the moment badminton is first followed (100 requests a day on the free plan, so a live badminton match is
+  fetched at most every 5 minutes). Follow sports, competitions, teams, players or a single match with three-state
+  boxes in the picker; a scoreboard, settings, and the lines the launcher shows. Refreshes only while a followed
+  match is live and the launcher is reading, with backoff; follows are part of the launcher's backup.
+- **Setup tool** (`setup/`): `setup.sh` and `setup.ps1` for macOS, Linux and Windows on Python 3.9+, with a
+  pure-Python ADB client. The guided flow finds the TV, installs the three APKs from the latest release with
+  checksums verified, makes the launcher Home behind a Home guard (the stock launcher stays enabled unless you say
+  so, `--disable-stock` for one that keeps Home by priority), pushes a theme and offers the community clean-up list
+  for your model. `discover`, `probe`, `install`, `theme`, `debloat`, `restore`, `check`, `screenshot` and
+  `adb-closed` run on their own too.
+- **Debloat presets**: the 434 community lists carried verbatim with their testers' notes, matched to the TV by
+  model, device, board and brand; a record of the TV is written before the first change and `setup restore`
+  replays it. Core Android packages are refused outright; factory or service-menu lists need a typed yes.
+
+### Build and release
+
+- One Gradle project, one version from the tag, one release key for the three apps (`release.yml` refuses to
+  publish anything not signed with it). `./gradlew ci` runs the unit tests, lint, the file-length gate and the
+  identifier gate; CI also runs the Python suite on Ubuntu and Windows and Espresso on an Android TV emulator.
+- Signer certificate SHA-256: `15d5085a0400d720d4aea65edab4df72c6e5a5313844715c3e56859cec99c21d`.
+
 ## [0.1.0-rc2] - 2026-11-10
 
 The owner's feedback after a day with rc1 on the Mi TV 4A: the top-right column is the same whatever the shelf
@@ -164,5 +213,7 @@ codes from here on. A release candidate shares its final version's code and the 
 - Signer certificate SHA-256: `15d5085a0400d720d4aea65edab4df72c6e5a5313844715c3e56859cec99c21d` (verified with
   `apksigner verify --print-certs` on every APK of v1.0.0-rc1, v1.0.0-rc2 and v1.0.0-rc3).
 
-[Unreleased]: https://github.com/itsluminous/verysmarttv/compare/v0.1.0-rc1...HEAD
+[Unreleased]: https://github.com/itsluminous/verysmarttv/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/itsluminous/verysmarttv/releases/tag/v0.1.0
+[0.1.0-rc2]: https://github.com/itsluminous/verysmarttv/releases/tag/v0.1.0-rc2
 [0.1.0-rc1]: https://github.com/itsluminous/verysmarttv/releases/tag/v0.1.0-rc1

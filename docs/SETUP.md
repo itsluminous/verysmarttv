@@ -35,7 +35,7 @@ speak: pair it once with Google's adb (`adb pair`, `adb connect`), run `adb tcpi
 ## What the flow asks
 
 ```
-VerySmartTV setup 0.1.0-rc2
+VerySmartTV setup 0.1.0
 1  Find your TV            mDNS, then a scan of port 5555 on your network; pick one or type an IP
 2  Connect                 accept "Allow USB debugging?" on the TV (tick "Always allow")
 3  Get the apps            the latest GitHub release: three APKs + SHA256SUMS, checksums verified
