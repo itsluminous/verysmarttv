@@ -418,6 +418,12 @@ ends in the sport's name (`SportIcons.nameOf`, string resources).
 | `final` | grey "FT" / "RESULT" | `T20I · AFG won by 23 runs` (shown for 6 h after the end) |
 | `none` / provider missing / permission denied | pill hidden (`GONE`); the layout above does not move | |
 
+*Follow-up (ADR-046):* the stack and the top shelf are independent layers: the shelf is placed from the dock line
+whatever the stack shows, and where the two would cross the shelf's text ends 16dp before the stack's left edge
+(`topbar.ScoreStackLayout`, pure: the stack's bounds from its rows and line height, the width the shelf's title,
+meta line and synopsis may take, and the region of the carousel's backdrop `topbar.ScoreStackShade` fades under the
+lines while a backdrop is up). `ShelfLayoutTest` holds the shelf's top to the pixel across 0, 1, 3 and 5 rows.
+
 The text comes ready-made from the provider (`/pill` row, section 12.2): the launcher does no sports
 logic, exactly as `HeroFeed` takes the companion's `meta` line. The pill is focusable only when visible;
 it draws the same frosted focus ring as the round pills (`core.ui.Glass`). OK opens
@@ -842,6 +848,7 @@ the companions being installed, enforced by a Gradle `dependsOn(":traktshelf:ins
 - `HomeFocusTest`: launch Home with a test theme (`score_pill: true`, `widgets: true`, pushed through the `.theme` provider in `@Before` using `UiAutomation.executeShellCommand`); Up from dock slot 0 → score pill focused; Up → Inputs focused; Up again → Inputs still; Down → dock slot 0; focus slot 3, Up → score pill, Down → slot 3; Back from Inputs → grid.
 - `HomeFocusNoPillTest`: `score_pill: false` → Up from dock → Inputs; Left/Right along the bar; last-focused pill not restored by a second Up.
 - `CarouselFocusTest` (companion fake installed): Up from dock → carousel; Up → score pill; Up → Inputs; Down → score pill; Down → carousel; Back → grid.
+- `ShelfLayoutTest` (both stand-ins, ADR-046): with the carousel up and no stack, then the five-row fixture at `score_rows` 1, 3 and 5, the shelf's top is the same to the pixel; the title, meta line, synopsis and chips never cross the stack's bounds; the backdrop's shade covers the stack while the backdrop is up.
 - `ResourceBarsVisibleTest`: bars present with the key, absent without; text matches `N GB free` regex.
 - `SettingsPersistTest`: open the panel, toggle Live scores off, press Home twice → pill gone; toggle on → back; survives `am force-stop` + relaunch.
 - `ProviderHandshakeTest`: with the real debug `livescore` installed and its `FakeSource` armed via a test-only broadcast, the pill shows the scripted `LIVE T20I · AFG 19/4 (6) v ZIM`; OK opens `ScoreboardActivity` with that `event_id` (Intents).
