@@ -1,7 +1,6 @@
 # VerySmartTV
 
 [![CI](https://github.com/itsluminous/verysmarttv/actions/workflows/ci.yml/badge.svg)](https://github.com/itsluminous/verysmarttv/actions/workflows/ci.yml)
-[![Release](https://github.com/itsluminous/verysmarttv/actions/workflows/release.yml/badge.svg)](https://github.com/itsluminous/verysmarttv/actions/workflows/release.yml)
 [![Latest release](https://img.shields.io/github/v/release/itsluminous/verysmarttv?include_prereleases)](https://github.com/itsluminous/verysmarttv/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Platform: Android TV 8.0+](https://img.shields.io/badge/Android%20TV-8.0%2B-3DDC84)
