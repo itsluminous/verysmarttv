@@ -228,9 +228,8 @@ public final class CarouselController {
     /**
      * The carousel shelf is taller than the name alone: measure it now and keep its text's bottom a little above the
      * dock. When it would reach up into the clock and date (the header ends about 108dp down), the synopsis gives up
-     * lines, three to one, and the shelf never goes above the header. Where the shelf crosses the score stack, its
-     * text ends before the stack (ShelfController.fitShelfText, ADR-046); the shelf's top is placed from the dock
-     * line alone, so the stack never moves it.
+     * lines, three to one, and the shelf never goes above the header. The shelf's top is placed from the dock line
+     * alone, so the score stack never moves it (ADR-046).
      */
     public void placeCarouselShelf() {
         if (Float.isNaN(shelf.lastDockTop)) return;
@@ -243,18 +242,10 @@ public final class CarouselController {
         heroSynopsis.setMaxLines(lines);
         float y;
         int gap = shelf.shelfGapPx(true);
-        boolean fitted = false;
         while (true) {
             shelf.hero.measure(View.MeasureSpec.makeMeasureSpec(root.getWidth(), View.MeasureSpec.AT_MOST),
                     View.MeasureSpec.makeMeasureSpec(root.getHeight(), View.MeasureSpec.AT_MOST));
             y = shelf.lastDockTop - gap - shelf.hero.getMeasuredHeight();
-            if (!fitted) {
-                // Once, for where the shelf stands at full width: a narrower box can only make it taller, so a shelf
-                // that crosses the stack at full width crosses it fitted too; the boxes are measured again after.
-                fitted = true;
-                int before = shelf.heroName.getLayoutParams().width;
-                if (shelf.fitShelfText(Math.max(y, minTop), shelf.hero.getMeasuredHeight()) != before) continue;
-            }
             if (y >= minTop) break;
             if (lines > 1) heroSynopsis.setMaxLines(--lines);
             else if (heroChips.getVisibility() == View.VISIBLE) heroChips.setVisibility(View.GONE);
@@ -324,9 +315,7 @@ public final class CarouselController {
             if (!Float.isNaN(shelf.lastDockTop)) {
                 shelf.hero.measure(View.MeasureSpec.makeMeasureSpec(root.getWidth(), View.MeasureSpec.AT_MOST),
                         View.MeasureSpec.makeMeasureSpec(root.getHeight(), View.MeasureSpec.AT_MOST));
-                float y = Math.max(ShelfController.SHELF_MIN_TOP_DP * host.density(), shelf.lastDockTop - shelf.shelfGapPx(false) - shelf.hero.getMeasuredHeight());
-                shelf.fitShelfText(y, shelf.hero.getMeasuredHeight());
-                shelf.hero.setY(y);
+                shelf.hero.setY(Math.max(ShelfController.SHELF_MIN_TOP_DP * host.density(), shelf.lastDockTop - shelf.shelfGapPx(false) - shelf.hero.getMeasuredHeight()));
             }
         }
         if (hadFocus && host.state().resumed) host.grid().focusTile(host.grid().lastFocused());

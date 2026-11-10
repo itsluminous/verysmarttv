@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -30,7 +29,6 @@ import com.itsluminous.verysmarttv.grid.UniformRows;
 import com.itsluminous.verysmarttv.home.HomeHost;
 import com.itsluminous.verysmarttv.theme.Config;
 import com.itsluminous.verysmarttv.theme.Motion;
-import com.itsluminous.verysmarttv.topbar.ScoreStackLayout;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,12 +74,6 @@ public final class ShelfController {
     /** Where the dock's top was when the shelf was last placed, so the taller carousel shelf can be re-placed. */
     float lastDockTop = Float.NaN;
 
-    /**
-     * The score stack's bounds in the root (ScorePillController), empty while it is hidden: the shelf's text ends
-     * before them (ADR-046). The shelf's place never depends on them; only its text's width does.
-     */
-    private final Rect scoreStack = new Rect();
-
     boolean heroShown;
 
     /** The shelf's measured height, for the dock line . */
@@ -122,7 +114,6 @@ public final class ShelfController {
         // A short shelf (hero_height) can leave less room than the name needs: it then stays under the header rather
         // than over the clock, and the 40dp gap above the dock absorbs the difference.
         float y = Math.max(SHELF_MIN_TOP_DP * host.density(), dockTopInRoot - shelfGapPx(false) - hero.getHeight());
-        fitShelfText(y, hero.getHeight());
         boolean changed = !label.contentEquals(heroName.getText());
         if (host.state().cinematic && heroArtAlpha > 0f) showHeroArt(position);
 
@@ -197,60 +188,6 @@ public final class ShelfController {
         return carousel.hasItems();
     }
 
-    /**
-     * The score stack laid out (or hidden): the shelf's text is fitted to it again where it stands, the carousel's by
-     * placeCarouselShelf, the app's name here. The shelf's top does not move for it (ADR-046).
-     */
-    public void setScoreStack(@NonNull Rect bounds) {
-        if (scoreStack.equals(bounds)) return;
-        scoreStack.set(bounds);
-        if (!heroShown || Float.isNaN(lastDockTop)) return;
-        if (carousel.showing()) {
-            carousel.placeCarouselShelf();
-        } else {
-            fitShelfText(hero.getY(), hero.getHeight());
-        }
-    }
-
-    /** The text's start in the root: the header's margin, from the right edge in RTL (the texts' start edge). */
-    private int shelfTextStartPx() {
-        int margin = Math.round(SHELF_START_DP * host.density());
-        return host.isRtl() ? root.getWidth() - margin : margin;
-    }
-
-    /**
-     * Ends the shelf's text before the score stack when the shelf, {@code topPx} to {@code topPx + heightPx} in the
-     * root, crosses it ({@link ScoreStackLayout#heroTextMaxWidth}, ADR-046): the title's box (560dp in the carousel's
-     * type, else as wide as the header), the synopsis's (440dp) and the meta line take at most that width and ellipsize.
-     * Returns the width; {@code fullPx} is what the title takes with no stack in the way.
-     */
-    int fitShelfText(float topPx, int heightPx) {
-        boolean carouselType = carouselTypography || carousel.showing();
-        float density = host.density();
-        int margin = Math.round(SHELF_START_DP * density);
-        int fullPx = carouselType ? Math.round(CAROUSEL_TITLE_WIDTH_DP * density) : Math.max(0, root.getWidth() - 2 * margin);
-        int top = Math.round(topPx);
-        int width = ScoreStackLayout.heroTextMaxWidth(scoreStack, shelfTextStartPx(), fullPx, top, top + heightPx, Math.round(TEXT_CLEARANCE_DP * density), host.isRtl());
-        if (carouselType) {
-            ViewGroup.LayoutParams lp = heroName.getLayoutParams();
-            if (lp.width != width) {
-                lp.width = width;
-                heroName.setLayoutParams(lp);
-            }
-        } else {
-            heroName.setMaxWidth(width);
-        }
-        heroMeta.setMaxWidth(width);
-        TextView synopsis = host.findViewById(R.id.heroSynopsis);
-        ViewGroup.LayoutParams sp = synopsis.getLayoutParams();
-        int synopsisPx = Math.min(Math.round(CAROUSEL_SYNOPSIS_WIDTH_DP * density), width);
-        if (sp.width != synopsisPx) {
-            sp.width = synopsisPx;
-            synopsis.setLayoutParams(sp);
-        }
-        return width;
-    }
-
     public boolean dockTileFocused() {
         int pos = host.grid().focusedTilePosition();
         return pos >= 0 && host.state().dockRow && (host.state().singleRow || pos < host.state().columns);
@@ -319,8 +256,6 @@ public final class ShelfController {
 
     /** The carousel title's widest and narrowest sizes: 36sp, and 24sp before an ellipsis (five sixths of each at hero_height 60). */
     private static final float CAROUSEL_TITLE_SP = 36f, CAROUSEL_TITLE_MIN_SP = 24f, CAROUSEL_TITLE_WIDTH_DP = 560f;
-    /** The synopsis box's width (activity_main.xml), and the room the shelf's text leaves before the score stack. */
-    static final float CAROUSEL_SYNOPSIS_WIDTH_DP = 440f, TEXT_CLEARANCE_DP = 16f;
 
     /**
      * The app's name on the shelf in the carousel title's type (fitCarouselTitle: 36sp in its one-line box, the meta
@@ -364,15 +299,12 @@ public final class ShelfController {
         heroName.setAutoSizeTextTypeUniformWithConfiguration(Math.round(minSp), Math.round(maxSp), 1, TypedValue.COMPLEX_UNIT_SP);
     }
 
-    /**
-     * The app's name again: one line of sp that never wraps, the view as wide and tall as the text, up to the width
-     * fitShelfText leaves it before the score stack, where it ends in an ellipsis instead of running under the lines.
-     */
+    /** The app's name again: one line of sp that overflows rather than wraps, the view as wide and tall as the text. */
     private void unfitCarouselTitle(float sp) {
         heroName.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_NONE);   // setTextSize is ignored while on
         heroName.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
-        heroName.setHorizontallyScrolling(false);
-        heroName.setEllipsize(TextUtils.TruncateAt.END);
+        heroName.setHorizontallyScrolling(true);
+        heroName.setEllipsize(null);
         heroName.setGravity(Gravity.TOP | (heroName.getGravity() & Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK));
         ViewGroup.LayoutParams lp = heroName.getLayoutParams();
         lp.width = ViewGroup.LayoutParams.WRAP_CONTENT;

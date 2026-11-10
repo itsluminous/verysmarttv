@@ -2,12 +2,12 @@ package com.itsluminous.verysmarttv;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.pm.ProviderInfo;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -23,7 +23,7 @@ import com.itsluminous.verysmarttv.support.ScoreStandIn;
 import com.itsluminous.verysmarttv.support.TestTheme;
 import com.itsluminous.verysmarttv.testkit.HeroFixture;
 import com.itsluminous.verysmarttv.testkit.ScoreFixture;
-import com.itsluminous.verysmarttv.topbar.ScoreStackShade;
+import com.itsluminous.verysmarttv.topbar.ScoreLineView;
 
 import org.junit.After;
 import org.junit.Assume;
@@ -42,8 +42,9 @@ import java.util.Locale;
 /**
  * The score stack and the carousel shelf as independent layers (DESIGN.md §9.2, ADR-046), on the emulator with both
  * stand-ins: with no stack and with the five-row fixture at score_rows 1, 3 and 5, the shelf's top is the same to the
- * pixel, so the stack never moves the shelf; and with a stack, the title, the meta line, the synopsis and the chips
- * all end before the stack's bounds, and the backdrop is veiled under it (the shade covers the stack).
+ * pixel, so the stack never moves the shelf; the title's and the synopsis's boxes are as wide with a stack as without
+ * one, so the stack never narrows the shelf's text; and nothing in the top-right column has a background except the
+ * lines themselves, each on its own shade (no veil behind the stack as a whole, nothing drawn over the backdrop).
  */
 @RunWith(AndroidJUnit4.class)
 public class ShelfLayoutTest {
@@ -62,13 +63,14 @@ public class ShelfLayoutTest {
         ScoreStandIn.fixture(home.target(), ScoreFixture.LIVE);
     }
 
-    /** The shelf's top and the stack's bounds after Home settled with the carousel up and {@code rows} lines (0 hides the pill). */
+    /** What Home showed once it settled with the carousel up and {@code rows} lines (0 hides the pill). */
     private static final class Seen {
         float shelfTop;
+        int titleWidth, synopsisWidth;
         Rect stack;
-        List<Rect> texts = new ArrayList<>();
-        List<String> names = new ArrayList<>();
-        Rect shade;
+        int lines, linesWithShade;
+        /** Views with a background that reach into the stack's column and are not a line or part of one. */
+        List<String> shadedBehind = new ArrayList<>();
         boolean artUp;
     }
 
@@ -86,10 +88,13 @@ public class ShelfLayoutTest {
         });
         if (rows == 0) home.waitFor("no score pill", a -> a.findViewById(R.id.scorePill).getVisibility() != View.VISIBLE);
         else home.waitFor(rows + " lines", a -> home.scoreLines().size() == rows);
-        // A layout pass after the last change settles the shelf's text boxes.
+        // A layout pass after the last change settles the shelf's boxes.
         Thread.sleep(600);
         screenshot(rows);
-        return home.onHome(this::read);
+        Seen s = home.onHome(this::read);
+        Log.i("VerySmartTV.ShelfLayoutTest", String.format(Locale.ROOT, "%d rows: shelf top %.1f, title %dpx, synopsis %dpx, stack %s, shaded behind %s",
+                rows, s.shelfTop, s.titleWidth, s.synopsisWidth, s.stack.toShortString(), s.shadedBehind));
+        return s;
     }
 
     /**
@@ -116,67 +121,73 @@ public class ShelfLayoutTest {
         Seen s = new Seen();
         View hero = a.findViewById(R.id.hero);
         s.shelfTop = hero.getY();
+        s.titleWidth = a.findViewById(R.id.heroName).getWidth();
+        s.synopsisWidth = a.findViewById(R.id.heroSynopsis).getWidth();
         View pill = a.findViewById(R.id.scorePill);
-        s.stack = pill.getVisibility() == View.VISIBLE ? inRoot(root, pill) : new Rect();
-        for (int id : new int[]{R.id.heroName, R.id.heroMeta, R.id.heroSynopsis, R.id.heroChips}) {
-            View v = a.findViewById(id);
-            if (v.getVisibility() != View.VISIBLE || v.getWidth() == 0) continue;
-            // The shelf is placed with setY (a translation offsetDescendantRectToMyCoords leaves out): its children's
-            // rects in the shelf's frame, moved by where the shelf stands.
-            Rect r = inRoot((ViewGroup) hero, v);
-            r.offset(Math.round(hero.getX()), Math.round(hero.getY()));
-            s.texts.add(r);
-            s.names.add(a.getResources().getResourceEntryName(id));
-        }
-        for (int i = 0; i < root.getChildCount(); i++) {
-            View c = root.getChildAt(i);
-            if (c instanceof ScoreStackShade && c.getVisibility() == View.VISIBLE) s.shade = inRoot(root, c);
-        }
+        s.stack = pill.getVisibility() == View.VISIBLE ? onScreen(pill) : new Rect();
         s.artUp = a.findViewById(R.id.heroFeedArt).getAlpha() > 0.99f;
+        if (s.stack.isEmpty()) return s;
+        // The stack's column: from the lines' left edge to the screen's right edge, the stack's own height.
+        Rect column = new Rect(s.stack.left, s.stack.top, onScreen(root).right, s.stack.bottom);
+        walk(a, root, onScreen(root), column, s, false);
         return s;
     }
 
-    private static Rect inRoot(ViewGroup root, View v) {
-        Rect r = new Rect(0, 0, v.getWidth(), v.getHeight());
-        root.offsetDescendantRectToMyCoords(v, r);
-        return r;
+    /**
+     * Every visible view with a background that draws now ({@link #shaded}) and reaches into {@code column}, other than
+     * a line and what a line holds, and other than a layer that covers the whole {@code screen} (the root, the
+     * wallpaper, the ambient glow: those are behind everything, not behind the column): none may exist (ADR-046 as
+     * amended). Views are placed on screen, so the shelf's setY counts.
+     */
+    private static void walk(HomeActivity a, View v, Rect screen, Rect column, Seen s, boolean inLine) {
+        if (v.getVisibility() != View.VISIBLE) return;
+        boolean line = v instanceof ScoreLineView;
+        if (line) {
+            s.lines++;
+            if (shaded(v)) s.linesWithShade++;
+        } else if (!inLine && shaded(v) && !onScreen(v).contains(screen) && Rect.intersects(onScreen(v), column)) {
+            int id = v.getId();
+            s.shadedBehind.add(v.getClass().getSimpleName() + (id == View.NO_ID ? "" : " " + a.getResources().getResourceEntryName(id)) + " " + onScreen(v));
+        }
+        if (v instanceof ViewGroup) {
+            ViewGroup g = (ViewGroup) v;
+            for (int i = 0; i < g.getChildCount(); i++) walk(a, g.getChildAt(i), screen, column, s, inLine || line);
+        }
+    }
+
+    /** A background that draws in the view's current state: a focus ring at rest (the shelf's) draws nothing. */
+    private static boolean shaded(View v) {
+        return v.getBackground() != null && v.getBackground().getCurrent() != null;
+    }
+
+    private static Rect onScreen(View v) {
+        int[] xy = new int[2];
+        v.getLocationOnScreen(xy);
+        return new Rect(xy[0], xy[1], xy[0] + v.getWidth(), xy[1] + v.getHeight());
     }
 
     private static final int[] ROWS = {0, 1, 3, 5};
 
     @Test
-    public void theShelfTopIsTheSameWithNoStackAndWithOneThreeAndFiveRows_andItsTextEndsBeforeTheStack() throws Exception {
+    public void theShelfKeepsItsTopAndItsTextsWidth_andNothingButTheLinesIsShadedInTheStacksColumn() throws Exception {
         List<Seen> seen = new ArrayList<>();
         for (int rows : ROWS) seen.add(homeWith(rows));
-        // Crossings first, every row count at once, so a failure names each of them.
-        StringBuilder crossings = new StringBuilder();
-        for (int i = 0; i < ROWS.length; i++) {
-            Seen s = seen.get(i);
-            assertTrue("the shelf has text to check at " + ROWS[i] + " rows", s.texts.size() >= 2);
-            if (ROWS[i] == 0) {
-                assertTrue("no stack at 0 rows", s.stack.isEmpty());
-                continue;
-            }
-            assertFalse("the stack shows at " + ROWS[i] + " rows", s.stack.isEmpty());
-            for (int t = 0; t < s.texts.size(); t++) {
-                if (Rect.intersects(s.texts.get(t), s.stack)) {
-                    crossings.append(String.format(Locale.ROOT, "%s %s crosses the %d-row stack %s; ", s.names.get(t), s.texts.get(t), ROWS[i], s.stack));
-                }
-            }
-        }
-        assertEquals("the shelf's text ends before the stack", "", crossings.toString());
+        Seen none = seen.get(0);
+        assertTrue("no stack at 0 rows", none.stack.isEmpty());
+        assertTrue("the carousel's title box is laid out", none.titleWidth > 0);
+        assertTrue("the carousel's synopsis box is laid out", none.synopsisWidth > 0);
         for (int i = 0; i < ROWS.length; i++) {
             Seen s = seen.get(i);
             assertTrue("the backdrop is up at " + ROWS[i] + " rows", s.artUp);
-            if (ROWS[i] == 0) {
-                assertTrue("no stack, no shade", s.shade == null);
-            } else {
-                assertNotNull("the backdrop is veiled under the " + ROWS[i] + "-row stack", s.shade);
-                assertTrue("the shade " + s.shade + " covers the stack " + s.stack, s.shade.contains(s.stack));
-            }
-        }
-        for (int i = 1; i < ROWS.length; i++) {
-            assertEquals("the shelf's top with " + ROWS[i] + " rows is where it was with none", seen.get(0).shelfTop, seen.get(i).shelfTop, 0.5f);
+            if (ROWS[i] == 0) continue;
+            assertFalse("the stack shows at " + ROWS[i] + " rows", s.stack.isEmpty());
+            assertEquals("the lines at " + ROWS[i] + " rows", ROWS[i], s.lines);
+            assertEquals("every line keeps its own shade at " + ROWS[i] + " rows", ROWS[i], s.linesWithShade);
+            assertEquals(String.format(Locale.ROOT, "nothing but the lines is shaded in the %d-row stack's column %s", ROWS[i], s.stack),
+                    "", String.join("; ", s.shadedBehind));
+            assertEquals("the shelf's top with " + ROWS[i] + " rows is where it was with none", none.shelfTop, s.shelfTop, 0.5f);
+            assertEquals("the title's box with " + ROWS[i] + " rows is as wide as with none", none.titleWidth, s.titleWidth);
+            assertEquals("the synopsis's box with " + ROWS[i] + " rows is as wide as with none", none.synopsisWidth, s.synopsisWidth);
         }
     }
 }

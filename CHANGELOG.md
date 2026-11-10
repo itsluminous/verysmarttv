@@ -8,6 +8,15 @@ publishes all three, and the tag's message quotes the section below.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Launcher: no shade behind the top-right column; the hero text keeps its width** (ADR-046 amended). rc1 veiled
+  the Trakt carousel's backdrop under the score stack and ended the shelf's title, meta line and synopsis 16dp
+  before the stack. On the TV the veil read as a big dark background behind the top-right pane, and the owner did
+  not want the hero text narrowed: both are gone. Each score line keeps its own rounded shade and nothing is drawn
+  behind the stack as a whole; the title's 560dp box, the synopsis's 440dp box and the plain name take their full
+  designed width again. The shelf's top is still fixed by the dock line, so the stack never moves it.
+
 ## [0.1.0-rc1] - 2026-11-10
 
 The first public release candidate, numbered **0.1.0**: the owner chose a 0.x line for the first release, so

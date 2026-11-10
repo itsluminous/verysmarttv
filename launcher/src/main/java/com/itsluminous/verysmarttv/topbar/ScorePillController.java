@@ -29,20 +29,15 @@ import java.util.List;
  * {@link ScoreContract#EXTRA_EVENT_ID}) and its follow picker on a long press (§9.2). Built by {@code TopBarController}
  * only while score_pill is in force; without it there is no reader at all.
  *
- * <p>The stack and the top shelf are independent layers (ADR-046): the stack is placed from the pill row, the shelf
- * from the dock line, and neither moves the other. After every layout of the stack this controller hands its bounds
- * ({@link ScoreStackLayout#stackBounds}) to the shelf, which ends its text before them, and sizes the
- * {@link ScoreStackShade} that fades the carousel's backdrop under the lines.
+ * <p>The stack and the top shelf are independent layers (ADR-046): the stack is an overlay placed from the pill row,
+ * each line on its own shade, and the shelf is placed from the dock line, so neither moves the other and nothing is
+ * drawn behind the stack as a whole.
  */
 public final class ScorePillController {
     static final int BELOW_PILLS_DP = 8;
     final HomeHost host;
     final FrameLayout root;
     final ScorePill pill;
-    /** The veil over the backdrop under the stack, in the root just above heroFeedArt; GONE without a backdrop or lines. */
-    final ScoreStackShade shade;
-    /** The stack's bounds in the root after its last layout; empty while it is hidden. */
-    private final Rect stack = new Rect();
     /** score_rows after the Live score rows choice: the most lines the stack shows. */
     final int rows;
     private final ScoreFeed feed;
@@ -60,10 +55,6 @@ public final class ScorePillController {
         this.rows = ScoreLine.clampRows(rows);
         pill = host.findViewById(R.id.scorePill);
         pill.setOverArt(host.state().pillsOverArt);
-        shade = new ScoreStackShade(host.activity());
-        View art = host.findViewById(R.id.heroFeedArt);
-        root.addView(shade, root.indexOfChild(art) + 1, new FrameLayout.LayoutParams(0, 0));
-        pill.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> onStackLaidOut());
         feed = new ScoreFeed(host.activity(), host.handler(), this::onPill);
         View bar = host.findViewById(R.id.topButtons);
         bar.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> place(v));
@@ -107,39 +98,6 @@ public final class ScorePillController {
         pill.setLayoutParams(lp);
     }
 
-    /**
-     * The stack's bounds after a layout: from its lines, the way {@link ScoreStackLayout} counts them, to the shelf and
-     * the shade. A stack that just hid lays nothing out; {@link #onPill} empties the bounds then.
-     */
-    private void onStackLaidOut() {
-        ScoreLineView first = pill.line(0);
-        int lineH = first == null ? 0 : first.getHeight();
-        Rect now = ScoreStackLayout.stackBounds(pill.rows(), lineH, Math.round(ScorePill.GAP_DP * host.density()), pill.getTop(), pill.getRight(), pill.getWidth());
-        if (now.equals(stack)) return;
-        stack.set(now);
-        placeShade();
-        host.shelf().setScoreStack(stack);
-    }
-
-    /** The shade over the backdrop under the stack ({@link ScoreStackLayout#shadeBounds}); nothing without a backdrop or lines. */
-    private void placeShade() {
-        boolean on = host.state().pillsOverArt && !stack.isEmpty();
-        if (!on) {
-            shade.setVisibility(View.GONE);
-            return;
-        }
-        Rect r = ScoreStackLayout.shadeBounds(stack, Math.round(ScoreStackShade.FADE_DP * host.density()), root.getWidth(), host.isRtl());
-        shade.setMirrored(host.isRtl());
-        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) shade.getLayoutParams();
-        lp.gravity = Gravity.TOP | Gravity.START;
-        lp.setMarginStart(host.isRtl() ? root.getWidth() - r.right : r.left);
-        lp.topMargin = r.top;
-        lp.width = r.width();
-        lp.height = r.height();
-        shade.setLayoutParams(lp);
-        shade.setVisibility(View.VISIBLE);
-    }
-
     /** The feed's rows: the lines the stack shows, or GONE; focus follows a line that moves and leaves a pill that hides. */
     void onPill(@NonNull List<ScoreFeed.Row> fresh) {
         List<ScoreLine.Text> texts = new ArrayList<>(fresh.size());
@@ -150,12 +108,6 @@ public final class ScorePillController {
         shown = next;
         pill.show(next, host.state().animations && !host.state().reducedMotion);
         for (int i = 0; i < pill.getChildCount(); i++) wire(pill.getChildAt(i));
-        if (next.isEmpty() && !stack.isEmpty()) {
-            // GONE lays nothing out: tell the shelf and the shade now.
-            stack.setEmpty();
-            placeShade();
-            host.shelf().setScoreStack(stack);
-        }
         if (focusedRow < 0) return;
         if (next.isEmpty()) {
             host.grid().focusTile(host.grid().lastFocused());
@@ -204,16 +156,9 @@ public final class ScorePillController {
         if (shown()) pill.focusRow(row);
     }
 
-    /** Over the carousel's backdrop the lines darken their shade with the round pills, and the backdrop fades under the stack. */
+    /** Over the carousel's backdrop the lines darken their shade with the round pills. */
     public void setOverArt(boolean on) {
         pill.setOverArt(on);
-        placeShade();
-    }
-
-    /** The stack's bounds in the root, empty while hidden: what the shelf's text ends before (ADR-046). */
-    @NonNull
-    public Rect stackBounds() {
-        return stack;
     }
 
     /** onResume: the reader observes and reads; the pill shows the last rows until the new ones land. */
