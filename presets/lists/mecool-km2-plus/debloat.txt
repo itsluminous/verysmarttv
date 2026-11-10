@@ -1,0 +1,13 @@
+# MECOOL KM2 Plus
+# Brand: MECOOL
+# Model: 4K Android TV Box (YYC)
+# Manufacturer: SkyworthDigital
+# OS: Android TV 14 (SDK 34)
+# Build: UKG3.250826.001.C1.3.3_20260611
+#
+# Apply:   setup debloat --preset mecool-km2-plus
+# Undo:    setup restore --preset mecool-km2-plus
+# Everything is DISABLED, not uninstalled. Comment out any line you want to keep.
+
+# Stock recommendations and ads
+com.google.android.tvrecommendations

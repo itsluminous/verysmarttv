@@ -1,0 +1,7 @@
+{
+  "repo": "https://github.com/Gathin23/cleanyourtv",
+  "commit": "e31f5eb0f09067c0c938bb64f1371c59d4464760",
+  "fork": "https://github.com/itsluminous/cleanyourtv",
+  "licence": "MIT",
+  "carried": "examples/<slug>/debloat.txt and tv.json, verbatim but for the Apply/Undo header lines (presets/README.md)"
+}

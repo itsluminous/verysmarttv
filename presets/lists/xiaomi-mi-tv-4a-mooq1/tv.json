@@ -1,0 +1,6 @@
+{
+  "tv": "Xiaomi Mi TV 4A (MiTV-MOOQ1), the itsluminous fork's own set",
+  "os": "Android TV 10",
+  "brand": "Xiaomi",
+  "notes": "27 packages in five batches on firmware QTG3.200305.006.2591: telemetry, promo content, TV Manager, the stock launcher's recommendation rows, the factory-test HOME claimant, Mi preloads, the USB media players and both screensavers; streaming apps, Assistant, Chromecast, Mi Cast, Miracast and the updater kept. The launcher runs as `com.itsluminous.tvhome` with the [mooq1-frosted](../themes/mooq1-frosted/) theme and the Trakt companion: [notes](xiaomi-mi-tv-4a-mooq1/README.md)"
+}

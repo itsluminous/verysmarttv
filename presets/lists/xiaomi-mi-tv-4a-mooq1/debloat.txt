@@ -1,0 +1,70 @@
+# Xiaomi Mi TV 4A (MiTV-MOOQ1, codename tarzan), Android TV 10, SDK 29, firmware QTG3.200305.006.2591
+# The list behind the itsluminous fork (https://github.com/itsluminous/cleanyourtv): derived from
+# examples/xiaomi-mi-tv-4a/debloat.txt and examples/xiaomi-mitv-mooq0/debloat.txt (same QTG3 firmware line),
+# with this owner's checklist answers applied on 2026-11-01 and lived with since. The matching launcher theme is
+# themes/mooq1-frosted (config.json in this folder is a copy); notes in README.md beside this file.
+#
+# Apply:   setup debloat --preset xiaomi-mi-tv-4a-mooq1
+# Undo:    setup restore --preset xiaomi-mi-tv-4a-mooq1
+# Everything is DISABLED for user 0, not uninstalled. Comment out any line you want to keep.
+#
+# State found before this list was applied (not done by this list, restore leaves them as they were):
+#   already disabled:  com.google.android.tvlauncher (stock launcher), com.google.android.tungsten.setupwraith,
+#                      com.netflix.ninja, com.google.android.youtube.tv, com.google.android.videos,
+#                      com.google.android.youtube.tvmusic, com.mstar.netflixobserver, com.cricfy.tv
+#   uninstalled for user 0 (pm uninstall --user 0, earlier): com.mitv.tvhome.atv (PatchWall),
+#                      com.mitv.tvhome.michannel, com.miui.tv.analytics, com.xiaomi.android.tvsetup.partnercustomizer
+#                      (holds BleRcActivity, the Bluetooth remote pairing: `pm install-existing <pkg>` brings it back)
+#   Home owner:        com.leanbitlab.ltvL (LtvLauncher). Also claims HOME at priority 0: com.duokan.factorytest.
+#   Wi-Fi network belongs to android.uid.system, not setupwraith.
+#
+# Kept by the owner's choice: Prime Video, JioHotstar, Xiaomi TV+ (com.mitv.tvhome.mitvplus, hosts a
+# LiveTVInputService), Play Games, Play Store, Google Assistant (com.google.android.katniss), Chromecast
+# (com.google.android.apps.mediashell), Mi Cast (com.mitv.milinkservice), Miracast (com.xiaomi.mitv.smartshare,
+# com.xiaomi.wfdsinkhelperservice), the firmware updater (com.xiaomi.mitv.updateservice).
+# Kept deliberately (checked with dumpsys package): com.mediatek.tvinput, com.mediatek.tv.agent,
+# com.mediatek.wwtv.tvcenter, mitv.service, com.xiaomi.mitv.res, com.mediatek.hotkey.dispatcher,
+# com.mediatek.wwtv.setupwizard, com.google.android.tv.remote.service, Gboard, Play Store and services.
+# Left alone: co.sensara.tv.mitv.res (a resource-only package in /data/app/sensy_res, no activities, services or
+# permissions), mediatek.factorymenu.ui and com.mediatek.tv.factory (factory menus: never launched, not disabled).
+#
+# Batches: applied one group at a time with a screenshot and a Home check between them; later groups were
+# commented out until the earlier ones had been checked.
+
+# ---- Batch 1: Xiaomi and Google telemetry, promo content ----
+com.xiaomi.statistic
+com.google.android.feedback                     # crash / feedback reporting
+com.google.android.tv.bugreportsender           # automatic bug report upload
+com.xm.webcontent                               # Xiaomi promo web content
+com.xiaomi.floatingframe                        # floating promo overlay service
+android.autoinstalls.config.xiaomi.amelie       # partner app auto-install config
+
+# ---- Batch 2: background services, stock-launcher plumbing, the factory-test HOME claimant ----
+com.xiaomi.mitv.tvmanager                       # "TV Manager" cleaner / boost
+com.google.android.tvrecommendations            # stock launcher recommendation rows
+com.google.android.leanbacklauncher.recommendations
+com.google.android.leanbacklauncher             # old Leanback launcher shell
+fusion.android.tv.demo                          # retail store demo loop
+com.duokan.factorytest                          # claims HOME at priority 0; disabled so Home can never land on it
+
+# ---- Batch 3: preloaded apps the owner does not use ----
+com.xiaomi.mitv.handbook                        # on-screen user manual
+com.mitv.tvlock                                 # Xiaomi TV lock / parental password
+com.xiaomo.tv.milegal                           # Xiaomi legal / privacy screens
+com.mstar.android.tv.disclaimercustomization    # vendor disclaimer screen
+com.mediatek.wwtv.webview                       # vendor web view shell
+com.xiaomi.mimusic2                             # Mi Music
+com.amazon.music.tv                             # Amazon Music
+com.sonyliv                                     # SonyLIV (Play Store build)
+com.xiaomitv.sonyliv                            # SonyLIV (old Xiaomi build)
+com.hungama.movies.xtv                          # Hungama Play
+
+# ---- Batch 4: USB media players (the owner uses VLC) ----
+com.xiaomi.mitv.mediaexplorer                   # Xiaomi USB media explorer
+com.mitv.videoplayer                            # Mi video player
+com.mitv.gallery                                # Mi Gallery
+
+# ---- Batch 5: screensavers, after `settings put secure screensaver_components <launcher package>/com.gathin.tvhome.ClockDream` ----
+# (com.itsluminous.tvhome/com.gathin.tvhome.ClockDream on this fork's launcher; com.gathin.tvhome/.ClockDream upstream)
+com.mitv.dream                                  # Xiaomi MiDream screensaver ("Mi Wallpaper")
+com.google.android.backdrop                     # Google ambient screensaver
