@@ -35,7 +35,7 @@
     <string name="sport_badminton">Badminton</string>
     <string name="badminton_needs_key">Badminton scores need a data key: Settings → Badminton data key.</string>
     <string name="badminton_loading">Looking up this week’s tournaments…</string>
-    <string name="badminton_none">No tournament in the feed for yesterday, today or tomorrow.</string>
+    <string name="badminton_none">No tournament in the feed for today or tomorrow.</string>
 
     <!-- Scoreboard -->
     <string name="innings_line">%1$d/%2$d (%3$s ov)</string>

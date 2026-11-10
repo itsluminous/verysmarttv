@@ -151,17 +151,21 @@ internal object SportDevsParser {
             if (homeName.isEmpty() || awayName.isEmpty()) return null
             val played = maxOf(home.points.size, away.points.size)
             val lastOver = played > 0 && gameOver(home.points.getOrElse(played - 1) { 0 }, away.points.getOrElse(played - 1) { 0 })
-            val status = FeedStatus(type, reason.ifEmpty { if (lastOver && type.equals("live", true)) BETWEEN_GAMES else "" }, period = played)
+            // The ending or pause: the feed's reason, else the type itself when it is one (`walkover`, `retired`, `suspended`).
+            val why = reason.ifEmpty { typeAsReason() }
+            val status = FeedStatus(type, why.ifEmpty { if (lastOver && type.equals("live", true)) BETWEEN_GAMES else "" }, period = played)
             val state = StateNormaliser.normalise(status)
             val games = (0 until played).map { i -> "${home.points.getOrElse(i) { 0 }}-${away.points.getOrElse(i) { 0 }}" }
             val detail = when {
                 state == State.LIVE && played > 0 -> "Game $played"
-                state == State.BREAK && reason.isEmpty() -> BETWEEN_GAMES
-                else -> reason
+                state == State.BREAK && why.isEmpty() -> BETWEEN_GAMES
+                else -> why
             }
             val startMs = EspnCommon.epochMs(start)
-            val homeWon = state == State.FINAL && home.games > away.games
-            val awayWon = state == State.FINAL && away.games > home.games
+            val homeGames = if (home.games >= 0) home.games else gamesWon(home.points, away.points)
+            val awayGames = if (away.games >= 0) away.games else gamesWon(away.points, home.points)
+            val homeWon = state == State.FINAL && homeGames > awayGames
+            val awayWon = state == State.FINAL && awayGames > homeGames
             return Event(
                 id = id,
                 sport = Sport.BADMINTON,
@@ -191,6 +195,13 @@ internal object SportDevsParser {
             return rest.removePrefix(separator).trim().ifEmpty { t }
         }
 
+        /** A type that is itself the ending or pause (`walkover`, `retired`, `suspended`…), capitalised as a reason; empty for the plain states. */
+        private fun typeAsReason(): String {
+            val word = type.trim()
+            if (word.isEmpty() || word.lowercase() in PLAIN_TYPES) return ""
+            return word.replaceFirstChar { it.uppercase() }
+        }
+
         private fun side(id: String, name: String, score: Score, winner: Boolean): Side =
             Side(
                 id = id,
@@ -204,12 +215,22 @@ internal object SportDevsParser {
 
     const val BETWEEN_GAMES = "Interval"
 
+    /** The types that only say where the match is, not why: anything else (`walkover`, `retired`, `suspended`) is also the reason. */
+    private val PLAIN_TYPES = setOf(
+        "upcoming", "notstarted", "not started", "scheduled", "pre", "live", "inprogress", "in progress", "in",
+        "finished", "ended", "final", "post",
+    )
+
     /** A game is over at 21 with a two-point lead, or at 30. */
     fun gameOver(a: Int, b: Int): Boolean {
         val high = maxOf(a, b)
         val low = minOf(a, b)
         return high >= GAME_CAP || high >= GAME_POINTS && high - low >= 2
     }
+
+    /** The games [mine] won against [theirs], counted from the points when the feed gives no `current`. */
+    fun gamesWon(mine: List<Int>, theirs: List<Int>): Int =
+        mine.indices.count { i -> mine[i] > theirs.getOrElse(i) { 0 } && gameOver(mine[i], theirs.getOrElse(i) { 0 }) }
 
     /**
      * The surname of each player: `Sindhu P. V.` → `Sindhu` (the feed writes the surname first, initials after),

@@ -144,4 +144,33 @@ class SportDevsParserTest {
         assertTrue(SportDevsParser.parse(Fixtures.readerOf("""{"message":"You are not subscribed to this API."}"""), now).isEmpty())
         assertTrue(SportDevsParser.parse(Fixtures.readerOf("""[{"id":2,"status":{"type":"live"}}]"""), now).isEmpty()) // no names
     }
+
+    @Test
+    fun anEndingGivenOnlyAsTheTypeIsTheDetailAndTheWinnerComesFromThePoints() {
+        // The normaliser accepts `walkover` / `retired` as the type itself (ADR-044); the formatter needs the word in the detail
+        // and a winner, so both are derived when the feed gives neither a reason nor `current`.
+        val wo = SportDevsParser.parse(
+            Fixtures.readerOf("""[{"id":3,"home_team_name":"Christie J.","away_team_name":"Antonsen A.","status":{"type":"walkover"},"round":{"name":"Round of 16"},
+                "home_team_score":{"period_1":0},"away_team_score":{"period_1":21}}]"""),
+            now,
+        ).single()
+        assertEquals(State.FINAL, wo.state)
+        assertEquals("Round of 16 · Walkover", wo.statusDetail)
+        assertTrue(wo.away.winner)
+        assertFalse(wo.home.winner)
+        val ret = SportDevsParser.parse(
+            Fixtures.readerOf("""[{"id":4,"home_team_name":"Christie J.","away_team_name":"Antonsen A.","status":{"type":"retired"},
+                "home_team_score":{"period_1":21,"period_2":5},"away_team_score":{"period_1":18,"period_2":3}}]"""),
+            now,
+        ).single()
+        assertEquals(State.FINAL, ret.state)
+        assertEquals("Retired", ret.statusDetail)
+        assertTrue(ret.home.winner) // one game to none from the points: `current` is absent
+        assertFalse(ret.away.winner)
+        val paused = SportDevsParser.parse(Fixtures.readerOf("""[{"id":5,"name":"A B vs C D","status":{"type":"suspended"},"home_team_score":{"period_1":11},"away_team_score":{"period_1":9}}]"""), now).single()
+        assertEquals(State.BREAK, paused.state)
+        assertEquals("Suspended", paused.statusDetail)
+        assertEquals(1, SportDevsParser.gamesWon(listOf(21, 19, 11), listOf(18, 21, 9)))
+        assertEquals(0, SportDevsParser.gamesWon(listOf(20), listOf(19))) // not over yet
+    }
 }

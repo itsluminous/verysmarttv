@@ -79,7 +79,8 @@ key for the first time so the release pipeline can be proved before `1.0.0`.
   to publish anything not signed with it). `./gradlew ci` runs the unit tests, lint, the file-length gate
   and the identifier gate; CI also runs the Python suite on Ubuntu and Windows and Espresso on an Android TV
   emulator.
-- Signer certificate SHA-256: recorded here once the first signed release has been verified.
+- Signer certificate SHA-256: `15d5085a0400d720d4aea65edab4df72c6e5a5313844715c3e56859cec99c21d` (verified with
+  `apksigner verify --print-certs` on every APK of v1.0.0-rc1 and v1.0.0-rc2).
 
 [Unreleased]: https://github.com/itsluminous/verysmarttv/compare/v1.0.0-rc2...HEAD
 [1.0.0-rc2]: https://github.com/itsluminous/verysmarttv/releases/tag/v1.0.0-rc2
