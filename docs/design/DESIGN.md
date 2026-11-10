@@ -1000,6 +1000,7 @@ From `getprop`: `model = ro.product.model`, `device = ro.product.device`, `board
 | **board** | `board` or `product` equals a token, brand equals | "same board, different model name" |
 | **brand+os** | brand equals and `sdk` within ±1 | "same brand and Android version — check the list" (never auto-suggested; listed as candidates) |
 | **brand** | brand equals | candidates, sorted by `sdk` distance then package count |
+| **other-brand** | `model` or `device` equals a token of a list whose brand differs from the TV's (a reference board such as `m7322` or `rtd2841a` reported as the device by sets of many brands) | "same model or device name, but a list for another brand: check it"; ranks below every list of the TV's own brand, never auto-suggested. A TV that reports no brand keeps its exact match |
 | none | – | "no community list for this TV: Manual" |
 
 Ties in a tier are broken by SDK distance, then by newest `source` commit. The suggested preset's header

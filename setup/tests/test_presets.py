@@ -127,7 +127,9 @@ class MatchTest(unittest.TestCase):
         self.assertEqual(matches[0].tier, "exact")
         self.assertEqual(presets.suggestion(matches).preset.slug, "xiaomi-mi-tv-4a-mooq1")
         self.assertIn("xiaomi-mi-tv-4a", [m.preset.slug for m in matches if m.tier == "exact"])
-        self.assertTrue(all(m.preset.brand == "Xiaomi" or m.tier == "exact" for m in matches))
+        # The Redmi MOOQ3 list shares the `tarzan` codename: a list for another brand, so it trails the Xiaomi ones.
+        self.assertTrue(all(m.preset.brand == "Xiaomi" or m.tier == "other-brand" for m in matches))
+        self.assertEqual(matches[-1].tier, "other-brand")
 
     def test_tcl_g08_and_sony_bravia_match_exactly(self):
         tcl = presets.match(TCL_G08, self.presets)
@@ -157,6 +159,32 @@ class MatchTest(unittest.TestCase):
         self.assertEqual(presets.match(same_board, self.presets)[0].tier, "board")
         other_brand = dict(same_board, **{"ro.product.brand": "Acme", "ro.product.manufacturer": "Acme"})
         self.assertEqual(presets.match(other_brand, self.presets), [])
+
+    def test_a_reference_board_name_from_another_brand_ranks_below_the_tvs_own_brand(self):
+        """MediaTek's `m7322` is the device of Grundig, Hisense, JVC and Noblex sets alike. A Grundig TV that
+        reports it gets the Grundig lists first; the other brands' lists trail every Grundig list as "other
+        brand" and are never pre-selected. A brand with no lists of its own gets only "other brand" rows."""
+        grundig = dict(UNKNOWN, **{"ro.product.device": "m7322", "ro.product.brand": "Grundig",
+                                   "ro.product.manufacturer": "Grundig", "ro.build.version.sdk": "30"})
+        matches = presets.match(grundig, self.presets)
+        self.assertEqual(matches[0].tier, "exact")
+        self.assertEqual(matches[0].preset.brand, "Grundig")
+        others = [m for m in matches if m.tier == "other-brand"]
+        self.assertTrue(others)
+        self.assertTrue(all(m.preset.brand != "Grundig" and "m7322" in m.preset.tokens for m in others))
+        last_own = max(i for i, m in enumerate(matches) if m.preset.brand == "Grundig")
+        first_other = min(i for i, m in enumerate(matches) if m.tier == "other-brand")
+        self.assertLess(last_own, first_other, "every Grundig list, exact or by brand only, ranks above them")
+        self.assertEqual(presets.suggestion(matches).preset.brand, "Grundig")
+        acme = dict(grundig, **{"ro.product.brand": "Acme", "ro.product.manufacturer": "Acme"})
+        matches = presets.match(acme, self.presets)
+        self.assertTrue(matches)
+        self.assertEqual({m.tier for m in matches}, {"other-brand"})
+        self.assertIsNone(presets.suggestion(matches), "a list for another brand is never the pre-selected answer")
+        self.assertIn("another brand", matches[0].text)
+        # A TV that reports no brand at all cannot be told apart from the list's: its exact match stands.
+        nobrand = dict(grundig, **{"ro.product.brand": "", "ro.product.manufacturer": ""})
+        self.assertEqual(presets.match(nobrand, self.presets)[0].tier, "exact")
 
     def test_token_mining(self):
         tokens = presets.mine_tokens('# Sony BRAVIA KD-43X8000G (APAC: device BRAVIA_ATV3_4K, product BRAVIA 4K GB ATV3). '
