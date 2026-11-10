@@ -13,6 +13,11 @@
          and fall back (DESIGN.md §3, ADR-009). -->
     <issue id="MissingTranslation" severity="ignore" />
 
+    <!-- The companions' banner wordmarks (res/mipmap-xhdpi/banner.png, 1 to 2 KB each) are PNGs written by
+         tools/dev/render_banner.py and compared byte for byte by its --check (docs/BUILDING.md); WebP would save a
+         few hundred bytes per APK and make the generated file one more format the script has to encode. -->
+    <issue id="ConvertToWebp" severity="ignore" />
+
     <!-- All user-facing text lives in string resources (ADR-035): these may never be baselined. -->
     <issue id="HardcodedText" severity="error" />
     <issue id="SetTextI18n" severity="error" />

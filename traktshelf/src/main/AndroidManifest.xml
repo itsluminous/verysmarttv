@@ -19,7 +19,7 @@
         android:supportsRtl="false"
         android:label="@string/app_name"
         android:icon="@drawable/icon"
-        android:banner="@drawable/icon"
+        android:banner="@drawable/banner"
         android:theme="@style/Theme.TraktShelf">
 
         <!-- Home. Also the module card the launcher shows as a tile (docs/modules.md). -->

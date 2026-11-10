@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The TV banner (android:banner, 320x180dp): the icon above the app's name. Android drawables cannot draw text,
+     so the name is a bitmap, mipmap-xhdpi/banner.png, rendered by tools/dev/render_banner.py from the launcher's
+     Outfit at weight 500 (docs/BUILDING.md); 320x180 px, stretched over the banner so 1 px is 1 dp. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/banner_art" />
+    <item>
+        <bitmap android:src="@mipmap/banner" android:gravity="fill" android:filter="true" />
+    </item>
+</layer-list>

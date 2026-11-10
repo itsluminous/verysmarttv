@@ -27,7 +27,7 @@
         android:supportsRtl="false"
         android:label="@string/app_name"
         android:icon="@drawable/icon"
-        android:banner="@drawable/icon"
+        android:banner="@drawable/banner"
         android:theme="@style/Theme.LiveScore"
         tools:ignore="DataExtractionRules">
 

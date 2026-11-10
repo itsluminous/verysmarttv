@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The banner's artwork under the wordmark (banner.xml): the slate and its diagonal, and the red disc with a white
+     scoreboard mark, 90dp across and raised to leave room for the app's name below; 320x180 as Android TV banners
+     must be. The launcher's tile rounds the corners. VectorRaster warns about sizes over 200dp for the rasterised
+     copies a minSdk below 21 would need; minSdk is 26. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:width="320dp" android:height="180dp" android:viewportWidth="320" android:viewportHeight="180"
+    tools:ignore="VectorRaster">
+    <path android:fillColor="#FF101828" android:pathData="M0,0h320v180h-320z" />
+    <path android:fillColor="#FF182238" android:pathData="M0,180 L320,0 L320,180 Z" />
+    <path android:fillColor="#FFE53935" android:pathData="M160,72 m-45,0 a45,45 0 1,0 90,0 a45,45 0 1,0 -90,0" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M136,56 h48 v10 h-48z M136,78 h30 v10 h-30z" />
+</vector>
