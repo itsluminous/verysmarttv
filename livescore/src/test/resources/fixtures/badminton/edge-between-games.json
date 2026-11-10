@@ -1,53 +1,31 @@
 [
  {
-  "date": "2026-11-10",
-  "_note": "Hand-made edge case (ADR-044): between-games: the first game is over at 21-15 and the second has not started; the feed gives no reason, so the parser reads the interval from the points.",
+  "date": "2026-11-10T00:00:00",
+  "_note": "Hand-made on 2026-11-10 in the flat matches-by-date shape recorded the same day (matches-20261110.json): no live match was in the feed when it was recorded (matches-live answered []), so the live status word and reason are the vendor's documented `live` and a guess at the reason; the recording of a live day is what confirms them (ADR-044).",
   "matches": [
    {
-    "id": 900104,
-    "name": "Feng Y. Z./Huang D. P. vs Seo S. J./Chae Y. J.",
-    "tournament_id": 7005,
-    "tournament_name": "BWF World Tour, Japan Masters, Mixed Doubles",
-    "tournament_importance": 50,
-    "season_id": 2026,
-    "season_name": "2026",
-    "status": {
-     "type": "live",
-     "reason": ""
-    },
-    "status_type": "live",
-    "arena_id": 9,
-    "arena_name": "Kumamoto Prefectural Gymnasium",
-    "home_team_id": 5015,
-    "home_team_name": "Feng Y. Z./Huang D. P.",
-    "home_team_hash_image": "00000000",
-    "away_team_id": 5016,
-    "away_team_name": "Seo S. J./Chae Y. J.",
-    "away_team_hash_image": "00000000",
-    "home_team_score": {
-     "current": 1,
-     "display": 1,
-     "period_1": 21
-    },
-    "away_team_score": {
-     "current": 0,
-     "display": 0,
-     "period_1": 15
-    },
-    "times": {
-     "specific_start_time": "2026-11-10T08:00:00+00:00"
-    },
-    "start_time": "2026-11-10T08:00:00+00:00",
-    "duration": null,
-    "league_id": 1,
-    "league_name": "BWF World Tour",
-    "league_hash_image": "00000000",
-    "class_id": 1,
-    "class_name": "International",
-    "round": {
-     "round": 4,
-     "name": "Round of 16"
-    }
+    "id": 900005,
+    "name": "Sindhu P. V. vs An S. Y.",
+    "status": "live",
+    "duration": 9000,
+    "league_id": 11976,
+    "season_id": 97164,
+    "start_time": "2026-11-10T03:00:00+00:00",
+    "league_name": "Kumamoto Masters Japan - WS",
+    "season_name": "Kumamoto Masters Japan, WS 2026",
+    "away_team_id": 5002,
+    "home_team_id": 5001,
+    "status_reason": "1st game",
+    "tournament_id": 128994,
+    "away_team_name": "An S. Y.",
+    "home_team_name": "Sindhu P. V.",
+    "tournament_name": "Kumamoto Masters Japan, WS",
+    "tournament_importance": 0,
+    "specific_start_time": "2026-11-10T03:12:40+00:00",
+    "home_team_score": 1,
+    "away_team_score": 0,
+    "home_team_period_1_score": 21,
+    "away_team_period_1_score": 15
    }
   ]
  }

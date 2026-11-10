@@ -33,6 +33,28 @@ class RefreshPolicyTest {
     }
 
     @Test
+    fun badmintonIsFetchedAtMostEveryFiveMinutesForItsQuota() {
+        // The user's RapidAPI key is on a 100-requests-a-day plan (ADR-044): a live badminton match re-fetches at 5 min, not 55 s.
+        val bwf = FetchKey(Sport.BADMINTON, null)
+        val followed = listOf(live("b1", Sport.BADMINTON, "128994"), live("3", Sport.FOOTBALL, "eng.1"))
+        assertEquals(listOf(pl), onRead(followed, mapOf(bwf to now - 4 * 60_000L, pl to now - 60_000L)))
+        assertEquals(listOf(bwf, pl), onRead(followed, mapOf(bwf to now - 5 * 60_000L, pl to now - 60_000L)))
+        assertEquals(listOf(bwf), onRead(listOf(live("b1", Sport.BADMINTON, "128994", State.BREAK)), mapOf(bwf to now - 295_000L)))
+        assertEquals(5 * 60_000L, policy.liveIntervalMs(Sport.BADMINTON))
+        assertEquals(60_000L, policy.liveIntervalMs(Sport.CRICKET))
+        assertEquals(60_000L, policy.liveIntervalMs(null))
+        assertEquals(295_000L, policy.liveReadMs(Sport.BADMINTON))
+        assertEquals(55_000L, policy.liveReadMs(Sport.TENNIS))
+        assertEquals(5 * 60_000L, policy.minFetchGapMs(Sport.BADMINTON))
+        assertEquals(0L, policy.minFetchGapMs(Sport.FOOTBALL))
+        // Stale follows the sport's own interval: a badminton row is stale after 10 min, a cricket one after 2.
+        val badmintonRow = live("b1", Sport.BADMINTON, "128994").event.copy(updatedMs = now - 9 * 60_000L)
+        assertFalse(policy.isStale(badmintonRow, now))
+        assertTrue(policy.isStale(badmintonRow.copy(updatedMs = now - 11 * 60_000L), now))
+        assertTrue(policy.isStale(live("1", Sport.CRICKET, "x").event.copy(updatedMs = now - 3 * 60_000L), now))
+    }
+
+    @Test
     fun aBreakCountsAsLiveAndAFinalNever() {
         assertEquals(listOf(cricket), onRead(listOf(live("1", Sport.CRICKET, "x", State.BREAK)), emptyMap()))
         assertEquals(emptyList<FetchKey>(), onRead(listOf(live("1", Sport.CRICKET, "x", State.FINAL)), emptyMap()))

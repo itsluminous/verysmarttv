@@ -112,9 +112,17 @@ class ScoreRepo(
         fetch(listOf(FetchKey(sport, null)), liveOnly = false, onDone = onDone)
     }
 
-    /** The open scoreboard's 30 s refresh: the event's competition, then its fuller view; [onDone] on the main thread. */
+    /**
+     * The open scoreboard's 30 s refresh: the event's competition, then its fuller view; [onDone] on the main thread.
+     * A key fetched less than [RefreshPolicy.minFetchGapMs] ago (badminton's quota, ADR-044) is read from the cache instead.
+     */
     fun refreshOne(event: Event, onDone: (Event?) -> Unit) {
-        fetch(listOf(FetchKey.of(event)), liveOnly = true) {
+        val key = FetchKey.of(event)
+        if (clock() - (cache.fetchedMs()[key] ?: 0L) < policy.minFetchGapMs(event.sport)) {
+            handler.post { onDone(cache.event(event.id)) }
+            return
+        }
+        fetch(listOf(key), liveOnly = true) {
             val fresh = cache.event(event.id)
             if (fresh == null) onDone(null) else fetchDetail(fresh) { onDone(it ?: fresh) }
         }

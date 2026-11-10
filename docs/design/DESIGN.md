@@ -628,17 +628,19 @@ curl on 2026-11-10:
 | TheSportsDB v1 (key `123`) | free key | `eventsday.php?s=Badminton` lists the **tournament** as one event per day (`Japan Masters 2026`), no matches; leagues `BWF World Tour`, `Olympics Badminton` | **none**: livescores are Premium only | 30 req/min | allowed with key | stable | Rejected (no match data) |
 | API-Sports (api-sports.io) | free key | **no badminton product** | – | 100 req/day | – | – | Rejected |
 | AllSportsAPI | free key | **no badminton** (`/badminton/` endpoint 404; the sports list is football, basketball, tennis, cricket, hockey, baseball) | – | – | – | – | Rejected |
-| **SportDevs "Badminton Devs" on RapidAPI**, `badminton-devs.p.rapidapi.com` (`matches-by-date?date=eq.yyyy-MM-dd`, `matches-live`, `leagues`, `tournaments`) | **free RapidAPI key** (Basic plan) | World Tour, World Championships, Olympics, team events, national leagues (the vendor's badminton coverage) | match status (`upcoming`/`live`/`finished`/`walkover`/`retired`…), games won, points per game (`period_n`), round, tournament | **a daily quota on the free plan** (stated on the pricing tab; a live match at 60 s costs 60 requests an hour) | RapidAPI's terms, personal use allowed with a key | the vendor's own domain `sportdevs.com` did not resolve on 2026-11-10 (no DNS answer); the RapidAPI listing answers (`{"message":"You are not subscribed to this API."}` without a subscription) | **Chosen**, as the only keyed option with badminton match data; the key is the user's |
+| **SportMicro "Badminton Micro" on RapidAPI**, `badminton-micro.p.rapidapi.com` (`matches-by-date?date=eq.yyyy-MM-dd`, `matches-live`, `matches?tournament_id=eq.<id>`, `leagues`, `tournaments`; PostgREST-style filters; the listing was first found under the vendor's earlier name "SportDevs / Badminton Devs") | **the user's own RapidAPI key** (free plan; more may cost money) | World Tour, World Championships, Olympics, team events, national leagues (143 matches on 2026-11-10: Kumamoto Masters Japan and Kaohsiung Masters, qualifying included) | match status (`upcoming`/`live`/`finished`/`canceled`) with a reason (`Not started`, `Ended`, `Walkover`, `Canceled`), games won, points per game (`*_period_N_score`), tournament, league; no round | **100 requests a day** on the free plan (`x-ratelimit-requests-limit: 100`, daily reset, measured 2026-11-10): 60 s polling would spend it in 1 h 40 min, so badminton is polled at 5 min | RapidAPI's terms, personal use allowed with a key | the vendor's documentation host `badminton.sportmicro.com` answers `Unauthorized` without a key; `sportmicro.com` describes the API family; the RapidAPI listing answers (`{"message":"You are not subscribed to this API."}` without a subscription) | **Chosen**, as the only keyed option with badminton match data; the key is the user's |
 | Olympics-only feeds (olympics.com results JSON) | none | Olympics only, and only while the Games run | games | – | – | nothing to read until LA 2028 | Not viable |
 
-**Decision: SportDevs' badminton API through RapidAPI, with the user's own key** (ADR-044). No keyless source is
+**Decision: SportMicro's Badminton Micro API through RapidAPI, with the user's own key** (ADR-044). No keyless source is
 viable: BWF's site is behind a JavaScript challenge, Sofascore refuses non-browsers, and Flashscore, the one feed that
 answers, forbids automated access in its terms, which fails the "ToS allows personal use" criterion that ESPN's
 undocumented feeds pass. The key is entered on the TV (**Settings → Badminton data key**), stored in the companion's
 preferences, never in the APK, a backup or a log; without it badminton is listed but not fetched, and the picker says
-what is missing. The free plan's daily quota does not fit a day of 60 s polling, so the Settings row and
-`docs/providers.md` say so; the refresh policy is the same as the other sports' (one request per live minute while
-a screen shows a badminton match, two per full refresh: today and tomorrow).
+what is missing. The free plan is 100 requests a day, which does not fit a day of 60 s polling, so badminton is
+fetched at most every 5 minutes whatever screen reads it (`RefreshPolicy.BADMINTON_LIVE_MS`; `ScoreRepo.refreshOne`
+reads the cache inside that gap) and the Settings row says so, and that the key is the user's own and may cost
+money beyond the free tier; a full refresh is two requests (today and tomorrow). The key is only ever entered on
+the TV: never a GitHub secret, a `BuildConfig` field or a CI variable.
 
 Payload-size handling for a 1 GB TV: parse with `android.util.JsonReader` streaming, skipping
 sub-trees we do not read (`odds`, `broadcasts`, `highlights`, `venue`, athletes' headshots); never hold
@@ -682,7 +684,7 @@ interface ScoreSource {
 `Event` is the source-neutral model the provider and the UI read (`Event(id, sport, competition,
 format, state, statusDetail, startMs, endMs, home: Side, away: Side, summary, updatedMs)`; `Side(id,
 name, abbr, score, innings: List<Innings>?, isBatting)`). `EspnSource` carries cricket, football, F1 and tennis and
-`SportDevsSource` badminton (ADR-044), registered in `SourceRegistry`, which routes each sport to the first source that
+`SportMicroSource` badminton (ADR-044), registered in `SourceRegistry`, which routes each sport to the first source that
 claims it; the parsers are pure functions `parseScorepanel(JsonReader): List<Event>`, `parseScoreboard(sport,
 JsonReader)`, each tested against recorded fixtures in `livescore/src/test/resources/espn/*.json`
 (captured 2026-11-09 and re-captured by a script when the feed changes). A `FakeSource` in `:testkit`
@@ -702,7 +704,7 @@ Normalisation (pure, fixture-tested):
 | `in` and `type.description` ∈ {Stumps, Lunch, Tea, Dinner, Drinks, Innings Break, Delayed, Rain, Halftime, Suspended, Bad light, Wet outfield} (tv-town's `NOT_PLAYING` list) | `break` |
 | `post` | `final` |
 
-SportDevs' badminton feed (ADR-044) names its states in words, read by the same normaliser: `upcoming`/`notstarted`
+SportMicro's badminton feed (ADR-044) names its states in words, read by the same normaliser: `upcoming`/`notstarted`
 → `upcoming`; `live`/`inprogress` → `live`, unless the reason is a pause (`Interval`, `Pause`, `Break`, `Suspended`)
 or the parser finds the last game over with no next one started (the interval between games, reason `Interval`) →
 `break`; `finished`/`ended` → `final`; `walkover`, `retired`, `canceled`, `postponed`, as a type or as the reason of

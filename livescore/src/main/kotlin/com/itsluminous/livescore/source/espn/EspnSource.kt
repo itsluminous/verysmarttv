@@ -67,7 +67,7 @@ class EspnSource(
     companion object {
         const val ID = "espn"
 
-        /** The four sports ESPN's feeds carry; badminton has no feed there (404, checked 2026-11-10), see `SportDevsSource`. */
+        /** The four sports ESPN's feeds carry; badminton has no feed there (404, checked 2026-11-10), see `SportMicroSource`. */
         val SPORTS: List<Sport> = listOf(Sport.CRICKET, Sport.FOOTBALL, Sport.F1, Sport.TENNIS)
         private const val SITE = "https://site.api.espn.com/apis/site/v2/sports"
         private const val WEB = "https://site.web.api.espn.com/apis/site/v2/sports"

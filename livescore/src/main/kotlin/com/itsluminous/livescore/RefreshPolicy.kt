@@ -25,18 +25,29 @@ data class FetchKey(val sport: Sport, val competitionId: String?) {
  * - Nothing on screen: a one-off job 2 min before the next followed start (and 3 min after it, for the
  *   first live reading), and a periodic job every 6 h for the fixture list.
  * - A failed fetch backs off 1, 2, 4, 8 min; offline, nothing is fetched.
+ * - Badminton's feed is the user's RapidAPI key on a 100-requests-a-day free plan (ADR-044), so a live badminton
+ *   match is fetched at most every [BADMINTON_LIVE_MS], whatever screen reads it; the other sports keep [LIVE_MS].
  */
 class RefreshPolicy {
     /** How often an event in [state] is worth re-fetching; `stale` is twice this. */
-    fun intervalMs(state: State, startMs: Long, nowMs: Long): Long =
+    fun intervalMs(state: State, startMs: Long, nowMs: Long, sport: Sport? = null): Long =
         when (state) {
-            State.LIVE, State.BREAK -> LIVE_MS
+            State.LIVE, State.BREAK -> liveIntervalMs(sport)
             State.UPCOMING -> if (startMs - nowMs <= DAY_MS) MATCH_DAY_MS else QUIET_MS
             State.FINAL -> QUIET_MS
         }
 
+    /** The live cadence of a sport's feed: 5 min for badminton's quota, 60 s elsewhere. */
+    fun liveIntervalMs(sport: Sport?): Long = if (sport == Sport.BADMINTON) BADMINTON_LIVE_MS else LIVE_MS
+
+    /**
+     * The least time between two fetches of one key that a screen's own timer may not shorten: badminton's
+     * [BADMINTON_LIVE_MS] (the open scoreboard's 30 s refresh reads the cache until then), 0 for every other sport.
+     */
+    fun minFetchGapMs(sport: Sport): Long = if (sport == Sport.BADMINTON) BADMINTON_LIVE_MS else 0L
+
     /** Whether the row's data is older than the refresh interval for its state allows (the launcher dims the pill). */
-    fun isStale(event: Event, nowMs: Long): Boolean = nowMs - event.updatedMs > 2 * intervalMs(event.state, event.startMs, nowMs)
+    fun isStale(event: Event, nowMs: Long): Boolean = nowMs - event.updatedMs > 2 * intervalMs(event.state, event.startMs, nowMs, event.sport)
 
     /**
      * The fetches a provider read should start now: none while offline, while one runs, or inside a
@@ -60,7 +71,7 @@ class RefreshPolicy {
             val key = FetchKey.of(f.event)
             val age = nowMs - (fetchedMs[key] ?: 0L)
             when (f.event.state) {
-                State.LIVE, State.BREAK -> if (age >= LIVE_READ_MS) keys.add(key)
+                State.LIVE, State.BREAK -> if (age >= liveReadMs(key.sport)) keys.add(key)
                 State.UPCOMING -> {
                     val untilStart = f.event.startMs - nowMs
                     if (untilStart <= SOON_MS && untilStart >= -LATE_MS && age >= MATCH_DAY_MS) keys.add(key)
@@ -70,6 +81,9 @@ class RefreshPolicy {
         }
         return keys.toList()
     }
+
+    /** The age at which a provider read re-fetches a live key: 5 s short of the sport's live interval, so a reader at that cadence never misses. */
+    fun liveReadMs(sport: Sport): Long = liveIntervalMs(sport) - READ_SLACK_MS
 
     /** 1, 2, 4, 8 minutes, then 8. */
     fun backoffMs(failures: Int): Long = (1L shl (failures - 1).coerceIn(0, 3)) * 60_000L
@@ -91,6 +105,8 @@ class RefreshPolicy {
     companion object {
         const val LIVE_MS = 60_000L
         const val LIVE_READ_MS = 55_000L
+        const val BADMINTON_LIVE_MS = 5L * 60_000L
+        private const val READ_SLACK_MS = LIVE_MS - LIVE_READ_MS
         const val MATCH_DAY_MS = 15L * 60_000L
         const val QUIET_MS = 6L * 3600_000L
         const val PERIODIC_MS = QUIET_MS

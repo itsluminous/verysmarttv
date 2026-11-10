@@ -62,10 +62,10 @@
     <string name="clear_follows_confirm">Remove every follow? The pill goes empty until you follow something again.</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
-    <string name="badminton_key">Badminton data key</string>
-    <string name="badminton_key_unset">Not set: badminton is not fetched. A free RapidAPI key for SportDevs’ Badminton API, see docs/providers.md</string>
-    <string name="badminton_key_set">Set (ends in %1$s) · fetched while a badminton follow is live</string>
-    <string name="badminton_key_hint">Paste your RapidAPI key</string>
+    <string name="badminton_key">Badminton data key (RapidAPI · Badminton Micro)</string>
+    <string name="badminton_key_unset">Not set: badminton is not fetched. Enter your own RapidAPI key for SportMicro’s Badminton Micro API (docs/providers.md). The free plan is 100 requests a day; beyond it the key may cost you money.</string>
+    <string name="badminton_key_set">Set (ends in %1$s) · your own key, fetched at most every 5 min while a badminton follow is live, so the free plan’s 100 requests a day last; beyond it the key may cost you money</string>
+    <string name="badminton_key_hint">Paste your own RapidAPI key</string>
     <string name="badminton_key_remove">Remove</string>
-    <string name="about_source">Scores come from ESPN’s public site feeds, which need no account, and badminton from SportDevs’ API with your own key. Neither is affiliated with this app and the feeds may change or stop without notice. Nothing is fetched while no screen shows a score.</string>
+    <string name="about_source">Scores come from ESPN’s public site feeds, which need no account, and badminton from SportMicro’s Badminton Micro API on RapidAPI with your own key, at most every 5 minutes. Neither is affiliated with this app and the feeds may change or stop without notice. Nothing is fetched while no screen shows a score.</string>
 </resources>

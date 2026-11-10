@@ -78,18 +78,20 @@ scores stay, marked stale, and the status line shows when they were last updated
 `source/ScoreSource` is where a replacement goes (DESIGN.md §13.1, ADR-012). Nothing is fetched while no
 screen shows a score.
 
-### SportDevs badminton API, through RapidAPI
+### SportMicro "Badminton Micro" API, through RapidAPI
 
-The live-score companion reads badminton scores from SportDevs' Badminton API as listed on RapidAPI
-(`badminton-devs.p.rapidapi.com`), only with a key the TV's owner creates in their own RapidAPI account and enters in
-the companion's Settings; no key ships in the APK or the repository, and nothing is fetched without one. **VerySmartTV
-is not affiliated with, endorsed by or sponsored by SportDevs or RapidAPI (Nokia)**; the data, the tournament and
-player names are the property of their owners and of the Badminton World Federation, shown for the personal,
-non-commercial display of scores on the owner's own TV under the plan the owner subscribed to. The free plan has a
-daily request quota the companion can exhaust on a long match day, after which it backs off and marks the last scores
-stale; the vendor may change or stop the API, and the adapter boundary `source/ScoreSource` is where a replacement goes
-(DESIGN.md §13.1, ADR-044). The fixtures under `livescore/src/test/resources/fixtures/badminton/` are hand-made
-examples in the API's shape, not recorded data.
+The live-score companion reads badminton scores from SportMicro's Badminton Micro API as listed on RapidAPI
+(`badminton-micro.p.rapidapi.com`, `rapidapi.com/sportmicro-sportmicro-default/api/badminton-micro`), only with a key
+the TV's owner creates in their own RapidAPI account and enters in the companion's Settings; no key ships in the APK,
+the repository, a build variable or a CI secret, and nothing is fetched without one. **VerySmartTV is not affiliated
+with, endorsed by or sponsored by SportMicro or RapidAPI (Nokia)**; the data, the tournament and player names are the
+property of their owners and of the Badminton World Federation, shown for the personal, non-commercial display of
+scores on the owner's own TV under the plan the owner subscribed to. The free plan is 100 requests a day (measured
+2026-11-10), so the companion fetches badminton at most every 5 minutes; past the free plan the owner's key may cost
+them money under RapidAPI's billing, which is between the owner and RapidAPI. The vendor may change or stop the API,
+and the adapter boundary `source/ScoreSource` is where a replacement goes (DESIGN.md §13.1, ADR-044). The fixtures
+under `livescore/src/test/resources/fixtures/badminton/` are five matches of one public day's list recorded on
+2026-11-10 with image hashes removed, plus hand-made edge cases in the same shape; nothing in them is personal.
 
 ## Libraries
 

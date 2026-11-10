@@ -6,8 +6,11 @@
 #   tools/dev/record_fixtures.sh 20261109        # a given day (cricket takes the date; the others are "today" at ESPN)
 #   tools/dev/record_fixtures.sh --catalogue     # livescore/src/main/res/raw/espn_catalogue.json from the teams endpoints
 #   RAPIDAPI_KEY=… tools/dev/record_fixtures.sh --badminton [YYYYMMDD]
-#                                                # SportDevs' badminton day list (ADR-044) into fixtures/badminton/matches-<day>.json;
-#                                                # the key is sent as a header and never lands in the file
+#                                                # SportMicro's badminton day list (ADR-044) into fixtures/badminton/matches-<day>.json
+#                                                # (the flat matches-by-date shape), and a /matches page of its first tournament into
+#                                                # fixtures/badminton/matches-nested-<day>.json (the nested shape): two requests of the
+#                                                # key's 100 a day. The key is your own RapidAPI key, read from the environment for this
+#                                                # run only; it is sent as a header and never lands in a file, a log or the repository.
 #
 # Event arrays are kept whole when a day has 3 events or fewer; otherwise the recording keeps the first 3
 # events of every list (and the first 3 matches of a tennis grouping) so the fixtures stay small; the
@@ -52,27 +55,66 @@ record() { # $1 sport dir, $2 name, $3 url
 }
 
 if [ "${1:-}" = "--badminton" ]; then
-  [ -n "${RAPIDAPI_KEY:-}" ] || { echo "RAPIDAPI_KEY is not set: a free RapidAPI key subscribed to SportDevs' Badminton API (docs/providers.md)" >&2; exit 2; }
+  [ -n "${RAPIDAPI_KEY:-}" ] || { echo "RAPIDAPI_KEY is not set: your own RapidAPI key subscribed to SportMicro's Badminton Micro API (docs/providers.md)" >&2; exit 2; }
   DAY="${2:-$(date -u +%Y%m%d)}"
   ISO="${DAY:0:4}-${DAY:4:2}-${DAY:6:2}"
+  HOST=badminton-micro.p.rapidapi.com
+  KEEP=5 # a day has 100+ matches; five keep the shape and every status the day had
   mkdir -p "$FIX/badminton"
   OUT="$FIX/badminton/matches-$DAY.json"
-  curl -fsS -H 'Accept: application/json' -H "x-rapidapi-key: $RAPIDAPI_KEY" -H 'x-rapidapi-host: badminton-devs.p.rapidapi.com' \
-    "https://badminton-devs.p.rapidapi.com/matches-by-date?date=eq.$ISO" -o "$OUT"
-  python3 - "$OUT" "$MAX_EVENTS" <<'PYB'
+  fetch() { curl -fsS -H 'Accept: application/json' -H "x-rapidapi-key: $RAPIDAPI_KEY" -H "x-rapidapi-host: $HOST" "https://$HOST/$1" -o "$2"; }
+  fetch "matches-by-date?date=eq.$ISO" "$OUT"
+  # Keep one match per distinct (status, status_reason, scored-or-not) first, so a small file still shows every
+  # shape the day had, then fill up to KEEP in feed order; strip the image hashes, which the parser never reads.
+  TOURNAMENT=$(python3 - "$OUT" "$KEEP" <<'PYB'
 import json, sys
 path, keep = sys.argv[1], int(sys.argv[2])
 d = json.load(open(path))
-cut = 0
 groups = d if isinstance(d, list) else [d]
+cut = 0
+first_tournament = ""
 for g in groups:
-    if isinstance(g, dict) and isinstance(g.get("matches"), list) and len(g["matches"]) > keep:
-        cut += len(g["matches"]) - keep; g["matches"] = g["matches"][:keep]
+    ms = g.get("matches") if isinstance(g, dict) else None
+    if not isinstance(ms, list):
+        continue
+    for m in ms:
+        for k in [k for k in m if k.endswith("hash_image")]:
+            del m[k]
+    if ms and not first_tournament:
+        first_tournament = str(ms[0].get("tournament_id", ""))
+    if len(ms) > keep:
+        seen, picked = set(), []
+        for m in ms:
+            shape = (m.get("status"), m.get("status_reason"), "home_team_score" in m, "/" in str(m.get("home_team_name", "")))
+            if shape not in seen and len(picked) < keep:
+                seen.add(shape); picked.append(m)
+        for m in ms:
+            if len(picked) >= keep: break
+            if m not in picked: picked.append(m)
+        cut += len(ms) - len(picked); g["matches"] = picked
 if cut and groups and isinstance(groups[0], dict):
-    groups[0]["_note"] = f"Recorded by tools/dev/record_fixtures.sh --badminton; matches[] truncated to their first {keep} entries per day ({cut} dropped)."
-json.dump(d, open(path, "w"), separators=(",", ":"), ensure_ascii=False)
+    groups[0]["_note"] = f"Recorded by tools/dev/record_fixtures.sh --badminton from SportMicro's matches-by-date (RapidAPI); matches[] truncated to {keep} per day ({cut} dropped), one per status shape first; *_hash_image fields removed."
+json.dump(d, open(path, "w"), indent=1, ensure_ascii=False)
+print(first_tournament)
 PYB
+)
   echo "$OUT $(wc -c < "$OUT") bytes"
+  if [ -n "$TOURNAMENT" ]; then
+    NESTED="$FIX/badminton/matches-nested-$DAY.json"
+    fetch "matches?tournament_id=eq.$TOURNAMENT&limit=$KEEP" "$NESTED"
+    python3 - "$NESTED" "$KEEP" <<'PYN'
+import json, sys
+path, keep = sys.argv[1], int(sys.argv[2])
+d = json.load(open(path))
+for m in d:
+    for k in [k for k in m if k.endswith("hash_image")]:
+        del m[k]
+if d:
+    d[0]["_note"] = f"Recorded by tools/dev/record_fixtures.sh --badminton from SportMicro's /matches?tournament_id=eq.<id>&limit={keep} (RapidAPI): the nested shape (status {{type, reason}}, *_team_score {{current, period_N}}); *_hash_image fields removed."
+json.dump(d, open(path, "w"), indent=1, ensure_ascii=False)
+PYN
+    echo "$NESTED $(wc -c < "$NESTED") bytes"
+  fi
   exit 0
 fi
 

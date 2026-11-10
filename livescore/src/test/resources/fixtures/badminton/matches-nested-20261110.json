@@ -1,0 +1,203 @@
+[
+ {
+  "id": 132958,
+  "name": "Matsuta N. vs Kantemyr Y.",
+  "tournament_id": 128995,
+  "tournament_name": "Kumamoto Masters Japan, WS, Qualifying",
+  "tournament_importance": 0,
+  "season_id": 97164,
+  "season_name": "Kumamoto Masters Japan, WS 2026",
+  "status": {
+   "type": "finished",
+   "reason": "Ended"
+  },
+  "status_type": "finished",
+  "arena_id": 21206,
+  "arena_name": "Court 1",
+  "home_team_id": 68902,
+  "home_team_name": "Matsuta N.",
+  "away_team_id": 5163,
+  "away_team_name": "Kantemyr Y.",
+  "home_team_score": {
+   "current": 1,
+   "display": 1,
+   "period_1": 21,
+   "period_2": 10,
+   "period_3": 11
+  },
+  "away_team_score": {
+   "current": 2,
+   "display": 2,
+   "period_1": 15,
+   "period_2": 21,
+   "period_3": 21
+  },
+  "times": {
+   "specific_start_time": "2026-11-10T00:59:33+00:00"
+  },
+  "specific_start_time": "2026-11-10T00:48:44+00:00",
+  "start_time": "2026-11-10T00:00:00+00:00",
+  "duration": 9000,
+  "last_period": "period3",
+  "class_id": 35,
+  "class_name": "International",
+  "league_id": 11976,
+  "league_name": "Kumamoto Masters Japan - WS",
+  "_note": "Recorded by tools/dev/record_fixtures.sh --badminton from SportMicro's /matches?tournament_id=eq.<id>&limit=5 (RapidAPI): the nested shape (status {type, reason}, *_team_score {current, period_N}); *_hash_image fields removed."
+ },
+ {
+  "id": 132959,
+  "name": "Hoang C. vs Sunakawa N.",
+  "tournament_id": 128995,
+  "tournament_name": "Kumamoto Masters Japan, WS, Qualifying",
+  "tournament_importance": 0,
+  "season_id": 97164,
+  "season_name": "Kumamoto Masters Japan, WS 2026",
+  "status": {
+   "type": "finished",
+   "reason": "Ended"
+  },
+  "status_type": "finished",
+  "arena_id": 21218,
+  "arena_name": "Court 3",
+  "home_team_id": 111525,
+  "home_team_name": "Hoang C.",
+  "away_team_id": 67803,
+  "away_team_name": "Sunakawa N.",
+  "home_team_score": {
+   "current": 0,
+   "display": 0,
+   "period_1": 16,
+   "period_2": 11
+  },
+  "away_team_score": {
+   "current": 2,
+   "display": 2,
+   "period_1": 21,
+   "period_2": 21
+  },
+  "times": {
+   "specific_start_time": "2026-11-10T03:29:21+00:00"
+  },
+  "specific_start_time": "2026-11-10T02:56:06+00:00",
+  "start_time": "2026-11-10T02:50:00+00:00",
+  "duration": 9000,
+  "last_period": "period1",
+  "class_id": 35,
+  "class_name": "International",
+  "league_id": 11976,
+  "league_name": "Kumamoto Masters Japan - WS"
+ },
+ {
+  "id": 132960,
+  "name": "Wen Jing Xu. vs Kim M.",
+  "tournament_id": 128995,
+  "tournament_name": "Kumamoto Masters Japan, WS, Qualifying",
+  "tournament_importance": 0,
+  "season_id": 97164,
+  "season_name": "Kumamoto Masters Japan, WS 2026",
+  "status": {
+   "type": "finished",
+   "reason": "Ended"
+  },
+  "status_type": "finished",
+  "arena_id": 21212,
+  "arena_name": "Court 2",
+  "home_team_id": 3347,
+  "home_team_name": "Wen Jing Xu.",
+  "away_team_id": 1909,
+  "away_team_name": "Kim M.",
+  "home_team_score": {
+   "current": 2,
+   "display": 2,
+   "period_1": 22,
+   "period_2": 21
+  },
+  "away_team_score": {
+   "current": 0,
+   "display": 0,
+   "period_1": 20,
+   "period_2": 13
+  },
+  "times": {
+   "specific_start_time": "2026-11-10T02:09:54+00:00"
+  },
+  "specific_start_time": "2026-11-10T01:54:33+00:00",
+  "start_time": "2026-11-10T01:25:00+00:00",
+  "duration": 9000,
+  "last_period": "period2",
+  "class_id": 35,
+  "class_name": "International",
+  "league_id": 11976,
+  "league_name": "Kumamoto Masters Japan - WS"
+ },
+ {
+  "id": 132961,
+  "name": "Takahashi A. vs Suizu M.",
+  "tournament_id": 128995,
+  "tournament_name": "Kumamoto Masters Japan, WS, Qualifying",
+  "tournament_importance": 0,
+  "season_id": 97164,
+  "season_name": "Kumamoto Masters Japan, WS 2026",
+  "status": {
+   "type": "upcoming",
+   "reason": "Not started"
+  },
+  "status_type": "upcoming",
+  "home_team_id": 1885,
+  "home_team_name": "Takahashi A.",
+  "away_team_id": 767,
+  "away_team_name": "Suizu M.",
+  "start_time": "2026-11-10T01:00:00+00:00",
+  "duration": 9000,
+  "class_id": 35,
+  "class_name": "International",
+  "league_id": 11976,
+  "league_name": "Kumamoto Masters Japan - WS"
+ },
+ {
+  "id": 133062,
+  "name": "Takahashi A. vs Sugiyama K.",
+  "tournament_id": 128995,
+  "tournament_name": "Kumamoto Masters Japan, WS, Qualifying",
+  "tournament_importance": 0,
+  "season_id": 97164,
+  "season_name": "Kumamoto Masters Japan, WS 2026",
+  "status": {
+   "type": "finished",
+   "reason": "Ended"
+  },
+  "status_type": "finished",
+  "arena_id": 21225,
+  "arena_name": "Court 4",
+  "home_team_id": 1885,
+  "home_team_name": "Takahashi A.",
+  "away_team_id": 1115,
+  "away_team_name": "Sugiyama K.",
+  "home_team_score": {
+   "current": 1,
+   "display": 1,
+   "period_1": 21,
+   "period_2": 19,
+   "period_3": 14
+  },
+  "away_team_score": {
+   "current": 2,
+   "display": 2,
+   "period_1": 17,
+   "period_2": 21,
+   "period_3": 21
+  },
+  "times": {
+   "specific_start_time": "2026-11-10T02:11:50+00:00"
+  },
+  "specific_start_time": "2026-11-10T02:11:50+00:00",
+  "start_time": "2026-11-10T01:00:00+00:00",
+  "duration": 9000,
+  "last_period": "period3",
+  "class_id": 35,
+  "class_name": "International",
+  "league_id": 11976,
+  "league_name": "Kumamoto Masters Japan - WS"
+ }
+]

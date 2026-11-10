@@ -1,0 +1,34 @@
+[
+ {
+  "date": "2026-11-10T00:00:00",
+  "_note": "Copied on 2026-11-10 from the full matches-by-date recording (*_hash_image removed): a retirement the feed reports as `finished`/`Ended` with the second game unfinished (19-8) and the games 1-0, so the winner comes from the games-won numbers, not from a `Retired` word.",
+  "matches": [
+   {
+    "id": 132903,
+    "name": "Yoo T. vs Yusuf M.",
+    "status": "finished",
+    "duration": 9000,
+    "league_id": 11980,
+    "season_id": 97160,
+    "start_time": "2026-11-10T00:35:00+00:00",
+    "league_name": "Kumamoto Masters Japan - MS",
+    "season_name": "Kumamoto Masters Japan, MS 2026",
+    "away_team_id": 65663,
+    "home_team_id": 65286,
+    "status_reason": "Ended",
+    "tournament_id": 128988,
+    "away_team_name": "Yusuf M.",
+    "home_team_name": "Yoo T.",
+    "away_team_score": 0,
+    "home_team_score": 1,
+    "tournament_name": "Kumamoto Masters Japan, MS, Qualifying",
+    "specific_start_time": "2026-11-10T01:04:55+00:00",
+    "tournament_importance": 0,
+    "away_team_period_1_score": 19,
+    "away_team_period_2_score": 8,
+    "home_team_period_1_score": 21,
+    "home_team_period_2_score": 19
+   }
+  ]
+ }
+]

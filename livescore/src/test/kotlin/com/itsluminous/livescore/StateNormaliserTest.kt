@@ -50,8 +50,8 @@ class StateNormaliserTest {
     }
 
     @Test
-    fun sportDevsTypesReadLikeEspnStates() {
-        // SportDevs (badminton, ADR-044) names states in words and gives the endings and pauses as their own types.
+    fun sportMicroTypesReadLikeEspnStates() {
+        // SportMicro (badminton, ADR-044) names states in words and gives the endings and pauses as their own types.
         for (t in listOf("upcoming", "notstarted", "Not started", "scheduled")) assertEquals(t, State.UPCOMING, normalise(t, "Not started"))
         for (t in listOf("live", "inprogress", "In progress")) assertEquals(t, State.LIVE, normalise(t, "2nd game"))
         assertEquals(State.LIVE, normalise("live", ""))

@@ -6,7 +6,7 @@ import com.itsluminous.livescore.source.FeedStatus
 /**
  * The feeds' states into our four (§13.4). ESPN's `pre` is upcoming, `post` final, and `in` live unless the
  * description is one of the pauses below, or the match has not begun (`period 0` with a "Starts at" summary,
- * as the Quaid-e-Azam Trophy showed on 2026-11-09). SportDevs' badminton feed (ADR-044) names its states in
+ * as the Quaid-e-Azam Trophy showed on 2026-11-09). SportMicro's badminton feed (ADR-044) names its states in
  * words: `upcoming` / `notstarted`, `live` / `inprogress`, `finished` / `ended`, and the endings and pauses
  * as their own types (`walkover`, `retired`, `canceled`, `postponed`, `interrupted`, `suspended`, `delayed`),
  * which read the same way as the ESPN descriptions. Pure; the table test is `StateNormaliserTest`.
@@ -22,7 +22,7 @@ object StateNormaliser {
     /** Descriptions that end a match in `in` state without a `post` (abandoned, cancelled); treated as final. */
     private val ENDINGS = listOf("abandoned", "cancel", "no result", "walkover", "retired", "postponed")
 
-    /** The words a feed may use for the three ESPN states, SportDevs' included. */
+    /** The words a feed may use for the three ESPN states, SportMicro's included. */
     private val UPCOMING_WORDS = listOf("pre", "upcoming", "notstarted", "not started", "scheduled")
     private val LIVE_WORDS = listOf("in", "live", "inprogress", "in progress")
     private val FINAL_WORDS = listOf("post", "finished", "ended", "final")

@@ -27,22 +27,22 @@ class SourceRegistryTest {
     }
 
     private val espn = Scripted("espn", listOf(Sport.CRICKET, Sport.FOOTBALL, Sport.F1, Sport.TENNIS))
-    private val sportdevs = Scripted("sportdevs", listOf(Sport.BADMINTON))
-    private val registry = SourceRegistry(listOf(espn, sportdevs))
+    private val sportmicro = Scripted("sportmicro", listOf(Sport.BADMINTON))
+    private val registry = SourceRegistry(listOf(espn, sportmicro))
 
     @Test
     fun badmintonGoesToTheSecondSourceAndTheRestToEspn() {
-        assertEquals("espn+sportdevs", registry.id)
+        assertEquals("espn+sportmicro", registry.id)
         assertEquals(Sport.entries.toList(), registry.sports())
-        assertSame(sportdevs, registry.forSport(Sport.BADMINTON))
+        assertSame(sportmicro, registry.forSport(Sport.BADMINTON))
         assertSame(espn, registry.forSport(Sport.CRICKET))
-        assertEquals("sportdevs-20261110", registry.scoreboard(Sport.BADMINTON, null, "20261110").single().id)
+        assertEquals("sportmicro-20261110", registry.scoreboard(Sport.BADMINTON, null, "20261110").single().id)
         assertEquals("espn-20261110", registry.scoreboard(Sport.TENNIS, null, "20261110").single().id)
-        assertEquals(listOf(Sport.BADMINTON), sportdevs.fetched)
+        assertEquals(listOf(Sport.BADMINTON), sportmicro.fetched)
         assertEquals(listOf(Sport.TENNIS), espn.fetched)
-        assertEquals("sportdevs-badminton", registry.competitions(Sport.BADMINTON).single().id)
+        assertEquals("sportmicro-badminton", registry.competitions(Sport.BADMINTON).single().id)
         assertEquals("Team of espn", registry.teams(Competition(Sport.FOOTBALL, "eng.1", "PL")).single().name)
-        assertEquals("sportdevs", registry.event(event(Sport.BADMINTON, "x"))?.summary)
+        assertEquals("sportmicro", registry.event(event(Sport.BADMINTON, "x"))?.summary)
     }
 
     @Test

@@ -18,7 +18,7 @@ class Prefs(context: Context) {
         get() = prefs.getStringSet(KEY_SPORTS, null)?.mapNotNull { Sport.fromToken(it) }?.toSet() ?: Sport.entries.toSet()
         set(value) = prefs.edit().putStringSet(KEY_SPORTS, value.map { it.token }.toSet()).apply()
 
-    /** The user's RapidAPI key for SportDevs' badminton feed; empty until entered. Kept here, never in the APK or a backup. */
+    /** The user's own RapidAPI key for SportMicro's badminton feed; empty until entered. Kept here, never in the APK, a build variable, a CI secret or a backup. */
     var badmintonKey: String
         get() = prefs.getString(KEY_BADMINTON, "").orEmpty()
         set(value) = prefs.edit().putString(KEY_BADMINTON, value.trim()).apply()

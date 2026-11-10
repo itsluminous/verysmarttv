@@ -1,0 +1,57 @@
+[
+ {
+  "date": "2026-11-10T00:00:00",
+  "_note": "Hand-made on 2026-11-10 in the flat matches-by-date shape recorded the same day (matches-20261110.json): no live match was in the feed when it was recorded (matches-live answered []), so the live status word and reason are the vendor's documented `live` and a guess at the reason; the recording of a live day is what confirms them (ADR-044).",
+  "matches": [
+   {
+    "id": 900001,
+    "name": "Sindhu P. V. vs An S. Y.",
+    "status": "live",
+    "duration": 9000,
+    "league_id": 11976,
+    "season_id": 97164,
+    "start_time": "2026-11-10T03:00:00+00:00",
+    "league_name": "Kumamoto Masters Japan - WS",
+    "season_name": "Kumamoto Masters Japan, WS 2026",
+    "away_team_id": 5002,
+    "home_team_id": 5001,
+    "status_reason": "2nd game",
+    "tournament_id": 128994,
+    "away_team_name": "An S. Y.",
+    "home_team_name": "Sindhu P. V.",
+    "tournament_name": "Kumamoto Masters Japan, WS",
+    "tournament_importance": 0,
+    "specific_start_time": "2026-11-10T03:12:40+00:00",
+    "home_team_score": 1,
+    "away_team_score": 0,
+    "home_team_period_1_score": 21,
+    "home_team_period_2_score": 11,
+    "away_team_period_1_score": 18,
+    "away_team_period_2_score": 9
+   },
+   {
+    "id": 900002,
+    "name": "Chang C. H. / Yang C. T. vs Kusuma F. D. / Puspitasari M. T.",
+    "status": "live",
+    "duration": 9000,
+    "league_id": 11978,
+    "season_id": 97164,
+    "start_time": "2026-11-10T03:00:00+00:00",
+    "league_name": "Kumamoto Masters Japan - MD",
+    "season_name": "Kumamoto Masters Japan, WS 2026",
+    "away_team_id": 5002,
+    "home_team_id": 5001,
+    "status_reason": "1st game",
+    "tournament_id": 128992,
+    "away_team_name": "Kusuma F. D. / Puspitasari M. T.",
+    "home_team_name": "Chang C. H. / Yang C. T.",
+    "tournament_name": "Kumamoto Masters Japan, MD",
+    "tournament_importance": 0,
+    "home_team_score": 0,
+    "away_team_score": 0,
+    "home_team_period_1_score": 17,
+    "away_team_period_1_score": 12
+   }
+  ]
+ }
+]

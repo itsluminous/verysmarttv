@@ -1,0 +1,27 @@
+[
+ {
+  "date": "2026-11-10T00:00:00",
+  "_note": "Copied on 2026-11-10 from the full matches-by-date recording (one of 5 canceled matches of 143; *_hash_image removed): `status: canceled`, `status_reason: Canceled`, no scores.",
+  "matches": [
+   {
+    "id": 132933,
+    "name": "Chen B Y / Liu Y vs Goh S F / Izzuddin N",
+    "status": "canceled",
+    "duration": 9000,
+    "league_id": 11978,
+    "season_id": 97163,
+    "start_time": "2026-11-10T01:00:00+00:00",
+    "league_name": "Kumamoto Masters Japan - MD",
+    "season_name": "Kumamoto Masters Japan, MD 2026",
+    "away_team_id": 64477,
+    "home_team_id": 64819,
+    "status_reason": "Canceled",
+    "tournament_id": 128992,
+    "away_team_name": "Goh S F / Izzuddin N",
+    "home_team_name": "Chen B Y / Liu Y",
+    "tournament_name": "Kumamoto Masters Japan, MD",
+    "tournament_importance": 0
+   }
+  ]
+ }
+]
