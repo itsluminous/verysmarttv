@@ -8,6 +8,41 @@ publishes all three, and the tag's message quotes the section below.
 
 ## [Unreleased]
 
+## [1.0.0-rc3] - 2026-11-10
+
+The third release candidate: badminton's provider is named for what it is and polled for its quota, the
+setup tool can take Home from a stock launcher that keeps it, and the setup tool reports 1.0.0-rc3.
+
+### Changed
+
+- **Scores: badminton comes from SportMicro's "Badminton Micro" API on RapidAPI** (`badminton-micro.p.rapidapi.com`;
+  ADR-044 amended). rc2 named the same listing "SportDevs' Badminton Devs"; the source, its settings and the
+  docs now carry the vendor's current name, and the Settings row reads **Badminton data key (RapidAPI · Badminton
+  Micro)**. The key is still **your own**, entered on the TV and never built into the APK, a GitHub secret or a
+  CI variable, and it may cost you money beyond the free tier. The free plan is **100 requests a day** (read from
+  the API's `x-ratelimit-requests-limit` header on 2026-11-10), so a live badminton match is now fetched **at most
+  every 5 minutes** whatever screen shows it (the other sports keep 60 s), the open scoreboard's 30 s refresh reads
+  the cache inside that gap, a badminton row counts as stale after 10 minutes, and the Settings row says all this.
+- **Scores: the badminton parser reads the feed as recorded.** The first real recording (2026-11-10, Kumamoto
+  Masters Japan and Kaohsiung Masters) showed the day list's flat shape: `status` as a word with a separate
+  `status_reason`, the games won as a number and the points as `*_team_period_N_score`, a `specific_start_time`
+  for the real first serve, surnames before dotless initials (`Pong L K K`, `He Z-W`), and no round. The parser
+  takes that and the nested `/matches` shape, prefers the real start time, drops a league the tournament name
+  already carries, and reads a retirement the feed reports as plain `Ended` (second game 19-8, games 1-0) from the
+  games won. The fixtures under `livescore/src/test/resources/fixtures/badminton/` are now recordings plus
+  hand-made edge cases in the recorded shape; `tools/dev/record_fixtures.sh --badminton` records both shapes.
+- **Scores (from the rc2 review, dd7e8a5)**: an ending or pause the feed gives only as the status type
+  (walkover, retired, suspended) is kept as the detail, so the pill reads `w/o` and `ret.`; a finished match
+  with no games-won number takes its winner from the points; the picker's hint names the two days the feed is
+  asked for.
+- **Setup: a stock launcher that keeps Home is disabled first when you ask.** Some stock launchers give their
+  HOME activity a priority above ours (`setup probe` now prints `home priority = …`; Google's TV launcher has 2,
+  the Mi TV 4A's PatchWall keeps Home the same way), so the handover says Success and Home stays with them. With
+  `--disable-stock`, or a yes to the question the guided flow asks at that point, the recognised stock (or the
+  package you named) is disabled first, Home is handed over again and checked; if VerySmartTV still does not
+  answer, the stock is re-enabled and put back on Home. Without the request nothing changes: the rollback, and a
+  hint to run again with `--disable-stock`. Verified on the Android TV 14 emulator with the stock re-enabled.
+
 ## [1.0.0-rc2] - 2026-11-10
 
 ### Added
@@ -80,7 +115,7 @@ key for the first time so the release pipeline can be proved before `1.0.0`.
   and the identifier gate; CI also runs the Python suite on Ubuntu and Windows and Espresso on an Android TV
   emulator.
 - Signer certificate SHA-256: `15d5085a0400d720d4aea65edab4df72c6e5a5313844715c3e56859cec99c21d` (verified with
-  `apksigner verify --print-certs` on every APK of v1.0.0-rc1 and v1.0.0-rc2).
+  `apksigner verify --print-certs` on every APK of v1.0.0-rc1, v1.0.0-rc2 and v1.0.0-rc3).
 
 [Unreleased]: https://github.com/itsluminous/verysmarttv/compare/v1.0.0-rc2...HEAD
 [1.0.0-rc2]: https://github.com/itsluminous/verysmarttv/releases/tag/v1.0.0-rc2
