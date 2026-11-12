@@ -50,7 +50,7 @@
     <string name="discipline_singles">Singles</string>
     <string name="discipline_doubles">Doubles</string>
     <string name="discipline_mixed">Mixed doubles</string>
-    <string name="discipline_list_separator">, </string>
+    <string name="discipline_list_separator">", "</string>
     <string name="discipline_title">%1$s: which events?</string>
 
     <!-- Scoreboard -->

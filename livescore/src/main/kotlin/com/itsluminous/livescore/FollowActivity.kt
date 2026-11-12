@@ -226,7 +226,7 @@ class FollowActivity : Activity() {
 
     private fun hint(column: LinearLayout, text: Int) = note(column, getString(text), HINT_SP)
 
-    /** A letter or a country over the rows under it: not focusable, smaller than a hint. */
+    /** A letter or a country over the rows under it: not focusable, the hint's size (11sp read too small on the 1080p review). */
     private fun header(column: LinearLayout, text: String) = note(column, text, HEADER_SP)
 
     private fun note(column: LinearLayout, text: String, sizeSp: Float) {
@@ -349,7 +349,7 @@ class FollowActivity : Activity() {
     companion object {
         private const val HINT = 0x80FFFFFF.toInt()
         private const val HINT_SP = 13f
-        private const val HEADER_SP = 11f
+        private const val HEADER_SP = 13f
         private const val EVENT_LENGTH_MS = 4L * 3600_000L
     }
 }

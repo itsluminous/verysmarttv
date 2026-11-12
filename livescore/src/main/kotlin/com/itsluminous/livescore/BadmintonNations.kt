@@ -10,7 +10,7 @@ import java.util.Locale
  * knows it as an ISO alpha-3 code (`IND`, `JPN`, `KOR`), else shown as the code. Pure; `BadmintonNationsTest`.
  */
 object BadmintonNations {
-    /** IOC code → ISO 3166 alpha-2, the roughly forty nations of the World Tour and the continental circuits. */
+    /** IOC code → ISO 3166 alpha-2, the fifty-six nations of the World Tour and the continental circuits. */
     val ISO: Map<String, String> = linkedMapOf(
         "CHN" to "CN", "INA" to "ID", "JPN" to "JP", "DEN" to "DK", "MAS" to "MY", "KOR" to "KR", "THA" to "TH",
         "IND" to "IN", "HKG" to "HK", "SGP" to "SG", "FRA" to "FR", "GER" to "DE", "NED" to "NL", "ESP" to "ES",

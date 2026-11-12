@@ -38,7 +38,10 @@ class BwfCaptureServiceTest {
         }.get()
         executor.shutdown()
         val took = System.currentTimeMillis() - started
-        assertTrue("the failure must be the page's, not the client's timeout: $message after $took ms", message.isNotEmpty() && !message.startsWith("timed out after 45"))
+        assertTrue(
+            "the failure must be the page's, not the client's timeout or a bind that never started the process: $message after $took ms",
+            message.isNotEmpty() && !message.startsWith("timed out after 45") && !message.startsWith("browser process"),
+        )
         assertTrue("the :bwf process stayed more than ${EXIT_WAIT_MS / 1000} s after the reply ($message)", awaitExit(app))
     }
 
