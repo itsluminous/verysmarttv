@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 /**
  * One hidden WebView per fetch (ADR-049): built on the main thread over the application context, never attached to a
- * window, loads BWF's Match Centre, and once the page is up (not Cloudflare's "Just a moment…" interstitial) runs
+ * window, loads BWF's Match Centre ([page], the real one unless a test names another), and once the page is up (not Cloudflare's "Just a moment…" interstitial) runs
  * [SCRIPT], which uses the page's own `fetch` for `vue-current-live` and `vue-live-matches` and hands the raw JSON to
  * the [Bridge]. The view reaches only BWF's hosts and Cloudflare's challenge ([allowed]): every other request is answered
  * empty and every other navigation refused; file and content URLs are off. The calling thread (the repo's fetch
@@ -35,8 +35,15 @@ import java.util.concurrent.atomic.AtomicReference
  * Every failure (the challenge not clearing, a main-frame error, a 4xx or 5xx from an API call, a JavaScript error, a
  * renderer gone, no WebView on the device, the timeout) becomes an [IOException] whose message is the short reason the
  * Scores app shows after "BWF site unavailable".
+ *
+ * Since ADR-050 this runs only inside the `:bwf` process, in [BwfCaptureService]; the main process reaches it through
+ * [BwfProcessLoader], and the process exits after each capture, so nothing of the visit outlives the call at all.
  */
-class WebViewPageLoader(context: Context, private val handler: Handler = Handler(Looper.getMainLooper())) : BwfPageLoader {
+class WebViewPageLoader(
+    context: Context,
+    private val page: String = PAGE,
+    private val handler: Handler = Handler(Looper.getMainLooper()),
+) : BwfPageLoader {
     private val app = context.applicationContext
 
     @Throws(IOException::class)
@@ -89,8 +96,8 @@ class WebViewPageLoader(context: Context, private val handler: Handler = Handler
         web.settings.javaScriptCanOpenWindowsAutomatically = false
         CookieManager.getInstance().setAcceptCookie(true)
         web.addJavascriptInterface(Bridge(pending, onSettled), BRIDGE)
-        web.webViewClient = Client(pending, onSettled)
-        web.loadUrl(PAGE)
+        web.webViewClient = Client(page, pending, onSettled)
+        web.loadUrl(page)
     }
 
     /** Main thread: everything the visit left, gone. */
@@ -133,7 +140,7 @@ class WebViewPageLoader(context: Context, private val handler: Handler = Handler
         }
     }
 
-    private class Client(private val pending: PendingCapture, private val onSettled: () -> Unit) : WebViewClient() {
+    private class Client(private val page: String, private val pending: PendingCapture, private val onSettled: () -> Unit) : WebViewClient() {
         private var injected = false
 
         override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
@@ -157,7 +164,7 @@ class WebViewPageLoader(context: Context, private val handler: Handler = Handler
 
         override fun onPageFinished(view: WebView, url: String) {
             // Chromium's own error page finishes too, after onReceivedError has already failed the capture: nothing to ask it.
-            if (injected || pending.isSettled() || !url.startsWith(PAGE)) return
+            if (injected || pending.isSettled() || !url.startsWith(page)) return
             view.evaluateJavascript("document.title") { title ->
                 when {
                     injected -> Unit

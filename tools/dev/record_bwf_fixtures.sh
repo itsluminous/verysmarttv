@@ -22,7 +22,7 @@ MAX=5
 "$ADB" install -r -t livescore/build/outputs/apk/androidTest/debug/livescore-debug-androidTest.apk >/dev/null
 "$ADB" logcat -c
 "$ADB" shell am instrument -w -e bwf_record true -e class $PKG.BwfRecordTest $PKG.test/androidx.test.runner.AndroidJUnitRunner | tail -3
-"$ADB" logcat -d -s LiveScore.BwfRecord LiveScore.BwfWeb LiveScore.Bwf | cut -c1-400
+"$ADB" logcat -d -s LiveScore.BwfRecord LiveScore.BwfWeb LiveScore.Bwf LiveScore.BwfProc | cut -c1-400
 
 mkdir -p "$FIX"
 for f in $("$ADB" shell run-as $PKG ls files/bwf-record 2>/dev/null); do

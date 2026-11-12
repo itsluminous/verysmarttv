@@ -23,6 +23,7 @@
     <!-- allowBackup false: the follow list travels in the launcher's Backup instead (ADR-032); DataExtractionRules
          is the finding every module of this repository names for that attribute. -->
     <application
+        android:name=".LiveScoreApplication"
         android:allowBackup="false"
         android:supportsRtl="false"
         android:label="@string/app_name"
@@ -66,5 +67,10 @@
             android:grantUriPermissions="false" />
 
         <service android:name=".RefreshJob" android:permission="android.permission.BIND_JOB_SERVICE" android:exported="false" />
+
+        <!-- The BWF page loader's WebView, in a process of its own that exits after each capture so its memory comes
+             back (ADR-050). Private: only BwfProcessLoader in the main process binds it, and only for a foreground
+             refresh; no intent filter, no job, no receiver starts it. -->
+        <service android:name=".source.bwf.BwfCaptureService" android:process=":bwf" android:exported="false" />
     </application>
 </manifest>

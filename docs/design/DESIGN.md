@@ -1191,7 +1191,8 @@ Where the shipped 0.1.0 differs from the sections above. Each has its ADR; the s
   was not built.
 - **After 0.1.0, experimental and off by default** (ADR-049): a WebView-based source for BWF's own Match Centre, the way to
   BWF's data without a key, behind the same `ScoreSource` boundary and chosen in Settings → Badminton source; SportMicro
-  stays the default. Nothing in the launcher depends on it.
+  stays the default. Nothing in the launcher depends on it. Its WebView runs in a `:bwf` process that exits after each
+  capture, so the companion's own process never holds Chromium (ADR-050).
 - **Smaller departures**, each recorded where it happened: the §8 decomposition table (ADR-038), the
   companion's F1 line, fixture layout and memory figures (ADR-039), the Phase 3 bars and settings rows
   (ADR-040), the setup tool's factory-package warning and edited-list copies (ADR-043), the old `.backup`

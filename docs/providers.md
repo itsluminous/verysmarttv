@@ -124,7 +124,7 @@ What answers the provider is `ScoreProvider`, backed by `ScoreRepo`: the follow 
 parsed events (`files/events.json`), the sources behind one `SourceRegistry` (`source/espn/EspnSource`, ESPN's public
 site feeds, ADR-012, for cricket, football, F1 and tennis; `source/sportmicro/SportMicroSource`, SportMicro's Badminton Micro
 API through RapidAPI with the user's own key, ADR-044; `source/bwf/BwfWebViewSource`, BWF's own Match Centre through a hidden
-WebView, experimental and off by default, ADR-049; **Settings → Badminton source** picks which of the two answers badminton, or
+WebView in a `:bwf` process that exits after each capture, experimental and off by default, ADR-049 and ADR-050; **Settings → Badminton source** picks which of the two answers badminton, or
 neither) and the refresh decisions (`RefreshPolicy`, DESIGN.md §13.5, ADR-014).
 
 - **Where the rows come from.** `/pill` is `PillChooser` over the followed events in the window (yesterday 00:00 to
@@ -200,12 +200,19 @@ neither) and the refresh decisions (`RefreshPolicy`, DESIGN.md §13.5, ADR-014).
   fetch the other sports and leave badminton to the next screen that shows a score, so no hidden browser runs while the
   TV may be asleep. Any failure (challenge not cleared, timeout, no network, an HTTP error, a changed shape) is logged,
   backed off and shown as **"BWF site unavailable"** with the reason on the companion's Home and in the picker's
-  Badminton column; the launcher's pill simply has no badminton line. Memory on `HikViewer_TV_1GB` (2026-11-11,
-  `dumpsys meminfo`, TOTAL PSS of the companion with its Home open): 73 MB before the visit, a peak of 115 MB while the
-  page loads, 114 MB once the WebView is destroyed, and that stays for the life of the process (26 MB of it private
-  dirty; the rest is the WebView provider's code mapped into the process, clean pages the kernel can drop under
-  pressure); the process is a background one the system may kill between fetches. **Off** stops badminton being
-  fetched or shown at all. Re-record the fixtures with `tools/dev/record_bwf_fixtures.sh` (an emulator with internet).
+  Badminton column; the launcher's pill simply has no badminton line. **The WebView runs in a process of its own**
+  (ADR-050): `BwfCaptureService`, declared with `android:process=":bwf"` and never exported, is bound by the main
+  process (`BwfProcessLoader`) for one capture, answers the raw JSON or the failure over a `Messenger`, and once unbound
+  stops itself and kills its process, so Chromium's pages and the WebView provider's mapped code are returned to the TV;
+  the client gives up after 45 s and unbinds, which kills a capture still running. Only a foreground refresh binds it:
+  no intent filter, no job, no receiver. Memory on `HikViewer_TV_1GB` (2026-11-12, `dumpsys meminfo`, TOTAL PSS, polled
+  every second with the companion's Home open and Settings → Refresh now): the main process 66–67 MB before the visit;
+  during the five seconds of the visit the `:bwf` process 28 MB at start and 94–100 MB at its peak while the main
+  process read 39–43 MB (the kernel reclaimed its shared pages under the pressure); the `:bwf` process gone within a
+  second of the reply, and the main process 61.7 MB from 30 s after to the end of the minute, with `WebViews: 0`, a
+  4 MB native heap and a 35 KB `.apk mmap` (ADR-049 had measured 40 MB staying in the one process). **Off** stops
+  badminton being fetched or shown at all. Re-record the fixtures with `tools/dev/record_bwf_fixtures.sh` (an emulator
+  with internet; the recorder goes through the `:bwf` process too).
 - **Follows** (`FollowStore`, §13.2): `{kind: sport|competition|team|event, sport, competition, team, event, label,
   expires}` rows under `{"version": 1, "follows": [...]}`, at most 100; the first run writes the defaults (India, IPL,
   ISL, Premier League, Champions League, F1; ADR-033). `/backup` returns that file verbatim; `restore` replaces it,
