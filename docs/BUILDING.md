@@ -83,8 +83,11 @@ memory numbers.
 Gradle uninstalls the debug APKs when a connected run ends. Add
 `-Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true` to keep the launcher installed and Home on
 the emulator you are also testing by hand. On a Google TV image (`google_atv`) `cmd package set-home-activity`
-alone does not take Home from the stock launcher; `HomeSmokeTest` disables it for the test and enables it
-again afterwards, the way the setup tool's install flow does for good.
+alone does not take Home from the stock launcher (the API 34 `android-tv` images carry `com.google.android.tvlauncher`
+too); `HomeSmokeTest` disables it the way the setup tool's install flow does for good, and it stays disabled until the
+run's last test is over (`support/StockLauncher`, `support/RunEndListener`), when it is enabled again and is Home again.
+Enabling it between tests is what hung CI: its dialog came up over the screen and the next test's
+`ActivityScenario.launch` waited forever (ADR-052).
 
 The launcher's suite (`./gradlew :launcher:connectedDebugAndroidTest`) first installs three test apps
 (DESIGN.md §14.3, ADR-037): `:testkit:hero` and `:testkit:score`, the companion stand-ins, which take the
@@ -114,8 +117,8 @@ of a connected run unless you pass `-PincludeNetworkTests`:
 tools/dev/record_bwf_fixtures.sh                                   # the same through adb, and it pulls the JSON
 ```
 
-CI never passes `includeNetworkTests`. A whole-project run takes about 6 minutes on `HikViewer_TV_1GB`: livescore's
-11 tests in 32 s, then the stand-in installs, then the launcher's 44 tests in 4 minutes 15 seconds.
+CI never passes `includeNetworkTests`. A whole-project run takes 3 to 6 minutes on `HikViewer_TV_1GB`: livescore's
+11 tests in about 30 s, then the stand-in installs, then the launcher's 44 tests in 3 to 4 minutes.
 
 When every test that starts Home fails with "waited 8000 ms for the grid to lay out a focused tile" (and
 `HomeSmokeTest` with "requestFocus on the Settings pill was refused"), the emulator is in touch mode: a click in

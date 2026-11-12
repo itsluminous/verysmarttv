@@ -17,6 +17,7 @@ import androidx.test.uiautomator.Until;
 
 import com.itsluminous.verysmarttv.home.HomeActivity;
 import com.itsluminous.verysmarttv.support.Shell;
+import com.itsluminous.verysmarttv.support.StockLauncher;
 
 import org.junit.After;
 import org.junit.Before;
@@ -24,8 +25,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,12 +37,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>The HOME-key test needs the shell: {@code cmd package set-home-activity} and {@code dumpsys activity}
  * through {@link android.app.UiAutomation#executeShellCommand}, which is why this one uses UiAutomator
  * rather than Espresso alone (§14.1: UiAutomator only for the smoke that spans apps). On a Google TV image
- * {@code set-home-activity} alone does not move Home away from the stock launcher (seen on the API 34
- * {@code google_atv} images; the AOSP {@code android-tv} image CI uses has no stock launcher), so when HOME still
- * resolves to one of the four stock launchers the setup tool knows, the test disables it the way the install flow
- * does, after this launcher is installed, says so in logcat, and enables it again when the test ends: Gradle
- * uninstalls the launcher after a connected run, and a TV with its stock launcher disabled and no other Home
- * would be left on FallbackHome (the state the Home guard exists to prevent). Pass
+ * {@code set-home-activity} alone does not move Home away from the stock launcher (the API 34 {@code google_atv}
+ * images, and CI's {@code android-tv} x86 image, which carries {@code com.google.android.tvlauncher}), so when HOME
+ * still resolves to one of the stock launchers the setup tool knows, the test disables it the way the install flow
+ * does, after this launcher is installed, and says so in logcat. It stays disabled until the run ends
+ * ({@link StockLauncher}, {@link com.itsluminous.verysmarttv.support.RunEndListener}): enabled between tests it is
+ * Home again and its dialog over the screen hung the next test's launch (ADR-052). Pass
  * {@code -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true} to keep the debug launcher installed.
  *
  * <p>The first Home after traktshelf is installed shows the module-card prompt over the grid. Espresso then waits
@@ -57,14 +56,9 @@ public class HomeSmokeTest {
     private static final String HOME = PKG + "/.home.HomeActivity";
     private static final long WAIT_MS = 15_000;
     private static final String TAG = "VerySmartTV.HomeSmokeTest";
-    /** The stock launchers the install flow may disable once this launcher is installed (DESIGN.md §16, carried KNOWN_STOCK_LAUNCHERS). */
-    private static final List<String> STOCK_LAUNCHERS = Arrays.asList("com.google.android.tvlauncher",
-            "com.google.android.apps.tv.launcherx", "com.google.android.leanbacklauncher", "com.mitv.tvhome");
 
     private UiDevice device;
     private ActivityScenario<HomeActivity> scenario;
-    /** The stock launcher homeKeyLandsOnTheLauncher disabled, to enable again in tearDown; null when it disabled none. */
-    private String disabledStockLauncher;
 
     @Before
     public void setUp() {
@@ -72,13 +66,8 @@ public class HomeSmokeTest {
     }
 
     @After
-    public void tearDown() throws IOException {
+    public void tearDown() {
         if (scenario != null) scenario.close();
-        if (disabledStockLauncher != null) {
-            Log.i(TAG, "enabling " + disabledStockLauncher + " again; this launcher stays Home while it is installed");
-            shell("pm enable --user 0 " + disabledStockLauncher);
-            disabledStockLauncher = null;
-        }
     }
 
     /** `set-home-activity`, HOME keyevent, `mFocusedApp` names HomeActivity (§14.3 HomeSmokeTest). */
@@ -87,10 +76,9 @@ public class HomeSmokeTest {
         String set = shell("cmd package set-home-activity " + HOME);
         assertTrue("set-home-activity: " + set, set.contains("Success") || set.trim().isEmpty());
         String owner = homeOwner();
-        if (!owner.startsWith(PKG + "/") && STOCK_LAUNCHERS.contains(owner.split("/")[0])) {
-            Log.i(TAG, "HOME still resolves to " + owner + " after set-home-activity; disabling it as the install flow does");
-            disabledStockLauncher = owner.split("/")[0];
-            shell("pm disable-user --user 0 " + disabledStockLauncher);
+        if (!owner.startsWith(PKG + "/") && StockLauncher.isStock(owner.split("/")[0])) {
+            Log.i(TAG, "HOME still resolves to " + owner + " after set-home-activity; disabling it for the run, as the install flow does");
+            StockLauncher.disableForTheRun(owner.split("/")[0]);
             shell("cmd package set-home-activity " + HOME);
             owner = homeOwner();
         }

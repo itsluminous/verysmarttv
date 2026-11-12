@@ -9,6 +9,9 @@ android {
     namespace = "com.itsluminous.verysmarttv"
     defaultConfig {
         applicationId = "com.itsluminous.verysmarttv"
+        // Runs after the last test of a connected run: enables the emulator's stock launcher again if HomeSmokeTest
+        // disabled it for the run (support/StockLauncher, ADR-052).
+        testInstrumentationRunnerArguments["listener"] = "com.itsluminous.verysmarttv.support.RunEndListener"
     }
     packaging {
         // Kotlin metadata pulled in by AndroidX's dependencies. The launcher is plain Java and never reads it;

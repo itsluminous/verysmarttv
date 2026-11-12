@@ -7,7 +7,7 @@ and publishes all three.
 ## [Unreleased]
 
 ### Build and CI
-- The Espresso job cannot hang: the launcher's and livescore's connected suites run one after the other (they share the emulator and the `com.itsluminous.livescore` package), the runner fails any test after 3 minutes, Gradle runs under `timeout 40m` with `--continue`, and a push to `main` no longer cancels the previous commit's run (ADR-052).
+- The Espresso job cannot hang: the launcher's and livescore's connected suites run one after the other (they share the emulator and the `com.itsluminous.livescore` package), the emulator's stock launcher stays disabled for the whole run instead of coming back between tests with a dialog over the screen, the runner fails any test after 3 minutes, Gradle runs under `timeout 40m` with `--continue`, and a push to `main` no longer cancels the previous commit's run (ADR-052).
 - Tests that need the internet carry `@RequiresNetwork` and run only with `-PincludeNetworkTests`.
 
 ## [0.1.2] - 2026-11-12
