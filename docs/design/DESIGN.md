@@ -847,8 +847,10 @@ state and records every command, and a fake adbd, `fake_adbd.py`, on a local soc
 Runs on `android-tv` API 34 x86 in CI (the only x86 TV image Google ships, per HikViewer's `ci.yml`
 note), on `HikViewer_TV_1080p`/`HikViewer_TV_1GB` (arm64) locally. One Gradle invocation installs the
 debug APKs of all three apps (`connectedDebugAndroidTest` on each module; the launcher's suite depends on
-the companions being installed, enforced by a Gradle `dependsOn(":traktshelf:installDebug",
-":livescore:installDebug")`).
+the companion stand-ins being installed, enforced by a Gradle `dependsOn` on the `:testkit:*:installDebug`
+tasks, ADR-037). The suites share one device, so the launcher's suite and the stand-in installs are ordered
+after the companions' own suites with `mustRunAfter` (ADR-052); the runner fails a test after 3 minutes, and
+tests that need the internet (`@RequiresNetwork`) run only with `-PincludeNetworkTests`.
 
 `:launcher`
 - `HomeFocusTest`: launch Home with a test theme (`score_pill: true`, `widgets: true`, pushed through the `.theme` provider in `@Before` using `UiAutomation.executeShellCommand`); Up from dock slot 0 → score pill focused; Up → Inputs focused; Up again → Inputs still; Down → dock slot 0; focus slot 3, Up → score pill, Down → slot 3; Back from Inputs → grid.
@@ -893,7 +895,9 @@ Mirrors HikViewer's shape (`verify → build → changes → instrumented`):
 
 Feasibility within free minutes: the repo is **public**, and GitHub Actions is free without a minutes cap
 for public repositories, so the emulator job runs on every push to `main` and on code PRs rather than
-nightly (ADR-022). Concurrency group per ref with cancel-in-progress keeps queue time down.
+nightly (ADR-022). Concurrency group per ref; a newer push cancels the run in progress on a pull request,
+never on `main`, so every commit on `main` keeps its Espresso result (ADR-052). The emulator step runs
+`connectedDebugAndroidTest --continue` under `timeout 40m`, inside the job's 60 minutes.
 
 ### 15.2 `release.yml` (tag `v*`)
 

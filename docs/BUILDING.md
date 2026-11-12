@@ -91,14 +91,31 @@ The launcher's suite (`./gradlew :launcher:connectedDebugAndroidTest`) first ins
 packages `com.itsluminous.traktshelf` and `com.itsluminous.livescore` and so **replace the traktshelf and
 livescore debug builds on that emulator** until `./gradlew :traktshelf:installDebug :livescore:installDebug`
 puts them back (their data is kept); and `:testkit:tiles`, "Tile 7", the seventh TV app the focus tests enable
-and disable. Run `:livescore:connectedDebugAndroidTest` before the launcher's suite on one emulator, since
-each install replaces the other's companion. Tiles 1 to 6 are entries of the launcher's test APK. With
+and disable. On one emulator `:livescore:connectedDebugAndroidTest` must run before the launcher's suite, since
+each install replaces the other's companion and a connected run uninstalls its app at the end; a whole-project
+`./gradlew connectedDebugAndroidTest` (what CI runs) orders them itself (`mustRunAfter` in the launcher's and the
+stand-ins' build files, ADR-052), so `org.gradle.parallel` never runs the two suites at once. Tiles 1 to 6 are entries of the launcher's test APK. With
 `leaveApksInstalledAfterRun` those tiles stay on Home; `adb uninstall com.itsluminous.verysmarttv.test` and
 `adb uninstall com.itsluminous.verysmarttv.testkit.tiles` remove them. Every test exports the launcher's
 settings before it runs and restores them after (`support/HomeTestRule`), so the theme and choices on the
 emulator survive a run. The 24 tests take about 2 minutes on `HikViewer_TV_1080p` (Apple M-series, headless
 `-no-window -no-audio -gpu swiftshader_indirect`), 115 s of it on the device, plus a minute of build on a cold
 Gradle daemon.
+
+Two guards keep a connected run from hanging (ADR-052). The runner fails any one test still running after 3 minutes
+(`timeout_msec`, `AndroidDefaults.TEST_TIMEOUT_MS`, with a `TestTimedOutException` and the stack of the stuck thread);
+every poll loop in the suites has a deadline of 10 s or less. Tests that need the public internet carry
+`@RequiresNetwork` (`BwfRecordTest`, which records BWF's Match Centre through the real hidden WebView) and are left out
+of a connected run unless you pass `-PincludeNetworkTests`:
+
+```bash
+./gradlew :livescore:connectedDebugAndroidTest -PincludeNetworkTests \
+  -Pandroid.testInstrumentationRunnerArguments.bwf_record=true     # BwfRecordTest records; without bwf_record it is skipped
+tools/dev/record_bwf_fixtures.sh                                   # the same through adb, and it pulls the JSON
+```
+
+CI never passes `includeNetworkTests`. A whole-project run takes about 6 minutes on `HikViewer_TV_1GB`: livescore's
+11 tests in 32 s, then the stand-in installs, then the launcher's 44 tests in 4 minutes 15 seconds.
 
 When every test that starts Home fails with "waited 8000 ms for the grid to lay out a focused tile" (and
 `HomeSmokeTest` with "requestFocus on the Settings pill was refused"), the emulator is in touch mode: a click in

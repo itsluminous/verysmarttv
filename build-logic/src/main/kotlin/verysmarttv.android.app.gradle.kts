@@ -37,6 +37,10 @@ android {
         versionCode = appVersion.code
         versionName = appVersion.name
         testInstrumentationRunner = AndroidDefaults.TEST_RUNNER
+        // A test that is still running after this long is failed by the runner with a stack trace, so a stuck test ends
+        // the connected task in minutes instead of running into the CI job's timeout (ADR-052). The slowest test takes
+        // about 15 s on an Apple-silicon emulator and a few times that on CI's software-rendered x86 one.
+        testInstrumentationRunnerArguments["timeout_msec"] = AndroidDefaults.TEST_TIMEOUT_MS.toString()
     }
 
     signingConfigs {

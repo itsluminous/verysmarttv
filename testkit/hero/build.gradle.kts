@@ -19,3 +19,9 @@ android {
 dependencies {
     implementation(project(":testkit"))
 }
+
+// In a whole-project connected run this install must wait for the real companion's own suite: that suite installs
+// and, at its end, uninstalls the same package (ADR-052). On its own (`:launcher:connectedDebugAndroidTest`) nothing waits.
+tasks.matching { it.name == "installDebug" }.configureEach {
+    mustRunAfter(":traktshelf:connectedDebugAndroidTest")
+}

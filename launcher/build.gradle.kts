@@ -32,6 +32,14 @@ dependencies {
 // livescore debug builds are replaced until `./gradlew :traktshelf:installDebug :livescore:installDebug` puts them
 // back (their data stays); and Tile 7, the seventh TV app the focus tests switch on and off. Tiles 1 to 6 ride in the
 // launcher's own test APK, which Gradle installs anyway.
+//
+// One emulator, one suite at a time (ADR-052). `org.gradle.parallel` would otherwise start this suite while a
+// companion's own connected suite is still running: the two install the same package (the stand-in and the real
+// companion are both com.itsluminous.livescore), each install kills the other's instrumentation, and the companion's
+// run uninstalls the package at its end, so this suite loses its provider half way through. The stand-in installs
+// are ordered after the companions' suites too (testkit/score, testkit/hero). `mustRunAfter` orders only when both
+// tasks are in the same invocation: `./gradlew :launcher:connectedDebugAndroidTest` on its own is unchanged.
 tasks.matching { it.name == "connectedDebugAndroidTest" }.configureEach {
     dependsOn(":testkit:hero:installDebug", ":testkit:score:installDebug", ":testkit:tiles:installDebug")
+    mustRunAfter(":livescore:connectedDebugAndroidTest", ":traktshelf:connectedDebugAndroidTest")
 }

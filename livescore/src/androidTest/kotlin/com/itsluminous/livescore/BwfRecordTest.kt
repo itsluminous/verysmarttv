@@ -15,9 +15,11 @@ import java.io.IOException
  * Records BWF's Match Centre JSON through the real hidden WebView in the `:bwf` process (ADR-049, ADR-050), for
  * `tools/dev/record_bwf_fixtures.sh`:
  * runs only with `-e bwf_record true` (it needs the internet and a site that answers), so the ordinary connected suite
- * skips it. Writes `current-live.json` and `live-matches-<tmtId>.json` under the app's `files/bwf-record/`, which the
- * script pulls and trims, and logs how the visit went under `LiveScore.BwfRecord`, challenge included.
+ * skips it, and it is [RequiresNetwork], so a Gradle connected run leaves it out altogether unless `-PincludeNetworkTests`
+ * is passed (ADR-052). Writes `current-live.json` and `live-matches-<tmtId>.json` under the app's `files/bwf-record/`,
+ * which the script pulls and trims, and logs how the visit went under `LiveScore.BwfRecord`, challenge included.
  */
+@RequiresNetwork
 @RunWith(AndroidJUnit4::class)
 class BwfRecordTest {
     @Test

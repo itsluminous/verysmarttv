@@ -11,6 +11,11 @@ android {
     namespace = "com.itsluminous.livescore"
     defaultConfig {
         applicationId = "com.itsluminous.livescore"
+        // Tests marked @RequiresNetwork (BwfRecordTest: the real BWF site through the hidden WebView) are left out of
+        // a connected run unless `-PincludeNetworkTests` is passed; CI never passes it (ADR-052, docs/BUILDING.md).
+        if (!providers.gradleProperty("includeNetworkTests").isPresent) {
+            testInstrumentationRunnerArguments["notAnnotation"] = "com.itsluminous.livescore.RequiresNetwork"
+        }
     }
 }
 

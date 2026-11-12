@@ -16,9 +16,11 @@ on:
   pull_request:
   workflow_dispatch:
 
+# A newer push to the same pull request replaces the run in progress. A push to main does not: the Espresso result
+# of every commit on main is kept, and the next commit's run queues behind it (ADR-052).
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -250,6 +252,12 @@ jobs:
           # and throw an "isn't responding" dialog over the app, after which Espresso waits forever
           # for the app window to get focus. Give the device a minute, keep the screen awake, turn
           # the ANR dialogs off, and dismiss anything left on screen before Gradle starts.
+          #
+          # One Gradle invocation runs every module's suite on the one emulator; the build orders them
+          # (livescore's before the launcher's stand-in installs and suite, ADR-052). `--continue` so one
+          # module's failure still leaves the others' reports for the upload below. `timeout 40m` ends a
+          # Gradle run that is stuck well before the job's own 60 minutes, so the reports still upload;
+          # inside Gradle the runner's `timeout_msec` fails any one test after 3 minutes (build-logic).
           script: |
             adb wait-for-device
             adb shell settings put global window_animation_scale 0
@@ -265,7 +273,7 @@ jobs:
             adb shell input keyevent KEYCODE_HOME
             sleep 10
             adb shell dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp' || true
-            ./gradlew connectedDebugAndroidTest --stacktrace
+            timeout --kill-after=60s 40m ./gradlew connectedDebugAndroidTest --continue --stacktrace
 
       - name: Upload instrumented-test reports
         if: always()

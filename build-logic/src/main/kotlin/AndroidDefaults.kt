@@ -19,4 +19,7 @@ object AndroidDefaults {
 
     /** The runner every module's instrumentation tests use. */
     const val TEST_RUNNER = "androidx.test.runner.AndroidJUnitRunner"
+
+    /** The runner fails any one instrumentation test still running after this (`timeout_msec`, ADR-052). */
+    const val TEST_TIMEOUT_MS = 180_000L
 }
