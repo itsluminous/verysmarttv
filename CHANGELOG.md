@@ -6,13 +6,22 @@ and publishes all three.
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-12
+
+versionCode 1000102, same release key.
+
 ### Scores companion
-- **Follow badminton countries and players across tournaments, with a discipline filter** (ADR-051): under Badminton the picker gains **Countries** (some sixty nations plus any seen this week, A–Z under letter headers; BWF website source only, since SportMicro's feed names no nationality) and **Players** (everyone on this week's matches, by country); OK on one opens a chooser, *All* / *Singles* / *Doubles* / *Mixed doubles*, and the row shows the filter. A match is followed when any follow covers it: India for singles plus two Chinese players for everything lists the union. The follows back up and restore with the rest; no extra request, the day-wide badminton fetch already covers every tournament.
-- **Badminton source** row in Settings (ADR-049): *SportMicro (your RapidAPI key)*, the default and unchanged; *BWF website (experimental)*, which reads BWF's own Match Centre through a hidden WebView, no key, live matches only, more memory for a few seconds per refresh and liable to stop when the site changes; *Off*. The key row shows only under SportMicro and the key is asked for only then.
-- "BWF site unavailable" row on the companion's Home, and in the picker's Badminton column, with the reason, when the experimental source fails; the other sources and the launcher are untouched.
-- `StateNormaliser` reads the Match Centre's words (`In Progress`, `Waiting to start`, `Warm up`, `Completed`); `tools/dev/record_bwf_fixtures.sh` records the page's JSON through the emulator's WebView, and a live day recorded on 2026-11-12 is in the parser's fixtures.
-- The BWF page loader runs in a `:bwf` process that exits after each capture (ADR-050): the companion's own process never creates a WebView, and on the 1 GB emulator it reads 61.7 MB thirty seconds after a visit against 66–67 MB before, where the one-process version kept about 40 MB. The client gives up after 45 s and reports "BWF site unavailable"; only a foreground refresh starts the process. The Settings row says so instead of naming a retained figure.
-- Review of the BWF source (2026-11-11): the hidden view reaches only `bwfbadminton.com` hosts and Cloudflare's challenge host, with file and content access off; the background job never runs it (the 6 h refresh and the one-off before a start fetch the other sports only); a tournament whose live-match call fails is retried once and then skipped instead of failing the whole visit; the parser reads the players' full display names, a `0` third game while *Waiting to start* as not begun (the interval, not an upcoming match), and a warm-up's start as now rather than the day's start; the Settings row says about 40 MB stays until the app is closed.
+- Follow badminton **countries** and **players** across all tournaments; follows are a union (India + two Chinese players = every Indian player's matches plus those players' matches).
+- A discipline filter per country/player follow: All, Singles, Doubles, Mixed doubles.
+- Picker under Badminton gains Countries (A–Z, ~60 nations) and Players (grouped by country, from current tournaments).
+- **Badminton source** row in Settings: SportMicro with your RapidAPI key (default) or **BWF website (experimental)**, which reads BWF's own Match Centre through a hidden browser view; no key. Country follows need the BWF source (SportMicro carries no nationality).
+- The BWF loader runs in a separate `:bwf` process that exits after each capture, so the companion's memory returns (≈61 MB after vs 68 MB before on a 1 GB emulator); it never runs from the background job or while the screen is off.
+- BWF source hardened: reaches only `bwfbadminton.com` and Cloudflare's challenge host, file/content access off, cache and cookies wiped, 45 s timeout; per-tournament fetch with one retry when the API answers without CORS headers.
+- "BWF site unavailable" row with the reason when the experimental source fails; other sports unaffected.
+- Backup/restore carries the new follow kinds; older follows still load.
+
+### Fixed
+- Discipline lists in the picker read "Doubles, Mixed doubles" (separator was trimmed).
 
 ## [0.1.0] - 2026-11-10
 
@@ -52,5 +61,6 @@ versionCode 1000100, one release key for all three (signer SHA-256
 - One Gradle project; `./gradlew ci` runs unit tests, lint, file-length and identifier gates; CI runs the Python suite on Ubuntu and Windows and Espresso on an Android TV emulator; `release.yml` signs on `v*` tags.
 - Earlier candidates `v1.0.0-rc1..rc3` and `v0.1.0-rc1..rc2` were published on the same day while the first release was being prepared; their pages remain.
 
-[Unreleased]: https://github.com/itsluminous/verysmarttv/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/itsluminous/verysmarttv/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/itsluminous/verysmarttv/releases/tag/v0.1.2
 [0.1.0]: https://github.com/itsluminous/verysmarttv/releases/tag/v0.1.0
