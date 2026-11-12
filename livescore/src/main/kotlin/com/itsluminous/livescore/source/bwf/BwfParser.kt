@@ -22,10 +22,12 @@ data class BwfTournament(val id: String, val name: String, val startMs: Long, va
  * BWF's Match Centre JSON (ADR-049), as the page's own Vue template reads it (`tournament.*.js`, read 2026-11-10):
  *
  * - `vue-current-live`: `{results: [{id, name, start_date "2026-11-10 00:00:00", end_date, tmtLink, …}]}`.
- * - `vue-live-matches?tmtId=…`: `{results: [{match_detail: {code, t1p1_player_model: {name_short1, …}, t1p2_player_model?,
- *   t2p1_player_model, t2p2_player_model?, t1p1country_model, …}, live_detail: {court_name, match_state ("P" while
- *   playing), match_state_name, event ("MS"), round ("R32"), duration, team1_g1_score … team2_g3_score (null until
- *   played), service_player}, status_name ("Retired", "Walkover" when there is one), winner (1 or 2)}]}`.
+ * - `vue-live-matches?tmtId=…`: `{results: [{match_detail: {code, t1p1_player_model: {name_display, name_short1, id, …},
+ *   t1p2_player_model?, t2p1_player_model, t2p2_player_model?, t1p1country_model, …}, live_detail: {court_name,
+ *   match_state ("P" while playing, "S" waiting between games), match_state_name ("In Progress", "Waiting to start"),
+ *   event ("MS"), round ("R32"), duration, team1_g1_score … team2_g3_score (null until played, 0 for the next game while
+ *   waiting), service_player}, status_name ("Retired", "Walkover" when there is one), winner (1 or 2, null while
+ *   live)}]}`, as recorded on 2026-11-12 (`live-matches-5216-20261112.json`, `live-matches-5844-20261112.json`).
  *
  * One [Event] per match in the shape the SportMicro parser gives, so `LineFormatter` and the picker read both alike:
  * pairs as `A / B` (surnames and abbreviations through [SportMicroParser]), games as the score string. The match
@@ -99,25 +101,30 @@ internal object BwfParser {
             }
         }
 
-        /** `t1p1_player_model` → team 1's first player: its `name_short1` (and `id`). */
+        /**
+         * `t1p1_player_model` → team 1's first player: its `name_display` (`Hsiang Chieh CHIU`, the full name with the
+         * surname in capitals), else `name_short1` (`CHIU H C`, initials, as recorded 2026-11-12), and its `id`.
+         */
         private fun player(n: String, reader: JsonReader) {
             if (reader.peek() != JsonToken.BEGIN_OBJECT) {
                 reader.skipValue()
                 return
             }
-            var name = ""
+            var display = ""
+            var short = ""
             var id = ""
             Json.obj(reader) { f ->
                 when (f) {
-                    "name_short1" -> name = Json.string(reader)
-                    "name_display" -> if (name.isEmpty()) name = Json.string(reader) else reader.skipValue()
+                    "name_display" -> display = Json.string(reader)
+                    "name_short1" -> short = Json.string(reader)
                     "id" -> id = Json.string(reader)
                     else -> reader.skipValue()
                 }
             }
+            val name = display.trim().ifEmpty { short.trim() }
             if (name.isEmpty()) return
             val (names, ids) = if (n.startsWith("t1")) team1 to team1Ids else team2 to team2Ids
-            names.add(name.trim())
+            names.add(name)
             ids.add(id)
         }
 
@@ -143,7 +150,11 @@ internal object BwfParser {
 
         fun toEvent(t: BwfTournament, updatedMs: Long): Event? {
             if (code.isEmpty() || team1.isEmpty() || team2.isEmpty()) return null
-            val played = (0 until GAMES).count { points1[it] >= 0 || points2[it] >= 0 }
+            val playing = state.equals("P", true)
+            var played = (0 until GAMES).count { points1[it] >= 0 || points2[it] >= 0 }
+            // A game the feed lists at 0-0 has not begun unless the match is being played: "Waiting to start" at one game
+            // each carries a third game at 0-0 (recorded 2026-11-12), under P a 0-0 game is the one just started.
+            if (!playing) while (played > 0 && points1[played - 1] <= 0 && points2[played - 1] <= 0) played--
             val p1 = (0 until played).map { points1[it].coerceAtLeast(0) }
             val p2 = (0 until played).map { points2[it].coerceAtLeast(0) }
             val lastOver = played > 0 && SportMicroParser.gameOver(p1[played - 1], p2[played - 1])
@@ -151,15 +162,17 @@ internal object BwfParser {
             val reason = statusName.ifEmpty { if (feedState == "live") "" else stateName }
             var state = StateNormaliser.normalise(FeedStatus(feedState, reason, period = played))
             var why = reason
-            if (state == State.LIVE && lastOver && winner == 0) {
-                // A game over with no next one begun: the interval between games, as the SportMicro parser reads it (ADR-044).
+            if ((state == State.LIVE || state == State.UPCOMING) && lastOver && winner == 0) {
+                // A game over with no next one begun (`In Progress` or `Waiting to start`): the interval between games, as
+                // the SportMicro parser reads it (ADR-044).
                 state = State.BREAK
                 why = SportMicroParser.BETWEEN_GAMES
             }
             val games = (0 until played).map { "${p1[it]}-${p2[it]}" }
             val detail = if (state == State.LIVE && played > 0) "Game $played" else why.ifEmpty { stateName }
             val roundText = listOf(event, round).filter { it.isNotEmpty() }.joinToString(" - ")
-            val startMs = startMs(t.startMs, updatedMs)
+            // A match on court that has not begun (`Warm Up`) starts about now: the fetch time, not the day's start, is its kicker.
+            val startMs = if (state == State.UPCOMING) updatedMs else startMs(t.startMs, updatedMs)
             val home = side(team1Ids, team1, p1, state == State.FINAL && winner == 1)
             val away = side(team2Ids, team2, p2, state == State.FINAL && winner == 2)
             return Event(
@@ -183,9 +196,9 @@ internal object BwfParser {
         }
 
         /**
-         * The feed's own word for where the match is: `P` is playing (the one code the Match Centre's template tests);
-         * otherwise `match_state_name` as written (`Playing`, `Finished`, `Walkover`, `Warm up`…), and when that is
-         * empty too, the winner or the points decide.
+         * The feed's own word for where the match is: `P` is playing (the one code the Match Centre's template tests;
+         * `In Progress` as recorded 2026-11-12); otherwise `match_state_name` as written (`Waiting to start` for `S`,
+         * `Warm Up`, `Finished`, `Walkover`…), and when that is empty too, the winner or the points decide.
          */
         private fun feedState(): String =
             when {

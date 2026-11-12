@@ -142,5 +142,68 @@ class BwfParserTest {
         assertEquals(0L, BwfParser.dayMs(""))
     }
 
+    @Test
+    fun recordedTournamentListOfTheSecondDayHasFourTournaments() {
+        val list = BwfParser.parseTournaments(Fixtures.reader("bwf/current-live-20261112.json"))
+        assertEquals(listOf("5216", "5652", "5773", "5844"), list.map { it.id })
+        assertEquals("Kumamoto Masters Japan 2026", list[0].name)
+    }
+
+    @Test
+    fun recordedKumamotoMatchesReadTheDisplayNamesAndTheGameUnderWay() {
+        val events = BwfParser.parseLiveMatches(Fixtures.reader("bwf/live-matches-5216-20261112.json"), kumamoto, now)
+        assertEquals(listOf("bwf-177", "bwf-97", "bwf-21"), events.map { it.id })
+        assertEquals(listOf(State.LIVE, State.LIVE, State.LIVE), events.map { it.state })
+        val doubles = events[0]
+        assertEquals("Hsiang Chieh CHIU / WANG Chi-Lin", doubles.home.name) // name_display, not the initials of name_short1
+        assertEquals("Chiu / Wang", doubles.home.shortName)
+        assertEquals("CHI/WAN", doubles.home.abbr)
+        assertEquals("Okamura / Yamashita", doubles.away.shortName)
+        assertEquals("MD - R16 · Game 1", doubles.statusDetail)
+        assertEquals("16", doubles.home.score)
+        assertEquals("14", doubles.away.score)
+        assertEquals("Court 1", doubles.session)
+        val third = events[2]
+        assertEquals("Farhan", third.home.shortName)
+        assertEquals("21 6 11", third.home.score)
+        assertEquals("13 21 3", third.away.score)
+        assertEquals("MS - R16 · Game 3", third.statusDetail)
+        assertEquals(3, third.period)
+    }
+
+    @Test
+    fun recordedWaitingToStartAtOneGameEachIsTheIntervalNotAThirdGameAtLoveAll() {
+        val events = BwfParser.parseLiveMatches(Fixtures.reader("bwf/live-matches-5844-20261112.json"), BwfTournament("5844", "Guwahati Masters 2026", 0L, 0L), now)
+        val waiting = events[0]
+        assertEquals("bwf-27", waiting.id)
+        assertEquals(State.BREAK, waiting.state) // match_state S, "Waiting to start", team1_g3_score 0: the next game has not begun
+        assertEquals("MS - R32 · Interval", waiting.statusDetail)
+        assertEquals("22 13", waiting.home.score)
+        assertEquals("20 21", waiting.away.score)
+        assertEquals(2, waiting.period)
+        assertEquals(listOf(DetailLine("Game 1", "22-20"), DetailLine("Game 2", "13-21")), waiting.details)
+        assertEquals("Buarung", waiting.home.shortName)
+        assertEquals("Kachain BUARUNG", waiting.home.name)
+        assertEquals(State.LIVE, events[1].state)
+        assertEquals("MS - R32 · Game 1", events[1].statusDetail)
+        assertEquals("Tan", events[1].away.shortName) // `TAN Y X ` with a trailing space
+        assertEquals("MS - R32 · Game 2", events[2].statusDetail)
+        assertEquals("13 9", events[2].home.score)
+    }
+
+    @Test
+    fun aMatchJustStartedUnderPKeepsItsLoveAllGameAndAWarmUpStartsNow() {
+        val json = """{"results":[{"match_detail":{"code":"p","t1p1_player_model":{"name_display":"A B"},"t2p1_player_model":{"name_display":"C D"}},"live_detail":{"match_state":"P","match_state_name":"In Progress","team1_g1_score":21,"team2_g1_score":13,"team1_g2_score":0,"team2_g2_score":0}},
+            {"match_detail":{"code":"w","t1p1_player_model":{"name_display":"A B"},"t2p1_player_model":{"name_display":"C D"}},"live_detail":{"match_state":"W","match_state_name":"Warm Up","team1_g1_score":0,"team2_g1_score":0}}]}"""
+        val events = BwfParser.parseLiveMatches(Fixtures.readerOf(json), kumamoto, now)
+        assertEquals(State.LIVE, events[0].state)
+        assertEquals("Game 2", events[0].statusDetail)
+        assertEquals("21 0", events[0].home.score)
+        assertEquals(State.UPCOMING, events[1].state)
+        assertEquals("Warm Up", events[1].statusDetail)
+        assertEquals("", events[1].home.score)
+        assertEquals(now, events[1].startMs) // on court, not begun: starts about now, not at the day's start
+    }
+
     private fun events() = BwfParser.parseLiveMatches(Fixtures.reader("bwf/live-matches-handmade.json"), kumamoto, now)
 }

@@ -70,13 +70,20 @@ object TestRepo {
         override fun event(event: Event): Event? = null
     }
 
-    /** Installs a repo over [events] with the given follows JSON (null: the defaults) and an empty cache. */
+    /**
+     * Installs a repo over [events] with the given follows JSON (null: the defaults) and an empty cache, with the
+     * badminton key and source at their defaults (no key, SportMicro): what the device had saved (a BWF choice from a
+     * manual session, say) is not the test's.
+     */
     fun install(events: List<Event>, followsJson: String? = null): ScoreRepo {
         val app: Context = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
         val dir = File(app.filesDir, "test-repo").apply { deleteRecursively(); mkdirs() }
         val follows = FollowStore(File(dir, "follows.json"))
         if (followsJson != null) follows.import(followsJson)
-        val repo = ScoreRepo(app, Source(events), follows, EventCache(File(dir, "events.json")), Prefs(app), online = { true })
+        val prefs = Prefs(app)
+        prefs.badmintonKey = ""
+        prefs.badmintonSource = BadmintonSource.SPORTMICRO
+        val repo = ScoreRepo(app, Source(events), follows, EventCache(File(dir, "events.json")), prefs, online = { true })
         ScoreRepo.set(repo)
         return repo
     }

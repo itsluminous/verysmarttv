@@ -99,15 +99,17 @@ When the TV's owner chooses **Settings → Badminton source → BWF website (exp
 loads BWF's own public Match Centre page (`match-centre.bwfbadminton.com`) in a hidden browser view on the TV, the way
 a browser would, and reads the live-score JSON the page itself requests from `extranet-lv.bwfbadminton.com`
 (ADR-049). No key, no account, no login, no bypass of any protection: the page is public and the browser engine is the
-TV's own Android System WebView; the companion asks for it at most every 5 minutes while a badminton follow is live and
-keeps nothing of the visit (cookies and web storage are deleted after each). **VerySmartTV is not affiliated with,
+TV's own Android System WebView; the companion asks for it at most every 5 minutes while a badminton follow is live, only
+while a screen shows a score (never from its background job), lets the hidden view reach BWF's own hosts and Cloudflare's
+challenge host and nothing else, and keeps nothing of the visit (cache, cookies and web storage are deleted after each). **VerySmartTV is not affiliated with,
 endorsed by or sponsored by the Badminton World Federation**; the site's content, scores, tournament and player names
 are © BWF and the property of their owners, shown for the personal, non-commercial display of scores on the owner's
 own TV. This is an experimental read of a public web page: the site may change, challenge or stop it at any time, and
 then the companion shows "BWF site unavailable" and nothing else happens. SportMicro's keyed API stays the default
-source. The fixtures under `livescore/src/test/resources/fixtures/bwf/` are the public tournament list the page
-received on 2026-11-10, an empty live-match list from the same visit, and a hand-made live-match list in the page's
-own field names; nothing in them is personal.
+source. The fixtures under `livescore/src/test/resources/fixtures/bwf/` are the public tournament lists the page
+received on 2026-11-10 and 2026-11-12, an empty live-match list from the first visit, the live-match lists of two
+tournaments from the second (public scores and players' names as the site shows them, at most five matches each), and a
+hand-made live-match list in the page's own field names; nothing in them is personal.
 
 ## Artwork
 

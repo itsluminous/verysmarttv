@@ -67,7 +67,7 @@
     <string name="badminton_source_bwf">BWF website (experimental)</string>
     <string name="badminton_source_none">Off</string>
     <string name="badminton_source_sportmicro_value">SportMicro’s Badminton Micro API on RapidAPI, with your own key (the row below)</string>
-    <string name="badminton_source_bwf_value">BWF website (experimental): reads BWF’s own Match Centre in a hidden browser. No key. Uses more memory for a few seconds per refresh and may stop working when the site changes; live matches only.</string>
+    <string name="badminton_source_bwf_value">BWF website (experimental): reads BWF’s own Match Centre in a hidden browser. No key. Uses more memory (about 40 MB stays until the TV closes the app) and may stop working when the site changes; live matches only.</string>
     <string name="badminton_source_none_value">Off: badminton is not fetched or shown</string>
     <string name="bwf_unavailable_row">BWF site unavailable</string>
     <string name="bwf_unavailable_row_hint">%1$s. The experimental source reads BWF’s own site through a hidden browser and may stop working when the site changes; the last scores are kept and marked stale. OK opens Settings.</string>

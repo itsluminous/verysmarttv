@@ -9,7 +9,8 @@ and publishes all three.
 ### Scores companion
 - **Badminton source** row in Settings (ADR-049): *SportMicro (your RapidAPI key)*, the default and unchanged; *BWF website (experimental)*, which reads BWF's own Match Centre through a hidden WebView, no key, live matches only, more memory for a few seconds per refresh and liable to stop when the site changes; *Off*. The key row shows only under SportMicro and the key is asked for only then.
 - "BWF site unavailable" row on the companion's Home, and in the picker's Badminton column, with the reason, when the experimental source fails; the other sources and the launcher are untouched.
-- `StateNormaliser` reads the Match Centre's words (`Playing`, `Warm up`, `Completed`); `tools/dev/record_bwf_fixtures.sh` records the page's JSON through the emulator's WebView.
+- `StateNormaliser` reads the Match Centre's words (`In Progress`, `Waiting to start`, `Warm up`, `Completed`); `tools/dev/record_bwf_fixtures.sh` records the page's JSON through the emulator's WebView, and a live day recorded on 2026-11-12 is in the parser's fixtures.
+- Review of the BWF source (2026-11-11): the hidden view reaches only `bwfbadminton.com` hosts and Cloudflare's challenge host, with file and content access off; the background job never runs it (the 6 h refresh and the one-off before a start fetch the other sports only); a tournament whose live-match call fails is retried once and then skipped instead of failing the whole visit; the parser reads the players' full display names, a `0` third game while *Waiting to start* as not begun (the interval, not an upcoming match), and a warm-up's start as now rather than the day's start; the Settings row says about 40 MB stays until the app is closed.
 
 ## [0.1.0] - 2026-11-10
 

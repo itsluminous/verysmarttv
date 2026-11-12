@@ -193,6 +193,34 @@ class ScoreProviderTest {
     }
 
     @Test
+    fun aBackgroundRefreshLeavesTheBwfWebViewSourceOutAndFetchesTheRest() {
+        repo.follows.toggle(Follow.sport(Sport.BADMINTON, "Badminton"))
+        repo.follows.toggle(Follow.sport(Sport.CRICKET, "Cricket"))
+        repo.prefs.badmintonSource = BadmintonSource.BWF_WEBVIEW
+        refreshAndWait(background = true)
+        assertFalse(source.fetched.any { it.first == Sport.BADMINTON }) // no hidden browser off screen (ADR-049)
+        assertTrue(source.fetched.any { it.first == Sport.CRICKET }) // the rest of the plan is untouched
+        source.fetched.clear()
+        refreshAndWait(background = false) // a screen asked: the WebView source runs
+        assertTrue(source.fetched.any { it.first == Sport.BADMINTON })
+        source.fetched.clear()
+        repo.prefs.badmintonSource = BadmintonSource.SPORTMICRO
+        refreshAndWait(background = true) // the keyed source is a plain HTTP call: the job fetches it as before
+        assertTrue(source.fetched.any { it.first == Sport.BADMINTON })
+    }
+
+    private fun refreshAndWait(background: Boolean) {
+        var done = false
+        if (background) repo.refreshInBackground { done = true } else repo.refreshAll { done = true }
+        val deadline = System.currentTimeMillis() + 5_000
+        while (!done && System.currentTimeMillis() < deadline) {
+            Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+            Thread.sleep(20)
+        }
+        assertTrue(done)
+    }
+
+    @Test
     fun followChangesNotifyThePill() {
         Shadows.shadowOf(resolver).notifiedUris.clear()
         repo.follows.toggle(Follow.sport(Sport.TENNIS, "Tennis"))

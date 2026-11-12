@@ -97,10 +97,21 @@ class ScoreRepo(
         if (PillChooser.alternates(followed, now)) scheduleAlternation()
     }
 
-    /** Fetches every followed competition (the job, Settings, the UI on open); [onDone] runs on the main thread. */
+    /** Fetches every followed competition (Settings, the UI on open); [onDone] runs on the main thread. */
     fun refreshAll(onDone: (() -> Unit)?) {
-        fetch(RefreshPolicy.fullPlan(follows.all().filter { it.sport in prefs.sportsShown }, source), liveOnly = false, onDone = onDone)
+        fetch(fullPlan(), liveOnly = false, onDone = onDone)
     }
+
+    /**
+     * The job's full refresh, with no screen showing a score: the same plan without the experimental BWF WebView source
+     * (ADR-049), so a hidden Chromium page is never loaded while the TV may be asleep; the other sources fetch as before.
+     */
+    fun refreshInBackground(onDone: (() -> Unit)?) {
+        val plan = if (prefs.badmintonSource == BadmintonSource.BWF_WEBVIEW) fullPlan().filter { it.sport != Sport.BADMINTON } else fullPlan()
+        fetch(plan, liveOnly = false, onDone = onDone)
+    }
+
+    private fun fullPlan(): List<FetchKey> = RefreshPolicy.fullPlan(follows.all().filter { it.sport in prefs.sportsShown }, source)
 
     /**
      * One day-wide sport, fetched whole (the picker, when a sport without a static catalogue has nothing cached to

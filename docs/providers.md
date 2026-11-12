@@ -187,20 +187,25 @@ neither) and the refresh decisions (`RefreshPolicy`, DESIGN.md §13.5, ADR-014).
   `HttpURLConnection` path meets a Cloudflare JavaScript challenge there, the TV's browser engine does not), waits for
   the page (not Cloudflare's "Just a moment…" interstitial), and runs one script that calls the page's own `fetch` for
   `extranet-lv.bwfbadminton.com/api/match-center/vue-current-live` (the tournaments live this week) and
-  `vue-live-matches?tmtId=<id>&tmtType=0` for up to four of them, handing the raw JSON to a `@JavascriptInterface`
-  bridge; 30 s timeout; then the WebView is destroyed, cookies and web storage deleted, and Chromium told to trim its
-  memory. The page lists the **matches on court**, not the day's order of play or results, so this source yields live,
-  break and just-finished matches and no upcoming ones. Badminton keeps its 5-minute live cadence under this source
-  (a Chromium page load a minute is too much for a 1 GB TV), the two days of a full refresh share one visit, and the
-  rest of the refresh policy is unchanged. Any failure (challenge not cleared, timeout, an HTTP error, a changed
-  shape) is logged, backed off and shown as **"BWF site unavailable"** with the reason on the companion's Home and in
-  the picker's Badminton column; the launcher's pill simply has no badminton line. Memory on `HikViewer_TV_1GB`
-  (2026-11-10, `dumpsys meminfo`, TOTAL PSS of the companion with its Home open): 48–68 MB before the visit, a peak
-  of 116 MB while the page loads, 97–99 MB once the WebView is destroyed, and that stays for the life of the process
-  (Chromium's code and browser-side allocations are not unloaded: Native Heap 16 MB, `.apk mmap` of the WebView
-  provider 12 MB private clean); the process is a background one the system may kill between fetches. **Off** stops
-  badminton being fetched or shown at all. Re-record the fixtures with `tools/dev/record_bwf_fixtures.sh` (an
-  emulator with internet).
+  `vue-live-matches?tmtId=<id>&tmtType=0` for up to four of them, one at a time (a tournament whose call fails is
+  retried once with a cache-busting parameter, then skipped), handing the raw JSON to a `@JavascriptInterface` bridge;
+  30 s timeout; then the WebView is destroyed, its cache, cookies and web storage deleted, and Chromium told to trim its
+  memory. The view can reach only `bwfbadminton.com` hosts and Cloudflare's challenge host: every other request the page
+  makes (fonts, icon font, analytics, tag manager) is answered empty on the TV, file and content URLs are off. The page
+  lists the **matches on court** (warming up, playing, waiting between games, just finished), not the day's order of
+  play or results, so this source yields live, break and just-finished matches, and an upcoming one only for a match on
+  court that has not begun. Badminton keeps its 5-minute live cadence under this source (a Chromium page load a minute
+  is too much for a 1 GB TV), the two days of a full refresh share one visit, and the rest of the refresh policy is
+  unchanged, except that the **background job never runs this source**: the 6 h refresh and the one-off before a start
+  fetch the other sports and leave badminton to the next screen that shows a score, so no hidden browser runs while the
+  TV may be asleep. Any failure (challenge not cleared, timeout, no network, an HTTP error, a changed shape) is logged,
+  backed off and shown as **"BWF site unavailable"** with the reason on the companion's Home and in the picker's
+  Badminton column; the launcher's pill simply has no badminton line. Memory on `HikViewer_TV_1GB` (2026-11-11,
+  `dumpsys meminfo`, TOTAL PSS of the companion with its Home open): 73 MB before the visit, a peak of 115 MB while the
+  page loads, 114 MB once the WebView is destroyed, and that stays for the life of the process (26 MB of it private
+  dirty; the rest is the WebView provider's code mapped into the process, clean pages the kernel can drop under
+  pressure); the process is a background one the system may kill between fetches. **Off** stops badminton being
+  fetched or shown at all. Re-record the fixtures with `tools/dev/record_bwf_fixtures.sh` (an emulator with internet).
 - **Follows** (`FollowStore`, §13.2): `{kind: sport|competition|team|event, sport, competition, team, event, label,
   expires}` rows under `{"version": 1, "follows": [...]}`, at most 100; the first run writes the defaults (India, IPL,
   ISL, Premier League, Champions League, F1; ADR-033). `/backup` returns that file verbatim; `restore` replaces it,
