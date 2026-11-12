@@ -2,6 +2,8 @@ package com.itsluminous.livescore.source.sportmicro
 
 import com.itsluminous.livescore.Fixtures
 import com.itsluminous.livescore.model.DetailLine
+import com.itsluminous.livescore.model.Discipline
+import com.itsluminous.livescore.model.Player
 import com.itsluminous.livescore.model.Sport
 import com.itsluminous.livescore.model.State
 import org.junit.Assert.assertEquals
@@ -44,6 +46,19 @@ class SportMicroParserTest {
         assertEquals(now, done.updatedMs)
         assertFalse(done.home.winner)
         assertTrue(done.away.winner) // away_team_score 2 to home_team_score 1
+        // The discipline is a word of the league (`… - WS`); the feed has no nationality, so the side is one player with none (ADR-051).
+        assertEquals(Discipline.WS, done.discipline)
+        assertEquals(listOf(Player("68902", "Matsuta N.", "")), done.home.players)
+        assertEquals(Discipline.XD, events.first { it.competition.contains("XD") }.discipline)
+    }
+
+    @Test
+    fun theDisciplineIsReadFromTheLeagueOrTheTournamentWordsOnly() {
+        assertEquals(Discipline.MD, SportMicroParser.discipline("Kumamoto Masters Japan - MD"))
+        assertEquals(Discipline.XD, SportMicroParser.discipline("Kumamoto Masters Japan, XD, Qualifying"))
+        assertEquals(Discipline.WS, SportMicroParser.discipline("Japan Masters – WS"))
+        assertNull("Masters is not MS", SportMicroParser.discipline("Kumamoto Masters Japan"))
+        assertNull(SportMicroParser.discipline(""))
     }
 
     @Test

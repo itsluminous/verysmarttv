@@ -73,7 +73,7 @@ class ScoreRepo(
         val shown = prefs.sportsShown
         val claimed = source.sports()
         val events = cache.events().filter { it.sport in shown && it.sport in claimed && inWindow(it, window) }
-        return Follows.match(events, follows.all()).sortedWith(compareBy<Followed> { if (it.event.isLiveOrBreak) 0 else 1 }.thenBy { it.event.startMs })
+        return FollowMatcher.match(events, follows.all()).sortedWith(compareBy<Followed> { if (it.event.isLiveOrBreak) 0 else 1 }.thenBy { it.event.startMs })
     }
 
     private fun inWindow(e: Event, window: LongRange): Boolean =

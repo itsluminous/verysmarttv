@@ -36,6 +36,22 @@
     <string name="badminton_needs_key">Badminton scores need a data key: Settings → Badminton data key.</string>
     <string name="badminton_loading">Looking up this week’s tournaments…</string>
     <string name="badminton_none">No tournament in the feed for today or tomorrow.</string>
+    <string name="section_countries">Countries</string>
+    <string name="section_players">Players</string>
+    <string name="player_row">%1$s (%2$s)</string>
+    <string name="country_none">No nationality in this feed</string>
+    <string name="country_tpe">Chinese Taipei</string>
+    <string name="country_eng">England</string>
+    <string name="country_sco">Scotland</string>
+    <string name="country_wal">Wales</string>
+    <string name="countries_need_bwf">Countries need the BWF website source: SportMicro’s feed names no nationality. Settings → Badminton source.</string>
+    <string name="no_players_cached">No players in this week’s matches yet.</string>
+    <string name="discipline_all">All</string>
+    <string name="discipline_singles">Singles</string>
+    <string name="discipline_doubles">Doubles</string>
+    <string name="discipline_mixed">Mixed doubles</string>
+    <string name="discipline_list_separator">, </string>
+    <string name="discipline_title">%1$s: which events?</string>
 
     <!-- Scoreboard -->
     <string name="innings_line">%1$d/%2$d (%3$s ov)</string>

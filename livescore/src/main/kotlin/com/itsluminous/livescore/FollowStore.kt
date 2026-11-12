@@ -4,6 +4,7 @@ import android.util.JsonReader
 import android.util.JsonWriter
 import android.util.Log
 import com.itsluminous.livescore.model.Competition
+import com.itsluminous.livescore.model.Discipline
 import com.itsluminous.livescore.model.Follow
 import com.itsluminous.livescore.model.FollowKind
 import com.itsluminous.livescore.model.Sport
@@ -177,6 +178,10 @@ class FollowStore(private val file: File) {
                     w.name("event").value(f.eventId)
                     w.name("label").value(f.label)
                     w.name("expires").value(f.expiresMs)
+                    w.name("country").value(f.country)
+                    w.name("disciplines").beginArray()
+                    for (d in f.disciplines) w.value(d.token)
+                    w.endArray()
                     w.endObject()
                 }
                 w.endArray()
@@ -185,7 +190,7 @@ class FollowStore(private val file: File) {
             return out.toString()
         }
 
-        /** The list in [json], or null when it is not a follow list; unknown kinds and sports are dropped. */
+        /** The list in [json], or null when it is not a follow list; unknown kinds, sports and disciplines are dropped (a row from before ADR-051 has no country or disciplines). */
         fun decode(json: String): List<Follow>? {
             val list = ArrayList<Follow>()
             var version = -1
@@ -223,6 +228,8 @@ class FollowStore(private val file: File) {
             var event = ""
             var label = ""
             var expires = 0L
+            var country = ""
+            val disciplines = LinkedHashSet<Discipline>()
             r.beginObject()
             while (r.hasNext()) {
                 when (r.nextName()) {
@@ -233,13 +240,19 @@ class FollowStore(private val file: File) {
                     "event" -> event = r.nextString()
                     "label" -> label = r.nextString()
                     "expires" -> expires = r.nextLong()
+                    "country" -> country = r.nextString()
+                    "disciplines" -> {
+                        r.beginArray()
+                        while (r.hasNext()) Discipline.fromToken(r.nextString())?.let(disciplines::add)
+                        r.endArray()
+                    }
                     else -> r.skipValue()
                 }
             }
             r.endObject()
             val k = FollowKind.fromToken(kind) ?: return null
             val s = Sport.fromToken(sport) ?: return null
-            return Follow(k, s, competition, team, event, label, expires)
+            return Follow(k, s, competition, team, event, label, expires, country, disciplines)
         }
     }
 }

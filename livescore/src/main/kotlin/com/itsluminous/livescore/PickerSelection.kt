@@ -17,8 +17,13 @@ class PickerSelection(private val follows: List<Follow>) {
     fun leaf(follow: Follow): SelectionState = if (has(follow)) SelectionState.ALL else SelectionState.NONE
 
     /** A competition's box from its own follow and its [children] (team and match follows). */
-    fun competition(c: Competition, children: List<Follow>): SelectionState =
-        SelectionState.ofChildren(has(Follow.competition(c)), children.map(::leaf))
+    fun competition(c: Competition, children: List<Follow>): SelectionState = section(Follow.competition(c), children)
+
+    /** A section's box from the follow that covers it ([own]: a competition's, or the sport's for the badminton Countries and Players sections, ADR-051) and its [children]. */
+    fun section(own: Follow, children: List<Follow>): SelectionState = SelectionState.ofChildren(has(own), children.map(::leaf))
+
+    /** The follow in the list with [follow]'s key (the same follow, perhaps with another discipline set), or null. */
+    fun find(follow: Follow): Follow? = follows.firstOrNull { it.key == follow.key }
 
     /** A sport's box from its own follow and its competitions' boxes; barred when something of the sport is followed outside them. */
     fun sport(s: Sport, competitions: List<SelectionState>): SelectionState {

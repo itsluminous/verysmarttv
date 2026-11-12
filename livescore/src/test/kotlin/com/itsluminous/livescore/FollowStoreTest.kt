@@ -1,17 +1,17 @@
 package com.itsluminous.livescore
 
 import com.itsluminous.livescore.model.Competition
+import com.itsluminous.livescore.model.Discipline
 import com.itsluminous.livescore.model.Event
 import com.itsluminous.livescore.model.Follow
 import com.itsluminous.livescore.model.FollowKind
-import com.itsluminous.livescore.model.FollowReason
+import com.itsluminous.livescore.model.Player
 import com.itsluminous.livescore.model.Side
 import com.itsluminous.livescore.model.Sport
 import com.itsluminous.livescore.model.State
 import com.itsluminous.livescore.model.Team
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -20,7 +20,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.io.File
 
-/** JSON round trip, defaults, expiry of event follows, the 100-entry cap, a corrupt file, and what a follow covers. */
+/** JSON round trip (the country and player kinds included, ADR-051), defaults, expiry of event follows, the 100-entry cap, a corrupt file. */
 @RunWith(RobolectricTestRunner::class)
 class FollowStoreTest {
     @get:Rule
@@ -133,19 +133,28 @@ class FollowStoreTest {
     }
 
     @Test
-    fun followsCoverEventsByKindWithTheRightReason() {
-        val e = event("1", competitionId = "8048", home = Side("6", "India", "IND"), away = Side("2", "Australia", "AUS"))
-        assertEquals(FollowReason.COMPETITION, Follow.sport(Sport.CRICKET, "Cricket").reasonFor(e))
-        assertEquals(FollowReason.COMPETITION, Follow.competition(Competition(Sport.CRICKET, "8048", "IPL")).reasonFor(e))
-        assertNull(Follow.competition(Competition(Sport.CRICKET, "8679", "PSL")).reasonFor(e))
-        assertEquals(FollowReason.TEAM, Follow.team(Team(Sport.CRICKET, "6", "India", "IND")).reasonFor(e))
-        assertNull(Follow.team(Team(Sport.FOOTBALL, "6", "x", "X")).reasonFor(e))
-        assertEquals(FollowReason.EVENT, Follow.event(e, 0L).reasonFor(e))
-        val intl = Follow.competition(Competition(Sport.CRICKET, Competition.INTERNATIONAL, "Internationals"))
-        assertNull(intl.reasonFor(e))
-        assertEquals(FollowReason.COMPETITION, intl.reasonFor(e.copy(international = true)))
-        val matched = Follows.match(listOf(e), listOf(Follow.sport(Sport.CRICKET, "Cricket"), Follow.team(Team(Sport.CRICKET, "6", "India", "IND"))))
-        assertEquals(listOf(Followed(e, FollowReason.TEAM)), matched)
+    fun countryAndPlayerFollowsRoundTripWithTheirDisciplinesAndLegacyRowsStillLoad() {
+        val store = FollowStore(File(folder.root, "f.json"))
+        store.clear()
+        val india = Follow.country("IND", "India", setOf(Discipline.MS, Discipline.WS))
+        val chen = Follow.player(Player("57945", "CHEN Yu Fei", "CHN"), Discipline.ALL)
+        store.replaceAll(emptyList(), listOf(india, chen))
+        val json = store.export()
+        assertTrue(json, json.contains("\"kind\":\"country\"") && json.contains("\"country\":\"IND\"") && json.contains("\"disciplines\":[\"MS\",\"WS\"]"))
+        val other = FollowStore(File(folder.root, "g.json"))
+        assertTrue(other.import(json))
+        assertEquals(listOf(india, chen), other.all())
+        assertEquals(listOf(india, chen), FollowStore(File(folder.root, "f.json")).all())
+        // A new discipline set replaces the follow: same key, one entry.
+        store.replaceAll(listOf(india), listOf(india.copy(disciplines = Discipline.ALL)))
+        assertEquals(1, store.all().count { it.kind == FollowKind.COUNTRY })
+        assertEquals(Discipline.ALL, store.all().first { it.kind == FollowKind.COUNTRY }.disciplines)
+        // A row written before ADR-051 has no country or disciplines; an unknown discipline token is dropped.
+        val legacy = """{"version":1,"follows":[{"kind":"team","sport":"cricket","competition":"","team":"6","event":"","label":"India","expires":0},
+            {"kind":"player","sport":"badminton","competition":"","team":"9","event":"","label":"X","expires":0,"country":"JPN","disciplines":["XD","QQ"]}]}"""
+        assertTrue(store.import(legacy))
+        assertEquals(Follow(FollowKind.TEAM, Sport.CRICKET, teamId = "6", label = "India"), store.all()[0])
+        assertEquals(Follow.player(Player("9", "X", "JPN"), setOf(Discipline.XD)), store.all()[1])
     }
 
     private fun event(id: String, competitionId: String = "c", home: Side = Side("a", "A", "A"), away: Side = Side("b", "B", "B")) =

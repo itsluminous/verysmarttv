@@ -129,6 +129,8 @@ class RefreshPolicy {
                         FollowKind.TEAM -> source.competitions(f.sport)
                             .filter { c -> source.teams(c).any { it.id == f.teamId } }
                             .forEach { keys.add(FetchKey(f.sport, it.id)) }
+                        // Badminton-only kinds (ADR-051): the day-wide key above already covers them.
+                        FollowKind.COUNTRY, FollowKind.PLAYER -> Unit
                     }
                 }
             }

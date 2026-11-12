@@ -28,7 +28,8 @@ data class Innings(
  * One side of an event: a team, a player, or for F1 the Grand Prix with its leader. [shortName] is the
  * feed's short display name (`Brighton`, `Gojo`), what an upcoming line shows. [score] is the feed's own score
  * string (`386 & 49/2 (14 ov, target 369)`, `2`, `6-4 3-6`), kept as text because the pill shortens it
- * per sport in [com.itsluminous.livescore.LineFormatter]. [innings] is cricket only.
+ * per sport in [com.itsluminous.livescore.LineFormatter]. [innings] is cricket only; [players] is badminton's (ADR-051):
+ * the one or two players of the side with their nationality, what a country or player follow is matched against.
  */
 data class Side(
     val id: String,
@@ -39,6 +40,7 @@ data class Side(
     val innings: List<Innings> = emptyList(),
     val isBatting: Boolean = false,
     val winner: Boolean = false,
+    val players: List<Player> = emptyList(),
 )
 
 /** One line of an event's detail view: a batter, a bowler, a scorer, a driver's position, a set. */
@@ -53,6 +55,7 @@ data class DetailLine(val primary: String, val secondary: String = "")
  * name as shown. [teamIds] lists every side's id (two for a match, every driver for a race) so a team
  * follow can match without reading the sides. [international] marks a cricket match between nations
  * (the feed's `internationalClassId` is not 0), which the catalogue's [Competition.INTERNATIONAL] follows.
+ * [discipline] is badminton's event (`MS`, `XD`…, ADR-051), null for the other sports and when the feed names none.
  */
 data class Event(
     val id: String,
@@ -73,8 +76,12 @@ data class Event(
     val clock: String = "",
     val details: List<DetailLine> = emptyList(),
     val international: Boolean = false,
+    val discipline: Discipline? = null,
 ) {
     val teamIds: List<String> get() = listOf(home.id, away.id).filter { it.isNotEmpty() }
+
+    /** Every player of both sides (badminton); empty for a sport whose feed names none. */
+    val players: List<Player> get() = home.players + away.players
 
     val isLiveOrBreak: Boolean get() = state == State.LIVE || state == State.BREAK
 }

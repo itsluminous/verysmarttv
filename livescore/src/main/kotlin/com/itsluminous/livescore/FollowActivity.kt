@@ -4,8 +4,10 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import com.itsluminous.livescore.model.Competition
+import com.itsluminous.livescore.model.Discipline
 import com.itsluminous.livescore.model.Event
 import com.itsluminous.livescore.model.Follow
 import com.itsluminous.livescore.model.Sport
@@ -22,9 +24,12 @@ import com.itsluminous.livescore.model.Team
  * under it unless it is fully ticked, when it clears everything ([SelectionState.selectsAllOnOk]).
  *
  * A sport whose source has no static catalogue (badminton, ADR-044) lists the tournaments and players
- * found in the cached events instead, fetching the sport once when the cache holds none of it. Enabling any
- * badminton follow with no key stored opens [BadmintonKeyDialog] first ([BadmintonGate]): OK saves the key and
- * lets the follow through, Cancel leaves badminton unfollowed.
+ * found in the cached events instead, fetching the sport once when the cache holds none of it. Under badminton two
+ * more sections follow the tournaments (ADR-051): **Countries** (the nations of [BadmintonNations] and of the cached
+ * matches, A–Z under letter headers; BWF source only, since SportMicro names no nationality) and **Players** (every
+ * player on the cached matches, grouped by country). OK on a country or a player opens [DisciplineDialog] and the row
+ * then shows the filter chosen. Enabling any badminton follow with no key stored opens [BadmintonKeyDialog] first
+ * ([BadmintonGate]): OK saves the key and lets the follow through, Cancel leaves badminton unfollowed.
  */
 class FollowActivity : Activity() {
     private lateinit var repo: ScoreRepo
@@ -32,12 +37,21 @@ class FollowActivity : Activity() {
     private lateinit var competitions: LinearLayout
     private lateinit var teams: LinearLayout
     private var sport: Sport? = null
-    private var competition: Competition? = null
+    private var pane: Pane? = null
     private var fetching: Sport? = null
     private val rows = HashMap<LinearLayout, MutableList<Row>>()
 
-    /** A visible row: its box and how its state is read from the follow list. */
-    private class Row(val box: TriStateCheckView, val state: (PickerSelection) -> SelectionState)
+    /** A visible row: its box and label, and how both are read from the follow list. */
+    private class Row(val box: TriStateCheckView, val label: TextView, val state: (PickerSelection) -> SelectionState, val text: (PickerSelection) -> String)
+
+    /** What the third column shows: a competition's teams and matches, the badminton countries, or the badminton players. */
+    private sealed class Pane {
+        data class Teams(val competition: Competition) : Pane()
+
+        object Countries : Pane()
+
+        object Players : Pane()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,9 +81,10 @@ class FollowActivity : Activity() {
     private fun showCompetitions(s: Sport) {
         if (sport == s && competitions.childCount > 0) return
         sport = s
-        competition = null
+        pane = null
         clearColumn(competitions)
-        leaf(competitions, getString(R.string.whole_sport, Ui.sportName(this, s)), Follow.sport(s, Ui.sportName(this, s)), onFocus = { showTeams(null) })
+        val whole = Follow.sport(s, Ui.sportName(this, s))
+        leaf(competitions, getString(R.string.whole_sport, Ui.sportName(this, s)), whole, onFocus = { showPane(null) })
         val list = competitionsOf(s)
         for (c in list) {
             val follow = Follow.competition(c)
@@ -78,11 +93,28 @@ class FollowActivity : Activity() {
                 state = { sel -> sel.competition(c, childrenOf(c)) },
                 select = { sel -> sel.selectAll(follow) },
                 clear = { sel -> sel.clearAll(follow, childrenOf(c)) },
-                onFocus = { showTeams(c) },
+                onFocus = { showPane(Pane.Teams(c)) },
             )
         }
         if (list.isEmpty() && repo.source.competitions(s).isEmpty()) dynamicHint(s)
-        showTeams(null)
+        if (s == Sport.BADMINTON) {
+            // The two cross-tournament sections (ADR-051): covered by "All Badminton", barred when some country or player is followed.
+            section(
+                competitions, getString(R.string.section_countries),
+                state = { sel -> sel.section(whole, countryFollows()) },
+                select = { sel -> sel.selectAll(whole) },
+                clear = { sel -> sel.clearAll(whole, countryFollows()) },
+                onFocus = { showPane(Pane.Countries) },
+            )
+            section(
+                competitions, getString(R.string.section_players),
+                state = { sel -> sel.section(whole, playerFollows()) },
+                select = { sel -> sel.selectAll(whole) },
+                clear = { sel -> sel.clearAll(whole, playerFollows()) },
+                onFocus = { showPane(Pane.Players) },
+            )
+        }
+        showPane(null)
     }
 
     /** The static catalogue, or for a sport without one the tournaments in the cache, soonest first. */
@@ -114,18 +146,59 @@ class FollowActivity : Activity() {
         }
     }
 
-    private fun showTeams(c: Competition?) {
-        if (c != null && competition == c && teams.childCount > 0) return
-        competition = c
+    private fun showPane(p: Pane?) {
+        if (p != null && pane == p && teams.childCount > 0) return
+        pane = p
         clearColumn(teams)
-        if (c == null) {
-            hint(teams, R.string.no_teams)
-            return
+        when (p) {
+            null -> hint(teams, R.string.no_teams)
+            is Pane.Teams -> showTeams(p.competition)
+            Pane.Countries -> showCountries()
+            Pane.Players -> showPlayers()
         }
+    }
+
+    private fun showTeams(c: Competition) {
         val events = eventsOf(c)
         for (t in teamsOf(c, events)) leaf(teams, t.name, Follow.team(t), onFocus = null)
         for (e in events) leaf(teams, getString(R.string.follow_match, Ui.line(this, e)), eventFollow(e), onFocus = null)
     }
+
+    /** The countries (ADR-051): the BWF source names nationalities; SportMicro does not, so under it the pane says so and lists nothing. */
+    private fun showCountries() {
+        if (repo.prefs.badmintonSource != BadmintonSource.BWF_WEBVIEW) {
+            hint(teams, R.string.countries_need_bwf)
+            return
+        }
+        for (letter in BadmintonPicker.countries(repo.cache.events()) { Ui.countryName(this, it) }) {
+            header(teams, letter.letter)
+            for (c in letter.countries) filterRow(teams, getString(R.string.row_meta, c.code, c.name), Follow.country(c.code, c.name, Discipline.ALL))
+        }
+    }
+
+    /** The players on the cached matches, by country (ADR-051), each with the disciplines the cache shows them in. */
+    private fun showPlayers() {
+        val groups = BadmintonPicker.players(repo.cache.events()) { Ui.countryName(this, it) }
+        if (groups.isEmpty()) {
+            hint(teams, R.string.no_players_cached)
+            return
+        }
+        for (g in groups) {
+            header(teams, Ui.countryName(this, g.code))
+            for (e in g.players) {
+                val played = e.disciplines.joinToString("/") { it.token }
+                val label = if (played.isEmpty()) e.player.name else getString(R.string.player_row, e.player.name, played)
+                filterRow(teams, label, Follow.player(e.player, Discipline.ALL))
+            }
+        }
+    }
+
+    /** Every country the Countries pane can list, as follows (any discipline set: the key ignores it), for the section's box and its clear-all. */
+    private fun countryFollows(): List<Follow> =
+        BadmintonPicker.countries(repo.cache.events()) { Ui.countryName(this, it) }.flatMap { it.countries }.map { Follow.country(it.code, it.name, Discipline.ALL) }
+
+    private fun playerFollows(): List<Follow> =
+        BadmintonPicker.players(repo.cache.events()) { Ui.countryName(this, it) }.flatMap { it.players }.map { Follow.player(it.player, Discipline.ALL) }
 
     /** The team and match follows under [c]: what its box combines and what clearing it removes. */
     private fun childrenOf(c: Competition): List<Follow> {
@@ -151,24 +224,49 @@ class FollowActivity : Activity() {
             .map { Team(c.sport, it.id, it.name, it.abbr) }
     }
 
-    private fun hint(column: LinearLayout, text: Int) {
+    private fun hint(column: LinearLayout, text: Int) = note(column, getString(text), HINT_SP)
+
+    /** A letter or a country over the rows under it: not focusable, smaller than a hint. */
+    private fun header(column: LinearLayout, text: String) = note(column, text, HEADER_SP)
+
+    private fun note(column: LinearLayout, text: String, sizeSp: Float) {
         val view = TextView(this)
-        view.text = getString(text)
+        view.text = text
         view.setTextColor(HINT)
-        view.textSize = HINT_SP
+        view.textSize = sizeSp
         column.addView(view)
     }
 
+    /** Empties a column and scrolls it back to its top, so a pane that replaces a long one starts at its first row. */
     private fun clearColumn(column: LinearLayout) {
         column.removeAllViews()
         rows.remove(column)
+        (column.parent as? ScrollView)?.scrollTo(0, 0)
     }
 
     /** A leaf row: ticked when its follow is in the list; OK toggles the follow. */
     private fun leaf(column: LinearLayout, label: String, follow: Follow, onFocus: (() -> Unit)?): View =
-        row(column, label, state = { sel -> sel.leaf(follow) }, onFocus = onFocus) { sel ->
+        change(column, { label }, state = { sel -> sel.leaf(follow) }, onFocus = onFocus) { sel ->
             if (sel.leaf(follow) == SelectionState.ALL) PickerSelection.Change(remove = listOf(follow), add = emptyList())
             else PickerSelection.Change(remove = emptyList(), add = listOf(follow))
+        }
+
+    /**
+     * A country or player row (ADR-051): ticked when a follow with its key is in the list, its label ending in the filter
+     * chosen; OK opens the discipline chooser over the current set (All when new), and OK there replaces the follow with
+     * the set, or removes it when nothing is ticked.
+     */
+    private fun filterRow(column: LinearLayout, base: String, follow: Follow): View =
+        row(
+            column,
+            text = { sel -> sel.find(follow)?.let { getString(R.string.row_meta, base, Ui.disciplineFilter(this, it.disciplines)) } ?: base },
+            state = { sel -> sel.leaf(follow) },
+            onFocus = null,
+        ) {
+            val current = selection().find(follow)
+            DisciplineDialog.show(this, getString(R.string.discipline_title, follow.label), current?.disciplines ?: Discipline.ALL) { chosen ->
+                apply(PickerSelection.Change(remove = listOfNotNull(current), add = if (chosen.isEmpty()) emptyList() else listOf(follow.copy(disciplines = chosen))))
+            }
         }
 
     /** A section row: its box from [state]; OK applies [select] unless the box is fully ticked, then [clear]. */
@@ -180,24 +278,34 @@ class FollowActivity : Activity() {
         clear: (PickerSelection) -> PickerSelection.Change,
         onFocus: (() -> Unit)?,
     ): View =
-        row(column, label, state, onFocus) { sel -> if (SelectionState.selectsAllOnOk(state(sel))) select(sel) else clear(sel) }
+        change(column, { label }, state, onFocus) { sel -> if (SelectionState.selectsAllOnOk(state(sel))) select(sel) else clear(sel) }
 
     /** A row whose OK is the change [onOk] reads off the current follows; [apply] gates it on the badminton key. */
-    private fun row(
+    private fun change(
         column: LinearLayout,
-        label: String,
+        text: (PickerSelection) -> String,
         state: (PickerSelection) -> SelectionState,
         onFocus: (() -> Unit)?,
         onOk: (PickerSelection) -> PickerSelection.Change,
+    ): View = row(column, text, state, onFocus) { apply(onOk(selection())) }
+
+    /** A row: its label and box read off the current follows (and again after every change, [refreshBoxes]); OK runs [onClick]. */
+    private fun row(
+        column: LinearLayout,
+        text: (PickerSelection) -> String,
+        state: (PickerSelection) -> SelectionState,
+        onFocus: (() -> Unit)?,
+        onClick: () -> Unit,
     ): View {
         val view = Ui.inflate(column, R.layout.pick_row)
-        view.findViewById<TextView>(R.id.label).text = label
+        val label = view.findViewById<TextView>(R.id.label)
+        label.text = text(selection())
         val box = view.findViewById<TriStateCheckView>(R.id.tick)
         box.state = state(selection())
-        view.setOnClickListener { apply(onOk(selection())) }
+        view.setOnClickListener { onClick() }
         if (onFocus != null) view.setOnFocusChangeListener { _, has -> if (has) onFocus() }
         column.addView(view)
-        rows.getOrPut(column) { ArrayList() }.add(Row(box, state))
+        rows.getOrPut(column) { ArrayList() }.add(Row(box, label, state, text))
         return view
     }
 
@@ -227,15 +335,21 @@ class FollowActivity : Activity() {
         refreshBoxes()
     }
 
-    /** Every visible box reads the follow list again: a child's OK changes its parents, a section's OK its children. */
+    /** Every visible box and label reads the follow list again: a child's OK changes its parents, a section's OK its children, a chooser the row's filter. */
     private fun refreshBoxes() {
         val sel = selection()
-        for (list in rows.values) for (r in list) r.box.state = r.state(sel)
+        for (list in rows.values) {
+            for (r in list) {
+                r.box.state = r.state(sel)
+                r.label.text = r.text(sel)
+            }
+        }
     }
 
     companion object {
         private const val HINT = 0x80FFFFFF.toInt()
         private const val HINT_SP = 13f
+        private const val HEADER_SP = 11f
         private const val EVENT_LENGTH_MS = 4L * 3600_000L
     }
 }

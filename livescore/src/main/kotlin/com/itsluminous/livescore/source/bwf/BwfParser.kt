@@ -4,7 +4,9 @@ import android.util.JsonReader
 import android.util.JsonToken
 import com.itsluminous.livescore.StateNormaliser
 import com.itsluminous.livescore.model.DetailLine
+import com.itsluminous.livescore.model.Discipline
 import com.itsluminous.livescore.model.Event
+import com.itsluminous.livescore.model.Player
 import com.itsluminous.livescore.model.Side
 import com.itsluminous.livescore.model.Sport
 import com.itsluminous.livescore.model.State
@@ -22,15 +24,17 @@ data class BwfTournament(val id: String, val name: String, val startMs: Long, va
  * BWF's Match Centre JSON (ADR-049), as the page's own Vue template reads it (`tournament.*.js`, read 2026-11-10):
  *
  * - `vue-current-live`: `{results: [{id, name, start_date "2026-11-10 00:00:00", end_date, tmtLink, …}]}`.
- * - `vue-live-matches?tmtId=…`: `{results: [{match_detail: {code, t1p1_player_model: {name_display, name_short1, id, …},
- *   t1p2_player_model?, t2p1_player_model, t2p2_player_model?, t1p1country_model, …}, live_detail: {court_name,
+ * - `vue-live-matches?tmtId=…`: `{results: [{match_detail: {code, t1p1_player_model: {name_display, name_short1, id,
+ *   nationality "TPE", …}, t1p2_player_model?, t2p1_player_model, t2p2_player_model?, t1p1_country, t1p1country_model,
+ *   …}, live_detail: {court_name,
  *   match_state ("P" while playing, "S" waiting between games), match_state_name ("In Progress", "Waiting to start"),
  *   event ("MS"), round ("R32"), duration, team1_g1_score … team2_g3_score (null until played, 0 for the next game while
  *   waiting), service_player}, status_name ("Retired", "Walkover" when there is one), winner (1 or 2, null while
  *   live)}]}`, as recorded on 2026-11-12 (`live-matches-5216-20261112.json`, `live-matches-5844-20261112.json`).
  *
  * One [Event] per match in the shape the SportMicro parser gives, so `LineFormatter` and the picker read both alike:
- * pairs as `A / B` (surnames and abbreviations through [SportMicroParser]), games as the score string. The match
+ * pairs as `A / B` (surnames and abbreviations through [SportMicroParser]), games as the score string, the players of
+ * each side with their nationality and the event as the discipline (ADR-051). The match
  * centre lists the matches on court, not the day's order of play, so nothing here is `upcoming` by schedule. Everything
  * not named above is skipped unread.
  */
@@ -85,10 +89,8 @@ internal object BwfParser {
         var stateName = ""
         var statusName = ""
         var winner = 0
-        val team1 = ArrayList<String>()
-        val team2 = ArrayList<String>()
-        val team1Ids = ArrayList<String>()
-        val team2Ids = ArrayList<String>()
+        val team1 = ArrayList<Player>()
+        val team2 = ArrayList<Player>()
         val points1 = IntArray(GAMES) { -1 }
         val points2 = IntArray(GAMES) { -1 }
 
@@ -103,7 +105,8 @@ internal object BwfParser {
 
         /**
          * `t1p1_player_model` → team 1's first player: its `name_display` (`Hsiang Chieh CHIU`, the full name with the
-         * surname in capitals), else `name_short1` (`CHIU H C`, initials, as recorded 2026-11-12), and its `id`.
+         * surname in capitals), else `name_short1` (`CHIU H C`, initials, as recorded 2026-11-12), its `id` and its
+         * `nationality` (`TPE`), the code a country follow names.
          */
         private fun player(n: String, reader: JsonReader) {
             if (reader.peek() != JsonToken.BEGIN_OBJECT) {
@@ -113,19 +116,19 @@ internal object BwfParser {
             var display = ""
             var short = ""
             var id = ""
+            var country = ""
             Json.obj(reader) { f ->
                 when (f) {
                     "name_display" -> display = Json.string(reader)
                     "name_short1" -> short = Json.string(reader)
                     "id" -> id = Json.string(reader)
+                    "nationality" -> country = Json.string(reader)
                     else -> reader.skipValue()
                 }
             }
             val name = display.trim().ifEmpty { short.trim() }
             if (name.isEmpty()) return
-            val (names, ids) = if (n.startsWith("t1")) team1 to team1Ids else team2 to team2Ids
-            names.add(name)
-            ids.add(id)
+            (if (n.startsWith("t1")) team1 else team2).add(Player(id, name, country.trim().uppercase()))
         }
 
         fun live(reader: JsonReader, n: String) {
@@ -173,8 +176,8 @@ internal object BwfParser {
             val roundText = listOf(event, round).filter { it.isNotEmpty() }.joinToString(" - ")
             // A match on court that has not begun (`Warm Up`) starts about now: the fetch time, not the day's start, is its kicker.
             val startMs = if (state == State.UPCOMING) updatedMs else startMs(t.startMs, updatedMs)
-            val home = side(team1Ids, team1, p1, state == State.FINAL && winner == 1)
-            val away = side(team2Ids, team2, p2, state == State.FINAL && winner == 2)
+            val home = side(team1, p1, state == State.FINAL && winner == 1)
+            val away = side(team2, p2, state == State.FINAL && winner == 2)
             return Event(
                 id = "bwf-$code",
                 sport = Sport.BADMINTON,
@@ -192,6 +195,7 @@ internal object BwfParser {
                 session = court,
                 period = played,
                 details = games.mapIndexed { i, g -> DetailLine("Game ${i + 1}", g) },
+                discipline = Discipline.fromToken(event),
             )
         }
 
@@ -209,15 +213,16 @@ internal object BwfParser {
                 else -> "upcoming"
             }
 
-        private fun side(ids: List<String>, names: List<String>, points: List<Int>, winner: Boolean): Side {
-            val name = names.joinToString(" / ")
+        private fun side(players: List<Player>, points: List<Int>, winner: Boolean): Side {
+            val name = players.joinToString(" / ") { it.name }
             return Side(
-                id = ids.filter { it.isNotEmpty() }.joinToString("/"),
+                id = players.map { it.id }.filter { it.isNotEmpty() }.joinToString("/"),
                 name = name,
                 abbr = abbreviate(name),
                 shortName = surnames(name),
                 score = points.joinToString(" "),
                 winner = winner,
+                players = players,
             )
         }
     }

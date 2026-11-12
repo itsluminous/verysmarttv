@@ -213,8 +213,21 @@ neither) and the refresh decisions (`RefreshPolicy`, DESIGN.md §13.5, ADR-014).
   4 MB native heap and a 35 KB `.apk mmap` (ADR-049 had measured 40 MB staying in the one process). **Off** stops
   badminton being fetched or shown at all. Re-record the fixtures with `tools/dev/record_bwf_fixtures.sh` (an emulator
   with internet; the recorder goes through the `:bwf` process too).
-- **Follows** (`FollowStore`, §13.2): `{kind: sport|competition|team|event, sport, competition, team, event, label,
-  expires}` rows under `{"version": 1, "follows": [...]}`, at most 100; the first run writes the defaults (India, IPL,
+- **Badminton follows by country and by player** (ADR-051). Under Badminton the picker's competitions column has two
+  more sections, **Countries** and **Players**: a country follow covers every match with a player of that nationality on
+  either side, a player follow every match that player is in, each across every tournament and each with a discipline
+  filter chosen in a small dialog (*All*, *Singles* = MS + WS, *Doubles* = MD + WD, *Mixed doubles* = XD; several may be
+  ticked). The follow list is a union: a match is shown when any follow covers it, once, with its strongest reason, and
+  country and player follows report `followed_reason=team` (the contract's values are unchanged). The fields: BWF's
+  `live_detail.event` is the discipline and each `tNpM_player_model` carries `id`, `name_display` and `nationality`;
+  SportMicro names the discipline only in its league and tournament names (`… - WS`, `…, XD, Qualifying`) and **has no
+  nationality**, so under SportMicro the Countries pane says so and lists nothing, while player follows work (a
+  SportMicro pair is one player with the pair's id). Request cost: none added. Badminton is a day-wide feed, so the one
+  `matches-by-date` request (SportMicro) or the one page visit (BWF) already returns every tournament of the day, and
+  the companion filters the cache locally.
+- **Follows** (`FollowStore`, §13.2): `{kind: sport|competition|team|event|country|player, sport, competition, team, event,
+  label, expires, country, disciplines: ["MS", …]}` rows under `{"version": 1, "follows": [...]}`, at most 100 (a row
+  written before ADR-051 has no `country` or `disciplines` and loads as before); the first run writes the defaults (India, IPL,
   ISL, Premier League, Champions League, F1; ADR-033). `/backup` returns that file verbatim; `restore` replaces it,
   refuses anything that is not a version-1 follow list, and drops rows with an unknown kind or sport.
 - **Opening.** Besides the two components above, the companion answers the action

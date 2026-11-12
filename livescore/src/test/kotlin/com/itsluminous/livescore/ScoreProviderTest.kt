@@ -5,7 +5,10 @@ import android.database.ContentObserver
 import android.os.Bundle
 import com.itsluminous.livescore.model.Competition
 import com.itsluminous.livescore.model.Event
+import com.itsluminous.livescore.model.Discipline
 import com.itsluminous.livescore.model.Follow
+import com.itsluminous.livescore.model.FollowKind
+import com.itsluminous.livescore.model.Player
 import com.itsluminous.livescore.model.Side
 import com.itsluminous.livescore.model.Sport
 import com.itsluminous.livescore.model.State
@@ -134,6 +137,9 @@ class ScoreProviderTest {
     @Test
     fun backupAndRestoreRoundTripThroughTheProvider() {
         repo.follows.toggle(Follow.competition(Competition(Sport.TENNIS, "atp", "ATP Tour")))
+        val india = Follow.country("IND", "India", setOf(Discipline.MS, Discipline.WS))
+        val chen = Follow.player(Player("57945", "CHEN Yu Fei", "CHN"), Discipline.ALL)
+        repo.follows.replaceAll(emptyList(), listOf(india, chen))
         val json = resolver.query(ScoreContract.BACKUP, null, null, null, null)!!.use { c ->
             c.moveToFirst()
             c.getString(c.getColumnIndexOrThrow(ScoreContract.JSON))
@@ -142,7 +148,9 @@ class ScoreProviderTest {
         repo.follows.clear()
         val ok = resolver.call(ScoreContract.AUTHORITY, ScoreContract.METHOD_RESTORE, null, Bundle().apply { putString(ScoreContract.EXTRA_JSON, json) })!!
         assertTrue(ok.getBoolean(ScoreContract.RESULT_OK))
-        assertEquals(7, repo.follows.all().size)
+        assertEquals(9, repo.follows.all().size)
+        assertEquals(india, repo.follows.all().first { it.kind == FollowKind.COUNTRY })
+        assertEquals(chen, repo.follows.all().first { it.kind == FollowKind.PLAYER })
         val bad = resolver.call(ScoreContract.AUTHORITY, ScoreContract.METHOD_RESTORE, null, Bundle().apply { putString(ScoreContract.EXTRA_JSON, "nope") })!!
         assertFalse(bad.getBoolean(ScoreContract.RESULT_OK))
         assertEquals("not a follow list", bad.getString(ScoreContract.RESULT_ERROR))

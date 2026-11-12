@@ -1,8 +1,10 @@
 package com.itsluminous.livescore
 
 import com.itsluminous.livescore.model.DetailLine
+import com.itsluminous.livescore.model.Discipline
 import com.itsluminous.livescore.model.Event
 import com.itsluminous.livescore.model.Innings
+import com.itsluminous.livescore.model.Player
 import com.itsluminous.livescore.model.Side
 import com.itsluminous.livescore.model.Sport
 import com.itsluminous.livescore.model.State
@@ -36,11 +38,19 @@ class EventCacheTest {
             Side("8", "Sri Lanka", "SL", "Sri Lanka", "", emptyList(), false, false),
             "Sri Lanka won toss & fielded", now, "1st Test", 1, "0'", listOf(DetailLine("Ghazi Ghori (PAK)", "7 (10b)")), true,
         )
+        val badminton = Event(
+            "b", Sport.BADMINTON, "bwf-5216", "Kumamoto", "", State.LIVE, "MD - R16 · Game 1", now, null,
+            Side("1/2", "A / B", "A/B", "A / B", "16", players = listOf(Player("1", "A", "TPE"), Player("2", "B", "TPE"))),
+            Side("3", "C", "C", "C", "14", players = listOf(Player("3", "C", "JPN"))),
+            "", now, discipline = Discipline.MD,
+        )
         cache.merge(cricket, listOf(e), now, windowStart)
+        cache.merge(FetchKey(Sport.BADMINTON, null), listOf(badminton), now, windowStart)
         val reloaded = EventCache(file)
-        assertEquals(listOf(e), reloaded.events())
-        assertEquals(mapOf(cricket to now), reloaded.fetchedMs())
+        assertEquals(listOf(e, badminton), reloaded.events())
+        assertEquals(mapOf(cricket to now, FetchKey(Sport.BADMINTON, null) to now), reloaded.fetchedMs())
         assertEquals(e, reloaded.event("1"))
+        assertEquals(badminton, reloaded.event("b"))
         assertNull(reloaded.event("2"))
     }
 

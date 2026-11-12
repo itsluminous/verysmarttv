@@ -668,6 +668,9 @@ Follow { kind: SPORT | COMPETITION | TEAM | EVENT, sport, competitionId?, teamId
 - Following a *sport* means every competition of that sport the adapter knows (cricket: the whole
   scorepanel; football: the adapter's league list). Following a *competition* means all its events.
   Following a *team* means its events in any competition. An *event* follow expires at `end_ms + 6 h`.
+  Badminton adds a *country* and a *player* kind, each with a discipline set (ADR-051): every match with a
+  player of that nationality, or that player, on either side, in those disciplines, whatever the tournament.
+  The list is a union: an event is followed when any follow covers it.
 - Stored as JSON in the app's files dir (`follows.json`, ≤ 100 entries), mirrored to
   `SharedPreferences` nothing. Part of the launcher's Backup from v1 (ADR-032): the launcher reads
   `content://…scores/backup` into the `companions.livescore` section of its Backup JSON and restores it

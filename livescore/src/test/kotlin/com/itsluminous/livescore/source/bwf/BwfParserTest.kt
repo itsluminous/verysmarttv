@@ -3,6 +3,8 @@ package com.itsluminous.livescore.source.bwf
 import com.itsluminous.livescore.Fixtures
 import com.itsluminous.livescore.model.DetailLine
 import com.itsluminous.livescore.model.Sport
+import com.itsluminous.livescore.model.Discipline
+import com.itsluminous.livescore.model.Player
 import com.itsluminous.livescore.model.State
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -163,7 +165,16 @@ class BwfParserTest {
         assertEquals("16", doubles.home.score)
         assertEquals("14", doubles.away.score)
         assertEquals("Court 1", doubles.session)
+        // The players with their nationality and the event as the discipline (ADR-051): what country and player follows match.
+        assertEquals(Discipline.MD, doubles.discipline)
+        assertEquals(listOf(Player("92913", "Hsiang Chieh CHIU", "TPE"), Player("96514", "WANG Chi-Lin", "TPE")), doubles.home.players)
+        assertEquals(listOf("JPN", "JPN"), doubles.away.players.map { it.country })
+        assertEquals(listOf("86479", "82009"), doubles.away.players.map { it.id })
+        assertEquals(Discipline.WS, events[1].discipline)
+        assertEquals(listOf("CHN", "BUL"), events[1].players.map { it.country })
         val third = events[2]
+        assertEquals(Discipline.MS, third.discipline)
+        assertEquals(listOf(Player("58089", "Alwi FARHAN", "INA")), third.home.players)
         assertEquals("Farhan", third.home.shortName)
         assertEquals("21 6 11", third.home.score)
         assertEquals("13 21 3", third.away.score)

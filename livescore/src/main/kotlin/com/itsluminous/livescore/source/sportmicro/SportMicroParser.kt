@@ -4,7 +4,9 @@ import android.util.JsonReader
 import android.util.JsonToken
 import com.itsluminous.livescore.StateNormaliser
 import com.itsluminous.livescore.model.DetailLine
+import com.itsluminous.livescore.model.Discipline
 import com.itsluminous.livescore.model.Event
+import com.itsluminous.livescore.model.Player
 import com.itsluminous.livescore.model.Side
 import com.itsluminous.livescore.model.Sport
 import com.itsluminous.livescore.model.State
@@ -26,6 +28,11 @@ import com.itsluminous.livescore.source.espn.Json
  * the way the tennis parser keeps sets. `specific_start_time` (the real first serve) is preferred to `start_time`,
  * which the feed rounds to the session's start, often midnight. Only the names below are read; everything else in
  * a match (images, arena, season, importance) is skipped. The feed has no `round`, so the detail is the status word.
+ *
+ * The discipline (ADR-051) is only in words: the league `Kumamoto Masters Japan - WS` or the tournament `Kumamoto
+ * Masters Japan, WS, Qualifying`, read by [discipline]. The feed has **no nationality** in either shape, and a side (a
+ * player or a pair) is one team id, so each side's players is that one entry with an empty country: country follows
+ * cannot match SportMicro's matches, player follows match on the side's id.
  */
 internal object SportMicroParser {
     private const val GAME_POINTS = 21
@@ -219,6 +226,7 @@ internal object SportMicroParser {
                 session = session(),
                 period = played,
                 details = games.mapIndexed { i, g -> DetailLine("Game ${i + 1}", g) },
+                discipline = discipline(league) ?: discipline(tournament),
             )
         }
 
@@ -256,8 +264,15 @@ internal object SportMicroParser {
                 shortName = surnames(name),
                 score = points.joinToString(" "),
                 winner = winner,
+                players = if (id.isEmpty()) emptyList() else listOf(Player(id, name)),
             )
     }
+
+    /**
+     * The discipline a league or tournament name carries as a word of its own (`… - WS`, `…, MD, Qualifying`, `… XD`):
+     * the first word that is one of the five codes, split on spaces, commas and dashes; null when none is.
+     */
+    fun discipline(name: String): Discipline? = name.split(' ', ',', '-', '–').firstNotNullOfOrNull { Discipline.fromToken(it) }
 
     const val BETWEEN_GAMES = "Interval"
 

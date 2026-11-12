@@ -4,8 +4,10 @@ import android.util.JsonReader
 import android.util.JsonWriter
 import android.util.Log
 import com.itsluminous.livescore.model.DetailLine
+import com.itsluminous.livescore.model.Discipline
 import com.itsluminous.livescore.model.Event
 import com.itsluminous.livescore.model.Innings
+import com.itsluminous.livescore.model.Player
 import com.itsluminous.livescore.model.Side
 import com.itsluminous.livescore.model.Sport
 import com.itsluminous.livescore.model.State
@@ -136,6 +138,7 @@ class EventCache(private val file: File) {
             w.name("period").value(e.period)
             w.name("clock").value(e.clock)
             w.name("international").value(e.international)
+            if (e.discipline != null) w.name("discipline").value(e.discipline.token)
             w.name("details").beginArray()
             for (d in e.details) {
                 w.beginObject()
@@ -165,6 +168,15 @@ class EventCache(private val file: File) {
                 w.name("declared").value(i.declared)
                 w.name("isCurrent").value(i.isCurrent)
                 w.name("isBatting").value(i.isBatting)
+                w.endObject()
+            }
+            w.endArray()
+            w.name("players").beginArray()
+            for (p in s.players) {
+                w.beginObject()
+                w.name("id").value(p.id)
+                w.name("name").value(p.name)
+                w.name("country").value(p.country)
                 w.endObject()
             }
             w.endArray()
@@ -216,6 +228,7 @@ class EventCache(private val file: File) {
             var period = 0
             var clock = ""
             var international = false
+            var discipline: Discipline? = null
             val details = ArrayList<DetailLine>()
             r.beginObject()
             while (r.hasNext()) {
@@ -237,6 +250,7 @@ class EventCache(private val file: File) {
                     "period" -> period = r.nextInt()
                     "clock" -> clock = r.nextString()
                     "international" -> international = r.nextBoolean()
+                    "discipline" -> discipline = Discipline.fromToken(r.nextString())
                     "details" -> {
                         r.beginArray()
                         while (r.hasNext()) {
@@ -260,7 +274,7 @@ class EventCache(private val file: File) {
             }
             r.endObject()
             if (id.isEmpty() || sport == null || state == null) return null
-            return Event(id, sport, competitionId, competition, format, state, statusDetail, startMs, endMs, home, away, summary, updatedMs, session, period, clock, details, international)
+            return Event(id, sport, competitionId, competition, format, state, statusDetail, startMs, endMs, home, away, summary, updatedMs, session, period, clock, details, international, discipline)
         }
 
         private fun readSide(r: JsonReader): Side {
@@ -272,6 +286,7 @@ class EventCache(private val file: File) {
             var isBatting = false
             var winner = false
             val innings = ArrayList<Innings>()
+            val players = ArrayList<Player>()
             r.beginObject()
             while (r.hasNext()) {
                 when (r.nextName()) {
@@ -308,11 +323,31 @@ class EventCache(private val file: File) {
                         }
                         r.endArray()
                     }
+                    "players" -> {
+                        r.beginArray()
+                        while (r.hasNext()) {
+                            var pid = ""
+                            var pname = ""
+                            var country = ""
+                            r.beginObject()
+                            while (r.hasNext()) {
+                                when (r.nextName()) {
+                                    "id" -> pid = r.nextString()
+                                    "name" -> pname = r.nextString()
+                                    "country" -> country = r.nextString()
+                                    else -> r.skipValue()
+                                }
+                            }
+                            r.endObject()
+                            players.add(Player(pid, pname, country))
+                        }
+                        r.endArray()
+                    }
                     else -> r.skipValue()
                 }
             }
             r.endObject()
-            return Side(id, name, abbr, shortName.ifEmpty { name }, score, innings, isBatting, winner)
+            return Side(id, name, abbr, shortName.ifEmpty { name }, score, innings, isBatting, winner, players)
         }
     }
 }

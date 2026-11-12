@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.itsluminous.livescore.model.Discipline
+import com.itsluminous.livescore.model.DisciplineGroup
 import com.itsluminous.livescore.model.Event
 import com.itsluminous.livescore.model.Sport
 import com.itsluminous.livescore.model.State
@@ -42,6 +44,35 @@ internal object Ui {
     }
 
     fun inflate(parent: ViewGroup, layout: Int): View = LayoutInflater.from(parent.context).inflate(layout, parent, false)
+
+    /**
+     * A badminton nationality code as a name (ADR-051): the four non-ISO BWF members from strings, the rest from the platform
+     * in the TV's language, the code itself when the platform does not know it, and the "no nationality" line for an empty code.
+     */
+    fun countryName(c: Context, code: String): String =
+        when (code.uppercase()) {
+            "" -> c.getString(R.string.country_none)
+            "TPE" -> c.getString(R.string.country_tpe)
+            "ENG" -> c.getString(R.string.country_eng)
+            "SCO" -> c.getString(R.string.country_sco)
+            "WAL" -> c.getString(R.string.country_wal)
+            else -> BadmintonNations.name(code, c.resources.configuration.locales[0]) ?: code.uppercase()
+        }
+
+    /** A follow's discipline set as the user reads it: "All", or the ticked groups ("Singles, Mixed doubles"). */
+    fun disciplineFilter(c: Context, disciplines: Set<Discipline>): String {
+        if (DisciplineGroup.isAll(disciplines)) return c.getString(R.string.discipline_all)
+        return DisciplineGroup.groupsOf(disciplines).joinToString(c.getString(R.string.discipline_list_separator)) { groupName(c, it) }
+    }
+
+    fun groupName(c: Context, group: DisciplineGroup): String =
+        c.getString(
+            when (group) {
+                DisciplineGroup.SINGLES -> R.string.discipline_singles
+                DisciplineGroup.DOUBLES -> R.string.discipline_doubles
+                DisciplineGroup.MIXED -> R.string.discipline_mixed
+            },
+        )
 
     /** The teams line of an event row, per sport. */
     fun line(c: Context, e: Event): String =

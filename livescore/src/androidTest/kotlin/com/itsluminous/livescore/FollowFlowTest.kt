@@ -3,12 +3,16 @@ package com.itsluminous.livescore
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import android.view.View
+import android.widget.ListView
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
 import androidx.test.espresso.action.ViewActions.pressImeActionButton
+import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -16,6 +20,8 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.itsluminous.livescore.model.Discipline
+import com.itsluminous.livescore.model.FollowKind
 import com.itsluminous.livescore.model.Sport
 import com.itsluminous.verysmarttv.core.contract.ScoreContract
 import org.hamcrest.Matchers.allOf
@@ -29,7 +35,8 @@ import org.junit.runner.RunWith
  * Follow the IPL in the picker, then read `/pill` through the ContentResolver (the test APK shares the debug key);
  * badminton's key gate (ADR-044): enabling it with no key opens the dialog, Cancel leaves it unfollowed, OK with a
  * key follows it, Settings shows the key's tail and Remove keeps the follows while Home and the picker say a key is
- * needed.
+ * needed. Country and player follows with a discipline filter (ADR-051): India for singles plus a Chinese player for
+ * everything list the union of their matches on Home, and the Countries pane under SportMicro says the feed has no nationality.
  */
 @RunWith(AndroidJUnit4::class)
 class FollowFlowTest {
@@ -144,6 +151,61 @@ class FollowFlowTest {
     }
 
     @Test
+    fun followingIndiaForSinglesAndAChinesePlayerForAllListsTheUnionOnHome() {
+        val repo = TestRepo.install(TestRepo.badmintonUnion(), followsJson = "{\"version\":1,\"follows\":[]}")
+        // The BWF website source names nationalities and needs no key; the picker's Countries pane lists under it.
+        repo.prefs.badmintonSource = BadmintonSource.BWF_WEBVIEW
+        awaitSport(repo)
+        val target = InstrumentationRegistry.getInstrumentation().targetContext
+        ActivityScenario.launch(FollowActivity::class.java).use {
+            onView(allOf(withId(R.id.label), withText("Badminton"))).perform(focusRow())
+            onView(allOf(withId(R.id.label), withText(R.string.section_countries))).check(matches(isDisplayed())).perform(focusRow())
+            // India, singles only: untick Doubles and Mixed doubles in the chooser, OK.
+            onView(allOf(withId(R.id.label), withText("IND · India"))).perform(scrollTo(), pressOk())
+            awaitDialog()
+            onView(withText(R.string.discipline_doubles)).inRoot(isDialog()).perform(chooseItem())
+            onView(withText(R.string.discipline_mixed)).inRoot(isDialog()).perform(chooseItem())
+            onView(withText(R.string.ok)).inRoot(isDialog()).perform(pressButton())
+            onView(allOf(withId(R.id.label), withText("IND · India · Singles"))).perform(scrollTo()).check(matches(isDisplayed()))
+            box("IND · India · Singles").check(matches(withContentDescription(R.string.check_all)))
+            box(target.getString(R.string.section_countries)).check(matches(withContentDescription(R.string.check_partial)))
+            // A Chinese doubles player, everything he plays: the chooser opens with All ticked, OK.
+            onView(allOf(withId(R.id.label), withText(R.string.section_players))).perform(focusRow())
+            onView(withText("China")).check(matches(isDisplayed()))
+            onView(allOf(withId(R.id.label), withText("LIANG Wei Keng (MD)"))).perform(scrollTo(), pressOk())
+            awaitDialog()
+            onView(withText(R.string.ok)).inRoot(isDialog()).perform(pressButton())
+            onView(allOf(withId(R.id.label), withText("LIANG Wei Keng (MD) · All"))).check(matches(isDisplayed()))
+            box("Badminton").check(matches(withContentDescription(R.string.check_partial)))
+        }
+        val india = repo.follows.all().single { it.kind == FollowKind.COUNTRY }
+        assertEquals("IND", india.country)
+        assertEquals(setOf(Discipline.MS, Discipline.WS), india.disciplines)
+        val liang = repo.follows.all().single { it.kind == FollowKind.PLAYER }
+        assertEquals("81561", liang.teamId)
+        assertEquals(Discipline.ALL, liang.disciplines)
+        // Home: Sindhu's singles (India) and Liang's doubles (the player), not the Indonesian singles nor the Indian mixed pair.
+        val events = TestRepo.badmintonUnion()
+        ActivityScenario.launch(MainActivity::class.java).use {
+            onView(withText(Ui.line(target, events[0]))).check(matches(isDisplayed()))
+            onView(withText(Ui.line(target, events[1]))).check(matches(isDisplayed()))
+            onView(withText(Ui.line(target, events[2]))).check(doesNotExist())
+            onView(withText(Ui.line(target, events[3]))).check(doesNotExist())
+        }
+        resolverEvents(2)
+        // Under SportMicro the feed names no nationality: the Countries pane says so and lists nothing; the follows are kept.
+        repo.prefs.badmintonSource = BadmintonSource.SPORTMICRO
+        repo.prefs.badmintonKey = "test-key-0001"
+        ActivityScenario.launch(FollowActivity::class.java).use {
+            onView(allOf(withId(R.id.label), withText("Badminton"))).perform(focusRow())
+            onView(allOf(withId(R.id.label), withText(R.string.section_countries))).perform(focusRow())
+            onView(withText(R.string.countries_need_bwf)).check(matches(isDisplayed()))
+            onView(allOf(withId(R.id.label), withText("IND · India"))).check(doesNotExist())
+        }
+        assertEquals(2, repo.follows.all().size)
+    }
+
+    @Test
     fun aSectionBoxFollowsItsChildrenAndOkOnItSelectsThenClearsAll() {
         val repo = TestRepo.install(emptyList(), followsJson = "{\"version\":1,\"follows\":[]}")
         ActivityScenario.launch(FollowActivity::class.java).use {
@@ -240,6 +302,24 @@ class FollowFlowTest {
             view.performClick()
             uiController.loopMainThreadUntilIdle()
         }
+    }
+
+    /** OK on a dialog's list item: the list's own item click, so a multi-choice box toggles and its listener runs. */
+    private fun chooseItem() = object : ViewAction {
+        override fun getConstraints() = isDisplayed()
+        override fun getDescription() = "choose the list item"
+        override fun perform(uiController: UiController, view: View) {
+            val list = view.parent as ListView
+            val position = list.getPositionForView(view)
+            list.performItemClick(view, position, list.getItemIdAtPosition(position))
+            uiController.loopMainThreadUntilIdle()
+        }
+    }
+
+    /** `/events` through the resolver holds [count] followed rows. */
+    private fun resolverEvents(count: Int) {
+        val resolver = InstrumentationRegistry.getInstrumentation().targetContext.contentResolver
+        resolver.query(ScoreContract.EVENTS, null, null, null, null)!!.use { assertEquals(count, it.count) }
     }
 
     /** Focus the row a label sits in, the way the D-pad would: the picker fills the next column on focus. */

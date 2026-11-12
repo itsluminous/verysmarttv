@@ -3,8 +3,10 @@ package com.itsluminous.livescore
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
 import com.itsluminous.livescore.model.Competition
+import com.itsluminous.livescore.model.Discipline
 import com.itsluminous.livescore.model.Event
 import com.itsluminous.livescore.model.Innings
+import com.itsluminous.livescore.model.Player
 import com.itsluminous.livescore.model.Side
 import com.itsluminous.livescore.model.Sport
 import com.itsluminous.livescore.model.State
@@ -40,14 +42,42 @@ object TestRepo {
             "Bangladesh require 320 runs", now, session = "2nd Test", period = 4, international = true,
         )
 
-    /** A live badminton match in the second game, Sindhu a game up on An, from a tournament the catalogue does not list (ADR-044). */
+    /** A live badminton match in the second game, Sindhu a game up on An, from a tournament the catalogue does not list (ADR-044); women's singles, India against Korea (ADR-051). */
     fun badmintonLive(): Event =
         Event(
             "bwf-live", Sport.BADMINTON, "7001", "Japan Masters", "", State.LIVE, "Round of 16 · Game 2", now - 1_800_000L, null,
-            Side("5001", "Sindhu P. V.", "SIN", "Sindhu", "21 11"),
-            Side("5002", "An S. Y.", "AN", "An", "18 9"),
-            "", now, period = 2,
+            Side("5001", "Sindhu P. V.", "SIN", "Sindhu", "21 11", players = listOf(Player("5001", "Sindhu P. V.", "IND"))),
+            Side("5002", "An S. Y.", "AN", "An", "18 9", players = listOf(Player("5002", "An S. Y.", "KOR"))),
+            "", now, period = 2, discipline = Discipline.WS,
         )
+
+    /**
+     * The owner's union case (ADR-051), beside [badmintonLive]: a Chinese men's doubles pair against Japan, an
+     * Indonesian men's singles against Japan (nobody follows it), and an Indian mixed pair against Japan (India is
+     * followed for singles only, so this one stays out too).
+     */
+    fun badmintonUnion(): List<Event> =
+        listOf(
+            badmintonLive(),
+            badminton(
+                "bwf-md", Discipline.MD, "MD - R16 · Game 1",
+                Side("81561/95254", "LIANG Wei Keng / WANG Chang", "LIA/WAN", "Liang / Wang", "16", players = listOf(Player("81561", "LIANG Wei Keng", "CHN"), Player("95254", "WANG Chang", "CHN"))),
+                Side("64226/78106", "Takuro HOKI / Yugo KOBAYASHI", "HOK/KOB", "Hoki / Kobayashi", "14", players = listOf(Player("64226", "Takuro HOKI", "JPN"), Player("78106", "Yugo KOBAYASHI", "JPN"))),
+            ),
+            badminton(
+                "bwf-ms", Discipline.MS, "MS - R16 · Game 1",
+                Side("61409", "Jonatan CHRISTIE", "CHR", "Christie", "9", players = listOf(Player("61409", "Jonatan CHRISTIE", "INA"))),
+                Side("89785", "Kodai NARAOKA", "NAR", "Naraoka", "11", players = listOf(Player("89785", "Kodai NARAOKA", "JPN"))),
+            ),
+            badminton(
+                "bwf-xd", Discipline.XD, "XD - R16 · Game 1",
+                Side("94689/97103", "Dhruv KAPILA / Tanisha CRASTO", "KAP/CRA", "Kapila / Crasto", "7", players = listOf(Player("94689", "Dhruv KAPILA", "IND"), Player("97103", "Tanisha CRASTO", "IND"))),
+                Side("73234/80567", "Yuta WATANABE / Arisa IGARASHI", "WAT/IGA", "Watanabe / Igarashi", "12", players = listOf(Player("73234", "Yuta WATANABE", "JPN"), Player("80567", "Arisa IGARASHI", "JPN"))),
+            ),
+        )
+
+    private fun badminton(id: String, discipline: Discipline, detail: String, home: Side, away: Side): Event =
+        Event(id, Sport.BADMINTON, "7001", "Japan Masters", "", State.LIVE, detail, now - 600_000L, null, home, away, "", now, period = 1, discipline = discipline)
 
     class Source(private val events: List<Event>) : ScoreSource {
         override val id = "test"
