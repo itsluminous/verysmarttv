@@ -20,7 +20,7 @@ androidxTestCore = "1.6.1"   # ActivityScenario for the instrumentation smoke (D
 androidxTestEspresso = "3.6.1"  # Espresso view assertions on the emulator
 androidxTestJunit = "1.2.1"  # AndroidJUnit4 runner class
 androidxTestRunner = "1.6.2" # AndroidJUnitRunner, the testInstrumentationRunner every module sets
-androidxTestUiautomator = "2.3.0"  # the install-and-Home smoke that spans apps (HOME key, mFocusedApp)
+androidxTestUiautomator = "2.4.1"  # the install-and-Home smoke that spans apps (HOME key, mFocusedApp)
 
 [libraries]
 # --- build-logic only (the included build resolves these on its own classpath) ---
